@@ -1,0 +1,44 @@
+#!/bin/bash
+# This deploy hook gets executed after dependencies are resolved and the
+# build hook has been run but before the application has been started back
+# up again.  This script gets executed directly, so it could be python, php,
+# ruby, etc.
+
+set -e
+
+if [ -z "$OPENSHIFT_DB_HOST" ]
+then
+    echo 1>&2
+    echo "Could not find mysql database.  Please run:" 1>&2
+    echo "rhc app cartridge add -a $OPENSHIFT_APP_NAME -c mysql-5.1" 1>&2
+    echo "then make a sample commit (add whitespace somewhere) and re-push" 1>&2
+    echo 1>&2
+fi
+
+RETRY=60
+while [ $RETRY -gt 0 ] ; do
+    #reload env variables
+    for env_var in  $OPENSHIFT_HOMEDIR/.env/*
+    do 
+       . $env_var
+    done
+
+    #check for db
+    if [ -n "$OPENSHIFT_DB_HOST" ]
+    then
+       echo "Database server found at $OPENSHIFT_DB_HOST. initializing..."
+       sleep 5
+       break
+    fi
+    
+    sleep 1
+    RETRY=$(( $RETRY - 1 ))
+done
+
+if [ -z "$OPENSHIFT_DB_HOST" ]
+then 
+    exit 5
+fi
+
+$OPENSHIFT_GEAR_CTL_SCRIPT stop
+$OPENSHIFT_GEAR_CTL_SCRIPT start
