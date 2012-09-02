@@ -46,6 +46,6 @@ To download clients that will sync your ownCloud instance with desktop clients, 
 
 To give your new planet site a web address of its own, add your desired alias:
 
-	rhc app add-alias -a status --alias "$whatever.$mydomain.com"
+	rhc app add-alias -a owncloud --alias "$whatever.$mydomain.com"
 
 Then add a cname entry in your domain's dns configuration pointing your alias to $whatever-$yourdomain.rhcloud.com.
