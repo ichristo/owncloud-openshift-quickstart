@@ -5,7 +5,7 @@ ownCloud is a flexible, open source file sync and share solution. Whether using 
 
 Think of ownCloud as a way to roll your own Google Drive or Dropbox on-premise solution.
 
-More information can be found at http://http://owncloud.org/
+More information can be found at http://owncloud.org/
 
 Running on OpenShift
 --------------------
