@@ -6,7 +6,7 @@
 
 set -e
 
-if [ -z "$OPENSHIFT_DB_HOST" ]
+if [ -z "$OPENSHIFT_MYSQL_DB_HOST" ]
 then
     echo 1>&2
     echo "Could not find mysql database.  Please run:" 1>&2
@@ -24,9 +24,9 @@ while [ $RETRY -gt 0 ] ; do
     done
 
     #check for db
-    if [ -n "$OPENSHIFT_DB_HOST" ]
+    if [ -n "$OPENSHIFT_MYSQL_DB_HOST" ]
     then
-       echo "Database server found at $OPENSHIFT_DB_HOST. initializing..."
+       echo "Database server found at $OPENSHIFT_MYSQL_DB_HOST. initializing..."
        sleep 5
        break
     fi
@@ -35,7 +35,7 @@ while [ $RETRY -gt 0 ] ; do
     RETRY=$(( $RETRY - 1 ))
 done
 
-if [ -z "$OPENSHIFT_DB_HOST" ]
+if [ -z "$OPENSHIFT_MYSQL_DB_HOST" ]
 then 
     exit 5
 fi
