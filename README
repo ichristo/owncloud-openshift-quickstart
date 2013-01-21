@@ -38,10 +38,10 @@ of use.  The following list are some common variables but far from exhaustive:
 When embedding a database using 'rhc app cartridge add', you can reference environment
 variables for username, host and password:
 
-    $_ENV['OPENSHIFT_DB_HOST']      - DB host
-    $_ENV['OPENSHIFT_DB_PORT']      - DB Port
-    $_ENV['OPENSHIFT_DB_USERNAME']  - DB Username
-    $_ENV['OPENSHIFT_DB_PASSWORD']  - DB Password
+    $_ENV['OPENSHIFT_MYSQL_DB_HOST']      - DB host
+    $_ENV['OPENSHIFT_MYSQL_DB_PORT']      - DB Port
+    $_ENV['OPENSHIFT_MYSQL_DB_USERNAME']  - DB Username
+    $_ENV['OPENSHIFT_MYSQL_DB_PASSWORD']  - DB Password
 
 To get a full list of environment variables, simply add a line in your
 .openshift/action_hooks/build script that says "export" and push.
