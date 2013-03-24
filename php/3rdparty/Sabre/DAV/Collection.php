@@ -8,7 +8,7 @@
  *
  * @package Sabre
  * @subpackage DAV
- * @copyright Copyright (C) 2007-2012 Rooftop Solutions. All rights reserved.
+ * @copyright Copyright (C) 2007-2013 Rooftop Solutions. All rights reserved.
  * @author Evert Pot (http://www.rooftopsolutions.nl/)
  * @license http://code.google.com/p/sabredav/wiki/License Modified BSD License
  */
@@ -17,8 +17,12 @@ abstract class Sabre_DAV_Collection extends Sabre_DAV_Node implements Sabre_DAV_
     /**
      * Returns a child object, by its name.
      *
-     * This method makes use of the getChildren method to grab all the child nodes, and compares the name.
+     * This method makes use of the getChildren method to grab all the child
+     * nodes, and compares the name.
      * Generally its wise to override this, as this can usually be optimized
+     *
+     * This method must throw Sabre_DAV_Exception_NotFound if the node does not
+     * exist.
      *
      * @param string $name
      * @throws Sabre_DAV_Exception_NotFound

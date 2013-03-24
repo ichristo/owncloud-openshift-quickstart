@@ -1,12 +1,6 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Bilder",
-"Settings" => "Innstillinger",
-"Rescan" => "Les inn på nytt",
-"Stop" => "Stopp",
+"Shared by" => "Delt av",
 "Share" => "Del",
-"Back" => "Tilbake",
-"Remove confirmation" => "Fjern bekreftelse",
-"Do you want to remove album" => "Ønsker du å slette albumet?",
-"Change album name" => "Endre navn på album",
-"New album name" => "Nytt navn på album"
+"The \"Image Viewer\" application also need to be enabled to use this application." => "\"Image Viewer\"-applikasjonen må være aktivert for å bruke denne applikasjonen."
 );

@@ -1,5 +1,5 @@
 <?php
-if(!isset($_)){//also provide standalone error page
+if(!isset($_)) {//also provide standalone error page
 	require_once '../../lib/base.php';
 	
 	$tmpl = new OC_Template( '', '403', 'guest' );
@@ -9,7 +9,7 @@ if(!isset($_)){//also provide standalone error page
 ?>
 <ul>
 	<li class='error'>
-		<?php echo $l->t( 'Access forbidden' ); ?><br/>
-		<p class='hint'><?php if(isset($_['file'])) echo $_['file']?></p>
+		<?php p($l->t( 'Access forbidden' )); ?><br/>
+		<p class='hint'><?php if(isset($_['file'])) p($_['file'])?></p>
 	</li>
 </ul>

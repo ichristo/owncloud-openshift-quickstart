@@ -8,7 +8,7 @@
  *
  * @package Sabre
  * @subpackage DAV
- * @copyright Copyright (C) 2007-2012 Rooftop Solutions. All rights reserved.
+ * @copyright Copyright (C) 2007-2013 Rooftop Solutions. All rights reserved.
  * @author Evert Pot (http://www.rooftopsolutions.nl/)
  * @license http://code.google.com/p/sabredav/wiki/License Modified BSD License
  */
@@ -82,7 +82,7 @@ class Sabre_DAV_Property_Href extends Sabre_DAV_Property implements Sabre_DAV_Pr
      */
     static function unserialize(DOMElement $dom) {
 
-        if (Sabre_DAV_XMLUtil::toClarkNotation($dom->firstChild)==='{DAV:}href') {
+        if ($dom->firstChild && Sabre_DAV_XMLUtil::toClarkNotation($dom->firstChild)==='{DAV:}href') {
             return new self($dom->firstChild->textContent,false);
         }
 

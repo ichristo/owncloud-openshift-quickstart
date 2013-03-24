@@ -1,19 +1,18 @@
 <?php
 
-require_once('apps/files_sharing/sharedstorage.php');
-
-OC::$CLASSPATH['OC_Share'] = "apps/files_sharing/lib_share.php";
-OCP\App::registerAdmin('files_sharing', 'settings');
-OCP\Util::connectHook("OC_Filesystem", "post_delete", "OC_Share", "deleteItem");
-OCP\Util::connectHook("OC_Filesystem", "post_rename", "OC_Share", "renameItem");
-OCP\Util::connectHook("OC_Filesystem", "post_write", "OC_Share", "updateItem");
-OCP\Util::connectHook('OC_User', 'post_deleteUser', 'OC_Share', 'removeUser');
-OCP\Util::connectHook('OC_User', 'post_addToGroup', 'OC_Share', 'addToGroupShare');
-OCP\Util::connectHook('OC_User', 'post_removeFromGroup', 'OC_Share', 'removeFromGroupShare');
-$dir = isset($_GET['dir']) ? $_GET['dir'] : '/';
-if ($dir != '/Shared' || OCP\Config::getAppValue('files_sharing', 'resharing', 'yes') == 'yes') {
-	OCP\Util::addscript("files_sharing", "share");
-}
-OCP\Util::addscript("3rdparty", "chosen/chosen.jquery.min");
-OCP\Util::addStyle( 'files_sharing', 'sharing' );
-OCP\Util::addStyle("3rdparty", "chosen/chosen");
+OC::$CLASSPATH['OC_Share_Backend_File'] = 'files_sharing/lib/share/file.php';
+OC::$CLASSPATH['OC_Share_Backend_Folder'] = 'files_sharing/lib/share/folder.php';
+OC::$CLASSPATH['OC\Files\Storage\Shared'] = 'files_sharing/lib/sharedstorage.php';
+OC::$CLASSPATH['OC\Files\Cache\Shared_Cache'] = 'files_sharing/lib/cache.php';
+OC::$CLASSPATH['OC\Files\Cache\Shared_Permissions'] = 'files_sharing/lib/permissions.php';
+OC::$CLASSPATH['OC\Files\Cache\Shared_Updater'] = 'files_sharing/lib/updater.php';
+OC::$CLASSPATH['OC\Files\Cache\Shared_Watcher'] = 'files_sharing/lib/watcher.php';
+OCP\Util::connectHook('OC_Filesystem', 'setup', '\OC\Files\Storage\Shared', 'setup');
+OCP\Share::registerBackend('file', 'OC_Share_Backend_File');
+OCP\Share::registerBackend('folder', 'OC_Share_Backend_Folder', 'file');
+OCP\Util::addScript('files_sharing', 'share');
+\OC_Hook::connect('OC_Filesystem', 'post_write', '\OC\Files\Cache\Shared_Updater', 'writeHook');
+\OC_Hook::connect('OC_Filesystem', 'post_delete', '\OC\Files\Cache\Shared_Updater', 'deleteHook');
+\OC_Hook::connect('OC_Filesystem', 'post_rename', '\OC\Files\Cache\Shared_Updater', 'renameHook');
+\OC_Hook::connect('OCP\Share', 'post_shared', '\OC\Files\Cache\Shared_Updater', 'shareHook');
+\OC_Hook::connect('OCP\Share', 'pre_unshare', '\OC\Files\Cache\Shared_Updater', 'shareHook');

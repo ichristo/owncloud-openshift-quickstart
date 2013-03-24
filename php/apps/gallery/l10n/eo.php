@@ -1,12 +1,5 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Bildoj",
-"Settings" => "Agordo",
-"Rescan" => "Reskani",
-"Stop" => "Halti",
 "Share" => "Kunhavigi",
-"Back" => "Antaŭen",
-"Remove confirmation" => "Forigi konfirmadon",
-"Do you want to remove album" => "Ĉu vi volas forigi la albumon?",
-"Change album name" => "Ŝanĝi albumnomon",
-"New album name" => "Nova albumnomo"
+"The \"Image Viewer\" application also need to be enabled to use this application." => "Ankaŭ la aplikaĵo “Bildorigardilo” devas esti kapabligita por uzi ĉi tiun aplikaĵon."
 );

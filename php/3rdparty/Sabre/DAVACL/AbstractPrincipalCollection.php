@@ -10,7 +10,7 @@
  *
  * @package Sabre
  * @subpackage DAVACL
- * @copyright Copyright (C) 2007-2012 Rooftop Solutions. All rights reserved.
+ * @copyright Copyright (C) 2007-2013 Rooftop Solutions. All rights reserved.
  * @author Evert Pot (http://www.rooftopsolutions.nl/)
  * @license http://code.google.com/p/sabredav/wiki/License Modified BSD License
  */
@@ -107,7 +107,7 @@ abstract class Sabre_DAVACL_AbstractPrincipalCollection extends Sabre_DAV_Collec
      *
      * @param string $name
      * @throws Sabre_DAV_Exception_NotFound
-     * @return Sabre_DAV_IPrincipal
+     * @return Sabre_DAVACL_IPrincipal
      */
     public function getChild($name) {
 

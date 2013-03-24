@@ -1,4 +1,4 @@
 <?php $TRANSLATIONS = array(
-"Rescan" => "Imbas semula",
-"Back" => "Kembali"
+"Pictures" => "Gambar",
+"Share" => "Kongsi"
 );

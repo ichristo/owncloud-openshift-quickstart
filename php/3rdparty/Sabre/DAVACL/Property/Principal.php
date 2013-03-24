@@ -8,14 +8,14 @@
  *
  * @package Sabre
  * @subpackage DAVACL
- * @copyright Copyright (C) 2007-2012 Rooftop Solutions. All rights reserved.
+ * @copyright Copyright (C) 2007-2013 Rooftop Solutions. All rights reserved.
  * @author Evert Pot (http://www.rooftopsolutions.nl/)
  * @license http://code.google.com/p/sabredav/wiki/License Modified BSD License
  */
 class Sabre_DAVACL_Property_Principal extends Sabre_DAV_Property implements Sabre_DAV_Property_IHref {
 
     /**
-     * To specify a not-logged-in user, use the UNAUTHENTICTED principal
+     * To specify a not-logged-in user, use the UNAUTHENTICATED principal
      */
     const UNAUTHENTICATED = 1;
 
@@ -131,7 +131,7 @@ class Sabre_DAVACL_Property_Principal extends Sabre_DAV_Property implements Sabr
      * Deserializes a DOM element into a property object.
      *
      * @param DOMElement $dom
-     * @return Sabre_DAV_Property_Principal
+     * @return Sabre_DAVACL_Property_Principal
      */
     static public function unserialize(DOMElement $dom) {
 

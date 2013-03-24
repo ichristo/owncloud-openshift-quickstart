@@ -5,19 +5,20 @@
  * later.
  * See the COPYING-README file.
  */
- 
+
 
 OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('calendar');
+OCP\JSON::callCheck();
 
 $l = OC_L10N::get('calendar');
 
-$lat = $_GET['lat'];
-$lng = $_GET['long'];
+$lat = $_POST['lat'];
+$lng = $_POST['lng'];
 
 $timezone =  OC_Geo::timezone($lat, $lng);
 
-if($timezone == OCP\Config::getUserValue(OCP\USER::getUser(), 'calendar', 'timezone')){
+if($timezone == OCP\Config::getUserValue(OCP\USER::getUser(), 'calendar', 'timezone')) {
 	OCP\JSON::success();
 	exit;
 }

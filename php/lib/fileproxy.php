@@ -27,20 +27,23 @@
  * Manipulation happens by using 2 kind of proxy operations, pre and post proxies
  * that manipulate the filesystem call and the result of the call respectively
  *
- * A pre-proxy recieves the filepath as arugments (or 2 filespaths in case of operations like copy or move) and return a boolean
- * If a pre-proxy returnes false the file operation will be canceled
+ * A pre-proxy recieves the filepath as arugments (or 2 filespaths in case of
+ * operations like copy or move) and return a boolean
+ * If a pre-proxy returns false the file operation will be canceled
  * All filesystem operations have a pre-proxy
  *
  * A post-proxy recieves 2 arguments, the filepath and the result of the operation.
- * The return calue of the post-proxy will be used as the new result of the operation
- * The operations that have a post-proxy are
- * file_get_contents, is_file, is_dir, file_exists, stat, is_readable, is_writable, fileatime, filemtime, filectime, file_get_contents, getMimeType, hash, fopen, free_space and search
+ * The return value of the post-proxy will be used as the new result of the operation
+ * The operations that have a post-proxy are:
+ * file_get_contents, is_file, is_dir, file_exists, stat, is_readable,
+ * is_writable, filemtime, filectime, file_get_contents,
+ * getMimeType, hash, fopen, free_space and search
  */
 
 class OC_FileProxy{
 	private static $proxies=array();
 	public static $enabled=true;
-	
+
 	/**
 	 * fallback function when a proxy operation is not implemented
 	 * @param string $function the name of the proxy operation
@@ -48,45 +51,45 @@ class OC_FileProxy{
 	 *
 	 * this implements a dummy proxy for all operations
 	 */
-	public function __call($function,$arguments){
-		if(substr($function,0,3)=='pre'){
+	public function __call($function, $arguments) {
+		if(substr($function, 0, 3)=='pre') {
 			return true;
 		}else{
 			return $arguments[1];
 		}
 	}
-	
+
 	/**
 	 * register a proxy to be used
 	 * @param OC_FileProxy $proxy
 	 */
-	public static function register($proxy){
+	public static function register($proxy) {
 		self::$proxies[]=$proxy;
 	}
-	
-	public static function getProxies($operation){
+
+	public static function getProxies($operation) {
 		$proxies=array();
-		foreach(self::$proxies as $proxy){
-			if(method_exists($proxy,$operation)){
+		foreach(self::$proxies as $proxy) {
+			if(method_exists($proxy, $operation)) {
 				$proxies[]=$proxy;
 			}
 		}
 		return $proxies;
 	}
 
-	public static function runPreProxies($operation,&$filepath,&$filepath2=null){
-		if(!self::$enabled){
+	public static function runPreProxies($operation,&$filepath,&$filepath2=null) {
+		if(!self::$enabled) {
 			return true;
 		}
 		$operation='pre'.$operation;
 		$proxies=self::getProxies($operation);
-		foreach($proxies as $proxy){
-			if(!is_null($filepath2)){
-				if($proxy->$operation($filepath,$filepath2)===false){
+		foreach($proxies as $proxy) {
+			if(!is_null($filepath2)) {
+				if($proxy->$operation($filepath, $filepath2)===false) {
 					return false;
 				}
 			}else{
-				if($proxy->$operation($filepath)===false){
+				if($proxy->$operation($filepath)===false) {
 					return false;
 				}
 			}
@@ -94,19 +97,19 @@ class OC_FileProxy{
 		return true;
 	}
 
-	public static function runPostProxies($operation,$path,$result){
-		if(!self::$enabled){
+	public static function runPostProxies($operation, $path, $result) {
+		if(!self::$enabled) {
 			return $result;
 		}
 		$operation='post'.$operation;
 		$proxies=self::getProxies($operation);
-		foreach($proxies as $proxy){
-			$result=$proxy->$operation($path,$result);
+		foreach($proxies as $proxy) {
+			$result=$proxy->$operation($path, $result);
 		}
 		return $result;
 	}
 
-	public static function clearProxies(){
+	public static function clearProxies() {
 		self::$proxies=array();
 	}
 }

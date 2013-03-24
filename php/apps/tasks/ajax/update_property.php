@@ -9,6 +9,7 @@
 // Init owncloud
 OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('tasks');
+OCP\JSON::callCheck();
 
 $id = $_POST['id'];
 $property = $_POST['type'];
@@ -38,13 +39,13 @@ switch($property) {
 		$type = null;
 		if ($due != 'false') {
 			try {
-				$timezone = OCP\Config::getUserValue(OCP\User::getUser(), 'calendar', 'timezone', date_default_timezone_get());
+				$timezone = OC_Calendar_App::getTimezone();
 				$timezone = new DateTimeZone($timezone);
 				$due = new DateTime('@'.$due);
 				$due->setTimezone($timezone);
-				$type = Sabre_VObject_Element_DateTime::LOCALTZ;
+				$type = Sabre\VObject\Property\DateTime::LOCALTZ;
 				if ($due_date_only) {
-					$type = Sabre_VObject_Element_DateTime::DATE;
+					$type = Sabre\VObject\Property\DateTime::DATE;
 				}
 			} catch (Exception $e) {
 				OCP\JSON::error(array('data'=>array('message'=>OC_Task_App::$l10n->t('Invalid date/time'))));
@@ -63,6 +64,6 @@ switch($property) {
 }
 OC_Calendar_Object::edit($id, $vcalendar->serialize());
 
-$user_timezone = OCP\Config::getUserValue(OCP\User::getUser(), 'calendar', 'timezone', date_default_timezone_get());
+$user_timezone = OC_Calendar_App::getTimezone();
 $task_info = OC_Task_App::arrayForJSON($id, $vtodo, $user_timezone);
 OCP\JSON::success(array('data' => $task_info));

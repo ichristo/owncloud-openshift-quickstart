@@ -21,18 +21,15 @@
 * 
 */
 
-//no apps or filesystem
-$RUNTIME_NOSETUPFS=true;
-
- 
-
 // Check if we are a user
 OCP\JSON::checkLoggedIn();
+OCP\JSON::callCheck();
+
 OCP\JSON::checkAppEnabled('bookmarks');
 OCP\JSON::callCheck();
 
 $id = $_POST['id'];
-if (!OC_Bookmarks_Bookmarks::deleteUrl($id)){
+if (!OC_Bookmarks_Bookmarks::deleteUrl($id)) {
 	OC_JSON::error();
 	exit();
 }

@@ -13,51 +13,64 @@
 OCP\User::checkLoggedIn();
 OCP\App::checkAppEnabled('contacts');
 
-function getStandardImage(){
+function getStandardImage() {
 	//OCP\Response::setExpiresHeader('P10D');
 	OCP\Response::enableCaching();
 	OCP\Response::redirect(OCP\Util::imagePath('contacts', 'person_large.png'));
+	exit;
 }
 
 $id = isset($_GET['id']) ? $_GET['id'] : null;
-$caching = isset($_GET['refresh']) ? 0 : null;
+$etag = null;
+$caching = null;
+$max_size = 170;
 
-if(is_null($id)) {
+if(!$id || $id === 'new') {
 	getStandardImage();
 }
 
 if(!extension_loaded('gd') || !function_exists('gd_info')) {
-	OCP\Util::writeLog('contacts','photo.php. GD module not installed',OCP\Util::DEBUG);
+	OCP\Util::writeLog('contacts',
+		'photo.php. GD module not installed', OCP\Util::DEBUG);
 	getStandardImage();
 }
 
-$contact = OC_Contacts_App::getContactVCard($id);
+$contact = OCA\Contacts\App::getContactVCard($id);
 $image = new OC_Image();
-if(!$image) {
+if (!$image) {
 	getStandardImage();
 }
 // invalid vcard
-if( is_null($contact)) {
-	OCP\Util::writeLog('contacts','photo.php. The VCard for ID '.$id.' is not RFC compatible',OCP\Util::ERROR);
+if (is_null($contact)) {
+	OCP\Util::writeLog('contacts',
+		'photo.php. The VCard for ID ' . $id . ' is not RFC compatible',
+		OCP\Util::ERROR);
 } else {
-	OCP\Response::enableCaching($caching);
-	OC_Contacts_App::setLastModifiedHeader($contact);
-
 	// Photo :-)
-	if($image->loadFromBase64($contact->getAsString('PHOTO'))) {
+	if (isset($contact->PHOTO) && $image->loadFromBase64((string)$contact->PHOTO)) {
 		// OK
-		OCP\Response::setETagHeader(md5($contact->getAsString('PHOTO')));
+		$etag = md5($contact->PHOTO);
 	}
 	else
 	// Logo :-/
-	if($image->loadFromBase64($contact->getAsString('LOGO'))) {
+	if (isset($contact->LOGO) && $image->loadFromBase64((string)$contact->LOGO)) {
 		// OK
-		OCP\Response::setETagHeader(md5($contact->getAsString('LOGO')));
+		$etag = md5($contact->LOGO);
 	}
 	if ($image->valid()) {
-		$max_size = 200;
-		if($image->width() > $max_size ||
-		   $image->height() > $max_size) {
+		$modified = OCA\Contacts\App::lastModified($contact);
+		// Force refresh if modified within the last minute.
+		if(!is_null($modified)) {
+			$caching = (time() - $modified->format('U') > 60) ? null : 0;
+		}
+		OCP\Response::enableCaching($caching);
+		if(!is_null($modified)) {
+			OCP\Response::setLastModifiedHeader($modified);
+		}
+		if($etag) {
+			OCP\Response::setETagHeader($etag);
+		}
+		if ($image->width() > $max_size || $image->height() > $max_size) {
 			$image->resize($max_size);
 		}
 	}
@@ -65,8 +78,6 @@ if( is_null($contact)) {
 if (!$image->valid()) {
 	// Not found :-(
 	getStandardImage();
-	//$image->loadFromFile('img/person_large.png');
 }
 header('Content-Type: '.$image->mimeType());
 $image->show();
-//echo OC_Contacts_App::$l10n->t('This card does not contain a photo.');

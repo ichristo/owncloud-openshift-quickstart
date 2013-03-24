@@ -22,78 +22,93 @@
 */
 
 /**
- * user quota managment
+ * user quota management
  */
 
 class OC_FileProxy_Quota extends OC_FileProxy{
-	private $userQuota=-1;
-	
+	static $rootView;
+	private $userQuota=array();
+
 	/**
-	 * get the quota for the current user
+	 * get the quota for the user
+	 * @param user
 	 * @return int
 	 */
-	private function getQuota(){
-		if($this->userQuota!=-1){
-			return $this->userQuota;
+	private function getQuota($user) {
+		if(in_array($user, $this->userQuota)) {
+			return $this->userQuota[$user];
 		}
-		$userQuota=OC_Preferences::getValue(OC_User::getUser(),'files','quota','default');
-		if($userQuota=='default'){
-			$userQuota=OC_AppConfig::getValue('files','default_quota','none');
+		$userQuota=OC_Preferences::getValue($user, 'files', 'quota', 'default');
+		if($userQuota=='default') {
+			$userQuota=OC_AppConfig::getValue('files', 'default_quota', 'none');
 		}
-		if($userQuota=='none'){
-			$this->userQuota=0;
+		if($userQuota=='none') {
+			$this->userQuota[$user]=-1;
 		}else{
-			$this->userQuota=OC_Helper::computerFileSize($userQuota);
+			$this->userQuota[$user]=OC_Helper::computerFileSize($userQuota);
 		}
-		return $this->userQuota;
-		
-	}
-	
-	/**
-	 * get the free space in the users home folder
-	 * @return int
-	 */
-	private function getFreeSpace(){
-		$rootInfo=OC_FileCache::get('');
-		// TODO Remove after merge of share_api
-		if (OC_FileCache::inCache('/Shared')) {
-			$sharedInfo=OC_FileCache::get('/Shared');
-		} else {
-			$sharedInfo = null;
-		}
-		$usedSpace=isset($rootInfo['size'])?$rootInfo['size']:0;
-		$usedSpace=isset($sharedInfo['size'])?$usedSpace-$sharedInfo['size']:$usedSpace;
-		$totalSpace=$this->getQuota();
-		if($totalSpace==0){
-			return 0;
-		}
-		return $totalSpace-$usedSpace;
-	}
-	
-	public function postFree_space($path,$space){
-		$free=$this->getFreeSpace();
-		if($free==0){
-			return $space;
-		}
-		return min($free,$space);
+		return $this->userQuota[$user];
+
 	}
 
-	public function preFile_put_contents($path,$data){
+	/**
+	 * get the free space in the path's owner home folder
+	 * @param path
+	 * @return int
+	 */
+	private function getFreeSpace($path) {
+		/**
+		 * @var \OC\Files\Storage\Storage $storage
+		 * @var string $internalPath
+		 */
+		list($storage, $internalPath) = \OC\Files\Filesystem::resolvePath($path);
+		$owner = $storage->getOwner($internalPath);
+		if (!$owner) {
+			return -1;
+		}
+
+		$totalSpace = $this->getQuota($owner);
+		if($totalSpace == -1) {
+			return -1;
+		}
+
+		$view = new \OC\Files\View("/".$owner."/files");
+
+		$rootInfo = $view->getFileInfo('/');
+		$usedSpace = isset($rootInfo['size'])?$rootInfo['size']:0;
+		return $totalSpace - $usedSpace;
+	}
+
+	public function postFree_space($path, $space) {
+		$free=$this->getFreeSpace($path);
+		if($free==-1) {
+			return $space;
+		}
+		if ($space < 0){
+			return $free;
+		}
+		return min($free, $space);
+	}
+
+	public function preFile_put_contents($path, $data) {
 		if (is_resource($data)) {
 			$data = '';//TODO: find a way to get the length of the stream without emptying it
 		}
-		return (strlen($data)<$this->getFreeSpace() or $this->getFreeSpace()==0);
+		return (strlen($data)<$this->getFreeSpace($path) or $this->getFreeSpace($path)==-1);
 	}
 
-	public function preCopy($path1,$path2){
-		return (OC_Filesystem::filesize($path1)<$this->getFreeSpace() or $this->getFreeSpace()==0);
+	public function preCopy($path1, $path2) {
+		if(!self::$rootView) {
+			self::$rootView = new \OC\Files\View('');
+		}
+		return (self::$rootView->filesize($path1)<$this->getFreeSpace($path2) or $this->getFreeSpace($path2)==-1);
 	}
 
-	public function preFromTmpFile($tmpfile,$path){
-		return (filesize($tmpfile)<$this->getFreeSpace() or $this->getFreeSpace()==0);
+	public function preFromTmpFile($tmpfile, $path) {
+		return (filesize($tmpfile)<$this->getFreeSpace($path) or $this->getFreeSpace($path)==-1);
 	}
 
-	public function preFromUploadedFile($tmpfile,$path){
-		return (filesize($tmpfile)<$this->getFreeSpace() or $this->getFreeSpace()==0);
+	public function preFromUploadedFile($tmpfile, $path) {
+		return (filesize($tmpfile)<$this->getFreeSpace($path) or $this->getFreeSpace($path)==-1);
 	}
 }

@@ -1,12 +1,6 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Argazkiak",
-"Settings" => "Ezarpenak",
-"Rescan" => "Bireskaneatu",
-"Stop" => "Gelditu",
+"Shared by" => "Honek elkarbanatuta",
 "Share" => "Elkarbanatu",
-"Back" => "Atzera",
-"Remove confirmation" => "Ezabatu konfirmazioa",
-"Do you want to remove album" => "Albuma ezabatu nahi al duzu",
-"Change album name" => "Aldatu albumaren izena",
-"New album name" => "Album berriaren izena"
+"The \"Image Viewer\" application also need to be enabled to use this application." => "Aplikazio hau erabiltzeko \"Image Viewer\" aplikazioak ere gaituta egon behar du."
 );

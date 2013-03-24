@@ -5,8 +5,6 @@
  * later.
  * See the COPYING-README file.
  */
-
- 
 $l10n = OC_L10N::get('calendar');
 OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('calendar');

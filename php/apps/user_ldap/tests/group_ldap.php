@@ -20,27 +20,27 @@
 *
 */
 
-class Test_Group_Ldap extends UnitTestCase {
-	function setUp(){
+class Test_Group_Ldap extends PHPUnit_Framework_TestCase {
+	function setUp() {
 		OC_Group::clearBackends();
 	}
 
-	function testSingleBackend(){
-		OC_Group::useBackend(new OC_GROUP_LDAP());
-		$group_ldap = new OC_GROUP_LDAP();
+	function testSingleBackend() {
+		OC_Group::useBackend(new OCA\user_ldap\GROUP_LDAP());
+		$group_ldap = new OCA\user_ldap\GROUP_LDAP();
 
- 		$this->assertIsA(OC_Group::getGroups(),gettype(array()));
-		$this->assertIsA($group_ldap->getGroups(),gettype(array()));
+		$this->assertIsA(OC_Group::getGroups(), gettype(array()));
+		$this->assertIsA($group_ldap->getGroups(), gettype(array()));
 
-		$this->assertFalse(OC_Group::inGroup('john','dosers'),gettype(false));
-		$this->assertFalse($group_ldap->inGroup('john','dosers'),gettype(false));
+		$this->assertFalse(OC_Group::inGroup('john', 'dosers'), gettype(false));
+		$this->assertFalse($group_ldap->inGroup('john', 'dosers'), gettype(false));
 		//TODO: check also for expected true result. This backend won't be able to do any modifications, maybe use a dummy for this.
 
-		$this->assertIsA(OC_Group::getUserGroups('john doe'),gettype(array()));
-		$this->assertIsA($group_ldap->getUserGroups('john doe'),gettype(array()));
+		$this->assertIsA(OC_Group::getUserGroups('john doe'), gettype(array()));
+		$this->assertIsA($group_ldap->getUserGroups('john doe'), gettype(array()));
 
-		$this->assertIsA(OC_Group::usersInGroup('campers'),gettype(array()));
-		$this->assertIsA($group_ldap->usersInGroup('campers'),gettype(array()));
+		$this->assertIsA(OC_Group::usersInGroup('campers'), gettype(array()));
+		$this->assertIsA($group_ldap->usersInGroup('campers'), gettype(array()));
 	}
 
 }

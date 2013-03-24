@@ -26,7 +26,7 @@ return array(
 		'run'=>false,
 		'user'=>'test:tester',
 		'token'=>'testing',
-		'host'=>'localhost:8080/auth',
+		'host'=>'localhost.local:8080/auth',
 		'root'=>'/',
 	),
 	'smb'=>array(
@@ -37,4 +37,26 @@ return array(
 		'share'=>'/test',
 		'root'=>'/test/',
 	),
+	'amazons3'=>array(
+		'run'=>false,
+		'key'=>'test',
+		'secret'=>'test',
+		'bucket'=>'bucket',
+	),
+	'dropbox' => array (
+		'run'=>false,
+		'root'=>'owncloud',
+		'configured' => 'true',
+		'app_key' => '',
+		'app_secret' => '',
+		'token' => '',
+		'token_secret' => ''
+	),
+	'sftp' => array (
+		'run'=>false,
+		'host'=>'localhost',
+		'user'=>'test',
+		'password'=>'test',
+		'root'=>'/test'
+	)
 );

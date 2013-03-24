@@ -3,21 +3,26 @@
  * This file is licensed under the Affero General Public License version 3 or later.
  * See the COPYING-README file.
  */
- 
+
 return array(
 'bg_BG'=>'български език',
 'ca'=>'Català',
 'cs_CZ'=>'Čeština',
 'da'=>'Dansk',
-'de'=>'Deutsch',
+'de'=>'Deutsch (Persönlich)',
+'de_DE'=>'Deutsch (Förmlich)',
 'el'=>'Ελληνικά',
 'en'=>'English',
 'es'=>'Español',
 'et_EE'=>'Eesti',
+'fa'=>'فارسى',
+'fi_FI'=>'Suomi',
 'fr'=>'Français',
+'hi'=>'हिन्दी',
 'id'=>'Bahasa Indonesia',
 'it'=>'Italiano',
 'lb'=>'Lëtzebuergesch',
+//'l10n-de'=>'',
 'ms_MY'=>'Bahasa Melayu',
 'nb_NO'=>'Norwegian Bokmål',
 'nl'=>'Nederlands',
@@ -42,4 +47,24 @@ return array(
 'ia'=>'Interlingua',
 'sl'=>'Slovenski',
 'nn_NO'=>'Nynorsk',
+'lv'=>'Latviešu',
+'mk'=>'македонски',
+'uk'=>'Українська',
+'vi'=>'Tiếng Việt',
+'zh_TW'=>'臺灣話',
+'af_ZA'=> 'Afrikaans',
+'bn_BD'=>'Bengali',
+'ta_LK'=>'தமிழ்',
+'zh_HK'=>'Chinese (Hong Kong)',
+'oc'=>'Occitan (post 1500)',
+'is'=>'Icelandic',
+'pl_PL'=>'Polski',
+'ka_GE'=>'Georgian for Georgia',
+'ku_IQ'=>'Kurdish Iraq',
+'ru_RU'=>'Русский язык',
+'si_LK'=>'Sinhala',
+'be'=>'Belarusian',
+'ka'=>'Kartuli (Georgian)',
+'my_MM'=>'Burmese - MYANMAR ',
+'ur_PK'	=>'Urdu (Pakistan)'
 );

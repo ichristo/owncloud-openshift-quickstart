@@ -10,18 +10,60 @@
  *
  * @package Sabre
  * @subpackage DAVClient
- * @copyright Copyright (C) 2007-2012 Rooftop Solutions. All rights reserved.
- * @author Evert Pot (http://www.rooftopsolutions.nl/) 
+ * @copyright Copyright (C) 2007-2013 Rooftop Solutions. All rights reserved.
+ * @author Evert Pot (http://www.rooftopsolutions.nl/)
  * @license http://code.google.com/p/sabredav/wiki/License Modified BSD License
  */
 class Sabre_DAV_Client {
 
+    /**
+     * The propertyMap is a key-value array.
+     *
+     * If you use the propertyMap, any {DAV:}multistatus responses with the
+     * proeprties listed in this array, will automatically be mapped to a
+     * respective class.
+     *
+     * The {DAV:}resourcetype property is automatically added. This maps to
+     * Sabre_DAV_Property_ResourceType
+     *
+     * @var array
+     */
     public $propertyMap = array();
 
     protected $baseUri;
     protected $userName;
     protected $password;
     protected $proxy;
+    protected $trustedCertificates;
+
+    /**
+     * Basic authentication
+     */
+    const AUTH_BASIC = 1;
+
+    /**
+     * Digest authentication
+     */
+    const AUTH_DIGEST = 2;
+
+    /**
+     * The authentication type we're using.
+     *
+     * This is a bitmask of AUTH_BASIC and AUTH_DIGEST.
+     *
+     * If DIGEST is used, the client makes 1 extra request per request, to get
+     * the authentication tokens.
+     *
+     * @var int
+     */
+    protected $authType;
+
+    /**
+     * Indicates if SSL verification is enabled or not.
+     *
+     * @var boolean
+     */
+    private $verifyPeer;
 
     /**
      * Constructor
@@ -46,7 +88,7 @@ class Sabre_DAV_Client {
             'baseUri',
             'userName',
             'password',
-            'proxy'
+            'proxy',
         );
 
         foreach($validSettings as $validSetting) {
@@ -55,8 +97,35 @@ class Sabre_DAV_Client {
             }
         }
 
+        if (isset($settings['authType'])) {
+            $this->authType = $settings['authType'];
+        } else {
+            $this->authType = self::AUTH_BASIC | self::AUTH_DIGEST;
+        }
+
         $this->propertyMap['{DAV:}resourcetype'] = 'Sabre_DAV_Property_ResourceType';
 
+    }
+
+    /**
+     * Add trusted root certificates to the webdav client.
+     *
+     * The parameter certificates should be a absolute path to a file
+     * which contains all trusted certificates
+     *
+     * @param string $certificates
+     */
+    public function addTrustedCertificates($certificates) {
+        $this->trustedCertificates = $certificates;
+    }
+
+    /**
+     * Enables/disables SSL peer verification
+     *
+     * @param boolean $value
+     */
+    public function setVerifyPeer($value) {
+        $this->verifyPeer = $value;
     }
 
     /**
@@ -115,13 +184,13 @@ class Sabre_DAV_Client {
         if ($depth===0) {
             reset($result);
             $result = current($result);
-            return $result[200];
+            return isset($result[200])?$result[200]:array();
         }
 
         $newResult = array();
         foreach($result as $href => $statusList) {
 
-            $newResult[$href] = $statusList[200];
+            $newResult[$href] = isset($statusList[200])?$statusList[200]:array();
 
         }
 
@@ -251,13 +320,18 @@ class Sabre_DAV_Client {
             CURLOPT_MAXREDIRS => 5,
         );
 
+        if($this->verifyPeer !== null) {
+            $curlSettings[CURLOPT_SSL_VERIFYPEER] = $this->verifyPeer;
+        }
+
+        if($this->trustedCertificates) {
+            $curlSettings[CURLOPT_CAINFO] = $this->trustedCertificates;
+        }
+
         switch ($method) {
-            case 'PUT':
-                $curlSettings[CURLOPT_PUT] = true;
-                break;
             case 'HEAD' :
 
-                // do not read body with HEAD requests (this is neccessary because cURL does not ignore the body with HEAD
+                // do not read body with HEAD requests (this is necessary because cURL does not ignore the body with HEAD
                 // requests when the Content-Length header is given - which in turn is perfectly valid according to HTTP
                 // specs...) cURL does unfortunately return an error in this case ("transfer closed transfer closed with
                 // ... bytes remaining to read") this can be circumvented by explicitly telling cURL to ignore the
@@ -285,8 +359,15 @@ class Sabre_DAV_Client {
             $curlSettings[CURLOPT_PROXY] = $this->proxy;
         }
 
-        if ($this->userName) {
-            $curlSettings[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC | CURLAUTH_DIGEST;
+        if ($this->userName && $this->authType) {
+            $curlType = 0;
+            if ($this->authType & self::AUTH_BASIC) {
+                $curlType |= CURLAUTH_BASIC;
+            }
+            if ($this->authType & self::AUTH_DIGEST) {
+                $curlType |= CURLAUTH_DIGEST;
+            }
+            $curlSettings[CURLOPT_HTTPAUTH] = $curlType;
             $curlSettings[CURLOPT_USERPWD] = $this->userName . ':' . $this->password;
         }
 
@@ -331,10 +412,30 @@ class Sabre_DAV_Client {
 
         if ($response['statusCode']>=400) {
             switch ($response['statusCode']) {
+                case 400 :
+                    throw new Sabre_DAV_Exception_BadRequest('Bad request');
+                case 401 :
+                    throw new Sabre_DAV_Exception_NotAuthenticated('Not authenticated');
+                case 402 :
+                    throw new Sabre_DAV_Exception_PaymentRequired('Payment required');
+                case 403 :
+                    throw new Sabre_DAV_Exception_Forbidden('Forbidden');
                 case 404:
-                    throw new Sabre_DAV_Exception_NotFound('Resource ' . $url . ' not found.');
-                    break;
-
+                    throw new Sabre_DAV_Exception_NotFound('Resource not found.');
+                case 405 :
+                    throw new Sabre_DAV_Exception_MethodNotAllowed('Method not allowed');
+                case 409 :
+                    throw new Sabre_DAV_Exception_Conflict('Conflict');
+                case 412 :
+                    throw new Sabre_DAV_Exception_PreconditionFailed('Precondition failed');
+                case 416 :
+                    throw new Sabre_DAV_Exception_RequestedRangeNotSatisfiable('Requested Range Not Satisfiable');
+                case 500 :
+                    throw new Sabre_DAV_Exception('Internal server error');
+                case 501 :
+                    throw new Sabre_DAV_Exception_NotImplemented('Not Implemented');
+                case 507 :
+                    throw new Sabre_DAV_Exception_InsufficientStorage('Insufficient storage');
                 default:
                     throw new Sabre_DAV_Exception('HTTP error response. (errorcode ' . $response['statusCode'] . ')');
             }
@@ -354,6 +455,7 @@ class Sabre_DAV_Client {
      * @param array $settings
      * @return array
      */
+    // @codeCoverageIgnoreStart
     protected function curlRequest($url, $settings) {
 
         $curl = curl_init($url);
@@ -367,6 +469,7 @@ class Sabre_DAV_Client {
         );
 
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * Returns the full url based on the given url (which may be relative). All

@@ -1,12 +1,6 @@
 <?php $TRANSLATIONS = array(
-"Pictures" => "Fotos",
-"Settings" => "Configuração",
-"Rescan" => "Atualizar",
-"Stop" => "Parar",
+"Pictures" => "Imagens",
+"Shared by" => "Compartilhada por",
 "Share" => "Compartilhar",
-"Back" => "Voltar",
-"Remove confirmation" => "Confirmar apagar",
-"Do you want to remove album" => "Voçe dezeja remover o album",
-"Change album name" => "Mudar nome do album",
-"New album name" => "Nome do novo album"
+"The \"Image Viewer\" application also need to be enabled to use this application." => "A aplicação \"Visualizador de Imagens\" também precisa estar habilitada para usar este aplicativo."
 );

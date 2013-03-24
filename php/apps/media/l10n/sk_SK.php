@@ -1,5 +1,9 @@
 <?php $TRANSLATIONS = array(
 "Music" => "Hudba",
+"songs" => "skladby",
+"albums" => "albumy",
+"Add to playlist" => "Pridať do playlistu",
+"Add album to playlist" => "Pridať album do playlistu",
 "Play" => "Prehrať",
 "Pause" => "Pauza",
 "Previous" => "Predchádzajúce",
@@ -9,5 +13,7 @@
 "Rescan Collection" => "Znovu skenovať zbierku",
 "Artist" => "Umelec",
 "Album" => "Album",
-"Title" => "Názov"
+"Title" => "Názov",
+"Media" => "Média",
+"Ampache address:" => "Adresa ampache:"
 );

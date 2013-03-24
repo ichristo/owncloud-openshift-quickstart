@@ -7,7 +7,7 @@
  *
  * @package Sabre
  * @subpackage DAV
- * @copyright Copyright (C) 2007-2012 Rooftop Solutions. All rights reserved.
+ * @copyright Copyright (C) 2007-2013 Rooftop Solutions. All rights reserved.
  * @author Evert Pot (http://www.rooftopsolutions.nl/)
  * @license http://code.google.com/p/sabredav/wiki/License Modified BSD License
  */
@@ -79,7 +79,7 @@ class Sabre_DAV_Property_HrefList extends Sabre_DAV_Property {
      * It will only decode {DAV:}href values.
      *
      * @param DOMElement $dom
-     * @return Sabre_DAV_Property_Href
+     * @return Sabre_DAV_Property_HrefList
      */
     static function unserialize(DOMElement $dom) {
 

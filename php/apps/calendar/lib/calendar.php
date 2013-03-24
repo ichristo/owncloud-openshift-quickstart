@@ -5,23 +5,10 @@
  * later.
  * See the COPYING-README file.
  */
-/*
+/**
  *
  * The following SQL statement is just a help for developers and will not be
  * executed!
- *
- * CREATE TABLE calendar_objects (
- *     id INTEGER UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
- *     calendarid INTEGER UNSIGNED NOT NULL,
- *     objecttype VARCHAR(40) NOT NULL,
- *     startdate DATETIME,
- *     enddate DATETIME,
- *     repeating INT(1),
- *     summary VARCHAR(255),
- *     calendardata TEXT,
- *     uri VARCHAR(100),
- *     lastmodified INT(11)
- * );
  *
  * CREATE TABLE calendar_calendars (
  *     id INTEGER UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -35,6 +22,7 @@
  *     timezone TEXT,
  *     components VARCHAR(20)
  * );
+ *
  */
 
 /**
@@ -44,23 +32,27 @@ class OC_Calendar_Calendar{
 	/**
 	 * @brief Returns the list of calendars for a specific user.
 	 * @param string $uid User ID
-	 * @param boolean $active Only return calendars with this $active state, default(=null) is don't care
+	 * @param boolean $active Only return calendars with this $active state, default(=false) is don't care
 	 * @return array
 	 */
-	public static function allCalendars($uid, $active=null){
+	public static function allCalendars($uid, $active=false) {
 		$values = array($uid);
 		$active_where = '';
-		if (!is_null($active) && $active){
-			$active_where = ' AND active = ?';
+		if (!is_null($active) && $active) {
+			$active_where = ' AND `active` = ?';
 			$values[] = $active;
 		}
-		$stmt = OCP\DB::prepare( 'SELECT * FROM *PREFIX*calendar_calendars WHERE userid = ?' . $active_where );
+		$stmt = OCP\DB::prepare( 'SELECT * FROM `*PREFIX*calendar_calendars` WHERE `userid` = ?' . $active_where );
 		$result = $stmt->execute($values);
 
 		$calendars = array();
-		while( $row = $result->fetchRow()){
+		while( $row = $result->fetchRow()) {
+			$row['permissions'] = OCP\PERMISSION_CREATE
+				| OCP\PERMISSION_READ | OCP\PERMISSION_UPDATE
+				| OCP\PERMISSION_DELETE | OCP\PERMISSION_SHARE;
 			$calendars[] = $row;
 		}
+		$calendars = array_merge($calendars, OCP\Share::getItemsSharedWith('calendar', OC_Share_Backend_Calendar::FORMAT_CALENDAR));
 
 		return $calendars;
 	}
@@ -70,7 +62,7 @@ class OC_Calendar_Calendar{
 	 * @param string $principaluri
 	 * @return array
 	 */
-	public static function allCalendarsWherePrincipalURIIs($principaluri){
+	public static function allCalendarsWherePrincipalURIIs($principaluri) {
 		$uid = self::extractUserID($principaluri);
 		return self::allCalendars($uid);
 	}
@@ -80,11 +72,21 @@ class OC_Calendar_Calendar{
 	 * @param integer $id
 	 * @return associative array
 	 */
-	public static function find($id){
-		$stmt = OCP\DB::prepare( 'SELECT * FROM *PREFIX*calendar_calendars WHERE id = ?' );
+	public static function find($id) {
+		$stmt = OCP\DB::prepare( 'SELECT * FROM `*PREFIX*calendar_calendars` WHERE `id` = ?' );
 		$result = $stmt->execute(array($id));
 
-		return $result->fetchRow();
+		$row = $result->fetchRow();
+		if($row['userid'] != OCP\USER::getUser() && !OC_Group::inGroup(OCP\User::getUser(), 'admin')) {
+			$sharedCalendar = OCP\Share::getItemSharedWithBySource('calendar', $id);
+			if (!$sharedCalendar || !($sharedCalendar['permissions'] & OCP\PERMISSION_READ)) {
+				return $row; // I have to return the row so e.g. OC_Calendar_Object::getowner() works.
+			}
+			$row['permissions'] = $sharedCalendar['permissions'];
+		} else {
+			$row['permissions'] = OCP\PERMISSION_ALL;
+		}
+		return $row;
 	}
 
 	/**
@@ -97,19 +99,37 @@ class OC_Calendar_Calendar{
 	 * @param string $color Default: null, format: '#RRGGBB(AA)'
 	 * @return insertid
 	 */
-	public static function addCalendar($userid,$name,$components='VEVENT,VTODO,VJOURNAL',$timezone=null,$order=0,$color=null){
+	public static function addCalendar($userid,$name,$components='VEVENT,VTODO,VJOURNAL',$timezone=null,$order=0,$color=null) {
 		$all = self::allCalendars($userid);
 		$uris = array();
-		foreach($all as $i){
+		foreach($all as $i) {
 			$uris[] = $i['uri'];
 		}
 
 		$uri = self::createURI($name, $uris );
 
-		$stmt = OCP\DB::prepare( 'INSERT INTO *PREFIX*calendar_calendars (userid,displayname,uri,ctag,calendarorder,calendarcolor,timezone,components) VALUES(?,?,?,?,?,?,?,?)' );
+		$stmt = OCP\DB::prepare( 'INSERT INTO `*PREFIX*calendar_calendars` (`userid`,`displayname`,`uri`,`ctag`,`calendarorder`,`calendarcolor`,`timezone`,`components`) VALUES(?,?,?,?,?,?,?,?)' );
 		$result = $stmt->execute(array($userid,$name,$uri,1,$order,$color,$timezone,$components));
 
-		return OCP\DB::insertid('*PREFIX*calendar_calendars');
+		$insertid = OCP\DB::insertid('*PREFIX*calendar_calendars');
+		OCP\Util::emitHook('OC_Calendar', 'addCalendar', $insertid);
+
+		return $insertid;
+	}
+
+	/**
+	 * @brief Creates default calendars
+	 * @param string $userid
+	 * @return boolean
+	 */
+	public static function addDefaultCalendars($userid = null) {
+		if(is_null($userid)) {
+			$userid = OCP\USER::getUser();
+		}
+		
+		$id = self::addCalendar($userid,'Default calendar');
+
+		return true;
 	}
 
 	/**
@@ -123,13 +143,16 @@ class OC_Calendar_Calendar{
 	 * @param string $color format: '#RRGGBB(AA)'
 	 * @return insertid
 	 */
-	public static function addCalendarFromDAVData($principaluri,$uri,$name,$components,$timezone,$order,$color){
+	public static function addCalendarFromDAVData($principaluri,$uri,$name,$components,$timezone,$order,$color) {
 		$userid = self::extractUserID($principaluri);
 
-		$stmt = OCP\DB::prepare( 'INSERT INTO *PREFIX*calendar_calendars (userid,displayname,uri,ctag,calendarorder,calendarcolor,timezone,components) VALUES(?,?,?,?,?,?,?,?)' );
+		$stmt = OCP\DB::prepare( 'INSERT INTO `*PREFIX*calendar_calendars` (`userid`,`displayname`,`uri`,`ctag`,`calendarorder`,`calendarcolor`,`timezone`,`components`) VALUES(?,?,?,?,?,?,?,?)' );
 		$result = $stmt->execute(array($userid,$name,$uri,1,$order,$color,$timezone,$components));
 
-		return OCP\DB::insertid('*PREFIX*calendar_calendars');
+		$insertid = OCP\DB::insertid('*PREFIX*calendar_calendars');
+		OCP\Util::emitHook('OC_Calendar', 'addCalendar', $insertid);
+
+		return $insertid;
 	}
 
 	/**
@@ -144,9 +167,19 @@ class OC_Calendar_Calendar{
 	 *
 	 * Values not null will be set
 	 */
-	public static function editCalendar($id,$name=null,$components=null,$timezone=null,$order=null,$color=null){
+	public static function editCalendar($id,$name=null,$components=null,$timezone=null,$order=null,$color=null) {
 		// Need these ones for checking uri
 		$calendar = self::find($id);
+		if ($calendar['userid'] != OCP\User::getUser() && !OC_Group::inGroup(OCP\User::getUser(), 'admin')) {
+			$sharedCalendar = OCP\Share::getItemSharedWithBySource('calendar', $id);
+			if (!$sharedCalendar || !($sharedCalendar['permissions'] & OCP\PERMISSION_UPDATE)) {
+				throw new Exception(
+					OC_Calendar_App::$l10n->t(
+						'You do not have the permissions to update this calendar.'
+					)
+				);
+			}
+		}
 
 		// Keep old stuff
 		if(is_null($name)) $name = $calendar['displayname'];
@@ -155,9 +188,10 @@ class OC_Calendar_Calendar{
 		if(is_null($order)) $order = $calendar['calendarorder'];
 		if(is_null($color)) $color = $calendar['calendarcolor'];
 
-		$stmt = OCP\DB::prepare( 'UPDATE *PREFIX*calendar_calendars SET displayname=?,calendarorder=?,calendarcolor=?,timezone=?,components=?,ctag=ctag+1 WHERE id=?' );
+		$stmt = OCP\DB::prepare( 'UPDATE `*PREFIX*calendar_calendars` SET `displayname`=?,`calendarorder`=?,`calendarcolor`=?,`timezone`=?,`components`=?,`ctag`=`ctag`+1 WHERE `id`=?' );
 		$result = $stmt->execute(array($name,$order,$color,$timezone,$components,$id));
 
+		OCP\Util::emitHook('OC_Calendar', 'editCalendar', $id);
 		return true;
 	}
 
@@ -167,8 +201,19 @@ class OC_Calendar_Calendar{
 	 * @param boolean $active
 	 * @return boolean
 	 */
-	public static function setCalendarActive($id,$active){
-		$stmt = OCP\DB::prepare( 'UPDATE *PREFIX*calendar_calendars SET active = ? WHERE id = ?' );
+	public static function setCalendarActive($id,$active) {
+		$calendar = self::find($id);
+		if ($calendar['userid'] != OCP\User::getUser()) {
+			$sharedCalendar = OCP\Share::getItemSharedWithBySource('calendar', $id);
+			if (!$sharedCalendar || !($sharedCalendar['permissions'] & OCP\PERMISSION_UPDATE)) {
+				throw new Exception(
+					OC_Calendar_App::$l10n->t(
+						'You do not have the permissions to update this calendar.'
+					)
+				);
+			}
+		}
+		$stmt = OCP\DB::prepare( 'UPDATE `*PREFIX*calendar_calendars` SET `active` = ? WHERE `id` = ?' );
 		$stmt->execute(array($active, $id));
 
 		return true;
@@ -179,8 +224,8 @@ class OC_Calendar_Calendar{
 	 * @param integer $id
 	 * @return boolean
 	 */
-	public static function touchCalendar($id){
-		$stmt = OCP\DB::prepare( 'UPDATE *PREFIX*calendar_calendars SET ctag = ctag + 1 WHERE id = ?' );
+	public static function touchCalendar($id) {
+		$stmt = OCP\DB::prepare( 'UPDATE `*PREFIX*calendar_calendars` SET `ctag` = `ctag` + 1 WHERE `id` = ?' );
 		$stmt->execute(array($id));
 
 		return true;
@@ -191,14 +236,56 @@ class OC_Calendar_Calendar{
 	 * @param integer $id
 	 * @return boolean
 	 */
-	public static function deleteCalendar($id){
-		$stmt = OCP\DB::prepare( 'DELETE FROM *PREFIX*calendar_calendars WHERE id = ?' );
+	public static function deleteCalendar($id) {
+		$calendar = self::find($id);
+		if ($calendar['userid'] != OCP\User::getUser() && !OC_Group::inGroup(OCP\User::getUser(), 'admin')) {
+			$sharedCalendar = OCP\Share::getItemSharedWithBySource('calendar', $id);
+			if (!$sharedCalendar || !($sharedCalendar['permissions'] & OCP\PERMISSION_DELETE)) {
+				throw new Exception(
+					OC_Calendar_App::$l10n->t(
+						'You do not have the permissions to delete this calendar.'
+					)
+				);
+			}
+		}
+		$stmt = OCP\DB::prepare( 'DELETE FROM `*PREFIX*calendar_calendars` WHERE `id` = ?' );
 		$stmt->execute(array($id));
 
-		$stmt = OCP\DB::prepare( 'DELETE FROM *PREFIX*calendar_objects WHERE calendarid = ?' );
+		$stmt = OCP\DB::prepare( 'DELETE FROM `*PREFIX*calendar_objects` WHERE `calendarid` = ?' );
 		$stmt->execute(array($id));
+
+		OCP\Share::unshareAll('calendar', $id);
+
+		OCP\Util::emitHook('OC_Calendar', 'deleteCalendar', $id);
+		if(OCP\USER::isLoggedIn() and count(self::allCalendars(OCP\USER::getUser())) == 0) {
+			self::addDefaultCalendars(OCP\USER::getUser());
+		}
 
 		return true;
+	}
+
+	/**
+	 * @brief merges two calendars
+	 * @param integer $id1
+	 * @param integer $id2
+	 * @return boolean
+	 */
+	public static function mergeCalendar($id1, $id2) {
+		$calendar = self::find($id1);
+		if ($calendar['userid'] != OCP\User::getUser() && !OC_Group::inGroup(OCP\User::getUser(), 'admin')) {
+			$sharedCalendar = OCP\Share::getItemSharedWithBySource('calendar', $id1);
+			if (!$sharedCalendar || !($sharedCalendar['permissions'] & OCP\PERMISSION_UPDATE)) {
+				throw new Exception(
+					OC_Calendar_App::$l10n->t(
+						'You do not have the permissions to add to this calendar.'
+					)
+				);
+			}
+		}
+		$stmt = OCP\DB::prepare('UPDATE `*PREFIX*calendar_objects` SET `calendarid` = ? WHERE `calendarid` = ?');
+		$stmt->execute(array($id1, $id2));
+		self::touchCalendar($id1);
+		self::deleteCalendar($id2);
 	}
 
 	/**
@@ -207,11 +294,14 @@ class OC_Calendar_Calendar{
 	 * @param array  $existing existing calendar URIs
 	 * @return string uri
 	 */
-	public static function createURI($name,$existing){
+	public static function createURI($name,$existing) {
+		$strip=array(' ','/','?','&');//these may break sync clients
+		$name=str_replace($strip,'',$name);
 		$name = strtolower($name);
+
 		$newname = $name;
 		$i = 1;
-		while(in_array($newname,$existing)){
+		while(in_array($newname,$existing)) {
 			$newname = $name.$i;
 			$i = $i + 1;
 		}
@@ -222,11 +312,16 @@ class OC_Calendar_Calendar{
 	 * @brief gets the userid from a principal path
 	 * @return string
 	 */
-	public static function extractUserID($principaluri){
+	public static function extractUserID($principaluri) {
 		list($prefix,$userid) = Sabre_DAV_URLUtil::splitPath($principaluri);
 		return $userid;
 	}
-	public static function getCalendarColorOptions(){
+
+	/**
+	 * @brief returns the possible color for calendars
+	 * @return array
+	 */
+	public static function getCalendarColorOptions() {
 		return array(
 			'#ff0000', // "Red"
 			'#b3dc6c', // "Green"
@@ -239,13 +334,52 @@ class OC_Calendar_Calendar{
 		);
 	}
 
-	public static function getEventSourceInfo($calendar){
+	/**
+	 * @brief generates the Event Source Info for our JS
+	 * @param array $calendar calendar data
+	 * @return array
+	 */
+	public static function getEventSourceInfo($calendar) {
 		return array(
 			'url' => OCP\Util::linkTo('calendar', 'ajax/events.php').'?calendar_id='.$calendar['id'],
 			'backgroundColor' => $calendar['calendarcolor'],
 			'borderColor' => '#888',
-			'textColor' => 'black',
+			'textColor' => self::generateTextColor($calendar['calendarcolor']),
 			'cache' => true,
 		);
+	}
+
+	/*
+	 * @brief checks if a calendar name is available for a user
+	 * @param string $calendarname
+	 * @param string $userid
+	 * @return boolean
+	 */
+	public static function isCalendarNameavailable($calendarname, $userid) {
+		$calendars = self::allCalendars($userid);
+		foreach($calendars as $calendar) {
+			if($calendar['displayname'] == $calendarname) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/*
+	 * @brief generates the text color for the calendar
+	 * @param string $calendarcolor rgb calendar color code in hex format (with or without the leading #)
+	 * (this function doesn't pay attention on the alpha value of rgba color codes)
+	 * @return boolean
+	 */
+	public static function generateTextColor($calendarcolor) {
+		if(substr_count($calendarcolor, '#') == 1) {
+			$calendarcolor = substr($calendarcolor,1);
+		}
+		$red = hexdec(substr($calendarcolor,0,2));
+		$green = hexdec(substr($calendarcolor,2,2));
+		$blue = hexdec(substr($calendarcolor,2,2));
+		//recommendation by W3C
+		$computation = ((($red * 299) + ($green * 587) + ($blue * 114)) / 1000);
+		return ($computation > 130)?'#000000':'#FAFAFA';
 	}
 }

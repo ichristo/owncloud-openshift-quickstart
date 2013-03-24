@@ -1,51 +1,33 @@
-<div id="choosecalendar_dialog" title="<?php echo $l->t("Choose active calendars"); ?>">
-<p><b><?php echo $l->t('Your calendars'); ?>:</b></p>
-<table width="100%" style="border: 0;">
-<?php
-$option_calendars = OC_Calendar_Calendar::allCalendars(OCP\USER::getUser());
-for($i = 0; $i < count($option_calendars); $i++){
-	echo "<tr>";
-	$tmpl = new OCP\Template('calendar', 'part.choosecalendar.rowfields');
-	$tmpl->assign('calendar', $option_calendars[$i]);
-	if(OC_Calendar_Share::allUsersSharedwith($option_calendars[$i]['id'], OC_Calendar_Share::CALENDAR) == array()){
-		$shared = false;
-	}else{
-		$shared = true;
+<form id="calendar">
+	<p><b><?php p($l->t('Your calendars')); ?>:</b></p>
+	<table width="100%" style="border: 0;">
+	<?php
+	$option_calendars = OC_Calendar_Calendar::allCalendars(OCP\USER::getUser());
+	for($i = 0; $i < count($option_calendars); $i++) {
+		print_unescaped("<tr data-id='".OC_Util::sanitizeHTML($option_calendars[$i]['id'])."'>");
+		$tmpl = new OCP\Template('calendar', 'part.choosecalendar.rowfields');
+		$tmpl->assign('calendar', $option_calendars[$i]);
+		if ($option_calendars[$i]['userid'] != OCP\User::getUser()) {
+			$sharedCalendar = OCP\Share::getItemSharedWithBySource('calendar', $option_calendars[$i]['id']);
+			$shared = true;
+		} else {
+			$shared = false;
+		}
+		$tmpl->assign('shared', $shared);
+		$tmpl->printpage();
+		print_unescaped("</tr>");
 	}
-	$tmpl->assign('shared', $shared);
-	$tmpl->printpage();
-	echo "</tr>";
-}
-?>
-<tr>
-	<td colspan="6">
-		<a href="#" onclick="Calendar.UI.Calendar.newCalendar(this);"><input type="button" value="<?php echo $l->t('New Calendar') ?>"></a>
-	</td>
-</tr>
-<tr>
-	<td colspan="6">
-		<p style="margin: 0 auto;width: 90%;"><input style="display:none;width: 90%;float: left;" type="text" id="caldav_url" onmouseover="$('#caldav_url').select();" title="<?php echo $l->t("CalDav Link"); ?>"><img id="caldav_url_close" style="height: 20px;vertical-align: middle;display: none;" src="<?php echo OCP\Util::imagePath('core', 'actions/delete.svg') ?>" alt="close" onclick="$('#caldav_url').hide();$('#caldav_url_close').hide();"/></p>
-	</td>
-</tr>
-</table><br>
-<p><b><?php echo $l->t('Shared calendars'); ?>: </b></p>
-<table width="100%" style="border: 0;">
-<?php
-$share = OC_Calendar_Share::allSharedwithuser(OCP\USER::getUser(), OC_Calendar_Share::CALENDAR);
-$count = count($share);
-for($i = 0; $i < $count; $i++){
-	$share[$i]['calendar'] = OC_Calendar_App::getCalendar($share[$i]['calendarid'], false, false);
-	echo '<tr>';
-	$tmpl = new OCP\Template('calendar', 'part.choosecalendar.rowfields.shared');
-	$tmpl->assign('share', $share[$i]);
-	$tmpl->printpage();
-	echo '</tr>';
-}
-?>
-</table>
-<?php
-if($count == 0){
-	echo '<p style="text-align:center;"><b>' . $l->t('No shared calendars') . '</b></p>';
-}
-?>
-</div>
+	?>
+	<tr>
+		<td colspan="6">
+			<input type="button" value="<?php p($l->t('New Calendar')) ?>" id="newCalendar">
+		</td>
+	</tr>
+	<tr>
+		<td colspan="6">
+			<p style="margin: 0 auto;width: 90%;"><input style="display:none;width: 90%;float: left;" type="text" id="caldav_url" title="<?php p($l->t("CalDav Link")); ?>"><img id="caldav_url_close" style="height: 20px;vertical-align: middle;display: none;" src="<?php p(OCP\Util::imagePath('core', 'actions/delete.svg')) ?>" alt="close"/></p>
+		</td>
+	</tr>
+	</table><br>
+	</fieldset>
+</form>

@@ -62,14 +62,14 @@ Collection={
 							Collection.albumsById[song.song_album].songs.push(songData);
 						}
 					}
-					
+
 					Collection.artists.sort(function(a,b){
 						if(!a.name){
 							return -1;
 						}
 						return a.name.localeCompare(b.name);
 					});
-					
+
 					Collection.loaded=true;
 					Collection.loading=false;
 					for(var i=0;i<Collection.loadedListeners.length;i++){
@@ -279,7 +279,7 @@ Collection={
 	addButtons:function(parent,data){
 		buttons = parent.find('.buttons');
 		if(buttons.find('.add').length<=0) {
-			buttons.prepend('<img class="add action" src="'+OC.imagePath('core','actions/play-add')+'" title="Add to playlist" />');
+			buttons.prepend('<img class="add action" src="'+OC.imagePath('core','actions/play-add')+'" title="'+t('media','Add to playlist')+'" />');
 		}
 		buttons.find('.add').unbind('click');
 		buttons.find('.add').click(function(event){

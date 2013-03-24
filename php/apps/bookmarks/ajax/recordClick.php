@@ -21,24 +21,19 @@
 * 
 */
 
-//no apps or filesystem
-$RUNTIME_NOSETUPFS=true;
-
- 
-
 // Check if we are a user
 OCP\JSON::checkLoggedIn();
+OCP\JSON::callCheck();
 OCP\JSON::checkAppEnabled('bookmarks');
 
-$query = OCP\DB::prepare("
-	UPDATE *PREFIX*bookmarks
-	SET clickcount = clickcount + 1
-	WHERE user_id = ?
-		AND url LIKE ?
-	");
+$query = OCP\DB::prepare('
+	UPDATE `*PREFIX*bookmarks`
+	SET `clickcount` = `clickcount` + 1
+	WHERE `user_id` = ?
+		AND `url` LIKE ?
+	');
 	
 $params=array(OCP\USER::getUser(), htmlspecialchars_decode($_POST["url"]));
 $bookmarks = $query->execute($params);
 
 header( "HTTP/1.1 204 No Content" );
-

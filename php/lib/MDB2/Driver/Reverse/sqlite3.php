@@ -20,7 +20,7 @@
  *
  */
 
-require_once('MDB2/Driver/Reverse/Common.php');
+require_once 'MDB2/Driver/Reverse/Common.php';
 
 /**
  * MDB2 SQlite driver for the schema reverse engineering module
@@ -476,7 +476,7 @@ class MDB2_Driver_Reverse_sqlite3 extends MDB2_Driver_Reverse_Common
         $definition['unique'] = true;
         $count = count($column_names);
         for ($i=0; $i<$count; ++$i) {
-            $column_name = strtok($column_names[$i]," ");
+            $column_name = strtok($column_names[$i], " ");
             $collation = strtok(" ");
             $definition['fields'][$column_name] = array(
                 'position' => $i+1
@@ -584,5 +584,3 @@ class MDB2_Driver_Reverse_sqlite3 extends MDB2_Driver_Reverse_Common
            'This DBMS can not obtain tableInfo from result sets', __FUNCTION__);
     }
 }
-
-?>

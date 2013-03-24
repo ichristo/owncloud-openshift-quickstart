@@ -1,482 +1,415 @@
 <?php
 
 /**
-* ownCloud
-*
-* @author Frank Karlitschek 
-* @copyright 2010 Frank Karlitschek karlitschek@kde.org 
-* 
-* This library is free software; you can redistribute it and/or
-* modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
-* License as published by the Free Software Foundation; either 
-* version 3 of the License, or any later version.
-* 
-* This library is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU AFFERO GENERAL PUBLIC LICENSE for more details.
-*  
-* You should have received a copy of the GNU Affero General Public 
-* License along with this library.  If not, see <http://www.gnu.org/licenses/>.
-* 
-*/
-
+ * Copyright (c) 2012 Robin Appelman <icewind@owncloud.com>
+ * This file is licensed under the Affero General Public License version 3 or
+ * later.
+ * See the COPYING-README file.
+ */
 
 /**
  * Class for abstraction of filesystem functions
  * This class won't call any filesystem functions for itself but but will pass them to the correct OC_Filestorage object
- * this class should also handle all the file premission related stuff
+ * this class should also handle all the file permission related stuff
  *
  * Hooks provided:
  *   read(path)
  *   write(path, &run)
  *   post_write(path)
- *   create(path, &run) (when a file is created, both create and write will be emited in that order)
+ *   create(path, &run) (when a file is created, both create and write will be emitted in that order)
  *   post_create(path)
  *   delete(path, &run)
  *   post_delete(path)
  *   rename(oldpath,newpath, &run)
  *   post_rename(oldpath,newpath)
- *   copy(oldpath,newpath, &run) (if the newpath doesn't exists yes, copy, create and write will be emited in that order)
+ *   copy(oldpath,newpath, &run) (if the newpath doesn't exists yes, copy, create and write will be emitted in that order)
  *   post_rename(oldpath,newpath)
  *
- *   the &run parameter can be set to false to prevent the operation from occuring
+ *   the &run parameter can be set to false to prevent the operation from occurring
  */
 
-class OC_Filesystem{
-	static private $storages=array();
-	static private $mounts=array();
-	static private $storageTypes=array();
-	public static $loaded=false;
-	private $fakeRoot='';
-	static private $defaultInstance;
-
-
-  /**
-   * classname which used for hooks handling
-   * used as signalclass in OC_Hooks::emit()
-   */
-  const CLASSNAME = 'OC_Filesystem';
-
-  /**
-   * signalname emited before file renaming
-   * @param oldpath
-   * @param newpath
-   */
-  const signal_rename = 'rename';
-
-  /**
-   * signal emited after file renaming
-   * @param oldpath
-   * @param newpath
-   */
-  const signal_post_rename = 'post_rename';
-	
-  /**
-   * signal emited before file/dir creation
-   * @param path
-   * @param run changing this flag to false in hook handler will cancel event
-   */
-  const signal_create = 'create';
-
-  /**
-   * signal emited after file/dir creation
-   * @param path
-   * @param run changing this flag to false in hook handler will cancel event
-   */
-  const signal_post_create = 'post_create';
-
-  /**
-   * signal emits before file/dir copy
-   * @param oldpath
-   * @param newpath
-   * @param run changing this flag to false in hook handler will cancel event
-   */
-  const signal_copy = 'copy';
-
-  /**
-   * signal emits after file/dir copy
-   * @param oldpath
-   * @param newpath
-   */
-  const signal_post_copy = 'post_copy';
-
-  /**
-   * signal emits before file/dir save
-   * @param path
-   * @param run changing this flag to false in hook handler will cancel event
-   */
-  const signal_write = 'write';
-
-  /**
-   * signal emits after file/dir save
-   * @param path
-   */
-  const signal_post_write = 'post_write';
-	
-  /**
-   * signal emits when reading file/dir
-   * @param path
-   */
-  const signal_read = 'read';
-
-  /**
-   * signal emits when removing file/dir
-   * @param path
-   */
-  const signal_delete = 'delete';
-
-  /**
-   * parameters definitions for signals
-   */
-  const signal_param_path = 'path';
-  const signal_param_oldpath = 'oldpath';
-  const signal_param_newpath = 'newpath';
-
-  /**
-   * run - changing this flag to false in hook handler will cancel event
-   */
-  const signal_param_run = 'run';
-
-  /**
-	* get the mountpoint of the storage object for a path
-	( note: because a storage is not always mounted inside the fakeroot, the returned mountpoint is relative to the absolute root of the filesystem and doesn't take the chroot into account
-	*
-	* @param string path
-	* @return string
-	*/
-	static public function getMountPoint($path){
-		OC_Hook::emit(self::CLASSNAME,'get_mountpoint',array('path'=>$path));
-		if(!$path){
-			$path='/';
-		}
-		if($path[0]!=='/'){
-			$path='/'.$path;
-		}
-		$foundMountPoint='';
-		foreach(OC_Filesystem::$mounts as $mountpoint=>$storage){
-			if($mountpoint==$path){
-				return $mountpoint;
-			}
-			if(strpos($path,$mountpoint)===0 and strlen($mountpoint)>strlen($foundMountPoint)){
-				$foundMountPoint=$mountpoint;
-			}
-		}
-		return $foundMountPoint;
-	}
-
+/**
+ * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+ */
+class OC_Filesystem {
 	/**
-	* get the part of the path relative to the mountpoint of the storage it's stored in
-	* @param  string  path
-	* @return bool
-	*/
-	static public function getInternalPath($path){
-		$mountPoint=self::getMountPoint($path);
-		$internalPath=substr($path,strlen($mountPoint));
-		return $internalPath;
-	}
-	/**
-	* get the storage object for a path
-	* @param string path
-	* @return OC_Filestorage
-	*/
-	static public function getStorage($path){
-		$mountpoint=self::getMountPoint($path);
-		if($mountpoint){
-			if(!isset(OC_Filesystem::$storages[$mountpoint])){
-				$mount=OC_Filesystem::$mounts[$mountpoint];
-				OC_Filesystem::$storages[$mountpoint]=OC_Filesystem::createStorage($mount['class'],$mount['arguments']);
-			}
-			return OC_Filesystem::$storages[$mountpoint];
-		}
-	}
-	
-	static public function init($root){
-		if(self::$defaultInstance){
-			return false;
-		}
-		self::$defaultInstance=new OC_FilesystemView($root);
-
-		//load custom mount config
-		if(is_file(OC::$SERVERROOT.'/config/mount.php')){
-			$mountConfig=include(OC::$SERVERROOT.'/config/mount.php');
-			if(isset($mountConfig['global'])){
-				foreach($mountConfig['global'] as $mountPoint=>$options){
-					self::mount($options['class'],$options['options'],$mountPoint);
-				}
-			}
-
-			if(isset($mountConfig['group'])){
-				foreach($mountConfig['group'] as $group=>$mounts){
-					if(OC_Group::inGroup(OC_User::getUser(),$group)){
-						foreach($mounts as $mountPoint=>$options){
-							$mountPoint=self::setUserVars($mountPoint);
-							foreach($options as &$option){
-								$option=self::setUserVars($option);
-							}
-							self::mount($options['class'],$options['options'],$mountPoint);
-						}
-					}
-				}
-			}
-
-			if(isset($mountConfig['user'])){
-				foreach($mountConfig['user'] as $user=>$mounts){
-					if($user==='all' or strtolower($user)===strtolower(OC_User::getUser())){
-						foreach($mounts as $mountPoint=>$options){
-							$mountPoint=self::setUserVars($mountPoint);
-							foreach($options as &$option){
-								$option=self::setUserVars($option);
-							}
-							self::mount($options['class'],$options['options'],$mountPoint);
-						}
-					}
-				}
-			}
-		}
-		
-		self::$loaded=true;
-	}
-
-	/**
-	 * fill in the correct values for $user, and $password placeholders
-	 * @param string intput
+	 * get the mountpoint of the storage object for a path
+	 * ( note: because a storage is not always mounted inside the fakeroot, the
+	 * returned mountpoint is relative to the absolute root of the filesystem
+	 * and doesn't take the chroot into account )
+	 *
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 * @param string $path
 	 * @return string
 	 */
-	private static function setUserVars($input){
-		return str_replace('$user',OC_User::getUser(),$input);
+	static public function getMountPoint($path) {
+		return \OC\Files\Filesystem::getMountPoint($path);
+	}
+
+	/**
+	 * resolve a path to a storage and internal path
+	 *
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 * @param string $path
+	 * @return array consisting of the storage and the internal path
+	 */
+	static public function resolvePath($path) {
+		return \OC\Files\Filesystem::resolvePath($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function init($user, $root) {
+		return \OC\Files\Filesystem::init($user, $root);
 	}
 
 	/**
 	 * get the default filesystem view
-	 * @return OC_FilesystemView
+	 *
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 * @return \OC\Files\View
 	 */
-	static public function getView(){
-		return self::$defaultInstance;
-	}
-	
-	/**
-	 * tear down the filesystem, removing all storage providers
-	 */
-	static public function tearDown(){
-		foreach(self::$storages as $mountpoint=>$storage){
-			unset(self::$storages[$mountpoint]);
-		}
-		$fakeRoot='';
-	}
-	
-	/**
-	* create a new storage of a specific type
-	* @param  string  type
-	* @param  array  arguments
-	* @return OC_Filestorage
-	*/
-	static private function createStorage($class,$arguments){
-		if(class_exists($class)){
-			return new $class($arguments);
-		}else{
-			OC_Log::write('core','storage backend '.$class.' not found',OC_Log::ERROR);
-			return false;
-		}
-	}
-	
-	/**
-	* change the root to a fake toor
-	* @param  string  fakeRoot
-	* @return bool
-	*/
-	static public function chroot($fakeRoot){
-		return self::$defaultInstance->chroot($path);
+	static public function getView() {
+		return \OC\Files\Filesystem::getView();
 	}
 
 	/**
-	 * get the fake root
-	 * @return string
+	 * tear down the filesystem, removing all storage providers
+	 *
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
 	 */
-	static public function getRoot(){
-		return self::$defaultInstance->getRoot();
+	static public function tearDown() {
+		\OC\Files\Filesystem::tearDown();
+	}
+
+	/**
+	 * @brief get the relative path of the root data directory for the current user
+	 * @return string
+	 *
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 * Returns path like /admin/files
+	 */
+	static public function getRoot() {
+		return \OC\Files\Filesystem::getRoot();
 	}
 
 	/**
 	 * clear all mounts and storage backends
+	 *
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
 	 */
-	public static function clearMounts(){
-		self::$mounts=array();
-		self::$storages=array();
+	public static function clearMounts() {
+		\OC\Files\Filesystem::clearMounts();
 	}
 
 	/**
-	* mount an OC_Filestorage in our virtual filesystem
-	* @param OC_Filestorage storage
-	* @param string mountpoint
-	*/
-	static public function mount($class,$arguments,$mountpoint){
-		if($mountpoint[0]!='/'){
-			$mountpoint='/'.$mountpoint;
-		}
-		if(substr($mountpoint,-1)!=='/'){
-			$mountpoint=$mountpoint.'/';
-		}
-		self::$mounts[$mountpoint]=array('class'=>$class,'arguments'=>$arguments);
+	 * mount an \OC\Files\Storage\Storage in our virtual filesystem
+	 *
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 * @param \OC\Files\Storage\Storage $class
+	 * @param array $arguments
+	 * @param string $mountpoint
+	 */
+	static public function mount($class, $arguments, $mountpoint) {
+		\OC\Files\Filesystem::mount($class, $arguments, $mountpoint);
 	}
 
 	/**
-	 * create all storage backends mounted in the filesystem
+	 * return the path to a local version of the file
+	 * we need this because we can't know if a file is stored local or not from
+	 * outside the filestorage and for some purposes a local file is needed
+	 *
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 * @param string $path
+	 * @return string
 	 */
-	static private function mountAll(){
-		foreach(self::$mounts as $mountPoint=>$mount){
-			if(!isset(self::$storages[$mountPoint])){
-				self::$storages[$mountPoint]=self::createStorage($mount['type'],$mount['arguments']);
-			}
-		}
+	static public function getLocalFile($path) {
+		return \OC\Files\Filesystem::getLocalFile($path);
 	}
-	
+
 	/**
-	* return the path to a local version of the file
-	* we need this because we can't know if a file is stored local or not from outside the filestorage and for some purposes a local file is needed
-	* @param string path
-	* @return string
-	*/
-	static public function getLocalFile($path){
-		return self::$defaultInstance->getLocalFile($path);
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 * @param string $path
+	 * @return string
+	 */
+	static public function getLocalFolder($path) {
+		return \OC\Files\Filesystem::getLocalFolder($path);
 	}
-	
+
 	/**
-	* return path to file which reflects one visible in browser
-	* @param string path
-	* @return string
-	*/
+	 * return path to file which reflects one visible in browser
+	 *
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 * @param string $path
+	 * @return string
+	 */
 	static public function getLocalPath($path) {
-		$datadir = \OCP\Config::getSystemValue('datadirectory').'/'.\OC_User::getUser().'/files';
-		$newpath = $path;
-		if (strncmp($newpath, $datadir, strlen($datadir)) == 0) {
-			$newpath = substr($path, strlen($datadir));
-		}
-		return $newpath;
+		return \OC\Files\Filesystem::getLocalPath($path);
 	}
-	
+
 	/**
 	 * check if the requested path is valid
-	 * @param string path
+	 *
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 * @param string $path
 	 * @return bool
 	 */
-	static public function isValidPath($path){
-		if(!$path || $path[0]!=='/'){
-			$path='/'.$path;
-		}
-		if(strstr($path,'/../') || strrchr($path, '/') === '/..' ){
-			return false;
-		}
-		return true;
+	static public function isValidPath($path) {
+		return \OC\Files\Filesystem::isValidPath($path);
 	}
-	
+
 	/**
-	 * checks if a file is blacklsited for storage in the filesystem
+	 * checks if a file is blacklisted for storage in the filesystem
 	 * Listens to write and rename hooks
+	 *
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
 	 * @param array $data from hook
 	 */
-	static public function isBlacklisted($data){
-		$blacklist = array('.htaccess');
-		if (isset($data['path'])) {
-			$path = $data['path'];
-		} else if (isset($data['newpath'])) {
-			$path = $data['newpath'];
-		}
-		if (isset($path)) {
-			$filename = strtolower(basename($path));
-			if (in_array($filename, $blacklist)) {
-				$data['run'] = false;
-			}
-		}
-	}
-	
-	/**
-	 * following functions are equivilent to their php buildin equivilents for arguments/return values.
-	 */
-	static public function mkdir($path){
-		return self::$defaultInstance->mkdir($path);
-	}
-	static public function rmdir($path){
-		return self::$defaultInstance->rmdir($path);
-	}
-	static public function opendir($path){
-		return self::$defaultInstance->opendir($path);
-	}
-	static public function is_dir($path){
-		return self::$defaultInstance->is_dir($path);
-	}
-	static public function is_file($path){
-		return self::$defaultInstance->is_file($path);
-	}
-	static public function stat($path){
-		return self::$defaultInstance->stat($path);
-	}
-	static public function filetype($path){
-		return self::$defaultInstance->filetype($path);
-	}
-	static public function filesize($path){
-		return self::$defaultInstance->filesize($path);
-	}
-	static public function readfile($path){
-		return self::$defaultInstance->readfile($path);
-	}
-	static public function is_readable($path){
-		return self::$defaultInstance->is_readable($path);
-	}
-	static public function is_writable($path){
-		return self::$defaultInstance->is_writable($path);
-	}
-	static public function file_exists($path){
-		return self::$defaultInstance->file_exists($path);
-	}
-	static public function filectime($path){
-		return self::$defaultInstance->filectime($path);
-	}
-	static public function filemtime($path){
-		return self::$defaultInstance->filemtime($path);
-	}
-	static public function touch($path, $mtime=null){
-		return self::$defaultInstance->touch($path, $mtime);
-	}
-	static public function file_get_contents($path){
-		return self::$defaultInstance->file_get_contents($path);
-	}
-	static public function file_put_contents($path,$data){
-		return self::$defaultInstance->file_put_contents($path,$data);
-	}
-	static public function unlink($path){
-		return self::$defaultInstance->unlink($path);
-	}
-	static public function rename($path1,$path2){
-		return self::$defaultInstance->rename($path1,$path2);
-	}
-	static public function copy($path1,$path2){
-		return self::$defaultInstance->copy($path1,$path2);
-	}
-	static public function fopen($path,$mode){
-		return self::$defaultInstance->fopen($path,$mode);
-	}
-	static public function toTmpFile($path){
-		return self::$defaultInstance->toTmpFile($path);
-	}
-	static public function fromTmpFile($tmpFile,$path){
-		return self::$defaultInstance->fromTmpFile($tmpFile,$path);
+	static public function isBlacklisted($data) {
+		\OC\Files\Filesystem::isBlacklisted($data);
 	}
 
-	static public function getMimeType($path){
-		return self::$defaultInstance->getMimeType($path);
+	/**
+	 * following functions are equivalent to their php builtin equivalents for arguments/return values.
+	 *
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function mkdir($path) {
+		return \OC\Files\Filesystem::mkdir($path);
 	}
-	static public function hash($type,$path, $raw = false){
-		return self::$defaultInstance->hash($type,$path, $raw);
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function rmdir($path) {
+		return \OC\Files\Filesystem::rmdir($path);
 	}
-	
-	static public function free_space($path='/'){
-		return self::$defaultInstance->free_space($path);
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function opendir($path) {
+		return \OC\Files\Filesystem::opendir($path);
 	}
-	
-	static public function search($query){
-		return OC_FileCache::search($query);
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function readdir($path) {
+		return \OC\Files\Filesystem::readdir($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function is_dir($path) {
+		return \OC\Files\Filesystem::is_dir($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function is_file($path) {
+		return \OC\Files\Filesystem::is_file($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function stat($path) {
+		return \OC\Files\Filesystem::stat($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function filetype($path) {
+		return \OC\Files\Filesystem::filetype($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function filesize($path) {
+		return \OC\Files\Filesystem::filesize($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function readfile($path) {
+		return \OC\Files\Filesystem::readfile($path);
+	}
+
+	/**
+	 * @deprecated Replaced by isReadable() as part of CRUDS
+	 */
+	static public function is_readable($path) {
+		return \OC\Files\Filesystem::isReadable($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function isCreatable($path) {
+		return \OC\Files\Filesystem::isCreatable($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function isReadable($path) {
+		return \OC\Files\Filesystem::isReadable($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function isUpdatable($path) {
+		return \OC\Files\Filesystem::isUpdatable($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function isDeletable($path) {
+		return \OC\Files\Filesystem::isDeletable($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function isSharable($path) {
+		return \OC\Files\Filesystem::isSharable($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function file_exists($path) {
+		return \OC\Files\Filesystem::file_exists($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function filemtime($path) {
+		return \OC\Files\Filesystem::filemtime($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function touch($path, $mtime = null) {
+		return \OC\Files\Filesystem::touch($path, $mtime);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function file_get_contents($path) {
+		return \OC\Files\Filesystem::file_get_contents($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function file_put_contents($path, $data) {
+		return \OC\Files\Filesystem::file_put_contents($path, $data);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function unlink($path) {
+		return \OC\Files\Filesystem::unlink($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function rename($path1, $path2) {
+		return \OC\Files\Filesystem::rename($path1, $path2);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function copy($path1, $path2) {
+		return \OC\Files\Filesystem::copy($path1, $path2);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function fopen($path, $mode) {
+		return \OC\Files\Filesystem::fopen($path, $mode);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function toTmpFile($path) {
+		return \OC\Files\Filesystem::toTmpFile($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function fromTmpFile($tmpFile, $path) {
+		return \OC\Files\Filesystem::fromTmpFile($tmpFile, $path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function getMimeType($path) {
+		return \OC\Files\Filesystem::getMimeType($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function hash($type, $path, $raw = false) {
+		return \OC\Files\Filesystem::hash($type, $path, $raw);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function free_space($path = '/') {
+		return \OC\Files\Filesystem::free_space($path);
+	}
+
+	/**
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 */
+	static public function search($query) {
+		return \OC\Files\Filesystem::search($query);
+	}
+
+	/**
+	 * check if a file or folder has been updated since $time
+	 *
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 * @param string $path
+	 * @param int $time
+	 * @return bool
+	 */
+	static public function hasUpdated($path, $time) {
+		return \OC\Files\Filesystem::hasUpdated($path, $time);
+	}
+
+	/**
+	 * normalize a path
+	 *
+	 * @deprecated OC_Filesystem is replaced by \OC\Files\Filesystem
+	 * @param string $path
+	 * @param bool $stripTrailingSlash
+	 * @return string
+	 */
+	public static function normalizePath($path, $stripTrailingSlash = true) {
+		return \OC\Files\Filesystem::normalizePath($path, $stripTrailingSlash);
 	}
 }
-
-require_once('filecache.php');

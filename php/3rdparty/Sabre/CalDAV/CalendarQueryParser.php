@@ -1,5 +1,7 @@
 <?php
 
+use Sabre\VObject;
+
 /**
  * Parses the calendar-query report request body.
  *
@@ -8,7 +10,7 @@
  *
  * @package Sabre
  * @subpackage CalDAV
- * @copyright Copyright (C) 2007-2012 Rooftop Solutions. All rights reserved.
+ * @copyright Copyright (C) 2007-2013 Rooftop Solutions. All rights reserved.
  * @author Evert Pot (http://www.rooftopsolutions.nl/)
  * @license http://code.google.com/p/sabredav/wiki/License Modified BSD License
  */
@@ -241,12 +243,12 @@ class Sabre_CalDAV_CalendarQueryParser {
         $timeRangeNode = $timeRangeNodes->item(0);
 
         if ($start = $timeRangeNode->getAttribute('start')) {
-            $start = Sabre_VObject_DateTimeParser::parseDateTime($start);
+            $start = VObject\DateTimeParser::parseDateTime($start);
         } else {
             $start = null;
         }
         if ($end = $timeRangeNode->getAttribute('end')) {
-            $end = Sabre_VObject_DateTimeParser::parseDateTime($end);
+            $end = VObject\DateTimeParser::parseDateTime($end);
         } else {
             $end = null;
         }
@@ -274,13 +276,13 @@ class Sabre_CalDAV_CalendarQueryParser {
         if(!$start) {
             throw new Sabre_DAV_Exception_BadRequest('The "start" attribute is required for the CALDAV:expand element');
         } 
-        $start = Sabre_VObject_DateTimeParser::parseDateTime($start);
+        $start = VObject\DateTimeParser::parseDateTime($start);
 
         $end = $parentNode->getAttribute('end');
         if(!$end) {
             throw new Sabre_DAV_Exception_BadRequest('The "end" attribute is required for the CALDAV:expand element');
         } 
-        $end = Sabre_VObject_DateTimeParser::parseDateTime($end);
+        $end = VObject\DateTimeParser::parseDateTime($end);
         
         if ($end <= $start) {
             throw new Sabre_DAV_Exception_BadRequest('The end-date must be larger than the start-date in the expand element.');

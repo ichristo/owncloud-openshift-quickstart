@@ -12,7 +12,7 @@
  *
  * @package Sabre
  * @subpackage HTTP
- * @copyright Copyright (C) 2007-2012 Rooftop Solutions. All rights reserved.
+ * @copyright Copyright (C) 2007-2013 Rooftop Solutions. All rights reserved.
  * @author Evert Pot (http://www.rooftopsolutions.nl/)
  * @license http://code.google.com/p/sabredav/wiki/License Modified BSD License
  */
@@ -184,7 +184,7 @@ class Sabre_HTTP_Request {
      * This method returns a readable stream resource.
      * If the asString parameter is set to true, a string is sent instead.
      *
-     * @param bool asString
+     * @param bool $asString
      * @return resource
      */
     public function getBody($asString = false) {
@@ -261,6 +261,22 @@ class Sabre_HTTP_Request {
     public function getRawServerValue($field) {
 
         return isset($this->_SERVER[$field])?$this->_SERVER[$field]:null;
+
+    }
+
+    /**
+     * Returns the HTTP version specified within the request.
+     *
+     * @return string
+     */
+    public function getHTTPVersion() {
+
+        $protocol = $this->getRawServerValue('SERVER_PROTOCOL');
+        if ($protocol==='HTTP/1.0') {
+            return '1.0';
+        } else {
+            return '1.1';
+        }
 
     }
 

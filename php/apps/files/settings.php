@@ -21,10 +21,6 @@
 *
 */
 
-
-// Init owncloud
- 
-
 // Check if we are a user
 OCP\User::checkLoggedIn();
 
@@ -36,7 +32,7 @@ OCP\Util::addscript( "files", "files" );
 $dir = isset( $_GET['dir'] ) ? $_GET['dir'] : '';
 
 $files = array();
-foreach( OC_Files::getdirectorycontent( $dir ) as $i ){
+foreach( \OC\Files\Filesystem::getDirectoryContent( $dir ) as $i ) {
 	$i["date"] = date( $CONFIG_DATEFORMAT, $i["mtime"] );
 	$files[] = $i;
 }
@@ -44,8 +40,8 @@ foreach( OC_Files::getdirectorycontent( $dir ) as $i ){
 // Make breadcrumb
 $breadcrumb = array();
 $pathtohere = "/";
-foreach( explode( "/", $dir ) as $i ){
-	if( $i != "" ){
+foreach( explode( "/", $dir ) as $i ) {
+	if( $i != "" ) {
 		$pathtohere .= "$i/";
 		$breadcrumb[] = array( "dir" => $pathtohere, "name" => $i );
 	}
@@ -56,5 +52,3 @@ $tmpl = new OCP\Template( "files", "index", "user" );
 $tmpl->assign( 'files', $files );
 $tmpl->assign( "breadcrumb", $breadcrumb );
 $tmpl->printPage();
-
-?>

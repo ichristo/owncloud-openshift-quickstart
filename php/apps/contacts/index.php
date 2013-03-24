@@ -13,66 +13,58 @@ OCP\User::checkLoggedIn();
 OCP\App::checkAppEnabled('contacts');
 
 // Get active address books. This creates a default one if none exists.
-$ids = OC_Contacts_Addressbook::activeIds(OCP\USER::getUser());
-$allcontacts = OC_Contacts_VCard::all($ids);
-$contacts = array();
-foreach($allcontacts as $contact) { // try to conserve some memory
-	$contacts[] = array('id' => $contact['id'], 'addressbookid' => $contact['addressbookid'], 'fullname' => $contact['fullname']);
-}
-unset($allcontacts);
-$addressbooks = OC_Contacts_Addressbook::active(OCP\USER::getUser());
+$ids = OCA\Contacts\Addressbook::activeIds(OCP\USER::getUser());
 
 // Load the files we need
-OCP\App::setActiveNavigationEntry( 'contacts_index' );
+OCP\App::setActiveNavigationEntry('contacts_index');
 
-// Load a specific user?
-$id = isset( $_GET['id'] ) ? $_GET['id'] : null;
-$details = array();
-
-if(is_null($id) && count($contacts) > 0) {
-	$id = $contacts[0]['id'];
+$impp_types = OCA\Contacts\App::getTypesOfProperty('IMPP');
+$adr_types = OCA\Contacts\App::getTypesOfProperty('ADR');
+$phone_types = OCA\Contacts\App::getTypesOfProperty('TEL');
+$email_types = OCA\Contacts\App::getTypesOfProperty('EMAIL');
+$ims = OCA\Contacts\App::getIMOptions();
+$im_protocols = array();
+foreach($ims as $name => $values) {
+	$im_protocols[$name] = $values['displayname'];
 }
-if(!is_null($id)) {
-	$vcard = OC_Contacts_App::getContactVCard($id);
-	$details = OC_Contacts_VCard::structureContact($vcard);
-}
-$property_types = OC_Contacts_App::getAddPropertyOptions();
-$phone_types = OC_Contacts_App::getTypesOfProperty('TEL');
-$email_types = OC_Contacts_App::getTypesOfProperty('EMAIL');
-$categories = OC_Contacts_App::getCategories();
+$categories = OCA\Contacts\App::getCategories();
 
 $upload_max_filesize = OCP\Util::computerFileSize(ini_get('upload_max_filesize'));
 $post_max_size = OCP\Util::computerFileSize(ini_get('post_max_size'));
 $maxUploadFilesize = min($upload_max_filesize, $post_max_size);
 
-$freeSpace=OC_Filesystem::free_space('/');
-$freeSpace=max($freeSpace,0);
-$maxUploadFilesize = min($maxUploadFilesize ,$freeSpace);
+$freeSpace=\OC\Files\Filesystem::free_space('/');
+$freeSpace=max($freeSpace, 0);
+$maxUploadFilesize = min($maxUploadFilesize, $freeSpace);
 
-OCP\Util::addscript('','jquery.multiselect');
-OCP\Util::addscript('','oc-vcategories');
-OCP\Util::addscript('contacts','contacts');
-OCP\Util::addscript('contacts','expanding');
-OCP\Util::addscript('contacts','jquery.combobox');
-OCP\Util::addscript('contacts','jquery.inview');
-OCP\Util::addscript('contacts','jquery.Jcrop');
-OCP\Util::addscript('contacts','jquery.multi-autocomplete');
-OCP\Util::addStyle('','jquery.multiselect');
-OCP\Util::addStyle('contacts','jquery.combobox');
-OCP\Util::addStyle('contacts','jquery.Jcrop');
-OCP\Util::addStyle('contacts','contacts');
+OCP\Util::addscript('', 'multiselect');
+OCP\Util::addscript('', 'jquery.multiselect');
+OCP\Util::addscript('', 'oc-vcategories');
+OCP\Util::addscript('contacts', 'modernizr.custom');
+OCP\Util::addscript('contacts', 'app');
+OCP\Util::addscript('contacts', 'contacts');
+OCP\Util::addscript('contacts', 'groups');
+OCP\Util::addscript('contacts', 'expanding');
+OCP\Util::addscript('contacts', 'jquery.combobox');
+OCP\Util::addscript('files', 'jquery.fileupload');
+OCP\Util::addscript('contacts', 'jquery.Jcrop');
+OCP\Util::addStyle('3rdparty/fontawesome', 'font-awesome');
+OCP\Util::addStyle('contacts', 'font-awesome');
+OCP\Util::addStyle('', 'multiselect');
+OCP\Util::addStyle('', 'jquery.multiselect');
+OCP\Util::addStyle('contacts', 'jquery.combobox');
+OCP\Util::addStyle('contacts', 'jquery.Jcrop');
+OCP\Util::addStyle('contacts', 'contacts');
 
-$tmpl = new OCP\Template( "contacts", "index", "user" );
+$tmpl = new OCP\Template( "contacts", "contacts", "user" );
 $tmpl->assign('uploadMaxFilesize', $maxUploadFilesize);
-$tmpl->assign('uploadMaxHumanFilesize', OCP\Util::humanFileSize($maxUploadFilesize));
-$tmpl->assign('property_types', $property_types);
+$tmpl->assign('uploadMaxHumanFilesize',
+	OCP\Util::humanFileSize($maxUploadFilesize), false);
+$tmpl->assign('addressbooks', OCA\Contacts\Addressbook::all(OCP\USER::getUser()));
 $tmpl->assign('phone_types', $phone_types);
 $tmpl->assign('email_types', $email_types);
+$tmpl->assign('adr_types', $adr_types);
+$tmpl->assign('impp_types', $impp_types);
 $tmpl->assign('categories', $categories);
-$tmpl->assign('addressbooks', $addressbooks);
-$tmpl->assign('contacts', $contacts);
-$tmpl->assign('details', $details );
-$tmpl->assign('id',$id);
+$tmpl->assign('im_protocols', $im_protocols);
 $tmpl->printPage();
-
-?>

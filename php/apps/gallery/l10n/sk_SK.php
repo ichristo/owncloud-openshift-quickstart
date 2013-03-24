@@ -1,12 +1,6 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Obrázky",
-"Settings" => "nastavenia",
-"Rescan" => "Znovu oskenovať",
-"Stop" => "Zastaviť",
-"Share" => "Zdielať",
-"Back" => "Späť",
-"Remove confirmation" => "Potvrdenie odstránenia",
-"Do you want to remove album" => "Chcete odstrániť album?",
-"Change album name" => "Zmeniť meno albumu",
-"New album name" => "Nové meno albumu"
+"Shared by" => "Zdieľa",
+"Share" => "Zdieľaj",
+"The \"Image Viewer\" application also need to be enabled to use this application." => "Táto aplikácia si vyžaduje aplikáciu \"Image Viewer\"."
 );

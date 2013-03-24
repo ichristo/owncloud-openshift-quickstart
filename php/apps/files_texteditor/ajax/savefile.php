@@ -3,7 +3,7 @@
  * ownCloud - files_texteditor
  *
  * @author Tom Needham
- * @copyright 2011 Tom Needham contact@tomneedham.com
+ * @copyright 2013 Tom Needham tom@owncloud.com
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -19,11 +19,6 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-// Init owncloud
- 
-
-
 // Check if we are a user
 OCP\JSON::checkLoggedIn();
 OCP\JSON::callCheck();
@@ -33,43 +28,44 @@ $filecontents = isset($_POST['filecontents']) ? $_POST['filecontents'] : false;
 $path = isset($_POST['path']) ? $_POST['path'] : '';
 $mtime = isset($_POST['mtime']) ? $_POST['mtime'] : '';
 
-if($path != '' && $mtime != '' && $filecontents)
-{
+if($path != '' && $mtime != '' && $filecontents) {
 	// Get file mtime
-	$filemtime = OC_Filesystem::filemtime($path);
-	if($mtime != $filemtime)
-	{
+	$filemtime = \OC\Files\Filesystem::filemtime($path);
+	if($mtime != $filemtime) {
 		// Then the file has changed since opening
 		OCP\JSON::error();
-		OCP\Util::writeLog('files_texteditor',"File: ".$path." modified since opening.",OCP\Util::ERROR);	
-	}
-	else
-	{
-		// File same as when opened
-		// Save file
-		if(OC_Filesystem::is_writable($path))
-		{
-			OC_Filesystem::file_put_contents($path, $filecontents);
+		OCP\Util::writeLog(
+			'files_texteditor',
+			"File: ".$path." modified since opening.",
+			OCP\Util::ERROR
+			);
+	} else {
+		// File same as when opened, save file
+		if(\OC\Files\Filesystem::isUpdatable($path)) {
+			$filecontents = iconv(mb_detect_encoding($filecontents), "UTF-8", $filecontents);
+			\OC\Files\Filesystem::file_put_contents($path, $filecontents);
 			// Clear statcache
 			clearstatcache();
 			// Get new mtime
-			$newmtime = OC_Filesystem::filemtime($path);
+			$newmtime = \OC\Files\Filesystem::filemtime($path);
 			OCP\JSON::success(array('data' => array('mtime' => $newmtime)));
-		}
-		else
-		{
+		} else {
 			// Not writeable!
-			OCP\JSON::error(array('data' => array( 'message' => 'Insufficient permissions')));	
-			OCP\Util::writeLog('files_texteditor',"User does not have permission to write to file: ".$path,OCP\Util::ERROR);
+			OCP\JSON::error(array('data' => array( 'message' => 'Insufficient permissions')));
+			OCP\Util::writeLog(
+				'files_texteditor',
+				"User does not have permission to write to file: ".$path,
+				OCP\Util::ERROR
+				);
 		}
 	}
-} else if($path == ''){
+} else if($path == '') {
 	OCP\JSON::error(array('data' => array( 'message' => 'File path not supplied')));
 	OCP\Util::writeLog('files_texteditor','No file path supplied', OCP\Util::ERROR);
-} else if($mtime == ''){
+} else if($mtime == '') {
 	OCP\JSON::error(array('data' => array( 'message' => 'File mtime not supplied')));
 	OCP\Util::writeLog('files_texteditor','No file mtime supplied' ,OCP\Util::ERROR);
-} else if(!$filecontents){
+} else if(!$filecontents) {
 	OCP\JSON::error(array('data' => array( 'message' => 'File contents not supplied')));
-	OCP\Util::writeLog('files_texteditor','The file contents was not supplied',OCP\Util::ERROR);	
+	OCP\Util::writeLog('files_texteditor','The file contents was not supplied',OCP\Util::ERROR);
 }

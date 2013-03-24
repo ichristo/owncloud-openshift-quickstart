@@ -6,14 +6,14 @@
  * See the COPYING-README file.
  */
 
- 
+
 
 if(!OCP\User::isLoggedIn()) {
-	die('<script type="text/javascript">document.location = oc_webroot;</script>');
+	OCP\User::checkLoggedIn();
 }
 OCP\JSON::checkAppEnabled('calendar');
 
-if (!isset($_POST['start'])){
+if (!isset($_POST['start'])) {
 	OCP\JSON::error();
 	die;
 }
@@ -21,17 +21,30 @@ $start = $_POST['start'];
 $end = $_POST['end'];
 $allday = $_POST['allday'];
 
-if (!$end){
+if (!$end) {
 	$duration = OCP\Config::getUserValue( OCP\USER::getUser(), 'calendar', 'duration', '60');
 	$end = $start + ($duration * 60);
 }
 $start = new DateTime('@'.$start);
 $end = new DateTime('@'.$end);
-$timezone = OCP\Config::getUserValue(OCP\USER::getUser(), 'calendar', 'timezone', date_default_timezone_get());
+$timezone = OC_Calendar_App::getTimezone();
 $start->setTimezone(new DateTimeZone($timezone));
 $end->setTimezone(new DateTimeZone($timezone));
 
-$calendar_options = OC_Calendar_Calendar::allCalendars(OCP\USER::getUser());
+$calendars = OC_Calendar_Calendar::allCalendars(OCP\USER::getUser());
+$calendar_options = array();
+
+foreach($calendars as $calendar) {
+	if($calendar['userid'] != OCP\User::getUser()) {
+		$sharedCalendar = OCP\Share::getItemSharedWithBySource('calendar', $calendar['id']);
+		if ($sharedCalendar && ($sharedCalendar['permissions'] & OCP\PERMISSION_UPDATE)) {
+			array_push($calendar_options, $calendar);
+		}
+	} else {
+		array_push($calendar_options, $calendar);
+	}
+}
+$access_class_options = OC_Calendar_App::getAccessClassOptions();
 $repeat_options = OC_Calendar_App::getRepeatOptions();
 $repeat_end_options = OC_Calendar_App::getEndOptions();
 $repeat_month_options = OC_Calendar_App::getMonthOptions();
@@ -45,7 +58,9 @@ $repeat_bymonthday_options = OC_Calendar_App::getByMonthDayOptions();
 
 $tmpl = new OCP\Template('calendar', 'part.newevent');
 $tmpl->assign('access', 'owner');
+$tmpl->assign('accessclass', 'PRIVATE');
 $tmpl->assign('calendar_options', $calendar_options);
+$tmpl->assign('access_class_options', $access_class_options);
 $tmpl->assign('repeat_options', $repeat_options);
 $tmpl->assign('repeat_month_options', $repeat_month_options);
 $tmpl->assign('repeat_weekly_options', $repeat_weekly_options);

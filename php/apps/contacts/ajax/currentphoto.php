@@ -19,50 +19,37 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-// Init owncloud
-//require_once('../../../lib/base.php');
 
-// Check if we are a user
 // Firefox and Konqueror tries to download application/json for me.  --Arthur
 OCP\JSON::setContentTypeHeader('text/plain');
 OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('contacts');
-function bailOut($msg) {
-	OCP\JSON::error(array('data' => array('message' => $msg)));
-	OCP\Util::writeLog('contacts','ajax/currentphoto.php: '.$msg, OCP\Util::ERROR);
-	exit();
-}
-function debug($msg) {
-	OCP\Util::writeLog('contacts','ajax/currentphoto.php: '.$msg, OCP\Util::DEBUG);
-}
+require_once 'loghandler.php';
 
 if (!isset($_GET['id'])) {
-	bailOut(OC_Contacts_App::$l10n->t('No contact ID was submitted.'));
+	bailOut(OCA\Contacts\App::$l10n->t('No contact ID was submitted.'));
 }
 
-$tmpfname = tempnam(get_temp_dir(), "occOrig");
-$contact = OC_Contacts_App::getContactVCard($_GET['id']);
-$image = new OC_Image();
-if(!$image) {
-	bailOut(OC_Contacts_App::$l10n->t('Error loading image.'));
-}
+$contact = OCA\Contacts\App::getContactVCard($_GET['id']);
 // invalid vcard
 if( is_null($contact)) {
-	bailOut(OC_Contacts_App::$l10n->t('Error reading contact photo.'));
+	bailOut(OCA\Contacts\App::$l10n->t('Error reading contact photo.'));
 } else {
-	if(!$image->loadFromBase64($contact->getAsString('PHOTO'))) {
-		$image->loadFromBase64($contact->getAsString('LOGO'));
+	$image = new OC_Image();
+	if(!isset($contact->PHOTO) || !$image->loadFromBase64((string)$contact->PHOTO)) {
+		if(isset($contact->LOGO)) {
+			$image->loadFromBase64((string)$contact->LOGO);
+		}
 	}
 	if($image->valid()) {
-		if($image->save($tmpfname)) {
-			OCP\JSON::success(array('data' => array('id'=>$_GET['id'], 'tmp'=>$tmpfname)));
+		$tmpkey = 'contact-photo-'.$contact->UID;
+		if(OC_Cache::set($tmpkey, $image->data(), 600)) {
+			OCP\JSON::success(array('data' => array('id'=>$_GET['id'], 'tmp'=>$tmpkey)));
 			exit();
 		} else {
-			bailOut(OC_Contacts_App::$l10n->t('Error saving temporary file.'));
+			bailOut(OCA\Contacts\App::$l10n->t('Error saving temporary file.'));
 		}
 	} else {
-		bailOut(OC_Contacts_App::$l10n->t('The loading photo is not valid.'));
+		bailOut(OCA\Contacts\App::$l10n->t('The loading photo is not valid.'));
 	}
 }
-
-?>

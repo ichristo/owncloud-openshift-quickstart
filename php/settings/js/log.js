@@ -23,6 +23,9 @@ OC.Log={
 			if(result.status=='success'){
 				OC.Log.addEntries(result.data);
 				$('html, body').animate({scrollTop: $(document).height()}, 800);
+				if(!result.remain){
+					$('#moreLog').css('display', 'none');
+				}
 			}
 		});
 	},
@@ -39,7 +42,7 @@ OC.Log={
 			row.append(appTd);
 			
 			var messageTd=$('<td/>');
-			messageTd.html(entry.message);
+			messageTd.text(entry.message);
 			row.append(messageTd);
 			
 			var timeTd=$('<td/>');

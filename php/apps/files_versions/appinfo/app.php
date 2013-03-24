@@ -1,17 +1,14 @@
 <?php
 
-require_once('apps/files_versions/versions.php');
+//require_once 'files_versions/versions.php';
+OC::$CLASSPATH['OCA\Files_Versions\Storage'] = 'files_versions/lib/versions.php';
+OC::$CLASSPATH['OCA\Files_Versions\Hooks'] = 'files_versions/lib/hooks.php';
+OC::$CLASSPATH['OCA\Files_Versions\Capabilities'] = 'files_versions/lib/capabilities.php';
 
-// Add an entry in the app list
-OCP\App::register( array(
-  'order' => 10,
-  'id' => 'files_versions',
-  'name' => 'Versioning' ));
-
-OCP\App::registerAdmin('files_versions', 'settings');
 OCP\Util::addscript('files_versions', 'versions');
 
 // Listen to write signals
-OCP\Util::connectHook(OC_Filesystem::CLASSNAME, OC_Filesystem::signal_post_write, "OCA_Versions\Storage", "write_hook");
-
-?>
+OCP\Util::connectHook('OC_Filesystem', 'write', "OCA\Files_Versions\Hooks", "write_hook");
+// Listen to delete and rename signals
+OCP\Util::connectHook('OC_Filesystem', 'post_delete', "OCA\Files_Versions\Hooks", "remove_hook");
+OCP\Util::connectHook('OC_Filesystem', 'rename', "OCA\Files_Versions\Hooks", "rename_hook");

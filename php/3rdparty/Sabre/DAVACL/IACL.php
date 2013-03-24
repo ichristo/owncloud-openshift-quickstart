@@ -7,7 +7,7 @@
  *
  * @package Sabre
  * @subpackage DAVACL
- * @copyright Copyright (C) 2007-2012 Rooftop Solutions. All rights reserved.
+ * @copyright Copyright (C) 2007-2013 Rooftop Solutions. All rights reserved.
  * @author Evert Pot (http://www.rooftopsolutions.nl/)
  * @license http://code.google.com/p/sabredav/wiki/License Modified BSD License
  */
@@ -48,7 +48,7 @@ interface Sabre_DAVACL_IACL extends Sabre_DAV_INode {
     /**
      * Updates the ACL
      *
-     * This method will receive a list of new ACE's.
+     * This method will receive a list of new ACE's as an array argument.
      *
      * @param array $acl
      * @return void

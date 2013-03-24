@@ -21,10 +21,10 @@
  *
  */
 
-require_once('class.openid.v3.php');
+require_once 'openid/class.openid.v3.php';
 
 /**
- * Class for user management in a SQL Database (e.g. MySQL, SQLite)
+ * Class for user OpenId backend
  */
 class OC_USER_OPENID extends OC_User_Backend {
 	/**
@@ -35,13 +35,14 @@ class OC_USER_OPENID extends OC_User_Backend {
 	 *
 	 * Check if the password is correct without logging in the user
 	 */
-	public function checkPassword( $uid, $password ){
+	public function checkPassword( $uid, $password ) {
+		$base_url = OCP\Util::getServerProtocol().'://' . OCP\Util::getServerHost();
 		// Get identity from user and redirect browser to OpenID Server
-		$openid = new SimpleOpenID;
+		$openid = new SimpleOpenID();
 		$openid->SetIdentity($uid);
-		$openid->SetTrustRoot('http://' . OCP\Util::getServerHost());
-		if ($openid->GetOpenIDServer()){
-			$openid->SetApprovedURL('http://' . OCP\Util::getServerHost() . OC::$WEBROOT);      // Send Response from OpenID server to this script
+		$openid->SetTrustRoot($base_url);
+		if ($openid->GetOpenIDServer()) {
+			$openid->SetApprovedURL($base_url . OC::$WEBROOT);      // Send Response from OpenID server to this script
 			$openid->Redirect();     // This will redirect user to OpenID Server
 			exit;
 		}else{
@@ -53,17 +54,13 @@ class OC_USER_OPENID extends OC_User_Backend {
 	/**
 	 * find the user that can be authenticated with an openid identity
 	 */
-	public static function findUserForIdentity($identity){
-		$query=OCP\DB::prepare('SELECT userid FROM *PREFIX*preferences WHERE appid=? AND configkey=? AND configvalue=?');
+	public static function findUserForIdentity($identity) {
+		$query=OCP\DB::prepare('SELECT `userid` FROM `*PREFIX*preferences` WHERE `appid`=? AND `configkey`=? AND `configvalue`=?');
 		$result=$query->execute(array('user_openid','identity',$identity))->fetchAll();
-		if(count($result)>0){
+		if(count($result)>0) {
 			return $result[0]['userid'];
 		}else{
 			return false;
 		}
 	}
 }
-
-
-
-?>

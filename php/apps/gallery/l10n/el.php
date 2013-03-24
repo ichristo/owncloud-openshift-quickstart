@@ -1,12 +1,6 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Εικόνες",
-"Settings" => "Ρυθμίσεις",
-"Rescan" => "Επανασάρωση",
-"Stop" => "Διακοπή",
-"Share" => "Κοινοποίηση",
-"Back" => "Επιστροφή",
-"Remove confirmation" => "Αφαίρεση επιβεβαίωσης",
-"Do you want to remove album" => "Θέλετε να αφαιρέσετε το άλμπουμ",
-"Change album name" => "Αλλάξτε το όνομα του άλμπουμ",
-"New album name" => "Νέο όνομα άλμπουμ"
+"Shared by" => "Διαμοιράστηκε από",
+"Share" => "Διαμοιρασμός",
+"The \"Image Viewer\" application also need to be enabled to use this application." => "Η εφαρμογή \"Προβολής Εικόνων\" πρέπει να είναι ενεργοποιημένη για την χρήση αυτής της εφαρμογής."
 );

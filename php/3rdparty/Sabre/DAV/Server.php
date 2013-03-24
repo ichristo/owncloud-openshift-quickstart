@@ -5,14 +5,14 @@
  *
  * @package Sabre
  * @subpackage DAV
- * @copyright Copyright (C) 2007-2012 Rooftop Solutions. All rights reserved.
+ * @copyright Copyright (C) 2007-2013 Rooftop Solutions. All rights reserved.
  * @author Evert Pot (http://www.rooftopsolutions.nl/)
  * @license http://code.google.com/p/sabredav/wiki/License Modified BSD License
  */
 class Sabre_DAV_Server {
 
     /**
-     * Inifinity is used for some request supporting the HTTP Depth header and indicates that the operation should traverse the entire tree
+     * Infinity is used for some request supporting the HTTP Depth header and indicates that the operation should traverse the entire tree
      */
     const DEPTH_INFINITY = -1;
 
@@ -102,7 +102,6 @@ class Sabre_DAV_Server {
         '{DAV:}getetag',
         '{DAV:}getlastmodified',
         '{DAV:}lockdiscovery',
-        '{DAV:}resourcetype',
         '{DAV:}supportedlock',
 
         // RFC4331
@@ -162,7 +161,7 @@ class Sabre_DAV_Server {
      * If an array is passed, we automatically create a root node, and use
      * the nodes in the array as top-level children.
      *
-     * @param Sabre_DAV_Tree|Sabre_DAV_INode|null $treeOrNode The tree object
+     * @param Sabre_DAV_Tree|Sabre_DAV_INode|array|null $treeOrNode The tree object
      */
     public function __construct($treeOrNode = null) {
 
@@ -203,10 +202,22 @@ class Sabre_DAV_Server {
 
         try {
 
+            // If nginx (pre-1.2) is used as a proxy server, and SabreDAV as an
+            // origin, we must make sure we send back HTTP/1.0 if this was
+            // requested.
+            // This is mainly because nginx doesn't support Chunked Transfer
+            // Encoding, and this forces the webserver SabreDAV is running on,
+            // to buffer entire responses to calculate Content-Length.
+            $this->httpResponse->defaultHttpVersion = $this->httpRequest->getHTTPVersion();
+
             $this->invokeMethod($this->httpRequest->getMethod(), $this->getRequestUri());
 
         } catch (Exception $e) {
 
+            try {
+                $this->broadcastEvent('exception', array($e));
+            } catch (Exception $ignore) {
+            }
             $DOM = new DOMDocument('1.0','utf-8');
             $DOM->formatOutput = true;
 
@@ -214,17 +225,23 @@ class Sabre_DAV_Server {
             $error->setAttribute('xmlns:s',self::NS_SABREDAV);
             $DOM->appendChild($error);
 
-            $error->appendChild($DOM->createElement('s:exception',get_class($e)));
-            $error->appendChild($DOM->createElement('s:message',htmlentities($e->getMessage())));
+            $h = function($v) {
+
+                return htmlspecialchars($v, ENT_NOQUOTES, 'UTF-8');
+
+            };
+
+            $error->appendChild($DOM->createElement('s:exception',$h(get_class($e))));
+            $error->appendChild($DOM->createElement('s:message',$h($e->getMessage())));
             if ($this->debugExceptions) {
-                $error->appendChild($DOM->createElement('s:file',$e->getFile()));
-                $error->appendChild($DOM->createElement('s:line',$e->getLine()));
-                $error->appendChild($DOM->createElement('s:code',$e->getCode()));
-                $error->appendChild($DOM->createElement('s:stacktrace',$e->getTraceAsString()));
+                $error->appendChild($DOM->createElement('s:file',$h($e->getFile())));
+                $error->appendChild($DOM->createElement('s:line',$h($e->getLine())));
+                $error->appendChild($DOM->createElement('s:code',$h($e->getCode())));
+                $error->appendChild($DOM->createElement('s:stacktrace',$h($e->getTraceAsString())));
 
             }
             if (self::$exposeVersion) {
-                $error->appendChild($DOM->createElement('s:sabredav-version',Sabre_DAV_Version::VERSION));
+                $error->appendChild($DOM->createElement('s:sabredav-version',$h(Sabre_DAV_Version::VERSION)));
             }
 
             if($e instanceof Sabre_DAV_Exception) {
@@ -508,7 +525,7 @@ class Sabre_DAV_Server {
 
         if (!$this->checkPreconditions(true)) return false;
 
-        if (!($node instanceof Sabre_DAV_IFile)) throw new Sabre_DAV_Exception_NotImplemented('GET is only implemented on File objects');
+        if (!$node instanceof Sabre_DAV_IFile) throw new Sabre_DAV_Exception_NotImplemented('GET is only implemented on File objects');
         $body = $node->get();
 
         // Converting string into stream, if needed.
@@ -601,7 +618,16 @@ class Sabre_DAV_Server {
             // New read/write stream
             $newStream = fopen('php://temp','r+');
 
-            stream_copy_to_stream($body, $newStream, $end-$start+1, $start);
+            // stream_copy_to_stream() has a bug/feature: the `whence` argument
+            // is interpreted as SEEK_SET (count from absolute offset 0), while
+            // for a stream it should be SEEK_CUR (count from current offset).
+            // If a stream is nonseekable, the function fails. So we *emulate*
+            // the correct behaviour with fseek():
+            if ($start > 0) {
+                if (($curOffs = ftell($body)) === false) $curOffs = 0;
+                fseek($body, $start - $curOffs, SEEK_CUR);
+            }
+            stream_copy_to_stream($body, $newStream, $end-$start+1);
             rewind($newStream);
 
             $this->httpResponse->setHeader('Content-Length', $end-$start+1);
@@ -685,7 +711,7 @@ class Sabre_DAV_Server {
     protected function httpPropfind($uri) {
 
         // $xml = new Sabre_DAV_XMLReader(file_get_contents('php://input'));
-        $requestedProperties = $this->parsePropfindRequest($this->httpRequest->getBody(true));
+        $requestedProperties = $this->parsePropFindRequest($this->httpRequest->getBody(true));
 
         $depth = $this->getHTTPDepth(1);
         // The only two options for the depth of a propfind is 0 or 1
@@ -696,6 +722,7 @@ class Sabre_DAV_Server {
         // This is a multi-status response
         $this->httpResponse->sendStatus(207);
         $this->httpResponse->setHeader('Content-Type','application/xml; charset=utf-8');
+        $this->httpResponse->setHeader('Vary','Brief,Prefer');
 
         // Normally this header is only needed for OPTIONS responses, however..
         // iCal seems to also depend on these being set for PROPFIND. Since
@@ -704,7 +731,10 @@ class Sabre_DAV_Server {
         foreach($this->plugins as $plugin) $features = array_merge($features,$plugin->getFeatures());
         $this->httpResponse->setHeader('DAV',implode(', ',$features));
 
-        $data = $this->generateMultiStatus($newProperties);
+        $prefer = $this->getHTTPPrefer();
+        $minimal = $prefer['return-minimal'];
+
+        $data = $this->generateMultiStatus($newProperties, $minimal);
         $this->httpResponse->sendBody($data);
 
     }
@@ -723,6 +753,30 @@ class Sabre_DAV_Server {
         $newProperties = $this->parsePropPatchRequest($this->httpRequest->getBody(true));
 
         $result = $this->updateProperties($uri, $newProperties);
+
+        $prefer = $this->getHTTPPrefer();
+        $this->httpResponse->setHeader('Vary','Brief,Prefer');
+
+        if ($prefer['return-minimal']) {
+
+            // If return-minimal is specified, we only have to check if the
+            // request was succesful, and don't need to return the
+            // multi-status.
+            $ok = true;
+            foreach($result as $code=>$prop) {
+                if ((int)$code > 299) {
+                    $ok = false;
+                }
+            }
+
+            if ($ok) {
+
+                $this->httpResponse->sendStatus(204);
+                return;
+
+            }
+
+        }
 
         $this->httpResponse->sendStatus(207);
         $this->httpResponse->setHeader('Content-Type','application/xml; charset=utf-8');
@@ -927,7 +981,7 @@ class Sabre_DAV_Server {
      * This method moves one uri to a different uri. A lot of the actual request processing is done in getCopyMoveInfo
      *
      * @param string $uri
-     * @return void
+     * @return bool
      */
     protected function httpMove($uri) {
 
@@ -1009,7 +1063,7 @@ class Sabre_DAV_Server {
         if ($this->broadcastEvent('report',array($reportName,$dom, $uri))) {
 
             // If broadcastEvent returned true, it means the report was not supported
-            throw new Sabre_DAV_Exception_ReportNotImplemented();
+            throw new Sabre_DAV_Exception_ReportNotSupported();
 
         }
 
@@ -1155,6 +1209,85 @@ class Sabre_DAV_Server {
             $matches[1]!==''?$matches[1]:null,
             $matches[2]!==''?$matches[2]:null,
         );
+
+    }
+
+    /**
+     * Returns the HTTP Prefer header information.
+     *
+     * The prefer header is defined in:
+     * http://tools.ietf.org/html/draft-snell-http-prefer-14
+     *
+     * This method will return an array with options.
+     *
+     * Currently, the following options may be returned:
+     *   array(
+     *      'return-asynch'         => true,
+     *      'return-minimal'        => true,
+     *      'return-representation' => true,
+     *      'wait'                  => 30,
+     *      'strict'                => true,
+     *      'lenient'               => true,
+     *   )
+     *
+     * This method also supports the Brief header, and will also return
+     * 'return-minimal' if the brief header was set to 't'.
+     *
+     * For the boolean options, false will be returned if the headers are not
+     * specified. For the integer options it will be 'null'.
+     *
+     * @return array
+     */
+    public function getHTTPPrefer() {
+
+        $result = array(
+            'return-asynch'         => false,
+            'return-minimal'        => false,
+            'return-representation' => false,
+            'wait'                  => null,
+            'strict'                => false,
+            'lenient'               => false,
+        );
+
+        if ($prefer = $this->httpRequest->getHeader('Prefer')) {
+
+            $parameters = array_map('trim',
+                explode(',', $prefer)
+            );
+
+            foreach($parameters as $parameter) {
+
+                // Right now our regex only supports the tokens actually
+                // specified in the draft. We may need to expand this if new
+                // tokens get registered.
+                if(!preg_match('/^(?P<token>[a-z0-9-]+)(?:=(?P<value>[0-9]+))?$/', $parameter, $matches)) {
+                    continue;
+                }
+
+                switch($matches['token']) {
+
+                    case 'return-asynch' :
+                    case 'return-minimal' :
+                    case 'return-representation' :
+                    case 'strict' :
+                    case 'lenient' :
+                        $result[$matches['token']] = true;
+                        break;
+                    case 'wait' :
+                        $result[$matches['token']] = $matches['value'];
+                        break;
+
+                }
+
+            }
+
+        }
+
+        if ($this->httpRequest->getHeader('Brief')=='t') {
+            $result['return-minimal'] = true;
+        }
+
+        return $result;
 
     }
 
@@ -1323,6 +1456,8 @@ class Sabre_DAV_Server {
 
         if ($depth!=0) $depth = 1;
 
+        $path = rtrim($path,'/');
+
         $returnPropertyList = array();
 
         $parentNode = $this->tree->getNodeForPath($path);
@@ -1378,11 +1513,25 @@ class Sabre_DAV_Server {
 
             if (count($currentPropertyNames) > 0) {
 
-                if ($node instanceof Sabre_DAV_IProperties)
-                    $newProperties['200'] = $newProperties[200] + $node->getProperties($currentPropertyNames);
+                if ($node instanceof Sabre_DAV_IProperties) {
+                    $nodeProperties = $node->getProperties($currentPropertyNames);
+
+                    // The getProperties method may give us too much,
+                    // properties, in case the implementor was lazy.
+                    //
+                    // So as we loop through this list, we will only take the
+                    // properties that were actually requested and discard the
+                    // rest.
+                    foreach($currentPropertyNames as $k=>$currentPropertyName) {
+                        if (isset($nodeProperties[$currentPropertyName])) {
+                            unset($currentPropertyNames[$k]);
+                            $newProperties[200][$currentPropertyName] = $nodeProperties[$currentPropertyName];
+                        }
+                    }
+
+                }
 
             }
-
 
             foreach($currentPropertyNames as $prop) {
 
@@ -1433,15 +1582,18 @@ class Sabre_DAV_Server {
 
             }
 
-            $this->broadcastEvent('afterGetProperties',array(trim($myPath,'/'),&$newProperties));
+            $this->broadcastEvent('afterGetProperties',array(trim($myPath,'/'),&$newProperties, $node));
 
             $newProperties['href'] = trim($myPath,'/');
 
             // Its is a WebDAV recommendation to add a trailing slash to collectionnames.
-            // Apple's iCal also requires a trailing slash for principals (rfc 3744).
-            // Therefore we add a trailing / for any non-file. This might need adjustments
-            // if we find there are other edge cases.
-            if ($myPath!='' && isset($newProperties[200]['{DAV:}resourcetype']) && count($newProperties[200]['{DAV:}resourcetype']->getValue())>0) $newProperties['href'] .='/';
+            // Apple's iCal also requires a trailing slash for principals (rfc 3744), though this is non-standard.
+            if ($myPath!='' && isset($newProperties[200]['{DAV:}resourcetype'])) {
+                $rt = $newProperties[200]['{DAV:}resourcetype'];
+                if ($rt->is('{DAV:}collection') || $rt->is('{DAV:}principal')) {
+                    $newProperties['href'] .='/';
+                }
+            }
 
             // If the resourcetype property was manually added to the requested property list,
             // we will remove it again.
@@ -1476,11 +1628,14 @@ class Sabre_DAV_Server {
         if (!$this->broadcastEvent('beforeBind',array($uri))) return false;
 
         $parent = $this->tree->getNodeForPath($dir);
+        if (!$parent instanceof Sabre_DAV_ICollection) {
+            throw new Sabre_DAV_Exception_Conflict('Files can only be created as children of collections');
+        }
 
         if (!$this->broadcastEvent('beforeCreateFile',array($uri, &$data, $parent))) return false;
 
         $etag = $parent->createFile($name,$data);
-        $this->tree->markDirty($dir);
+        $this->tree->markDirty($dir . '/' . $name);
 
         $this->broadcastEvent('afterBind',array($uri));
         $this->broadcastEvent('afterCreateFile',array($uri, $parent));
@@ -1784,7 +1939,14 @@ class Sabre_DAV_Server {
                     $etag = $node->getETag();
                     if ($etag===$ifMatchItem) {
                         $haveMatch = true;
+                    } else {
+                        // Evolution has a bug where it sometimes prepends the "
+                        // with a \. This is our workaround.
+                        if (str_replace('\\"','"', $ifMatchItem) === $etag) {
+                            $haveMatch = true;
+                        }
                     }
+
                 }
                 if (!$haveMatch) {
                      throw new Sabre_DAV_Exception_PreconditionFailed('An If-Match header was specified, but none of the specified the ETags matched.','If-Match');
@@ -1894,12 +2056,15 @@ class Sabre_DAV_Server {
 
 
     /**
-     * Generates a WebDAV propfind response body based on a list of nodes
+     * Generates a WebDAV propfind response body based on a list of nodes.
+     *
+     * If 'strip404s' is set to true, all 404 responses will be removed.
      *
      * @param array $fileProperties The list with nodes
+     * @param bool strip404s
      * @return string
      */
-    public function generateMultiStatus(array $fileProperties) {
+    public function generateMultiStatus(array $fileProperties, $strip404s = false) {
 
         $dom = new DOMDocument('1.0','utf-8');
         //$dom->formatOutput = true;
@@ -1917,6 +2082,10 @@ class Sabre_DAV_Server {
 
             $href = $entry['href'];
             unset($entry['href']);
+
+            if ($strip404s && isset($entry[404])) {
+                unset($entry[404]);
+            }
 
             $response = new Sabre_DAV_Property_Response($href,$entry);
             $response->serialize($this,$multiStatus);

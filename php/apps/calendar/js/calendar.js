@@ -7,7 +7,64 @@
  */
 
 Calendar={
+	Util:{
+		dateTimeToTimestamp:function(dateString, timeString){
+			dateTuple = dateString.split('-');
+			timeTuple = timeString.split(':');
+			
+			var day, month, year, minute, hour;
+			day = parseInt(dateTuple[0], 10);
+			month = parseInt(dateTuple[1], 10);
+			year = parseInt(dateTuple[2], 10);
+			hour = parseInt(timeTuple[0], 10);
+			minute = parseInt(timeTuple[1], 10);
+			
+			var date = new Date(year, month-1, day, hour, minute);
+			
+			return parseInt(date.getTime(), 10);
+		},
+		formatDate:function(year, month, day){
+			if(day < 10){
+				day = '0' + day;
+			}
+			if(month < 10){
+				month = '0' + month;
+			}
+			return day + '-' + month + '-' + year;
+		},
+		formatTime:function(hour, minute){
+			if(hour < 10){
+				hour = '0' + hour;
+			}
+			if(minute < 10){
+				minute = '0' + minute;
+			}
+			return hour + ':' + minute;
+		}, 
+		adjustDate:function(){
+			var fromTime = $('#fromtime').val();
+			var fromDate = $('#from').val();
+			var fromTimestamp = Calendar.Util.dateTimeToTimestamp(fromDate, fromTime);
+
+			var toTime = $('#totime').val();
+			var toDate = $('#to').val();
+			var toTimestamp = Calendar.Util.dateTimeToTimestamp(toDate, toTime);
+
+			if(fromTimestamp >= toTimestamp){
+				fromTimestamp += 30*60*1000;
+				
+				var date = new Date(fromTimestamp);
+				movedTime = Calendar.Util.formatTime(date.getHours(), date.getMinutes());
+				movedDate = Calendar.Util.formatDate(date.getFullYear(),
+						date.getMonth()+1, date.getDate());
+
+				$('#to').val(movedDate);
+				$('#totime').val(movedTime);
+			}
+		}
+	},
 	UI:{
+		scrollcount: 0,
 		loading: function(isLoading){
 			if (isLoading){
 				$('#loading').show();
@@ -18,19 +75,21 @@ Calendar={
 		startEventDialog:function(){
 			Calendar.UI.loading(false);
 			$('.tipsy').remove();
-			$('#calendar_holder').fullCalendar('unselect');
+			$('#fullcalendar').fullCalendar('unselect');
 			Calendar.UI.lockTime();
 			$( "#from" ).datepicker({
-				dateFormat : 'dd-mm-yy'
+				dateFormat : 'dd-mm-yy',
+				onSelect: function(){ Calendar.Util.adjustDate(); }
 			});
 			$( "#to" ).datepicker({
 				dateFormat : 'dd-mm-yy'
 			});
 			$('#fromtime').timepicker({
-			    showPeriodLabels: false
+				showPeriodLabels: false,
+				onSelect: function(){ Calendar.Util.adjustDate(); }
 			});
 			$('#totime').timepicker({
-			    showPeriodLabels: false
+				showPeriodLabels: false
 			});
 			$('#category').multiple_autocomplete({source: categories});
 			Calendar.UI.repeat('init');
@@ -54,6 +113,7 @@ Calendar={
 					$(this).dialog('destroy').remove();
 				}
 			});
+			Calendar.UI.Share.init();
 		},
 		newEvent:function(start, end, allday){
 			start = Math.round(start.getTime()/1000);
@@ -78,7 +138,7 @@ Calendar={
 				$('#event').dialog('destroy').remove();
 			}else{
 				Calendar.UI.loading(true);
-				$('#dialog_holder').load(OC.filePath('calendar', 'ajax/event', 'edit.form.php') + '?id=' + id, Calendar.UI.startEventDialog);
+				$('#dialog_holder').load(OC.filePath('calendar', 'ajax/event', 'edit.form.php'), {id: id}, Calendar.UI.startEventDialog);
 			}
 		},
 		submitDeleteEventForm:function(url){
@@ -88,7 +148,7 @@ Calendar={
 			$.post(url, post, function(data){
 					Calendar.UI.loading(false);
 					if(data.status == 'success'){
-						$('#calendar_holder').fullCalendar('removeEvents', $('#event_form input[name=id]').val());
+						$('#fullcalendar').fullCalendar('removeEvents', $('#event_form input[name=id]').val());
 						$('#event').dialog('destroy').remove();
 					} else {
 						$('#errorbox').html(t('calendar', 'Deletion failed'));
@@ -133,7 +193,7 @@ Calendar={
 					} else
 					if(data.status == 'success'){
 						$('#event').dialog('destroy').remove();
-						$('#calendar_holder').fullCalendar('refetchEvents');
+						$('#fullcalendar').fullCalendar('refetchEvents');
 					}
 				},"json");
 		},
@@ -148,7 +208,7 @@ Calendar={
 					console.log("Event moved successfully");
 				}else{
 					revertFunc();
-					$('#calendar_holder').fullCalendar('refetchEvents');
+					$('#fullcalendar').fullCalendar('refetchEvents');
 				}
 			});
 		},
@@ -163,7 +223,7 @@ Calendar={
 					console.log("Event resized successfully");
 				}else{
 					revertFunc();
-					$('#calendar_holder').fullCalendar('refetchEvents');
+					$('#fullcalendar').fullCalendar('refetchEvents');
 				}
 			});
 		},
@@ -180,16 +240,16 @@ Calendar={
 		},
 		getEventPopupText:function(event){
 			if (event.allDay){
-				var timespan = $.fullCalendar.formatDates(event.start, event.end, 'ddd d MMMM[ yyyy]{ -[ddd d] MMMM yyyy}', {monthNamesShort: monthNamesShort, monthNames: monthNames, dayNames: dayNames, dayNamesShort: dayNamesShort}); //t('calendar', "ddd d MMMM[ yyyy]{ -[ddd d] MMMM yyyy}")
+				var timespan = $.fullCalendar.formatDates(event.start, event.end, 'ddd d MMMM[ yyyy]{ - [ddd d] MMMM yyyy}', {monthNamesShort: monthNamesShort, monthNames: monthNames, dayNames: dayNames, dayNamesShort: dayNamesShort}); //t('calendar', "ddd d MMMM[ yyyy]{ - [ddd d] MMMM yyyy}")
 			}else{
-				var timespan = $.fullCalendar.formatDates(event.start, event.end, 'ddd d MMMM[ yyyy] ' + defaulttime + '{ -[ ddd d MMMM yyyy]' + defaulttime + '}', {monthNamesShort: monthNamesShort, monthNames: monthNames, dayNames: dayNames, dayNamesShort: dayNamesShort}); //t('calendar', "ddd d MMMM[ yyyy] HH:mm{ -[ ddd d MMMM yyyy] HH:mm}")
+				var timespan = $.fullCalendar.formatDates(event.start, event.end, 'ddd d MMMM[ yyyy] ' + defaulttime + '{ - [ ddd d MMMM yyyy]' + defaulttime + '}', {monthNamesShort: monthNamesShort, monthNames: monthNames, dayNames: dayNames, dayNamesShort: dayNamesShort}); //t('calendar', "ddd d MMMM[ yyyy] HH:mm{ - [ ddd d MMMM yyyy] HH:mm}")
 				// Tue 18 October 2011 08:00 - 16:00
 			}
 			var html =
-				'<div class="summary">' + event.title + '</div>' +
+				'<div class="summary">' + escapeHTML(event.title) + '</div>' +
 				'<div class="timespan">' + timespan + '</div>';
 			if (event.description){
-				html += '<div class="description">' + event.description + '</div>';
+				html += '<div class="description">' + escapeHTML(event.description) + '</div>';
 			}
 			return html;
 		},
@@ -208,7 +268,6 @@ Calendar={
 		},
 		showCalDAVUrl:function(username, calname){
 			$('#caldav_url').val(totalurl + '/' + username + '/' + calname);
-			$('#caldav_url').val(encodeURI($('#caldav_url').val()));
 			$('#caldav_url').show();
 			$("#caldav_url_close").show();
 		},
@@ -220,6 +279,7 @@ Calendar={
 			//}
 		},
 		scrollCalendar:function(event){
+			$('#fullcalendar').fullCalendar('option', 'height', $(window).height() - $('#controls').height() - $('#header').height() - 15);
 			$('.tipsy').remove();
 			var direction;
 			if(event.detail){
@@ -236,18 +296,24 @@ Calendar={
 					direction = 'down';
 				}
 			}
+			Calendar.UI.scrollcount++;
+			if(Calendar.UI.scrollcount < 5){
+				return;
+			}
+
 			var scroll = $(document).scrollTop(),
 				doc_height = $(document).height(),
 				win_height = $(window).height();
-			if(direction == 'down' && win_height == (doc_height - scroll)){
-				$('#calendar_holder').fullCalendar('next');
+			if(direction == 'down'/* && win_height == (doc_height - scroll)*/){
+				$('#fullcalendar').fullCalendar('next');
 				$(document).scrollTop(0);
 				event.preventDefault();
-			}else if (direction == 'top' && scroll == 0) {
-				$('#calendar_holder').fullCalendar('prev');
+			}else/* if (direction == 'top' && scroll == 0) */{
+				$('#fullcalendar').fullCalendar('prev');
 				$(document).scrollTop(win_height);
 				event.preventDefault();
 			}
+			Calendar.UI.scrollcount = 0;
 		},
 		repeat:function(task){
 			if(task=='init'){
@@ -349,7 +415,7 @@ Calendar={
 					$('#advanced_weekday').css('display', 'block');
 				}
 			}
-			
+
 		},
 		setViewActive: function(view){
 			$('#view input[type="button"]').removeClass('active');
@@ -399,9 +465,9 @@ Calendar={
 					if (data.status == 'success'){
 						checkbox.checked = data.active == 1;
 						if (data.active == 1){
-							$('#calendar_holder').fullCalendar('addEventSource', data.eventSource);
+							$('#fullcalendar').fullCalendar('addEventSource', data.eventSource);
 						}else{
-							$('#calendar_holder').fullCalendar('removeEventSource', data.eventSource.url);
+							$('#fullcalendar').fullCalendar('removeEventSource', data.eventSource.url);
 						}
 					}
 				  });
@@ -414,7 +480,7 @@ Calendar={
 			},
 			edit:function(object, calendarid){
 				var tr = $(document.createElement('tr'))
-					.load(OC.filePath('calendar', 'ajax/calendar', 'edit.form.php') + "?calendarid="+calendarid,
+					.load(OC.filePath('calendar', 'ajax/calendar', 'edit.form.php'), {calendarid: calendarid},
 						function(){Calendar.UI.Calendar.colorPicker(this)});
 				$(object).closest('tr').after(tr).hide();
 			},
@@ -427,9 +493,13 @@ Calendar={
 					  function(data) {
 						if (data.status == 'success'){
 							var url = 'ajax/events.php?calendar_id='+calid;
-							$('#calendar_holder').fullCalendar('removeEventSource', url);
+							$('#fullcalendar').fullCalendar('removeEventSource', url);
 							$('#choosecalendar_dialog').dialog('destroy').remove();
 							Calendar.UI.Calendar.overview();
+							$('#calendar tr[data-id="'+calid+'"]').fadeOut(400,function(){
+								$('#calendar tr[data-id="'+calid+'"]').remove();
+							});
+							$('#fullcalendar').fullCalendar('refetchEvents');
 						}
 					  });
 				}
@@ -445,7 +515,7 @@ Calendar={
 						$("#displayname_"+calendarid).css('background-color', '#F8F8F8');
 					});
 				}
-				
+
 				var url;
 				if (calendarid == 'new'){
 					url = OC.filePath('calendar', 'ajax/calendar', 'new.php');
@@ -456,10 +526,10 @@ Calendar={
 					function(data){
 						if(data.status == 'success'){
 							$(button).closest('tr').prev().html(data.page).show().next().remove();
-							$('#calendar_holder').fullCalendar('removeEventSource', data.eventSource.url);
-							$('#calendar_holder').fullCalendar('addEventSource', data.eventSource);
+							$('#fullcalendar').fullCalendar('removeEventSource', data.eventSource.url);
+							$('#fullcalendar').fullCalendar('addEventSource', data.eventSource);
 							if (calendarid == 'new'){
-								$('#choosecalendar_dialog > table:first').append('<tr><td colspan="6"><a href="#" onclick="Calendar.UI.Calendar.newCalendar(this);"><input type="button" value="' + newcalendar + '"></a></td></tr>');
+								$('#choosecalendar_dialog > table:first').append('<tr><td colspan="6"><a href="#" id="chooseCalendar"><input type="button" value="' + newcalendar + '"></a></td></tr>');
 							}
 						}else{
 							$("#displayname_"+calendarid).css('background-color', '#FF2626');
@@ -500,113 +570,125 @@ Calendar={
 			}
 		},
 		Share:{
-			currentid: 'false',
-			idtype: '',
-			activation:function(object,owner,id){
-				$.getJSON(OC.filePath('calendar', 'ajax/share', 'activation.php'),{id:id, idtype:'calendar', activation:object.checked?1:0});
-				$('#calendar_holder').fullCalendar('refetchEvents');
-			},
-			dropdown:function(userid, calid){
-				$('.calendar_share_dropdown').remove();
-				var element = document.getElementById(userid+'_'+calid);
-				$('<div class="calendar_share_dropdown"></div>').appendTo(element);
-				$.get(OC.filePath('calendar', 'ajax/share', 'dropdown.php') + '?calid=' + calid, function(data){
-					$('.calendar_share_dropdown').html(data);
-					$('.calendar_share_dropdown').show('blind');
-					$('#share_user').chosen();
-					$('#share_group').chosen();
-				});
-				Calendar.UI.Share.currentid = calid;
-				Calendar.UI.Share.idtype = 'calendar';
-			},
-			share:function(id, idtype, sharewith, sharetype){
-				$.getJSON(OC.filePath('calendar', 'ajax/share', 'share.php'),{id:id, idtype:idtype, sharewith:sharewith, sharetype:sharetype}, function(data){
-					if(sharetype == 'public'){
-						$('#public_token').val(parent.location.protocol+'//'+location.host+OC.linkTo('', 'public.php')+'?service=calendar&t='+data.message);
-						$('#public_token').css('display', 'block');
-					}
-				});
-			},
-			unshare:function(id, idtype, sharewith, sharetype){
-				$.getJSON(OC.filePath('calendar', 'ajax/share', 'unshare.php'),{id:id, idtype:idtype, sharewith:sharewith, sharetype:sharetype}, function(){
-					if(sharetype == 'public'){
-						$('#public_token').val('');
-						$('#public_token').css('display', 'none');
-					}
-				});
-			},
-			changepermission:function(id, idtype, sharewith, sharetype, permission){
-				$.getJSON(OC.filePath('calendar', 'ajax/share', 'changepermission.php'),{id:id, idtype:idtype, sharewith: sharewith, sharetype:sharetype, permission: (permission?1:0)});
-			},
 			init:function(){
-				$('.calendar_share_dropdown').live('mouseleave', function(){
-					$('.calendar_share_dropdown').hide('blind', function(){
-						$('.calendar_share_dropdown').remove();
+				var itemShares = [OC.Share.SHARE_TYPE_USER, OC.Share.SHARE_TYPE_GROUP];
+				$('#sharewith').autocomplete({minLength: 2, source: function(search, response) {
+					$.get(OC.filePath('core', 'ajax', 'share.php'), { fetch: 'getShareWith', search: search.term, itemShares: itemShares }, function(result) {
+						if (result.status == 'success' && result.data.length > 0) {
+							response(result.data);
+						}
+					});
+				},
+				focus: function(event, focused) {
+					event.preventDefault();
+				},
+				select: function(event, selected) {
+					var itemType = 'event';
+					var itemSource = $('#sharewith').data('item-source');
+					var shareType = selected.item.value.shareType;
+					var shareWith = selected.item.value.shareWith;
+					$(this).val(shareWith);
+					// Default permissions are Read and Share
+					var permissions = OC.PERMISSION_READ | OC.PERMISSION_SHARE;
+					OC.Share.share(itemType, itemSource, shareType, shareWith, permissions, function(data) {
+						var newitem = '<li data-item-type="event"'
+							+ 'data-share-with="'+shareWith+'" '
+							+ 'data-permissions="'+permissions+'" '
+							+ 'data-share-type="'+shareType+'">'+shareWith+' ('+(shareType == OC.Share.SHARE_TYPE_USER ? t('core', 'user') : t('core', 'group'))+')'
+							+ '<span class="shareactions"><input class="update" type="checkbox" title="'+t('core', 'Editable')+'">'
+							+ '<input class="share" type="checkbox" title="'+t('core', 'Shareable')+'" checked="checked">'
+							+ '<input class="delete" type="checkbox" title="'+t('core', 'Deletable')+'">'
+							+ '<img class="svg action delete" title="Unshare"src="'+ OC.imagePath('core', 'actions/delete.svg') +'"></span></li>';
+						$('.sharedby.eventlist').append(newitem);
+						$('#sharedWithNobody').remove();
+						$('#sharewith').val('');
+					});
+					return false;
+				}
+				});
+
+				$('.shareactions > input:checkbox').change(function() {
+					var container = $(this).parents('li').first();
+					var permissions = parseInt(container.data('permissions'));
+					var itemType = container.data('item-type');
+					var shareType = container.data('share-type');
+					var itemSource = container.data('item');
+					var shareWith = container.data('share-with');
+					var permission = null;
+					if($(this).hasClass('update')) {
+						permission = OC.PERMISSION_UPDATE;
+					} else if($(this).hasClass('share')) {
+						permission = OC.PERMISSION_SHARE;
+					} else if($(this).hasClass('delete')) {
+						permission = OC.PERMISSION_DELETE;
+					}
+					// This is probably not the right way, but it works :-P
+					if($(this).is(':checked')) {
+						permissions += permission;
+					} else {
+						permissions -= permission;
+					}
+					OC.Share.setPermissions(itemType, itemSource, shareType, shareWith, permissions);
+				});
+
+				$('.shareactions > .delete').click(function() {
+					var container = $(this).parents('li').first();
+					var itemType = container.data('item-type');
+					var shareType = container.data('share-type');
+					var itemSource = container.data('item');
+					var shareWith = container.data('share-with');
+					OC.Share.unshare(itemType, itemSource, shareType, shareWith, function() {
+						container.remove();
 					});
 				});
-				$('#share_user').live('change', function(){
-					if($('#sharewithuser_' + $('#share_user option:selected').text()).length == 0){
-						Calendar.UI.Share.share(Calendar.UI.Share.currentid, Calendar.UI.Share.idtype, $('#share_user option:selected').text(), 'user');
-						var newitem = '<li id="sharewithuser_' + $('#share_user option:selected').text() +'"><input type="checkbox" width="12px" style="visibility:hidden;" title="' + $('#share_user option:selected').text() + '">' + $('#share_user option:selected').text() + '<img src="' + oc_webroot + '/core/img/actions/delete.svg" class="svg action" style="display:none;float:right;"></li>';
-						$('#sharewithuser_list').append(newitem);
-						$('#sharewithuser_' + $('#share_user option:selected').text() + ' > img').click(function(){
-							$('#share_user option[value="' + $(this).parent().text() + '"]').removeAttr('disabled');
-							Calendar.UI.Share.unshare(Calendar.UI.Share.currentid, Calendar.UI.Share.idtype, $(this).parent().text(), 'user' );
-							$("#share_user").trigger("liszt:updated");
-							$(this).parent().remove();
-						});
-						$('#share_user option:selected').attr('disabled', 'disabled');
-						$("#share_user").trigger("liszt:updated");
+			}
+		},
+		Drop:{
+			init:function(){
+				if (typeof window.FileReader === 'undefined') {
+					console.log('The drop-import feature is not supported in your browser :(');
+					return false;
+				}
+				droparea = document.getElementById('fullcalendar');
+				droparea.ondrop = function(e){
+					e.preventDefault();
+					Calendar.UI.Drop.drop(e);
+				}
+				console.log('Drop initialized successfully');
+			},
+			drop:function(e){
+				var files = e.dataTransfer.files;
+				for(var i = 0;i < files.length;i++){
+					var file = files[i];
+					var reader = new FileReader();
+					reader.onload = function(event){
+						Calendar.UI.Drop.doImport(event.target.result);
+						$('#fullcalendar').fullCalendar('refetchEvents');
 					}
-				});
-				$('#share_group').live('change', function(){
-					if($('#sharewithgroup_' + $('#share_group option:selected').text()).length == 0){
-						Calendar.UI.Share.share(Calendar.UI.Share.currentid, Calendar.UI.Share.idtype, $('#share_group option:selected').text(), 'group');
-						var newitem = '<li id="sharewithgroup_' + $('#share_group option:selected').text() +'"><input type="checkbox" width="12px" style="visibility:hidden;" title="' + $('#share_group option:selected').text() + '">' + $('#share_group option:selected').text() + '<img src="' + oc_webroot + '/core/img/actions/delete.svg" class="svg action" style="display:none;float:right;"></li>';
-						$('#sharewithgroup_list').append(newitem);
-						$('#sharewithgroup_' + $('#share_group option:selected').text() + ' > img').click(function(){
-							$('#share_group option[value="' + $(this).parent().text() + '"]').removeAttr('disabled');
-							Calendar.UI.Share.unshare(Calendar.UI.Share.currentid, Calendar.UI.Share.idtype, $(this).parent().text(), 'group');
-							$("#share_group").trigger("liszt:updated");
-							$(this).parent().remove();
-						});
-						$('#share_group option:selected').attr('disabled', 'disabled');
-						$("#share_group").trigger("liszt:updated");
-					}
-				});
-				$('#sharewithuser_list > li > input:checkbox').live('change', function(){
-					Calendar.UI.Share.changepermission(Calendar.UI.Share.currentid, Calendar.UI.Share.idtype, $(this).parent().text(), 'user', this.checked);
-				});
-				$('#sharewithgroup_list > li > input:checkbox').live('change', function(){
-					Calendar.UI.Share.changepermission(Calendar.UI.Share.currentid, Calendar.UI.Share.idtype, $(this).parent().text(), 'group', this.checked);
-				});
-				$('#publish').live('change', function(){
-					if(this.checked == 1){
-						Calendar.UI.Share.share(Calendar.UI.Share.currentid, Calendar.UI.Share.idtype, '', 'public');
+					reader.readAsDataURL(file);
+				}
+			},
+			doImport:function(data){
+				$.post(OC.filePath('calendar', 'ajax/import', 'dropimport.php'), {'data':data},function(result) {
+					if(result.status == 'success'){
+						$('#fullcalendar').fullCalendar('addEventSource', result.eventSource);
+						$('#notification').html(result.message);
+						$('#notification').slideDown();
+						window.setTimeout(function(){$('#notification').slideUp();}, 5000);
+						return true;
 					}else{
-						Calendar.UI.Share.unshare(Calendar.UI.Share.currentid, Calendar.UI.Share.idtype, '', 'public');
+						$('#notification').html(result.message);
+						$('#notification').slideDown();
+						window.setTimeout(function(){$('#notification').slideUp();}, 5000);
 					}
 				});
-				$('#sharewithuser_list').live('mouseenter', function(){
-					$('#sharewithuser_list > li > img').css('display', 'block');
-					$('#sharewithuser_list > li > input').css('visibility', 'visible');
-				});
-				$('#sharewithuser_list').live('mouseleave', function(){
-					$('#sharewithuser_list > li > img').css('display', 'none');
-					$('#sharewithuser_list > li > input').css('visibility', 'hidden');
-				});
-				$('#sharewithgroup_list').live('mouseenter', function(){
-					$('#sharewithgroup_list > li > img').css('display', 'block');
-					$('#sharewithgroup_list > li > input').css('visibility', 'visible');
-				});
-				$('#sharewithgroup_list').live('mouseleave', function(){
-					$('#sharewithgroup_list > li > img').css('display', 'none');
-					$('#sharewithgroup_list > li > input').css('visibility', 'hidden');
-				});
-				/*var permissions = (this.checked) ? 1 : 0;*/
 			}
 		}
-	}
+	},
+	Settings:{
+		//
+	},
+
 }
 $.fullCalendar.views.list = ListView;
 function ListView(element, calendar) {
@@ -718,7 +800,7 @@ function ListView(element, calendar) {
 			' class="' + classes.join(' ') + '"' +
 			'>' +
 			'<span class="fc-event-title">' +
-			event.title +
+			escapeHTML(event.title) +
 			'</span>' +
 			'</span>' +
 			'</td>' +
@@ -774,7 +856,7 @@ function ListView(element, calendar) {
 }
 $(document).ready(function(){
 	Calendar.UI.initScroll();
-	$('#calendar_holder').fullCalendar({
+	$('#fullcalendar').fullCalendar({
 		header: false,
 		firstDay: firstDay,
 		editable: true,
@@ -803,17 +885,17 @@ $(document).ready(function(){
 		dayNamesShort: dayNamesShort,
 		allDayText: allDayText,
 		viewDisplay: function(view) {
-			$('#datecontrol_date').html(view.title);
+			$('#datecontrol_date').val($('<p>').html(view.title).text());
 			if (view.name != defaultView) {
-				$.get(OC.filePath('calendar', 'ajax', 'changeview.php') + "?v="+view.name);
+				$.post(OC.filePath('calendar', 'ajax', 'changeview.php'), {v:view.name});
 				defaultView = view.name;
 			}
 			Calendar.UI.setViewActive(view.name);
 			if (view.name == 'agendaWeek') {
-				$('#calendar_holder').fullCalendar('option', 'aspectRatio', 0.1);
+				$('#fullcalendar').fullCalendar('option', 'aspectRatio', 0.1);
 			}
 			else {
-				$('#calendar_holder').fullCalendar('option', 'aspectRatio', 1.35);
+				$('#fullcalendar').fullCalendar('option', 'aspectRatio', 1.35);
 			}
 		},
 		columnFormat: {
@@ -826,7 +908,7 @@ $(document).ready(function(){
 		eventDrop: Calendar.UI.moveEvent,
 		eventResize: Calendar.UI.resizeEvent,
 		eventRender: function(event, element) {
-			element.find('.fc-event-title').html(element.find('.fc-event-title').text());
+			element.find('.fc-event-title').text($("<div/>").html(escapeHTML(event.title)).text())
 			element.tipsy({
 				className: 'tipsy-event',
 				opacity: 0.9,
@@ -842,26 +924,49 @@ $(document).ready(function(){
 		loading: Calendar.UI.loading,
 		eventSources: eventSources
 	});
+	$('#datecontrol_date').datepicker({
+		changeMonth: true,
+		changeYear: true,
+		showButtonPanel: true,
+		beforeShow: function(input, inst) {
+			var calendar_holder = $('#fullcalendar');
+			var date = calendar_holder.fullCalendar('getDate');
+			inst.input.datepicker('setDate', date);
+			inst.input.val(calendar_holder.fullCalendar('getView').title);
+			return inst;
+		},
+		onSelect: function(value, inst) {
+			var date = inst.input.datepicker('getDate');
+			$('#fullcalendar').fullCalendar('gotoDate', date);
+		}
+	});
 	fillWindow($('#content'));
 	OCCategories.changed = Calendar.UI.categoriesChanged;
 	OCCategories.app = 'calendar';
+	OCCategories.type = 'event';
 	$('#oneweekview_radio').click(function(){
-		$('#calendar_holder').fullCalendar('changeView', 'agendaWeek');
+		$('#fullcalendar').fullCalendar('changeView', 'agendaWeek');
 	});
 	$('#onemonthview_radio').click(function(){
-		$('#calendar_holder').fullCalendar('changeView', 'month');
+		$('#fullcalendar').fullCalendar('changeView', 'month');
 	});
 	$('#listview_radio').click(function(){
-		$('#calendar_holder').fullCalendar('changeView', 'list');
+		$('#fullcalendar').fullCalendar('changeView', 'list');
 	});
 	$('#today_input').click(function(){
-		$('#calendar_holder').fullCalendar('today');
+		$('#fullcalendar').fullCalendar('today');
 	});
 	$('#datecontrol_left').click(function(){
-		$('#calendar_holder').fullCalendar('prev');
+		$('#fullcalendar').fullCalendar('prev');
 	});
 	$('#datecontrol_right').click(function(){
-		$('#calendar_holder').fullCalendar('next');
+		$('#fullcalendar').fullCalendar('next');
 	});
 	Calendar.UI.Share.init();
+	Calendar.UI.Drop.init();
+	$('#choosecalendar .generalsettings').on('click keydown', function(event) {
+		event.preventDefault();
+		OC.appSettings({appid:'calendar', loadJS:true, cache:false, scriptName:'settingswrapper.php'});
+	});
+	$('#fullcalendar').fullCalendar('option', 'height', $(window).height() - $('#controls').height() - $('#header').height() - 15);
 });

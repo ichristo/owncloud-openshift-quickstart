@@ -5,7 +5,7 @@
  *
  * @package Sabre
  * @subpackage DAV
- * @copyright Copyright (C) 2007-2012 Rooftop Solutions. All rights reserved.
+ * @copyright Copyright (C) 2007-2013 Rooftop Solutions. All rights reserved.
  * @author Evert Pot (http://www.rooftopsolutions.nl/)
  * @license http://code.google.com/p/sabredav/wiki/License Modified BSD License
  */
@@ -118,10 +118,11 @@ class Sabre_DAV_XMLUtil {
         libxml_clear_errors();
 
         $dom = new DOMDocument();
-        $dom->loadXML(self::convertDAVNamespace($xml),LIBXML_NOWARNING | LIBXML_NOERROR);
 
         // We don't generally care about any whitespace
         $dom->preserveWhiteSpace = false;
+        
+        $dom->loadXML(self::convertDAVNamespace($xml),LIBXML_NOWARNING | LIBXML_NOERROR);
 
         if ($error = libxml_get_last_error()) {
             libxml_clear_errors();

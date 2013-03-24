@@ -6,23 +6,30 @@
  * See the COPYING-README file.
  */
 
- 
+
 OCP\JSON::checkLoggedIn();
 OCP\JSON::checkAppEnabled('contacts');
 
 $id = isset($_GET['id'])?$_GET['id']:null;
 if(is_null($id)) {
-	OCP\JSON::error(array('data' => array('message' => OC_Contacts_App::$l10n->t('No ID provided'))));
+	OCP\JSON::error(array(
+		'data' => array(
+			'message' => OCA\Contacts\App::$l10n->t('No ID provided'))));
 	exit();
 }
-$vcard = OC_Contacts_App::getContactVCard( $id );
-foreach($vcard->children as $property){
-	//OCP\Util::writeLog('contacts','ajax/categories/checksumfor.php: '.$property->name, OCP\Util::DEBUG);
+
+$vcard = OCA\Contacts\App::getContactVCard( $id );
+foreach($vcard->children as $property) {
 	if($property->name == 'CATEGORIES') {
 		$checksum = md5($property->serialize());
-		OCP\JSON::success(array('data' => array('value'=>$property->value, 'checksum'=>$checksum)));
+		OCP\JSON::success(array(
+			'data' => array(
+				'value' => $property->value,
+				'checksum' => $checksum,
+				)));
 		exit();
 	}
 }
-OCP\JSON::error(array('data' => array('message' => OC_Contacts_App::$l10n->t('Error setting checksum.'))));
-?>
+OCP\JSON::error(array(
+	'data' => array(
+		'message' => OCA\Contacts\App::$l10n->t('Error setting checksum.'))));

@@ -21,16 +21,29 @@
  */
 
 /**
+ * The following signals are being emitted:
+ *
+ * OCA\Contacts\VCard::post_moveToAddressbook(array('aid' => $aid, 'id' => $id))
+ * OCA\Contacts\VCard::pre_deleteVCard(array('aid' => $aid, 'id' => $id, 'uri' = $uri)); (NOTE: the values can be null depending on which method emits them)
+ * OCA\Contacts\VCard::post_updateVCard($id)
+ * OCA\Contacts\VCard::post_createVCard($newid)
+ */
+
+namespace OCA\Contacts;
+
+use \Sabre\VObject;
+
+/**
  * This class contains all hooks.
  */
-class OC_Contacts_Hooks{
+class Hooks{
 	/**
 	 * @brief Add default Addressbook for a certain user
 	 * @param paramters parameters from postCreateUser-Hook
 	 * @return array
 	 */
 	static public function createUser($parameters) {
-		OC_Contacts_Addressbook::add($parameters['uid'],'default','Default Address Book');
+		Addressbook::addDefault($parameters['uid']);
 		return true;
 	}
 
@@ -40,20 +53,20 @@ class OC_Contacts_Hooks{
 	 * @return array
 	 */
 	static public function deleteUser($parameters) {
-		$addressbooks = OC_Contacts_Addressbook::all($parameters['uid']);
+		$addressbooks = Addressbook::all($parameters['uid']);
 
 		foreach($addressbooks as $addressbook) {
-			OC_Contacts_Addressbook::delete($addressbook['id']);
+			Addressbook::delete($addressbook['id']);
 		}
 
 		return true;
 	}
 
 	static public function getCalenderSources($parameters) {
-		$base_url = OCP\Util::linkTo('calendar', 'ajax/events.php').'?calendar_id=';
-		foreach(OC_Contacts_Addressbook::all(OCP\USER::getUser()) as $addressbook) {
-			$parameters['sources'][] =
-				array(
+		$base_url = \OCP\Util::linkTo('calendar', 'ajax/events.php').'?calendar_id=';
+		foreach(Addressbook::all(\OCP\USER::getUser()) as $addressbook) {
+			$parameters['sources'][]
+				= array(
 					'url' => $base_url.'birthday_'. $addressbook['id'],
 					'backgroundColor' => '#cccccc',
 					'borderColor' => '#888',
@@ -66,32 +79,44 @@ class OC_Contacts_Hooks{
 
 	static public function getBirthdayEvents($parameters) {
 		$name = $parameters['calendar_id'];
-		if (strpos('birthday_', $name) != 0) {
+		if (strpos($name, 'birthday_') != 0) {
 			return;
 		}
 		$info = explode('_', $name);
 		$aid = $info[1];
-		OC_Contacts_App::getAddressbook($aid);
-		foreach(OC_Contacts_VCard::all($aid) as $card){
-			$vcard = OC_VObject::parse($card['carddata']);
-			if (!$vcard) {
+		Addressbook::find($aid);
+		foreach(VCard::all($aid) as $contact) {
+			try {
+				$vcard = VObject\Reader::read($contact['carddata']);
+			} catch (Exception $e) {
 				continue;
 			}
 			$birthday = $vcard->BDAY;
-			if ($birthday) {
-				$date = new DateTime($birthday);
-				$vevent = new OC_VObject('VEVENT');
-				$vevent->setDateTime('LAST-MODIFIED', new DateTime($vcard->REV));
-				$vevent->setDateTime('DTSTART', $date, Sabre_VObject_Element_DateTime::DATE);
-				$vevent->setString('DURATION', 'P1D');
+			if ((string)$birthday) {
+				$title = str_replace('{name}',
+					$vcard->FN,
+					App::$l10n->t('{name}\'s Birthday'));
+				
+				$date = new \DateTime($birthday);
+				$vevent = VObject\Component::create('VEVENT');
+				//$vevent->setDateTime('LAST-MODIFIED', new DateTime($vcard->REV));
+				$vevent->add('DTSTART');
+				$vevent->DTSTART->setDateTime($date,
+					VObject\Property\DateTime::DATE);
+				$vevent->add('DURATION', 'P1D');
+				$vevent->{'UID'} = substr(md5(rand().time()), 0, 10);
 				// DESCRIPTION?
-				$vevent->setString('RRULE', 'FREQ=YEARLY');
-				$title = str_replace('{name}', $vcard->getAsString('FN'), OC_Contacts_App::$l10n->t('{name}\'s Birthday'));
+				$vevent->{'RRULE'} = 'FREQ=YEARLY';
+				$vevent->{'SUMMARY'} = $title;
 				$parameters['events'][] = array(
 					'id' => 0,//$card['id'],
 					'vevent' => $vevent,
 					'repeating' => true,
 					'summary' => $title,
+					'calendardata' => "BEGIN:VCALENDAR\nVERSION:2.0\n"
+						. "PRODID:ownCloud Contacts "
+						. \OCP\App::getAppVersion('contacts') . "\n"
+						. $vevent->serialize() .  "END:VCALENDAR"
 					);
 			}
 		}

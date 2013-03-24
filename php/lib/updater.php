@@ -3,7 +3,7 @@
  * ownCloud
  *
  * @author Frank Karlitschek
- * @copyright 2010 Frank Karlitschek karlitschek@kde.org
+ * @copyright 2012 Frank Karlitschek frank@owncloud.org
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -28,9 +28,11 @@ class OC_Updater{
 	/**
 	 * Check if a new version is available
 	 */
-	public static function check(){
-		OC_Appconfig::setValue('core', 'lastupdatedat',microtime(true));
-		if(OC_Appconfig::getValue('core', 'installedat','')=='') OC_Appconfig::setValue('core', 'installedat',microtime(true));
+	public static function check() {
+		OC_Appconfig::setValue('core', 'lastupdatedat', microtime(true));
+		if(OC_Appconfig::getValue('core', 'installedat', '')=='') {
+			OC_Appconfig::setValue('core', 'installedat', microtime(true));
+		}
 
 		$updaterurl='http://apps.owncloud.com/updater.php';
 		$version=OC_Util::getVersion();
@@ -38,35 +40,48 @@ class OC_Updater{
 		$version['updated']=OC_Appconfig::getValue('core', 'lastupdatedat');
 		$version['updatechannel']='stable';
 		$version['edition']=OC_Util::getEditionString();
-		$versionstring=implode('x',$version);
+		$versionstring=implode('x', $version);
 
 		//fetch xml data from updater
 		$url=$updaterurl.'?version='.$versionstring;
-                $xml=@file_get_contents($url);
-                if($xml==FALSE){
-                        return array();
-                }
-                $data=@simplexml_load_string($xml);
+
+		// set a sensible timeout of 10 sec to stay responsive even if the update server is down.
+		$ctx = stream_context_create(
+			array(
+				'http' => array(
+					'timeout' => 10
+				)
+			)
+		);
+		$xml=@file_get_contents($url, 0, $ctx);
+		if($xml==false) {
+			return array();
+		}
+		$data=@simplexml_load_string($xml);
 
 		$tmp=array();
-                $tmp['version'] = $data->version;
-                $tmp['versionstring'] = $data->versionstring;
-                $tmp['url'] = $data->url;
-                $tmp['web'] = $data->web;
+		$tmp['version'] = $data->version;
+		$tmp['versionstring'] = $data->versionstring;
+		$tmp['url'] = $data->url;
+		$tmp['web'] = $data->web;
 
-                return $tmp;
+		return $tmp;
 	}
 
-	public static function ShowUpdatingHint(){
-		if(OC_Config::getValue('updatechecker', true)==true){
+	public static function ShowUpdatingHint() {
+		$l = OC_L10N::get('lib');
+
+		if(OC_Config::getValue('updatechecker', true)==true) {
 			$data=OC_Updater::check();
 			if(isset($data['version']) and $data['version']<>'') {
-				$txt='<span style="color:#AA0000; font-weight:bold;">'.$data['versionstring'].' is available. Get <a href="'.$data['web'].'">more information</a></span>';
+				$txt='<span style="color:#AA0000; font-weight:bold;">'
+					.$l->t('%s is available. Get <a href="%s">more information</a>',
+					array($data['versionstring'], $data['web'])).'</span>';
 			}else{
-				$txt='up to date';
+				$txt=$l->t('up to date');
 			}
 		}else{
-			$txt='updates check is disabled';
+			$txt=$l->t('updates check is disabled');
 		}
 		return($txt);
 	}
@@ -75,7 +90,7 @@ class OC_Updater{
 	/**
 	 * do ownCloud update
 	 */
-	public static function doUpdate(){
+	public static function doUpdate() {
 
 		//update ownCloud core
 
@@ -85,4 +100,3 @@ class OC_Updater{
 
 	}
 }
-?>

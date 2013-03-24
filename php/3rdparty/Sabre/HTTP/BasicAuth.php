@@ -7,7 +7,7 @@
  *
  * @package Sabre
  * @subpackage HTTP
- * @copyright Copyright (C) 2007-2012 Rooftop Solutions. All rights reserved.
+ * @copyright Copyright (C) 2007-2013 Rooftop Solutions. All rights reserved.
  * @author Evert Pot (http://www.rooftopsolutions.nl/)
  * @license http://code.google.com/p/sabredav/wiki/License Modified BSD License
  */
@@ -46,7 +46,7 @@ class Sabre_HTTP_BasicAuth extends Sabre_HTTP_AbstractAuth {
 
         if (strpos(strtolower($auth),'basic')!==0) return false;
 
-        return explode(':', base64_decode(substr($auth, 6)));
+        return explode(':', base64_decode(substr($auth, 6)),2);
 
     }
 

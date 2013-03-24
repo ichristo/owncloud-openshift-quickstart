@@ -1,12 +1,6 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Fotos",
-"Settings" => "Arranjament",
-"Rescan" => "Escaneja de nou",
-"Stop" => "Atura",
+"Shared by" => "Compartit per",
 "Share" => "Comparteix",
-"Back" => "Enrera",
-"Remove confirmation" => "Elimina la confirmació",
-"Do you want to remove album" => "Voleu eliminar l'àlbum",
-"Change album name" => "Canvia el nom de l'àlbum",
-"New album name" => "Nom nou de l'àlbum"
+"The \"Image Viewer\" application also need to be enabled to use this application." => "L'apliació \"Visualitzador d'Imatges\" també ha d'estar activada per a poder utilitzar aquesta aplicació."
 );

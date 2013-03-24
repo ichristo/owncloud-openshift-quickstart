@@ -52,7 +52,7 @@ class OC_Task_App {
 		$task['categories'] = $vtodo->getAsArray('CATEGORIES');
 		$due = $vtodo->DUE;
 		if ($due) {
-			$task['due_date_only'] = $due->getDateType() == Sabre_VObject_Element_DateTime::DATE;
+			$task['due_date_only'] = $due->getDateType() == Sabre\VObject\Property\DateTime::DATE;
 			$due = $due->getDateTime();
 			$due->setTimezone(new DateTimeZone($user_timezone));
 			$task['due'] = $due->format('U');
@@ -77,24 +77,24 @@ class OC_Task_App {
 	public static function validateRequest($request)
 	{
 		$errors = array();
-		if($request['summary'] == ''){
+		if($request['summary'] == '') {
 			$errors['summary'] = self::$l10n->t('Empty Summary');
 		}
 
 		try {
-			$timezone = OCP\Config::getUserValue(OCP\User::getUser(), "calendar", "timezone", "Europe/London");
+			$timezone = OC_Calendar_App::getTimezone();
 			$timezone = new DateTimeZone($timezone);
 			new DateTime($request['due'], $timezone);
 		} catch (Exception $e) {
 			$errors['due'] = self::$l10n->t('Invalid date/time');
 		}
 
-		if ($request['percent_complete'] < 0 || $request['percent_complete'] > 100){
+		if ($request['percent_complete'] < 0 || $request['percent_complete'] > 100) {
 			$errors['percent_complete'] = self::$l10n->t('Invalid percent complete');
 		}
-		if ($request['percent_complete'] == 100 && !empty($request['completed'])){
+		if ($request['percent_complete'] == 100 && !empty($request['completed'])) {
 			try {
-				$timezone = OCP\Config::getUserValue(OCP\User::getUser(), "calendar", "timezone", "Europe/London");
+				$timezone = OC_Calendar_App::getTimezone();
 				$timezone = new DateTimeZone($timezone);
 				new DateTime($request['completed'], $timezone);
 			} catch (Exception $e) {
@@ -118,7 +118,7 @@ class OC_Task_App {
 		$vtodo = new OC_VObject('VTODO');
 		$vcalendar->add($vtodo);
 
-		$vtodo->setDateTime('CREATED', 'now', Sabre_VObject_Element_DateTime::UTC);
+		$vtodo->setDateTime('CREATED', 'now', Sabre\VObject\Property\DateTime::UTC);
 
 		$vtodo->setUID();
 		return self::updateVCalendarFromRequest($request, $vcalendar);
@@ -137,8 +137,8 @@ class OC_Task_App {
 
 		$vtodo = $vcalendar->VTODO;
 
-		$vtodo->setDateTime('LAST-MODIFIED', 'now', Sabre_VObject_Element_DateTime::UTC);
-		$vtodo->setDateTime('DTSTAMP', 'now', Sabre_VObject_Element_DateTime::UTC);
+		$vtodo->setDateTime('LAST-MODIFIED', 'now', Sabre\VObject\Property\DateTime::UTC);
+		$vtodo->setDateTime('DTSTAMP', 'now', Sabre\VObject\Property\DateTime::UTC);
 		$vtodo->setString('SUMMARY', $summary);
 
 		$vtodo->setString('LOCATION', $location);
@@ -147,7 +147,7 @@ class OC_Task_App {
 		$vtodo->setString('PRIORITY', $priority);
 
 		if ($due) {
-			$timezone = OCP\Config::getUserValue(OCP\User::getUser(), 'calendar', 'timezone', date_default_timezone_get());
+			$timezone = OC_Calendar_App::getTimezone();
 			$timezone = new DateTimeZone($timezone);
 			$due = new DateTime($due, $timezone);
 			$vtodo->setDateTime('DUE', $due);
@@ -168,18 +168,19 @@ class OC_Task_App {
 			$vtodo->__unset('PERCENT-COMPLETE');
 		}
 
-		if ($percent_complete == 100){
-			if (!$completed){
+		if ($percent_complete == 100) {
+			if (!$completed) {
 				$completed = 'now';
 			}
 		} else {
 			$completed = null;
 		}
 		if ($completed) {
-			$timezone = OCP\Config::getUserValue(OCP\User::getUser(), 'calendar', 'timezone', date_default_timezone_get());
+			$timezone = OC_Calendar_App::getTimezone();
 			$timezone = new DateTimeZone($timezone);
 			$completed = new DateTime($completed, $timezone);
 			$vtodo->setDateTime('COMPLETED', $completed);
+			OCP\Util::emitHook('OC_Task', 'taskCompleted', $vtodo);
 		} else {
 			unset($vtodo->COMPLETED);
 		}

@@ -7,7 +7,7 @@
  *
  * @package Sabre
  * @subpackage CardDAV
- * @copyright Copyright (C) 2007-2012 Rooftop Solutions. All rights reserved.
+ * @copyright Copyright (C) 2007-2013 Rooftop Solutions. All rights reserved.
  * @author Evert Pot (http://www.rooftopsolutions.nl/)
  * @license http://code.google.com/p/sabredav/wiki/License Modified BSD License
  */
@@ -18,14 +18,14 @@ class Sabre_CardDAV_AddressBook extends Sabre_DAV_Collection implements Sabre_Ca
      *
      * @var array
      */
-    private $addressBookInfo;
+    protected $addressBookInfo;
 
     /**
      * CardDAV backend
      *
      * @var Sabre_CardDAV_Backend_Abstract
      */
-    private $carddavBackend;
+    protected $carddavBackend;
 
     /**
      * Constructor
@@ -55,7 +55,7 @@ class Sabre_CardDAV_AddressBook extends Sabre_DAV_Collection implements Sabre_Ca
      * Returns a card
      *
      * @param string $name
-     * @return Sabre_DAV_Card
+     * @return Sabre_CardDAV_ICard
      */
     public function getChild($name) {
 
@@ -104,11 +104,13 @@ class Sabre_CardDAV_AddressBook extends Sabre_DAV_Collection implements Sabre_Ca
      *
      * @param string $name
      * @param resource $vcardData
-     * @return void|null
+     * @return string|null
      */
     public function createFile($name,$vcardData = null) {
 
-        $vcardData = stream_get_contents($vcardData);
+        if (is_resource($vcardData)) {
+            $vcardData = stream_get_contents($vcardData);
+        }
         // Converting to UTF-8, if needed
         $vcardData = Sabre_DAV_StringUtil::ensureUTF8($vcardData);
 

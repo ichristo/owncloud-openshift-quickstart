@@ -1,6 +1,10 @@
 <?php $TRANSLATIONS = array(
 "Music" => "Musique",
-"Play" => "Play",
+"songs" => "titres",
+"albums" => "albums",
+"Add to playlist" => "Ajouter à la liste de lecture",
+"Add album to playlist" => "Ajouter l'album à la liste de lecture",
+"Play" => "Lire",
 "Pause" => "Pause",
 "Previous" => "Précédent",
 "Next" => "Suivant",
@@ -9,5 +13,7 @@
 "Rescan Collection" => "Réanalyser la Collection",
 "Artist" => "Artiste",
 "Album" => "Album",
-"Title" => "Titre"
+"Title" => "Titre",
+"Media" => "Média",
+"Ampache address:" => "Adresse du serveur ampache :"
 );
