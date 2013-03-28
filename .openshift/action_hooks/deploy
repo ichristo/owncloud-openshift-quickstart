@@ -39,6 +39,5 @@ if [ -z "$OPENSHIFT_MYSQL_DB_HOST" ]
 then 
     exit 5
 fi
-
 $OPENSHIFT_GEAR_CTL_SCRIPT stop
 $OPENSHIFT_GEAR_CTL_SCRIPT start

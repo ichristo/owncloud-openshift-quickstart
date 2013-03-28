@@ -4,7 +4,20 @@
 # it could be python, php, ruby, etc.
 
 # need to GET the main page to trigger the autoconfig of the ownCloud instance
+if [ -f $OPENSHIFT_REPO_DIR/php/config/autoconfig.php ]
+then
+    pushd $OPENSHIFT_REPO_DIR/php
+    php index.php
+    popd
+fi
+
+#COPY Config to Persisted Data Directory
 pushd $OPENSHIFT_REPO_DIR/php
-php index.php
+if [ ! -f $OPENSHIFT_DATA_DIR/${OPENSHIFT_APP_NAME}-config.php ]
+then
+    echo "Persisting Configuration."
+    mv config/config.php ${OPENSHIFT_DATA_DIR}/${OPENSHIFT_APP_NAME}-config.php
+    ln -s $OPENSHIFT_DATA_DIR/$OPENSHIFT_APP_NAME-config.php $OPENSHIFT_REPO_DIR/php/config/config.php
+fi
 popd
 

@@ -3,3 +3,15 @@
 # available.  Otherwise it will execute while your application is stopped
 # before the build step.  This script gets executed directly, so it
 # could be python, php, ruby, etc.
+
+#Confirm configuration exists, if so restore it
+if [ -f $OPENSHIFT_DATA_DIR/${OPENSHIFT_APP_NAME}-config.php ]
+then
+    echo "Configuration Exists.  Restoring."
+    ln -s $OPENSHIFT_DATA_DIR/${OPENSHIFT_APP_NAME}-config.php ${OPENSHIFT_REPO_DIR}/php/config/config.php
+    #REMOVE autoconfig so Config isn't overwritten
+    rm ${OPENSHIFT_REPO_DIR}/php/config/autoconfig.php
+fi
+
+
+
