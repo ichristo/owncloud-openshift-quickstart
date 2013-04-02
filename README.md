@@ -18,7 +18,7 @@ Create a PHP application
 
 Add MySQL support to your application
     
-	rhc app cartridge add -a owncloud -c mysql-5.1
+	rhc cartridge add -a owncloud -c mysql-5.1
     
 Add this upstream ownCloud quickstart repo
 
@@ -44,7 +44,7 @@ Default Credentials
 
 To download clients that will sync your ownCloud instance with desktop clients, visit http://owncloud.org/sync-clients/
 
-To give your new planet site a web address of its own, add your desired alias:
+To give your new ownCloud site a web address of its own, add your desired alias:
 
 	rhc app add-alias -a owncloud --alias "$whatever.$mydomain.com"
 
