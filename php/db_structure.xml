@@ -651,6 +651,14 @@
 				<length>255</length>
 			</field>
 
+			<index>
+				<name>property_index</name>
+				<field>
+					<name>userid</name>
+					<sorting>ascending</sorting>
+				</field>
+			</index>
+
 		</declaration>
 
 	</table>

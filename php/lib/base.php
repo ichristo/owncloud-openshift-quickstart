@@ -78,6 +78,8 @@ class OC {
 	 * SPL autoload
 	 */
 	public static function autoload($className) {
+		$className = trim($className, '\\');
+		
 		if (array_key_exists($className, OC::$CLASSPATH)) {
 			$path = OC::$CLASSPATH[$className];
 			/** @TODO: Remove this when necessary
@@ -398,8 +400,8 @@ class OC {
 		ini_set('arg_separator.output', '&amp;');
 
 		// try to switch magic quotes off.
-		if (get_magic_quotes_gpc()) {
-			@set_magic_quotes_runtime(false);
+		if (get_magic_quotes_gpc()==1) {
+			ini_set('magic_quotes_runtime', 0);
 		}
 
 		//try to configure php to enable big file uploads.

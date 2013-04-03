@@ -40,7 +40,7 @@ class OC_Calendar_Calendar{
 		$active_where = '';
 		if (!is_null($active) && $active) {
 			$active_where = ' AND `active` = ?';
-			$values[] = $active;
+			$values[] = (int)$active;
 		}
 		$stmt = OCP\DB::prepare( 'SELECT * FROM `*PREFIX*calendar_calendars` WHERE `userid` = ?' . $active_where );
 		$result = $stmt->execute($values);
@@ -214,7 +214,7 @@ class OC_Calendar_Calendar{
 			}
 		}
 		$stmt = OCP\DB::prepare( 'UPDATE `*PREFIX*calendar_calendars` SET `active` = ? WHERE `id` = ?' );
-		$stmt->execute(array($active, $id));
+		$stmt->execute(array((int)$active, $id));
 
 		return true;
 	}
@@ -377,7 +377,7 @@ class OC_Calendar_Calendar{
 		}
 		$red = hexdec(substr($calendarcolor,0,2));
 		$green = hexdec(substr($calendarcolor,2,2));
-		$blue = hexdec(substr($calendarcolor,2,2));
+		$blue = hexdec(substr($calendarcolor,4,2));
 		//recommendation by W3C
 		$computation = ((($red * 299) + ($green * 587) + ($blue * 114)) / 1000);
 		return ($computation > 130)?'#000000':'#FAFAFA';

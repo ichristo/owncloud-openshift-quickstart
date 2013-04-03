@@ -14,10 +14,18 @@
 	</nav>
 	<div id="contacts-settings">
 			<h3 class="settings action text" tabindex="0" role="button" title="<?php p($l->t('Settings')); ?>"></h3>
-			<h2 data-id="addressbooks" tabindex="0" role="button"><?php p($l->t('Address books')); ?></h3>
+			<h2 data-id="addressbooks" tabindex="0" role="button"><?php p($l->t('Address books')); ?></h2>
 				<ul class="hidden">
 				</ul>
-			<h2 data-id="import" tabindex="0" role="button"><?php p($l->t('Import')); ?></h3>
+				<button class="addaddressbook icon-plus text"><?php p($l->t('New')); ?></button>
+				<ul class="hidden">
+					<li><input class="addaddressbookinput" type="text" placeholder="<?php p($l->t('Display name')); ?>" /></li>
+					<li>
+						<button class="addaddressbookok"><?php p($l->t('OK')); ?></button>
+						<button class="addaddressbookcancel"><?php p($l->t('Cancel')); ?></button>
+					</li>
+				</ul>
+			<h2 data-id="import" tabindex="0" role="button"><?php p($l->t('Import')); ?></h2>
 				<ul class="hidden">
 					<li class="import-upload">
 						<form id="import_upload_form" action="<?php print_unescaped(OCP\Util::linkTo('contacts', 'ajax/uploadimport.php')); ?>" method="post" enctype="multipart/form-data" target="import_upload_target">
@@ -140,6 +148,13 @@
 		<td class="adr">{adr}</td>
 		<td class="categories">{categories}</td>
 	</tr>
+</script>
+
+<script id="contactDragItemTemplate" type="text/template">
+	<div class="dragContact" data-id="{id}"
+		style="background: url('<?php print_unescaped(OC_Helper::linkToRemoteBase('contactthumbnail')); ?>?id={id}')">
+		{name}
+	</div>
 </script>
 
 <script id="groupListItemTemplate" type="text/template">

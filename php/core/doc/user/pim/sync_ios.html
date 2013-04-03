@@ -119,8 +119,8 @@
 <li class="toctree-l2"><a class="reference internal" href="contacts.html">Using the Contacts App</a></li>
 <li class="toctree-l2"><a class="reference internal" href="calendar.html">Using the Calendar App</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">iOS - Synchronize iPhone/iPad</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#calendar">Calendar</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#address-book">Address book</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synchronizing-the-calendar">Synchronizing the Calendar</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sync_osx.html">Synchronizing with OS X</a></li>
@@ -144,21 +144,23 @@
 						
   <div class="section" id="ios-synchronize-iphone-ipad">
 <h1>iOS - Synchronize iPhone/iPad<a class="headerlink" href="#ios-synchronize-iphone-ipad" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="calendar">
-<h2>Calendar<a class="headerlink" href="#calendar" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="synchronizing-the-calendar">
+<h2>Synchronizing the Calendar<a class="headerlink" href="#synchronizing-the-calendar" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
 <li>Open the settings application.</li>
 <li>Select Mail, Contacts, Calendars.</li>
 <li>Select Add Account.</li>
 <li>Select Other as account type.</li>
 <li>Select Add CalDAV account.</li>
-<li>For server, type <tt class="docutils literal"><span class="pre">ADDRESS/remote.php/caldav/principals/username</span></tt></li>
-<li>Enter your user name and password.</li>
+<li>For server, type <tt class="docutils literal"><span class="pre">ADDRESS/remote.php/caldav/principals/username</span></tt>
+(Important: Don&#8217;t include <a class="reference external" href="http://">http://</a> or <a class="reference external" href="https://">https://</a>)</li>
+<li>Enter your username and password.</li>
 <li>Select Next.</li>
 <li>If your server does not support SSL, a warning will be displayed.
 Select Continue.</li>
-<li>If the iPhone is unable to verify the account information perform the
-following:<ul>
+<li>If the iPhone is unable to verify the account information, read
+the Troubleshooting paragraph on this page. If that doesn&#8217;t help,
+try to turn off SSL (not recommended):<ul>
 <li>Select OK.</li>
 <li>Select advanced settings.</li>
 <li>Make sure Use SSL is set to OFF.</li>
@@ -167,23 +169,24 @@ following:<ul>
 </ul>
 </li>
 </ol>
-<p>Your calendar should now be visible in the Calendar application</p>
-</div>
+<p>Your calendar should now be visible in the Calendar application (may take a few moments).</p>
 <div class="section" id="address-book">
-<h2>Address book<a class="headerlink" href="#address-book" title="Permalink to this headline">¶</a></h2>
+<h3>Address book<a class="headerlink" href="#address-book" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
 <li>Open the settings application.</li>
 <li>Select Mail, Contacts, Calendars.</li>
 <li>Select Add Account.</li>
 <li>Select Other as account type.</li>
 <li>Select Add CardDAV account.</li>
-<li>For server, type <tt class="docutils literal"><span class="pre">ADDRESS/remote.php/carddav/principals/username</span></tt></li>
-<li>Enter your user name and password.</li>
+<li>For server, type <tt class="docutils literal"><span class="pre">ADDRESS/remote.php/carddav/principals/username</span></tt>
+(Important: Don&#8217;t include <a class="reference external" href="http://">http://</a> or <a class="reference external" href="https://">https://</a>)</li>
+<li>Enter your username and password.</li>
 <li>Select Next.</li>
 <li>If your server does not support SSL, a warning will be displayed.
 Select Continue.</li>
-<li>If the iPhone is unable to verify the account information perform the
-following:<ul>
+<li>If the iPhone is unable to verify the account information, read
+the Troubleshooting paragraph on this page. If that doesn&#8217;t help,
+try to turn off SSL (not recommended):<ul>
 <li>Select OK.</li>
 <li>Select advanced settings.</li>
 <li>Make sure Use SSL is set to OFF.</li>
@@ -192,9 +195,17 @@ following:<ul>
 </ul>
 </li>
 </ol>
-<p>Now should now find your contacts in the address book of your
-iPhone.Problems have been reported for iOS 4.X. A possible solution is
-at the <a class="reference external" href="http://forum.owncloud.org/viewtopic.php?f=3&amp;t=71&amp;p=2211#p2197">forum</a>.</p>
+<p>Now should now find your contacts in the address book of your iPhone (may take a few moments).</p>
+</div>
+</div>
+<div class="section" id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>Check that you didn&#8217;t include <a class="reference external" href="http://">http://</a> or <a class="reference external" href="https://">https://</a> in the server address.</li>
+<li>Depending on your server setup the username-part of the server-address may be case sensitive. So for user <tt class="docutils literal"><span class="pre">Username</span></tt> the server-address may need to be <tt class="docutils literal"><span class="pre">ADDRESS/remote.php/caldav/principals/Username</span></tt> instead of <tt class="docutils literal"><span class="pre">ADDRESS/remote.php/caldav/principals/username</span></tt></li>
+<li>If you need to change the server-address and want to use SSL you&#8217;ll have to cancel the setup process and enter your data again from the very beginning, as iOS would prepend <a class="reference external" href="https://">https://</a> to the server-address automatically.</li>
+<li>Problems have been reported for CardDAV and iOS 4.X. A possible solution is at the <cite>forum</cite>.</li>
+</ol>
 </div>
 </div>
 
