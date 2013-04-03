@@ -175,6 +175,12 @@ The curl packages are needed for some apps (e.g. http user authentication)</p>
 <div class="highlight-python"><pre>apt-get install apache2 php5 php5-gd php-xml-parser php5-intl
 apt-get install php5-sqlite php5-mysql smbclient curl libcurl3 php5-curl</pre>
 </div>
+<p>If you are running Ubuntu 10.04 LTS you will need to update your PHP from
+this <a class="reference external" href="https://launchpad.net/~ondrej/+archive/php5">PHP PPA</a>:</p>
+<div class="highlight-python"><pre>sudo add-apt-repository ppa:ondrej/php5
+sudo apt-get update
+sudo apt-get install php5</pre>
+</div>
 <div class="admonition-todo admonition " id="index-0">
 <p class="first admonition-title">Todo</p>
 <p class="last">Document other distributions.</p>
