@@ -23,6 +23,7 @@
  *   post_rename(oldpath,newpath)
  *   copy(oldpath,newpath, &run) (if the newpath doesn't exists yes, copy, create and write will be emitted in that order)
  *   post_rename(oldpath,newpath)
+ *   post_initMountPoints(user, user_dir)
  *
  *   the &run parameter can be set to false to prevent the operation from occurring
  */
@@ -279,6 +280,9 @@ class Filesystem {
 				}
 			}
 		}
+
+		// Chance to mount for other storages
+		\OC_Hook::emit('OC_Filesystem', 'post_initMountPoints', array('user' => $user, 'user_dir' => $root));
 	}
 
 	/**
@@ -306,6 +310,7 @@ class Filesystem {
 	 */
 	static public function tearDown() {
 		self::clearMounts();
+		self::$defaultInstance = null;
 	}
 
 	/**
@@ -415,6 +420,19 @@ class Filesystem {
 		$blacklist = \OC_Config::getValue('blacklisted_files', array('.htaccess'));
 		$filename = strtolower(basename($filename));
 		return (in_array($filename, $blacklist));
+	}
+
+	/**
+	 * @brief check if the directory should be ignored when scanning
+	 * NOTE: the special directories . and .. would cause never ending recursion
+	 * @param String $dir
+	 * @return boolean
+	 */
+	static public function isIgnoredDir($dir) {
+		if ($dir === '.' || $dir === '..') {
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -658,10 +676,5 @@ class Filesystem {
 		return self::$defaultInstance->getETag($path);
 	}
 }
-
-\OC_Hook::connect('OC_Filesystem', 'post_write', '\OC\Files\Cache\Updater', 'writeHook');
-\OC_Hook::connect('OC_Filesystem', 'post_touch', '\OC\Files\Cache\Updater', 'touchHook');
-\OC_Hook::connect('OC_Filesystem', 'post_delete', '\OC\Files\Cache\Updater', 'deleteHook');
-\OC_Hook::connect('OC_Filesystem', 'post_rename', '\OC\Files\Cache\Updater', 'renameHook');
 
 \OC_Util::setupFS();

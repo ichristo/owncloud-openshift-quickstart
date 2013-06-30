@@ -37,12 +37,12 @@ class OC_TemplateLayout extends OC_Template {
 		} else {
 			parent::__construct('core', 'layout.base');
 		}
-		$versionParameter = '?' . md5(implode(OC_Util::getVersion()));
+		$versionParameter = '?v=' . md5(implode(OC_Util::getVersion()));
 		// Add the js files
 		$jsfiles = self::findJavascriptFiles(OC_Util::$scripts);
 		$this->assign('jsfiles', array(), false);
 		if (OC_Config::getValue('installed', false) && $renderas!='error') {
-			$this->append( 'jsfiles', OC_Helper::linkToRoute('js_config'));
+			$this->append( 'jsfiles', OC_Helper::linkToRoute('js_config') . $versionParameter);
 		}
 		if (!empty(OC_Util::$core_scripts)) {
 			$this->append( 'jsfiles', OC_Helper::linkToRemoteBase('core.js', false) . $versionParameter);
@@ -103,7 +103,7 @@ class OC_TemplateLayout extends OC_Template {
 
 	static public function findStylesheetFiles($styles) {
 		// Read the selected theme from the config file
-		$theme=OC_Config::getValue( 'theme' );
+		$theme = OC_Util::getTheme();
 
 		// Read the detected formfactor and use the right file name.
 		$fext = self::getFormFactorExtension();
@@ -161,7 +161,7 @@ class OC_TemplateLayout extends OC_Template {
 
 	static public function findJavascriptFiles($scripts) {
 		// Read the selected theme from the config file
-		$theme=OC_Config::getValue( 'theme' );
+		$theme = OC_Util::getTheme();
 
 		// Read the detected formfactor and use the right file name.
 		$fext = self::getFormFactorExtension();

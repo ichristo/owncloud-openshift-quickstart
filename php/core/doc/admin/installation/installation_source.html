@@ -156,19 +156,19 @@ using a classic <abbr title="Linux, Apache, MySQL, PHP">LAMP</abbr> setup:</p>
 <li>php5 (&gt;= 5.3)</li>
 <li>php5-gd</li>
 <li>php-xml-parser</li>
-<li>php5-intl</li>
 </ul>
 <p>And as <em>optional</em> dependencies:</p>
 <ul class="simple">
+<li>php5-intl</li>
 <li>php5-sqlite (&gt;= 3)</li>
 <li>php5-mysql</li>
 <li>smbclient</li>
+<li>php5-curl</li>
 <li>curl</li>
 <li>libcurl3</li>
-<li>php5-curl</li>
 </ul>
 <p>You have to install at least one of php5-sqlite or php5-mysql, depending
-on which of the two database systems you want to use.</p>
+on which of the two database systems you want to use and activate its PDO module in the <strong>php.ini</strong>.</p>
 <p>smbclient is only used if you want to mount SMB shares to your ownCloud.
 The curl packages are needed for some apps (e.g. http user authentication)</p>
 <p>Commands for Ubuntu and Debian (run as root):</p>

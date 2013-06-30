@@ -128,6 +128,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="">User Authentication with LDAP</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#basic-settings">Basic Settings</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#advanced-settings">Advanced Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#expert-settings-owncloud-5-0-7">Expert Settings (&gt;= ownCloud 5.0.7)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#testing-the-configuration">Testing the configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#troubleshooting-tips-and-tricks">Troubleshooting, Tips and Tricks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ssl-certificate-verification-ldaps-tls">SSL Certificate Verification (LDAPS, TLS)</a></li>
@@ -338,7 +339,7 @@ to totally switch off the cache, but define a minimum life time of 15s.</p>
 <div class="section" id="directory-settings">
 <h3>Directory Settings<a class="headerlink" href="#directory-settings" title="Permalink to this headline">¶</a></h3>
 <div class="figure">
-<img alt="../_images/ldap-advanced-settings-connection-settings-oc5.png" src="../_images/ldap-advanced-settings-connection-settings-oc5.png" />
+<img alt="../_images/ldap-advanced-settings-directory-settings-oc5.png" src="../_images/ldap-advanced-settings-directory-settings-oc5.png" />
 <p class="caption">LDAP Advanced Settings, section Directory Settings</p>
 </div>
 <dl class="docutils">
@@ -466,6 +467,75 @@ attribute&#8217;s value. The attribute given can also return an absolute path, e
 </dd>
 </dl>
 </div>
+</div>
+<div class="section" id="expert-settings-owncloud-5-0-7">
+<h2>Expert Settings (&gt;= ownCloud 5.0.7)<a class="headerlink" href="#expert-settings-owncloud-5-0-7" title="Permalink to this headline">¶</a></h2>
+<div class="figure">
+<img alt="../_images/ldap-expert-settings-oc5.png" src="../_images/ldap-expert-settings-oc5.png" />
+</div>
+<p>In the Expert Settings fundamental behavior can be adjusted to your needs. The
+configuration should be done before starting production use or when testing the
+installation.</p>
+<dl class="docutils">
+<dt>Internal Username:</dt>
+<dd><p class="first">The internal username is the identifier in ownCloud for LDAP users. By default
+it will be created from the UUID attribute. By using the UUID attribute it is
+made sure that the username is unique and characters do not need to be
+converted. The internal username has the restriction that only these
+characters are allowed: [a-zA-Z0-9_.&#64;-]. Other characters are replaced with
+their ASCII correspondence or are simply omitted.</p>
+<p>The LDAP backend ensures that there are no duplicate internal usernames in
+ownCloud, i.e. that it is checking all other activated user backends
+(including local ownCloud users). On collisions a random number (between 1000
+and 9999) will be attached to the retrieved value. For example, if &#8220;alice&#8221;
+exists, the next username may be &#8220;alice_1337&#8221;.</p>
+<p>The internal username is also the default name for the user home folder in
+ownCloud. It is also a part of remote URLs, for instance for all *DAV services.
+With this setting the default behaviour can be overriden. To achieve a similar
+behaviour as before ownCloud 5 enter the user display name attribute in the
+following field.</p>
+<p>Leave it empty for default behaviour. Changes will have effect only on newly
+mapped (added) LDAP users.</p>
+<ul class="last simple">
+<li>Example: <em>uid</em></li>
+</ul>
+</dd>
+<dt>Override UUID detection</dt>
+<dd><p class="first">By default, ownCloud autodetects the UUID attribute. The UUID attribute is
+used to doubtlessly identify LDAP users and groups. Also, the internal
+username will be created based on the UUID, if not specified otherwise above.</p>
+<p>You can override the setting and pass an attribute of your choice. You must
+make sure that the attribute of your choice can be fetched for both users and
+groups and it is unique. Leave it empty for default behaviour. Changes will
+have effect only on newly mapped (added) LDAP users and groups. It also will
+have effect when a user&#8217;s or group&#8217;s DN changes and an old UUID was cached: It
+will result in a new user. Because of this, the setting should be applied
+before putting ownCloud in production use and cleaning the bindings
+(see below).</p>
+<p>The default behaviour does not differ from ownCloud 4.5. You do not want to
+change this after upgrading from ownCloud 4.5 unless you update the mapping
+tables yourself.</p>
+<ul class="last simple">
+<li>Example: <em>cn</em></li>
+</ul>
+</dd>
+<dt>Username-LDAP User Mapping</dt>
+<dd><p class="first">ownCloud uses the usernames as key to store and assign data. In order to
+precisely identify and recognize users, each LDAP user will have a internal
+username in ownCloud. This requires a mapping from ownCloud username to LDAP
+user. The created username is mapped to the UUID of the LDAP user.
+Additionally the DN is cached as well to reduce LDAP interaction, but it is
+not used for identification. If the DN changes, the change will be detected by
+ownCloud by checking the UUID value.</p>
+<p>The same is valid for groups.</p>
+<p>The internal ownCloud name is used all over in ownCloud. Clearing the Mappings
+will have leftovers everywhere. Do never clear the mappings
+in a production environment. Only clear mappings in a testing or experimental
+stage.</p>
+<p class="last"><strong>Clearing the Mappings is not configuration sensitive, it affects all LDAP
+configurations!</strong></p>
+</dd>
+</dl>
 </div>
 <div class="section" id="testing-the-configuration">
 <h2>Testing the configuration<a class="headerlink" href="#testing-the-configuration" title="Permalink to this headline">¶</a></h2>

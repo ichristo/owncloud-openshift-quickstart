@@ -54,8 +54,8 @@ class OC_Files_Antivirus {
 							$tmpl->assign('host', OCP\Util::getServerHost());
 							$tmpl->assign('user', OC_User::getUser());
 							$msg = $tmpl->fetchPage();
-							$from = 'security-noreply@' . OCP\Util::getServerHost();
-							\OC_MAIL::send($email, OC_User::getUser(), 'Malware detected', $msg, $from, 'ownCloud', 1);
+							$from = OCP\Util::getDefaultEmailAddress('security-noreply');
+							OCP\Util::sendMail($email, OC_User::getUser(), 'Malware detected', $msg, $from, 'ownCloud', 1);
 						}
 						exit();
 						break;
@@ -105,7 +105,7 @@ class OC_Files_Antivirus {
 		}
 		fwrite($shandler, pack('N', 0));
 		$response = fgets($shandler);
-		\OCP\Util::writeLog('files_antivirus', 'Response :: '.$response, \OCP\Util::WARN);
+		\OCP\Util::writeLog('files_antivirus', 'Response :: '.$response, \OCP\Util::DEBUG);
 		fclose($shandler);
 		fclose($fhandler);
 

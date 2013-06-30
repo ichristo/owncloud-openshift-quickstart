@@ -31,6 +31,11 @@ $_['subadmingroups'] = array_flip($items);
 			<?php endforeach;?>
 		</select> <input type="submit" value="<?php p($l->t('Create'))?>" />
 	</form>
+	<?php if((bool)$_['recoveryAdminEnabled']): ?>
+	<div class="recoveryPassword">
+	<input id="recoveryPassword" type="password" placeholder="<?php p($l->t('Admin Recovery Password'))?>" />
+	</div>
+	<?php endif; ?>
 	<div class="quota">
 		<span><?php p($l->t('Default Storage'));?></span>
 			<?php if((bool) $_['isadmin']): ?>
@@ -55,7 +60,7 @@ $_['subadmingroups'] = array_flip($items);
 					<?php p($_['default_quota']);?>
 				</option>
 				<?php endif;?>
-				<option value='other'>
+				<option data-new value='other'>
 					<?php p($l->t('Other'));?>
 					...
 				</option>

@@ -278,7 +278,7 @@ class OC {
 					OC_Config::setValue('maintenance', true);
 					OC_Log::write('core',
 						'starting upgrade from ' . $installedVersion . ' to ' . $currentVersion,
-						OC_Log::DEBUG);
+						OC_Log::WARN);
 					$minimizerCSS = new OC_Minimizer_CSS();
 					$minimizerCSS->clearCache();
 					$minimizerJS = new OC_Minimizer_JS();
@@ -574,10 +574,12 @@ class OC {
 	 * register hooks for sharing
 	 */
 	public static function registerShareHooks() {
-		OC_Hook::connect('OC_User', 'post_deleteUser', 'OCP\Share', 'post_deleteUser');
-		OC_Hook::connect('OC_User', 'post_addToGroup', 'OCP\Share', 'post_addToGroup');
-		OC_Hook::connect('OC_User', 'post_removeFromGroup', 'OCP\Share', 'post_removeFromGroup');
-		OC_Hook::connect('OC_User', 'post_deleteGroup', 'OCP\Share', 'post_deleteGroup');
+		if(\OC_Config::getValue('installed')) {
+			OC_Hook::connect('OC_User', 'post_deleteUser', 'OCP\Share', 'post_deleteUser');
+			OC_Hook::connect('OC_User', 'post_addToGroup', 'OCP\Share', 'post_addToGroup');
+			OC_Hook::connect('OC_User', 'post_removeFromGroup', 'OCP\Share', 'post_removeFromGroup');
+			OC_Hook::connect('OC_User', 'post_deleteGroup', 'OCP\Share', 'post_deleteGroup');
+		}
 	}
 
 	/**
@@ -627,8 +629,13 @@ class OC {
 		// Handle redirect URL for logged in users
 		if (isset($_REQUEST['redirect_url']) && OC_User::isLoggedIn()) {
 			$location = OC_Helper::makeURLAbsolute(urldecode($_REQUEST['redirect_url']));
-			header('Location: ' . $location);
-			return;
+			
+			// Deny the redirect if the URL contains a @
+			// This prevents unvalidated redirects like ?redirect_url=:user@domain.com
+			if (strpos($location, '@') === FALSE) {
+				header('Location: ' . $location);
+				return;
+			}
 		}
 		// Handle WebDAV
 		if ($_SERVER['REQUEST_METHOD'] == 'PROPFIND') {

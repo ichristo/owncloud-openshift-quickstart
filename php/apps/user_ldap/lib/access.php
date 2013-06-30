@@ -317,7 +317,19 @@ abstract class Access {
 			}
 			$ldapname = $ldapname[0];
 		}
-		$intname = $isUser ? $this->sanitizeUsername($uuid) : $this->sanitizeUsername($ldapname);
+
+		if($isUser) {
+			$usernameAttribute = $this->connection->ldapExpertUsernameAttr;
+			if(!emptY($usernameAttribute)) {
+				$username = $this->readAttribute($dn, $usernameAttribute);
+				$username = $username[0];
+			} else {
+				$username = $uuid;
+			}
+			$intname = $this->sanitizeUsername($username);
+		} else {
+			$intname = $ldapname;
+		}
 
 		//a new user/group! Add it only if it doesn't conflict with other backend's users or existing groups
 		//disabling Cache is required to avoid that the new user is cached as not-existing in fooExists check
@@ -429,8 +441,8 @@ abstract class Access {
 		//while loop is just a precaution. If a name is not generated within
 		//20 attempts, something else is very wrong. Avoids infinite loop.
 		while($attempts < 20){
-			$altName = $name . '_' . uniqid();
-			if(\OCP\User::userExists($altName)) {
+			$altName = $name . '_' . rand(1000,9999);
+			if(!\OCP\User::userExists($altName)) {
 				return $altName;
 			}
 			$attempts++;
@@ -897,6 +909,12 @@ abstract class Access {
 			return true;
 		}
 
+		$fixedAttribute = $this->connection->ldapExpertUUIDAttr;
+		if(!empty($fixedAttribute)) {
+			$this->connection->ldapUuidAttribute = $fixedAttribute;
+			return true;
+		}
+
 		//for now, supported (known) attributes are entryUUID, nsuniqueid, objectGUID
 		$testAttributes = array('entryuuid', 'nsuniqueid', 'objectguid', 'guid');
 
@@ -1031,7 +1049,7 @@ abstract class Access {
 	 */
 	private function setPagedResultCookie($base, $filter, $limit, $offset, $cookie) {
 		if(!empty($cookie)) {
-			$cachekey = 'lc' . dechex(crc32($base)) . '-' . dechex(crc32($filter)) . '-' .$limit . '-' . $offset;
+			$cachekey = 'lc' . crc32($base) . '-' . crc32($filter) . '-' .$limit . '-' . $offset;
 			$cookie = $this->connection->writeToCache($cachekey, $cookie);
 		}
 	}

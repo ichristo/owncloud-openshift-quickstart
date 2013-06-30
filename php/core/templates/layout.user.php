@@ -5,7 +5,7 @@
 <!--[if IE 9]><html class="ng-csp ie ie9 lte9"><![endif]-->
 <!--[if gt IE 9]><html class="ng-csp ie"><![endif]-->
 <!--[if !IE]><!--><html class="ng-csp"><!--<![endif]-->
-	<head>
+	<head data-user="<?php p($_['user_uid']); ?>" data-requesttoken="<?php p($_['requesttoken']); ?>">
 		<title><?php p(!empty($_['application'])?$_['application'].' | ':'') ?>ownCloud
 			<?php p(trim($_['user_displayname']) != '' ?' ('.$_['user_displayname'].') ':'') ?></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -75,7 +75,9 @@
 						<a href="<?php print_unescaped($entry['href']); ?>" title=""
 							<?php if( $entry['active'] ): ?> class="active"<?php endif; ?>>
 							<img class="icon svg" src="<?php print_unescaped($entry['icon']); ?>"/>
-							<?php p($entry['name']); ?>
+							<span>
+								<?php p($entry['name']); ?>
+							</span>
 						</a>
 					</li>
 				<?php endforeach; ?>

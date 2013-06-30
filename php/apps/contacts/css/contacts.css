@@ -163,6 +163,11 @@
 /* Reset values for jquery.multiselect */
 .ui-multiselect-checkboxes label { width: 100%; color: #333; font-size: 1em !important; }
 .ui-multiselect-checkboxes input[type="checkbox"] { margin: 3px !important; }
+.ui-multiselect-checkboxes {
+    height: auto !important;
+    max-height: 200px;
+    overflow-y: auto;
+}
 
 #content .multiselectoptions > li > * { 
 	-webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; 
@@ -399,6 +404,10 @@ ul.propertylist { width: 450px; }
 	font-size: 1.2em;
 }
 
+#contacts-settings .addressbooklist {
+	max-height: 250px;
+	overflow-y: auto;
+}
 /* Single elements */
 #file_upload_target, #import_upload_target, #crop_target { display:none; }
 #import_fileupload {
@@ -536,8 +545,21 @@ input[type="checkbox"].propertytype { width: 10px; }
 
 .note { margin-left: 120px; }
 
-#rightcontent footer { padding: 1em; width: 100%; -moz-box-sizing: border-box; box-sizing: border-box; clear: both; }
-#rightcontent footer > { display: inline-block; }
+#contact footer {
+	padding: 5px;
+	width: 100%;
+	-moz-box-sizing: border-box; box-sizing: border-box;
+	clear: both;
+	white-space: nowrap;
+}
+#contact footer > * {
+	display: inline-block;
+	float: left;
+}
+#contact footer > .delete {
+	display: inline-block;
+	float: right;
+}
 /* contact list */
 
 #contactlist { position: relative; top: 0; left: 0; right: 0; width: 100%; }
@@ -552,6 +574,13 @@ input[type="checkbox"].propertytype { width: 10px; }
 #contactlist tr > td.name { font-weight: bold; text-indent: 1.6em; -webkit-transition:background-image 500ms; -moz-transition:background-image 500ms; -o-transition:background-image 500ms;  transition:background-image 500ms; position:relative; background-position:1em .5em !important; background-repeat:no-repeat !important; }
 #contactlist tr > td a.mailto { position: absolute; float: right;  clear: none; cursor:pointer; width:16px; height:16px; margin: 2px; z-index: 200; opacity: 0.6; background-image:url('%webroot%/core/img/actions/mail.svg'); }
 #contactlist tr > td a.mailto:hover { opacity: 0.8; }
+#contactlist tbody > tr > td a.delete {
+	position: absolute;
+	right: 20px; clear: none;
+	cursor:pointer;
+	width:16px; height:16px;
+	z-index: 200;
+}
 #contactlist.dim { background-image: #ddd; opacity: .50;filter:Alpha(Opacity=50); }
 
 #contact { 

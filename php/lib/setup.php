@@ -333,7 +333,7 @@ class OC_Setup {
 			//add prefix to the postgresql user name to prevent collisions
 			$dbusername='oc_'.$username;
 			//create a new password so we don't need to store the admin config in the config file
-			$dbpassword=md5(time());
+			$dbpassword=md5(OC_Util::generate_random_bytes(30));
 
 			self::pg_createDBUser($dbusername, $dbpassword, $connection);
 
@@ -827,6 +827,10 @@ class OC_Setup {
 		$content.= "AddType image/svg+xml svg svgz\n";
 		$content.= "AddEncoding gzip svgz\n";
 		$content.= "</IfModule>\n";
+		$content.= "<IfModule dir_module>\n";
+		$content.= "DirectoryIndex index.php index.html\n";
+		$content.= "</IfModule>\n";
+		$content.= "AddDefaultCharset utf-8\n";
 		$content.= "Options -Indexes\n";
 		@file_put_contents(OC::$SERVERROOT.'/.htaccess', $content); //supress errors in case we don't have permissions for it
 

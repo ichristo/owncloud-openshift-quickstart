@@ -153,7 +153,7 @@
 base without blocking the user interface. For that purpose you, as a system
 administrator, can define background jobs which make it possible to execute
 tasks without any need of user interaction, e.g. database clean-ups etc.
-For the sake of completeness it is worse to know that additionally background
+For the sake of completeness it is worth to know that additionally background
 jobs can also be defined by installed apps.</p>
 <div class="section" id="parameters">
 <h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
@@ -191,11 +191,11 @@ regularly. To use such a service your server need to be reachable via the Intern
 because it allows to execute jobs without the limitations which a web server
 may have.</p>
 <p><strong>Example</strong></p>
-<p>To run a cron job on a <a href="#id1"><span class="problematic" id="id2">*</span></a>nix system, e.g. every 15min, under the default webserver
-user, e.g. &#8216;www-data&#8217;, you need to set-up the following cron job to call the
-<cite>cron.php`</cite> script. Please check the crontab man page for the exact command syntax.</p>
+<p>To run a cron job on a <em>nix system, e.g. every 15min, under the default webserver
+user, e.g. **www-data*</em>, you need to set-up the following cron job to call the
+<strong>cron.php</strong> script. Please check the crontab man page for the exact command syntax.</p>
 <div class="highlight-python"><pre># crontab -u www-data -e
-*/15  *  *  *  * php -f /var/www/htdocs/owncloud/cron.php</pre>
+*/15  *  *  *  * php -f /var/www/owncloud/cron.php</pre>
 </div>
 </div>
 </div>

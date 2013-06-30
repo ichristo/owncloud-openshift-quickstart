@@ -155,7 +155,7 @@
 <div class="highlight-python"><pre>rsync -a owncloud/ owncloud_bkp`date +"%Y%m%d"`/</pre>
 </div>
 <p>Download the latest version to the working directory:</p>
-<div class="highlight-python"><pre>wget http://mirrors.owncloud.org/releases/owncloud-latest.tar.bz2</pre>
+<div class="highlight-python"><pre>wget http://download.owncloud.org/community/owncloud-latest.tar.bz2</pre>
 </div>
 <p>Extract content of archive to <strong>./owncloud_latest/</strong>:</p>
 <div class="highlight-python"><pre>mkdir owncloud_latest; tar -C owncloud_latest -xjf owncloud-latest.tar.bz2</pre>
@@ -173,18 +173,18 @@
 </div>
 <div class="section" id="upgrade">
 <h2>Upgrade<a class="headerlink" href="#upgrade" title="Permalink to this headline">¶</a></h2>
-<p>Upgrade is to bring an ownCloud instance to a new <em>major release</em>, e.g.
-ownCloud 4.0.7 → 4.5.0. Always do backups anyway.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">ownCloud 5.0.0 does not yet include the encryption app and an update would result in unreadable data. If you use the encryption app in 4.5 please wait until the app is available in 5.0</p>
+<p class="last">The update to 5.0 is currently discouraged for users of the encryption app. A rewrite of the encryption will be released in a few weeks. If you have already upgraded to 5.0 you will not be able to decrypt your files. The solution to this is to downgrade to the old version again. <strong>Also make a backup before you downgrade!</strong></p>
 </div>
+<p>Upgrade is to bring an ownCloud instance to a new <em>major release</em>, e.g.
+ownCloud 4.0.7 → 4.5.0. Always do backups anyway.</p>
 <p>To upgrade ownCloud, follow those steps:</p>
 <ol class="arabic simple">
 <li>Make sure that you ran the latest point release of the major ownCloud
 version, e.g. 4.0.7 in the 4.0 series. If not, update to that version first
 (see above).</li>
-<li>Do a backup.</li>
+<li><strong>Make a backup of the ownCloud folder and the database</strong></li>
 <li>Deactivate all third party applications.</li>
 <li>Delete everything from your ownCloud installation directory, except data and
 config.</li>

@@ -324,6 +324,19 @@ press the login button the login mask reappears and a <strong>I’ve forgotten m
 </div>
 <div class="section" id="trouble-shooting">
 <h2>Trouble shooting<a class="headerlink" href="#trouble-shooting" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="my-web-domain-is-different-from-my-mail-domain">
+<h3>My web domain is different from my mail domain?<a class="headerlink" href="#my-web-domain-is-different-from-my-mail-domain" title="Permalink to this headline">¶</a></h3>
+<p>The default domain name used for the sender address is the hostname where your ownCloud installation is served.
+If you have a different mail domain name you can override this behavior by setting the following configuration parameter:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
+
+  <span class="s2">&quot;mail_domain&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;example.com&quot;</span><span class="p">,</span>
+</pre></div>
+</div>
+<p>Now every mail send by ownCloud e.g. password reset email, will have the domain part of the sender address look like:</p>
+<div class="highlight-python"><pre>no-reply@example.com</pre>
+</div>
+</div>
 <div class="section" id="how-can-i-find-out-if-a-smtp-server-is-reachable">
 <h3>How can I find out if a SMTP server is reachable?<a class="headerlink" href="#how-can-i-find-out-if-a-smtp-server-is-reachable" title="Permalink to this headline">¶</a></h3>
 <p>Use the ping command to check the server availability:</p>

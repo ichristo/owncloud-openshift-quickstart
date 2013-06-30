@@ -26,7 +26,7 @@
     <script type="text/javascript" src="../_static/bootstrap.js"></script>
     <link rel="top" title="ownCloud User Manual v5.0 documentation" href="../index.html" />
     <link rel="up" title="Files &amp; Synchronization" href="index.html" />
-    <link rel="next" title="Desktop Synchronisation" href="sync.html" />
+    <link rel="next" title="Deleted Files" href="deletedfiles.html" />
     <link rel="prev" title="Accessing your Files (WebDav)" href="files.html" />
 <script type="text/javascript">
 (function () {
@@ -117,6 +117,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Files &amp; Synchronization</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="files.html">Accessing your Files (WebDav)</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Version Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deletedfiles.html">Deleted Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sync.html">Desktop Synchronisation</a></li>
 </ul>
 </li>
@@ -144,6 +145,21 @@ via the history tab. This tab also links to the history page, where you
 can roll back a file to any previous version. Changes made at intervals
 greater than two minutes are saved in data/[user]/versions, and made
 accessible using the above pages.</p>
+<p>The versioning app expires old versions automatically to make sure that
+the user doesn&#8217;t run out of space. Following pattern is used to delete
+old versions:</p>
+<ul class="simple">
+<li>For the first 10 seconds ownCloud keeps one version every 2 seconds</li>
+<li>For the first hour ownCloud keeps one version every minute</li>
+<li>For the first 24 hours ownCloud keeps one version every hour</li>
+<li>For the first 30 days ownCloud keeps one version every day</li>
+<li>After the first 30 days ownCloud keeps one version every week</li>
+</ul>
+<p>The versions are adjusted along this pattern every time a new version gets
+created.</p>
+<p>Beside that the version app takes care to never use more that 50% of the users
+currently available free space. If the stored versions exceed this limit ownCloud
+delete the oldest versions until it meets the memory usage limit again.</p>
 </div>
 
 

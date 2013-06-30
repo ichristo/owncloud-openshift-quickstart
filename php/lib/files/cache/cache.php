@@ -117,7 +117,7 @@ class Cache {
 			$params = array($file);
 		}
 		$query = \OC_DB::prepare(
-			'SELECT `fileid`, `storage`, `path`, `parent`, `name`, `mimetype`, `mimepart`, `size`, `mtime`, `encrypted`, `etag`
+			'SELECT `fileid`, `storage`, `path`, `parent`, `name`, `mimetype`, `mimepart`, `size`, `mtime`, `encrypted`, `unencrypted_size`, `etag`
 			 FROM `*PREFIX*filecache` ' . $where);
 		$result = $query->execute($params);
 		$data = $result->fetchRow();
@@ -133,6 +133,7 @@ class Cache {
 			$data['size'] = (int)$data['size'];
 			$data['mtime'] = (int)$data['mtime'];
 			$data['encrypted'] = (bool)$data['encrypted'];
+			$data['unencrypted_size'] = (int)$data['unencrypted_size'];
 			$data['storage'] = $this->storageId;
 			$data['mimetype'] = $this->getMimetype($data['mimetype']);
 			$data['mimepart'] = $this->getMimetype($data['mimepart']);
@@ -151,7 +152,7 @@ class Cache {
 		$fileId = $this->getId($folder);
 		if ($fileId > -1) {
 			$query = \OC_DB::prepare(
-				'SELECT `fileid`, `storage`, `path`, `parent`, `name`, `mimetype`, `mimepart`, `size`, `mtime`, `encrypted`, `etag`
+				'SELECT `fileid`, `storage`, `path`, `parent`, `name`, `mimetype`, `mimepart`, `size`, `mtime`, `encrypted`, `unencrypted_size` , `etag`
 			 	 FROM `*PREFIX*filecache` WHERE parent = ? ORDER BY `name` ASC');
 			$result = $query->execute(array($fileId));
 			$files = $result->fetchAll();
@@ -205,7 +206,7 @@ class Cache {
 				. ' VALUES(' . implode(', ', $valuesPlaceholder) . ')');
 			$result = $query->execute($params);
 			if (\OC_DB::isError($result)) {
-				\OCP\Util::writeLog('cache', 'Insert to cache failed: '.$result, \OCP\Util::ERROR);
+				\OCP\Util::writeLog('cache', 'Insert to cache failed: ' . $result, \OCP\Util::ERROR);
 			}
 
 			return (int)\OC_DB::insertid('*PREFIX*filecache');
@@ -234,7 +235,7 @@ class Cache {
 	 * @return array
 	 */
 	function buildParts(array $data) {
-		$fields = array('path', 'parent', 'name', 'mimetype', 'size', 'mtime', 'encrypted', 'etag');
+		$fields = array('path', 'parent', 'name', 'mimetype', 'size', 'mtime', 'encrypted', 'unencrypted_size', 'etag');
 		$params = array();
 		$queryParts = array();
 		foreach ($data as $name => $value) {
@@ -328,24 +329,27 @@ class Cache {
 	 * @param string $target
 	 */
 	public function move($source, $target) {
-		$sourceId = $this->getId($source);
+		$sourceData = $this->get($source);
+		$sourceId = $sourceData['fileid'];
 		$newParentId = $this->getParentId($target);
 
-		//find all child entries
-		$query = \OC_DB::prepare('SELECT `path`, `fileid` FROM `*PREFIX*filecache` WHERE `path` LIKE ?');
-		$result = $query->execute(array($source . '/%'));
-		$childEntries = $result->fetchAll();
-		$sourceLength = strlen($source);
-		$query = \OC_DB::prepare('UPDATE `*PREFIX*filecache` SET `path` = ?, `path_hash` = ? WHERE `fileid` = ?');
+		if ($sourceData['mimetype'] === 'httpd/unix-directory') {
+			//find all child entries
+			$query = \OC_DB::prepare('SELECT `path`, `fileid` FROM `*PREFIX*filecache` WHERE `storage` = ? AND `path` LIKE ?');
+			$result = $query->execute(array($this->getNumericStorageId(), $source . '/%'));
+			$childEntries = $result->fetchAll();
+			$sourceLength = strlen($source);
+			$query = \OC_DB::prepare('UPDATE `*PREFIX*filecache` SET `path` = ?, `path_hash` = ? WHERE `fileid` = ?');
 
-		foreach ($childEntries as $child) {
-			$targetPath = $target . substr($child['path'], $sourceLength);
-			$query->execute(array($targetPath, md5($targetPath), $child['fileid']));
+			foreach ($childEntries as $child) {
+				$targetPath = $target . substr($child['path'], $sourceLength);
+				$query->execute(array($targetPath, md5($targetPath), $child['fileid']));
+			}
 		}
 
-		$query = \OC_DB::prepare('UPDATE `*PREFIX*filecache` SET `path` = ?, `path_hash` = ?, `parent` =?'
+		$query = \OC_DB::prepare('UPDATE `*PREFIX*filecache` SET `path` = ?, `path_hash` = ?, `name` = ?, `parent` =?'
 			. ' WHERE `fileid` = ?');
-		$query->execute(array($target, md5($target), $newParentId, $sourceId));
+		$query->execute(array($target, md5($target), basename($target), $newParentId, $sourceId));
 	}
 
 	/**
@@ -391,7 +395,7 @@ class Cache {
 	 */
 	public function search($pattern) {
 		$query = \OC_DB::prepare('
-			SELECT `fileid`, `storage`, `path`, `parent`, `name`, `mimetype`, `mimepart`, `size`, `mtime`, `encrypted`, `etag`
+			SELECT `fileid`, `storage`, `path`, `parent`, `name`, `mimetype`, `mimepart`, `size`, `mtime`, `encrypted`, `unencrypted_size`, `etag`
 			FROM `*PREFIX*filecache` WHERE `name` LIKE ? AND `storage` = ?'
 		);
 		$result = $query->execute(array($pattern, $this->numericId));
@@ -417,7 +421,7 @@ class Cache {
 			$where = '`mimepart` = ?';
 		}
 		$query = \OC_DB::prepare('
-			SELECT `fileid`, `storage`, `path`, `parent`, `name`, `mimetype`, `mimepart`, `size`, `mtime`, `encrypted`, `etag`
+			SELECT `fileid`, `storage`, `path`, `parent`, `name`, `mimetype`, `mimepart`, `size`, `mtime`, `encrypted`, `unencrypted_size`, `etag`
 			FROM `*PREFIX*filecache` WHERE ' . $where . ' AND `storage` = ?'
 		);
 		$mimetype = $this->getMimetypeId($mimetype);
@@ -440,7 +444,7 @@ class Cache {
 		$this->calculateFolderSize($path);
 		if ($path !== '') {
 			$parent = dirname($path);
-			if ($parent === '.') {
+			if ($parent === '.' or $parent === '/') {
 				$parent = '';
 			}
 			$this->correctFolderSize($parent);

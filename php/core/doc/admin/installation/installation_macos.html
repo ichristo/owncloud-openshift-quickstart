@@ -139,20 +139,11 @@
 						
   <div class="section" id="mac-os-x">
 <h1>Mac OS X<a class="headerlink" href="#mac-os-x" title="Permalink to this headline">¶</a></h1>
-<p>This relies on <a class="reference external" href="http://www.mamp.info">MAMP</a>, which provides the required environment.</p>
-<ol class="arabic simple">
-<li>Install MAMP and run it.</li>
-<li>Go to ‘Preferences‘, open the ‘Apache’ tab and set ‘Document Root’ to
-<strong>/Users/&lt;YOUR USER NAME&gt;/Sites</strong>, so your Sites directory will be
-used as Apache root.</li>
-<li>Download <a class="reference external" href="https://download.owncloud.com/download/community/owncloud-latest.zip">ownCloud</a></li>
-<li>Extract it</li>
-</ol>
-<div class="highlight-python"><pre>unzip owncloud-latest.zip -d ~/Sites/</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Due to an <a class="reference external" href="https://github.com/owncloud/core/issues/2377">issue</a> with Mac OS Unicode support, installing ownCloud Server 5.0 on
+Mac OS is currently not supported.</p>
 </div>
-<ol class="arabic simple" start="5">
-<li>Now you can set it up by going to <a class="reference external" href="http://localhost:8888/owncloud">http://localhost:8888/owncloud</a></li>
-</ol>
 </div>
 
 
