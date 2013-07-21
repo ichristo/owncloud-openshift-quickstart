@@ -16,6 +16,10 @@ Create a PHP application with a MySQL cartridge:
 
 	rhc app create owncloud php-5.3 mysql-5.1
 
+Enable background jobs with the Cron cartridge:
+
+	rhc cartridge add cron-1.4 -a owncloud
+
 Add this upstream ownCloud quickstart repo
 
 	cd owncloud
