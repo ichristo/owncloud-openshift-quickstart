@@ -14,7 +14,7 @@ Create an account at http://openshift.redhat.com/
 
 Create a PHP application with a MySQL cartridge:
 
-	rhc app create owncloud php-5.3 mysql-5.1
+	rhc app create owncloud php-5.3 mysql-5.1 cron-1.4
 
 Add this upstream ownCloud quickstart repo
 
