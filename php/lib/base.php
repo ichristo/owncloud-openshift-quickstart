@@ -213,11 +213,12 @@ class OC {
 	public static function checkConfig() {
 		if (file_exists(OC::$SERVERROOT . "/config/config.php")
 			and !is_writable(OC::$SERVERROOT . "/config/config.php")) {
+			$defaults = new OC_Defaults();
 			$tmpl = new OC_Template('', 'error', 'guest');
 			$tmpl->assign('errors', array(1 => array(
 				'error' => "Can't write into config directory 'config'",
-				'hint' => 'You can usually fix this by giving the webserver user write access'
-					.' to the config directory in owncloud'
+				'hint' => 'This can usually be fixed by '
+					.'<a href="' . $defaults->getDocBaseUrl() . '/server/5.0/admin_manual/installation/installation_source.html#set-the-directory-permissions" target="_blank">giving the webserver write access to the config directory</a>.'
 			)));
 			$tmpl->printPage();
 			exit();
@@ -275,10 +276,7 @@ class OC {
 			$currentVersion = implode('.', OC_Util::getVersion());
 			if (version_compare($currentVersion, $installedVersion, '>')) {
 				if ($showTemplate && !OC_Config::getValue('maintenance', false)) {
-					OC_Config::setValue('maintenance', true);
-					OC_Log::write('core',
-						'starting upgrade from ' . $installedVersion . ' to ' . $currentVersion,
-						OC_Log::WARN);
+					OC_Config::setValue('theme', '');
 					$minimizerCSS = new OC_Minimizer_CSS();
 					$minimizerCSS->clearCache();
 					$minimizerJS = new OC_Minimizer_JS();
@@ -343,16 +341,17 @@ class OC {
 			exit();
 		}
 
+		$sessionLifeTime = self::getSessionLifeTime();
 		// regenerate session id periodically to avoid session fixation
 		if (!isset($_SESSION['SID_CREATED'])) {
 			$_SESSION['SID_CREATED'] = time();
-		} else if (time() - $_SESSION['SID_CREATED'] > 60*60*12) {
+		} else if (time() - $_SESSION['SID_CREATED'] > $sessionLifeTime / 2) {
 			session_regenerate_id(true);
 			$_SESSION['SID_CREATED'] = time();
 		}
 
 		// session timeout
-		if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 60*60*24)) {
+		if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > $sessionLifeTime)) {
 			if (isset($_COOKIE[session_name()])) {
 				setcookie(session_name(), '', time() - 42000, '/');
 			}
@@ -361,6 +360,13 @@ class OC {
 			session_start();
 		}
 		$_SESSION['LAST_ACTIVITY'] = time();
+	}
+
+	/**
+	 * @return int
+	 */
+	private static function getSessionLifeTime() {
+		return OC_Config::getValue('session_lifetime', 60 * 60 * 24);
 	}
 
 	public static function getRouter() {
@@ -418,9 +424,6 @@ class OC {
 		@ini_set('post_max_size', '10G');
 		@ini_set('file_uploads', '50');
 
-		//try to set the session lifetime to 60min
-		@ini_set('gc_maxlifetime', '3600');
-
 		//copy http auth headers for apache+php-fcgid work around
 		if (isset($_SERVER['HTTP_XAUTHORIZATION']) && !isset($_SERVER['HTTP_AUTHORIZATION'])) {
 			$_SERVER['HTTP_AUTHORIZATION'] = $_SERVER['HTTP_XAUTHORIZATION'];
@@ -463,17 +466,21 @@ class OC {
 		stream_wrapper_register('close', 'OC\Files\Stream\Close');
 		stream_wrapper_register('oc', 'OC\Files\Stream\OC');
 
+		self::initTemplateEngine();
 		self::checkConfig();
 		self::checkInstalled();
 		self::checkSSL();
 		self::initSession();
-		self::initTemplateEngine();
 
 		$errors = OC_Util::checkServer();
 		if (count($errors) > 0) {
 			OC_Template::printGuestPage('', 'error', array('errors' => $errors));
 			exit;
 		}
+
+		//try to set the session lifetime
+		$sessionLifeTime = self::getSessionLifeTime();
+		@ini_set('gc_maxlifetime', (string)$sessionLifeTime);
 
 		// User and Groups
 		if (!OC_Config::getValue("installed", false)) {

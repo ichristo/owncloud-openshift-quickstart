@@ -127,6 +127,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sync_ios.html">iOS - Synchronize iPhone/iPad</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sync_osx.html">Synchronizing with OS X</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sync_thunderbird.html">Thunderbird - Synchronize Address Book</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sync_kde.html">Synchronizing with KDE SC</a></li>
 </ul>
 </li>
@@ -172,22 +173,14 @@ URL, including the trailing slash:</p>
 <div class="highlight-python"><pre>http://ADDRESS/remote.php/caldav/principals/username/</pre>
 </div>
 <p>Mozilla Lightning users need to this URL scheme:</p>
-<div class="highlight-python"><pre>https://ADDRESS/remote.php/caldav/calendars/USERNAME/CALENDARNAME</pre>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The calendar name must alway be specified in <a class="reference external" href="http://en.wikipedia.org/wiki/Percent-encoding">URL-encoding</a>.</p>
-</div>
-<div class="figure">
-<img alt="../_images/calendar_caldav.png" src="../_images/calendar_caldav.png" />
-<p class="caption">Example for a simple calendar: The default calendar is always
-called &#8220;defaultcalendar&#8221;, and the users&#8217; name here is &#8220;test&#8221;.
-The full URL (which on the picture can&#8217;t be seen because of the
-short edit field) is then:</p>
-<div class="legend">
-<div class="highlight-python"><pre>https://localhost/owncloud/remote.php/caldav/calendars/test/defaultcalendar</pre>
-</div>
-</div>
+<div class="highlight-python"><pre>https://ADDRESS/remote.php/caldav/calendars/USERNAME/CALENDARNAME
+
+ Example for a simple calendar: The "Default calendar" is referred to as "defaultcalendar",
+ and the users' name here is "test".
+ The full URL (which on the picture can't be seen because of the
+ short edit field) is then::
+
+     https://localhost/owncloud/remote.php/caldav/calendars/test/defaultcalendar</pre>
 </div>
 </div>
 <div class="section" id="creating-events">

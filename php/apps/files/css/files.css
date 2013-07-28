@@ -45,7 +45,11 @@
 }
 
 #uploadprogresswrapper { float: right; position: relative; }
-#uploadprogresswrapper #uploadprogressbar { position:relative; display:inline-block; width:10em; height:1.5em; top:.4em; }
+#uploadprogresswrapper #uploadprogressbar {
+	position:relative; float: right;
+	margin-left: 12px; width:10em; height:1.5em; top:.4em;
+	display:inline-block;
+}
 
 /* FILE TABLE */
 
@@ -163,4 +167,9 @@ table.dragshadow td.size {
 	left: 50%;
 	text-align: center;
 	margin-left: -200px;
+}
+
+html.lte8 #fileList tr:hover a.delete {
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	filter: alpha(opacity=50);
 }

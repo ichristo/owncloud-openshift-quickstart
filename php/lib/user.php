@@ -528,7 +528,7 @@ class OC_User {
 		foreach (self::$_usedBackends as $backend) {
 			$backendDisplayNames = $backend->getDisplayNames($search, $limit, $offset);
 			if (is_array($backendDisplayNames)) {
-				$displayNames = array_merge($displayNames, $backendDisplayNames);
+				$displayNames = $displayNames + $backendDisplayNames;
 			}
 		}
 		asort($displayNames);
@@ -611,6 +611,10 @@ class OC_User {
 	public static function isEnabled($userid) {
 		$sql = 'SELECT `userid` FROM `*PREFIX*preferences`'
 			.' WHERE `userid` = ? AND `appid` = ? AND `configkey` = ? AND `configvalue` = ?';
+		if (OC_Config::getValue( 'dbtype', 'sqlite' ) === 'oci') { //FIXME oracle hack
+			$sql = 'SELECT `userid` FROM `*PREFIX*preferences`'
+				.' WHERE `userid` = ? AND `appid` = ? AND `configkey` = ? AND to_char(`configvalue`) = ?';
+		}
 		$stmt = OC_DB::prepare($sql);
 		if ( ! OC_DB::isError($stmt) ) {
 			$result = $stmt->execute(array($userid, 'core', 'enabled', 'false'));

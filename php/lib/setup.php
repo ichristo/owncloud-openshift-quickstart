@@ -139,12 +139,15 @@ class OC_Setup {
 				$dbuser = $options['dbuser'];
 				$dbpass = $options['dbpass'];
 				$dbname = $options['dbname'];
-				$dbtablespace = $options['dbtablespace'];
+				if (array_key_exists('dbtablespace', $options)) {
+					$dbtablespace = $options['dbtablespace'];
+				} else {
+					$dbtablespace = 'USERS';
+				}
 				$dbhost = isset($options['dbhost'])?$options['dbhost']:'';
 				$dbtableprefix = isset($options['dbtableprefix']) ? $options['dbtableprefix'] : 'oc_';
 
 				OC_Config::setValue('dbname', $dbname);
-				OC_Config::setValue('dbtablespace', $dbtablespace);
 				OC_Config::setValue('dbhost', $dbhost);
 				OC_Config::setValue('dbtableprefix', $dbtableprefix);
 
@@ -152,8 +155,12 @@ class OC_Setup {
 					self::setupOCIDatabase($dbhost, $dbuser, $dbpass, $dbname, $dbtableprefix, $dbtablespace, $username);
 				} catch (Exception $e) {
 					$error[] = array(
-						'error' => $l->t('Oracle username and/or password not valid'),
-						'hint' => $l->t('You need to enter either an existing account or the administrator.')
+						'error' => $l->t('Oracle connection could not be established'),
+						'hint' => $e->getMessage().' Check environment: ORACLE_HOME='.getenv('ORACLE_HOME')
+							.' ORACLE_SID='.getenv('ORACLE_SID')
+							.' LD_LIBRARY_PATH='.getenv('LD_LIBRARY_PATH')
+							.' NLS_LANG='.getenv('NLS_LANG')
+							.' tnsnames.ora is '.(is_readable(getenv('ORACLE_HOME').'/network/admin/tnsnames.ora')?'':'not ').'readable'
 					);
 					return $error;
 				}
@@ -451,9 +458,13 @@ class OC_Setup {
 		} else {
 			$easy_connect_string = '//'.$e_host.'/'.$e_dbname;
 		}
+		\OC_Log::write('setup oracle', 'connect string: ' . $easy_connect_string, \OC_Log::DEBUG);
 		$connection = @oci_connect($dbuser, $dbpass, $easy_connect_string);
 		if(!$connection) {
 			$e = oci_error();
+			if (is_array ($e) && isset ($e['message'])) {
+				throw new Exception($e['message']);
+			}
 			throw new Exception($l->t('Oracle username and/or password not valid'));
 		}
 		//check for roles creation rights in oracle
