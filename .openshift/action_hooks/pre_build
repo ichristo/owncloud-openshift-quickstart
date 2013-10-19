@@ -10,7 +10,9 @@ then
     echo "Configuration Exists.  Restoring."
     ln -s $OPENSHIFT_DATA_DIR/${OPENSHIFT_APP_NAME}-config.php ${OPENSHIFT_REPO_DIR}/php/config/config.php
     #REMOVE autoconfig so Config isn't overwritten
-    rm ${OPENSHIFT_REPO_DIR}/php/config/autoconfig.php
+    if [[ -f ${OPENSHIFT_REPO_DIR}/php/config/autoconfig.php ]] ; then 
+        rm ${OPENSHIFT_REPO_DIR}/php/config/autoconfig.php
+    fi
 fi
 
 

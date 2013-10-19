@@ -92,8 +92,7 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 		// reset app files_trashbin
 		if ($this->stateFilesTrashbin) {
 			OC_App::enable('files_trashbin');
-		}
-		else {
+		} else {
 			OC_App::disable('files_trashbin');
 		}
 	}
@@ -223,6 +222,22 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 		$decrypt = Encryption\Crypt::decrypt($crypted, $iv, 'hat');
 
 		$this->assertEquals($this->dataUrl, $decrypt);
+
+	}
+
+	function testDecryptPrivateKey() {
+
+		// test successful decrypt
+		$crypted = Encryption\Crypt::symmetricEncryptFileContent($this->genPrivateKey, 'hat');
+
+		$decrypted = Encryption\Crypt::decryptPrivateKey($crypted, 'hat');
+
+		$this->assertEquals($this->genPrivateKey, $decrypted);
+
+		//test private key decrypt with wrong password
+		$wrongPasswd = Encryption\Crypt::decryptPrivateKey($crypted, 'hat2');
+
+		$this->assertEquals(false, $wrongPasswd);
 
 	}
 
@@ -566,23 +581,6 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 
 		// Check that key is correct length
 		$this->assertEquals(20, strlen($key));
-
-	}
-
-	/**
-	 * @brief test decryption using legacy blowfish method
-	 * @depends testLegacyEncryptLong
-	 */
-	function testLegacyKeyRecryptKeyfileEncrypt($crypted) {
-
-		$recrypted = Encryption\Crypt::LegacyKeyRecryptKeyfile($crypted, $this->pass, array($this->genPublicKey));
-
-		$this->assertNotEquals($this->dataLong, $recrypted['data']);
-
-		return $recrypted;
-
-		# TODO: search inencrypted text for actual content to ensure it
-		# genuine transformation
 
 	}
 

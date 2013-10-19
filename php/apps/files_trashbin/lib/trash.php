@@ -165,13 +165,19 @@ class Trashbin {
 
 			list($owner, $ownerPath) = self::getUidAndFilename($file_path);
 
+			$util = new \OCA\Encryption\Util(new \OC_FilesystemView('/'), $user);
 
 			// disable proxy to prevent recursive calls
 			$proxyStatus = \OC_FileProxy::$enabled;
 			\OC_FileProxy::$enabled = false;
 
-			// retain key files
-			$keyfile = \OC\Files\Filesystem::normalizePath($owner . '/files_encryption/keyfiles/' . $ownerPath);
+			if ($util->isSystemWideMountPoint($ownerPath)) {
+				$baseDir = '/files_encryption/';
+			} else {
+				$baseDir = $owner . '/files_encryption/';
+			}
+
+			$keyfile = \OC\Files\Filesystem::normalizePath($baseDir . '/keyfiles/' . $ownerPath);
 
 			if ($rootView->is_dir($keyfile) || $rootView->file_exists($keyfile . '.key')) {
 				// move keyfiles
@@ -185,20 +191,22 @@ class Trashbin {
 			}
 
 			// retain share keys
-			$sharekeys = \OC\Files\Filesystem::normalizePath($owner . '/files_encryption/share-keys/' . $ownerPath);
+			$sharekeys = \OC\Files\Filesystem::normalizePath($baseDir . '/share-keys/' . $ownerPath);
 
 			if ($rootView->is_dir($sharekeys)) {
 				$size += self::calculateSize(new \OC\Files\View($sharekeys));
 				$rootView->rename($sharekeys, $user . '/files_trashbin/share-keys/' . $filename . '.d' . $timestamp);
 			} else {
-				// get local path to share-keys
-				$localShareKeysPath = $rootView->getLocalFile($sharekeys);
 
-				// handle share-keys
-				$matches = glob(preg_quote($localShareKeysPath) . '*.shareKey');
-				foreach ($matches as $src) {
-					// get source file parts
-					$pathinfo = pathinfo($src);
+                // get local path to share-keys
+				$localShareKeysPath = $rootView->getLocalFile($sharekeys);
+				$escapedLocalShareKeysPath = preg_replace('/(\*|\?|\[)/', '[$1]', $localShareKeysPath);
+
+                // handle share-keys
+                $matches = glob($escapedLocalShareKeysPath.'*.shareKey');
+                foreach ($matches as $src) {
+                    // get source file parts
+                    $pathinfo = pathinfo($src);
 
 					// we only want to keep the owners key so we can access the private key
 					$ownerShareKey = $filename . '.' . $user . '.shareKey';
@@ -392,6 +400,14 @@ class Trashbin {
 
 			list($owner, $ownerPath) = self::getUidAndFilename($target);
 
+			$util = new \OCA\Encryption\Util(new \OC_FilesystemView('/'), $user);
+
+			if ($util->isSystemWideMountPoint($ownerPath)) {
+				$baseDir = '/files_encryption/';
+			} else {
+				$baseDir = $owner . '/files_encryption/';
+			}
+
 			$path_parts = pathinfo($file);
 			$source_location = $path_parts['dirname'];
 
@@ -421,18 +437,18 @@ class Trashbin {
 
 					// handle keyfiles
 					$size += self::calculateSize(new \OC\Files\View($keyfile));
-					$rootView->rename($keyfile, $owner . '/files_encryption/keyfiles/' . $ownerPath);
+					$rootView->rename($keyfile, $baseDir . '/keyfiles/' . $ownerPath);
 
 					// handle share-keys
 					if ($timestamp) {
 						$sharekey .= '.d' . $timestamp;
 					}
 					$size += self::calculateSize(new \OC\Files\View($sharekey));
-					$rootView->rename($sharekey, $owner . '/files_encryption/share-keys/' . $ownerPath);
+					$rootView->rename($sharekey, $baseDir . '/share-keys/' . $ownerPath);
 				} else {
 					// handle keyfiles
 					$size += $rootView->filesize($keyfile);
-					$rootView->rename($keyfile, $owner . '/files_encryption/keyfiles/' . $ownerPath . '.key');
+					$rootView->rename($keyfile, $baseDir . '/keyfiles/' . $ownerPath . '.key');
 
 					// handle share-keys
 					$ownerShareKey = \OC\Files\Filesystem::normalizePath($user . '/files_trashbin/share-keys/' . $source_location . '/' . $filename . '.' . $user . '.shareKey');
@@ -443,7 +459,7 @@ class Trashbin {
 					$size += $rootView->filesize($ownerShareKey);
 
 					// move only owners key
-					$rootView->rename($ownerShareKey, $owner . '/files_encryption/share-keys/' . $ownerPath . '.' . $user . '.shareKey');
+					$rootView->rename($ownerShareKey, $baseDir . '/share-keys/' . $ownerPath . '.' . $user . '.shareKey');
 
 					// try to re-share if file is shared
 					$filesystemView = new \OC_FilesystemView('/');
@@ -724,15 +740,17 @@ class Trashbin {
 	 * @param $timestamp timestamp when the file was deleted
 	 */
 	private static function getVersionsFromTrash($filename, $timestamp) {
-		$view = new \OC\Files\View('/' . \OCP\User::getUser() . '/files_trashbin/versions');
-		$versionsName = $view->getLocalFile($filename);
+
+		$view = new \OC\Files\View('/'.\OCP\User::getUser().'/files_trashbin/versions');
+		$versionsName = $view->getLocalFile($filename).'.v';
+		$escapedVersionsName = preg_replace('/(\*|\?|\[)/', '[$1]', $versionsName);
 		$versions = array();
 		if ($timestamp) {
 			// fetch for old versions
-			$matches = glob($versionsName . '.v*.d' . $timestamp);
-			$offset = -strlen($timestamp) - 2;
+			$matches = glob( $escapedVersionsName.'*.d'.$timestamp );
+			$offset = -strlen($timestamp)-2;
 		} else {
-			$matches = glob($versionsName . '.v*');
+			$matches = glob( $escapedVersionsName.'*' );
 		}
 
 		foreach ($matches as $ma) {

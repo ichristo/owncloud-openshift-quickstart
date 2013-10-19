@@ -7,7 +7,10 @@
  */
 var oc_debug;
 var oc_webroot;
-var oc_requesttoken;
+
+var oc_current_user = document.getElementsByTagName('head')[0].getAttribute('data-user');
+var oc_requesttoken = document.getElementsByTagName('head')[0].getAttribute('data-requesttoken');
+
 if (typeof oc_webroot === "undefined") {
 	oc_webroot = location.pathname.substr(0, location.pathname.lastIndexOf('/'));
 }
@@ -223,8 +226,12 @@ var OC={
 		var path=OC.filePath(app,'css',style+'.css');
 		if(OC.addStyle.loaded.indexOf(path)===-1){
 			OC.addStyle.loaded.push(path);
-			style=$('<link rel="stylesheet" type="text/css" href="'+path+'"/>');
-			$('head').append(style);
+			if (document.createStyleSheet) {
+				document.createStyleSheet(path);
+			} else {
+				style=$('<link rel="stylesheet" type="text/css" href="'+path+'"/>');
+				$('head').append(style);
+			}
 		}
 	},
 	basename: function(path) {
@@ -826,6 +833,26 @@ OC.set=function(name, value) {
 	context[tail]=value;
 };
 
+/**
+ * select a range in an input field
+ * @link http://stackoverflow.com/questions/499126/jquery-set-cursor-position-in-text-area
+ * @param {type} start
+ * @param {type} end
+ */
+$.fn.selectRange = function(start, end) {
+	return this.each(function() {
+		if (this.setSelectionRange) {
+			this.focus();
+			this.setSelectionRange(start, end);
+		} else if (this.createTextRange) {
+			var range = this.createTextRange();
+			range.collapse(true);
+			range.moveEnd('character', end);
+			range.moveStart('character', start);
+			range.select();
+		}
+	});
+};
 
 /**
  * Calls the server periodically every 15 mins to ensure that session doesnt

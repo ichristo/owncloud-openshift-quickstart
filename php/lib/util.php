@@ -76,7 +76,7 @@ class OC_Util {
 	public static function getVersion() {
 		// hint: We only can count up. Reset minor/patchlevel when
 		// updating major/minor version number.
-		return array(5, 00, 12);
+		return array(5, 00, 15);
 	}
 
 	/**
@@ -84,7 +84,7 @@ class OC_Util {
 	 * @return string
 	 */
 	public static function getVersionString() {
-		return '5.0.7';
+		return '5.0.9';
 	}
 
 	/**
@@ -168,25 +168,30 @@ class OC_Util {
 	public static function checkServer() {
 		$errors=array();
 
+		$defaults = new \OC_Defaults();
+
 		$web_server_restart= false;
 		//check for database drivers
 		if(!(is_callable('sqlite_open') or class_exists('SQLite3'))
 			and !is_callable('mysql_connect')
-			and !is_callable('pg_connect')) {
+			and !is_callable('pg_connect')
+			and !is_callable('oci_connect')) {
 			$errors[]=array('error'=>'No database drivers (sqlite, mysql, or postgresql) installed.',
 				'hint'=>'');//TODO: sane hint
 			$web_server_restart= true;
 		}
 
 		//common hint for all file permissons error messages
-		$permissionsHint='Permissions can usually be fixed by giving the webserver write access'
-			.' to the ownCloud directory';
+		$permissionsHint = 'Permissions can usually be fixed by '
+			.'<a href="' . $defaults->getDocBaseUrl() . '/server/5.0/admin_manual/installation/installation_source.html#set-the-directory-permissions" target="_blank">giving the webserver write access to the root directory</a>.';
 
 		// Check if config folder is writable.
 		if(!is_writable(OC::$SERVERROOT."/config/") or !is_readable(OC::$SERVERROOT."/config/")) {
-			$errors[]=array('error'=>"Can't write into config directory 'config'",
-				'hint'=>'You can usually fix this by giving the webserver user write access'
-					.' to the config directory in owncloud');
+			$errors[] = array(
+				'error' => "Can't write into config directory",
+				'hint' => 'This can usually be fixed by '
+					.'<a href="' . $defaults->getDocBaseUrl() . '/server/5.0/admin_manual/installation/installation_source.html#set-the-directory-permissions" target="_blank">giving the webserver write access to the config directory</a>.'
+				);
 		}
 
 		// Check if there is a writable install folder.
@@ -194,9 +199,12 @@ class OC_Util {
 			if( OC_App::getInstallPath() === null
 				|| !is_writable(OC_App::getInstallPath())
 				|| !is_readable(OC_App::getInstallPath()) ) {
-				$errors[]=array('error'=>"Can't write into apps directory",
-					'hint'=>'You can usually fix this by giving the webserver user write access'
-					.' to the apps directory in owncloud or disabling the appstore in the config file.');
+				$errors[] = array(
+					'error' => "Can't write into apps directory",
+					'hint' => 'This can usually be fixed by '
+						.'<a href="' . $defaults->getDocBaseUrl() . '/server/5.0/admin_manual/installation/installation_source.html#set-the-directory-permissions" target="_blank">giving the webserver write access to the apps directory</a> '
+						.'or disabling the appstore in the config file.'
+					);
 			}
 		}
 		$CONFIG_DATADIRECTORY = OC_Config::getValue( "datadirectory", OC::$SERVERROOT."/data" );
@@ -206,10 +214,11 @@ class OC_Util {
 			if ($success) {
 				$errors = array_merge($errors, self::checkDataDirectoryPermissions($CONFIG_DATADIRECTORY));
 			} else {
-				$errors[]=array('error'=>"Can't create data directory (".$CONFIG_DATADIRECTORY.")",
-					'hint'=>"You can usually fix this by giving the webserver write access to the ownCloud directory '"
-						.OC::$SERVERROOT."' (in a terminal, use the command "
-						."'chown -R www-data:www-data /path/to/your/owncloud/install/data' ");
+				$errors[] = array(
+					'error' => "Can't create data directory (".$CONFIG_DATADIRECTORY.")",
+					'hint' => 'This can usually be fixed by '
+					.'<a href="' . $defaults->getDocBaseUrl() . '/server/5.0/admin_manual/installation/installation_source.html#set-the-directory-permissions" target="_blank">giving the webserver write access to the root directory</a>.'
+				);
 			}
 		} else if(!is_writable($CONFIG_DATADIRECTORY) or !is_readable($CONFIG_DATADIRECTORY)) {
 			$errors[]=array('error'=>'Data directory ('.$CONFIG_DATADIRECTORY.') not writable by ownCloud',
@@ -812,9 +821,9 @@ class OC_Util {
 	 * @return string the theme
 	 */
 	public static function getTheme() {
-		$theme = OC_Config::getValue("theme");
+		$theme = OC_Config::getValue("theme", '');
 
-		if(is_null($theme)) {
+		if($theme === '') {
 			
 			if(is_dir(OC::$SERVERROOT . '/themes/default')) {
 				$theme = 'default';
@@ -825,5 +834,24 @@ class OC_Util {
 		return $theme;
 	}
 
+	/**
+	 * Clear the opcode cache if one exists
+	 * This is necessary for writing to the config file
+	 * in case the opcode cache doesn't revalidate files
+	 */
+	public static function clearOpcodeCache() {
+		// APC
+		if (function_exists('apc_clear_cache')) {
+			apc_clear_cache();
+		}
+		// Zend Opcache
+		if (function_exists('accelerator_reset')) {
+			accelerator_reset();
+		}
+		// XCache
+		if (function_exists('xcache_clear_cache')) {
+			xcache_clear_cache(XC_TYPE_VAR, 0);
+		}
+	}
 
 }
