@@ -112,7 +112,9 @@ OC.Contacts = OC.Contacts || {};
 			case 'ORG':
 			case 'BDAY':
 			case 'NOTE':
-				this.$fullelem.find('[data-element="' + name.toLowerCase() + '"]').addClass('new').show();
+				$elem = this.$fullelem.find('[data-element="' + name.toLowerCase() + '"]');
+				$elem.addClass('new').show();
+				$elem.find('input:not(:checkbox),textarea').first().focus();
 				$option.prop('disabled', true);
 				break;
 			case 'TEL':
@@ -123,6 +125,7 @@ OC.Contacts = OC.Contacts || {};
 				$list.show();
 				$list.append($elem);
 				$elem.find('input.value').addClass('new');
+				$elem.find('input:not(:checkbox)').first().focus();
 				break;
 			case 'ADR':
 				var $elem = this.renderAddressProperty();
@@ -131,6 +134,7 @@ OC.Contacts = OC.Contacts || {};
 				$list.append($elem);
 				$elem.find('.display').trigger('click');
 				$elem.find('input.value').addClass('new');
+				$elem.find('input:not(:checkbox)').first().focus();
 				break;
 			case 'IMPP':
 				var $elem = this.renderIMProperty();
@@ -138,6 +142,7 @@ OC.Contacts = OC.Contacts || {};
 				$list.show();
 				$list.append($elem);
 				$elem.find('input.value').addClass('new');
+				$elem.find('input:not(:checkbox)').first().focus();
 				break;
 		}
 
@@ -365,7 +370,7 @@ OC.Contacts = OC.Contacts || {};
 							break;
 						case 'BDAY':
 							// reverse order again.
-							value = $.datepicker.formatDate('yy-mm-dd', $.datepicker.parseDate('dd-mm-yy', value));
+							value = $.datepicker.formatDate('yy-mm-dd', $.datepicker.parseDate(datepickerFormatDate, value));
 							self.data[element][0] = {
 								name: element,
 								value: value,
@@ -374,6 +379,7 @@ OC.Contacts = OC.Contacts || {};
 							};
 							break;
 						case 'FN':
+							value = escapeHTML(value);
 							if(!self.data.FN || !self.data.FN.length) {
 								self.data.FN = [{name:'FN', value:'', parameters:[]}];
 							}
@@ -413,13 +419,13 @@ OC.Contacts = OC.Contacts || {};
 								// Then it is auto-generated from FN.
 								var $nelems = self.$fullelem.find('.n.editor input');
 								$.each(value, function(idx, val) {
-									self.$fullelem.find('#n_' + idx).val(val);
+									self.$fullelem.find('#n_' + idx).val(val).get(0).defaultValue = val;
 								});
 							}
 							var $fullname = self.$fullelem.find('.fullname'), fullname = '';
 							var update_fn = false;
 							if(!self.data.FN) {
-								self.data.FN = [{name:'N', value:'', parameters:[]}];
+								self.data.FN = [{name:'FN', value:'', parameters:[]}];
 							}
 							if(self.data.FN[0]['value'] === '') {
 								self.data.FN[0]['value'] = value[1] + ' ' + value[0];
@@ -442,6 +448,10 @@ OC.Contacts = OC.Contacts || {};
 							}
 						case 'NICKNAME':
 						case 'ORG':
+							if(!self.data.FN) {
+								self.data.FN = [{name:'FN', value:value, parameters:[]}];
+								self.$fullelem.find('.fullname').val(value).trigger('change');
+							}
 						case 'TITLE':
 						case 'NOTE':
 							self.data[element][0] = {
@@ -870,10 +880,25 @@ OC.Contacts = OC.Contacts || {};
 			});
 		};
 
-		var n = this.getPreferredValue('N', ['', '', '', '', '']);
-		//console.log('Contact.renderContact', this.data);
-		var values = this.data
-			? {
+		var values;
+		if(this.data) {
+			var n = this.getPreferredValue('N', ['', '', '', '', '']),
+				bday = this.getPreferredValue('BDAY', '');
+			if(bday.length >= 10) {
+				try {
+					bday = $.datepicker.parseDate('yy-mm-dd', bday.substring(0, 10));
+					bday = $.datepicker.formatDate(datepickerFormatDate, bday);
+				} catch (e) {
+					var message = t('contacts', 'Error parsing birthday {bday}: {error}', {bday:bday, error: e});
+					console.warn(message);
+					bday = '';
+					$(document).trigger('status.contact.error', {
+						status: 'error',
+						message: message
+					});
+				}
+			}
+			values = {
 				id: this.id,
 				favorite:groupprops.favorite ? 'active' : '',
 				name: this.getPreferredValue('FN', ''),
@@ -881,14 +906,12 @@ OC.Contacts = OC.Contacts || {};
 				nickname: this.getPreferredValue('NICKNAME', ''),
 				title: this.getPreferredValue('TITLE', ''),
 				org: this.getPreferredValue('ORG', []).clean('').join(', '), // TODO Add parts if more than one.
-				bday: this.getPreferredValue('BDAY', '').length >= 10
-					? $.datepicker.formatDate('dd-mm-yy',
-						$.datepicker.parseDate('yy-mm-dd',
-							this.getPreferredValue('BDAY', '').substring(0, 10)))
-					: '',
+				bday: bday,
 				note: this.getPreferredValue('NOTE', '')
-				}
-			: {id:'', favorite:'', name:'', nickname:'', title:'', org:'', bday:'', note:'', n0:'', n1:'', n2:'', n3:'', n4:''};
+			}
+		} else {
+			values = {id:'', favorite:'', name:'', nickname:'', title:'', org:'', bday:'', note:'', n0:'', n1:'', n2:'', n3:'', n4:''};
+		}
 		this.$fullelem = this.$fullTemplate.octemplate(values).data('contactobject', this);
 
 		this.$footer = this.$fullelem.find('footer');
@@ -996,10 +1019,11 @@ OC.Contacts = OC.Contacts || {};
 			self.saveProperty({obj:event.target});
 		});
 
-		this.$fullelem.find('[data-element="bday"]')
-			.find('input').datepicker({
-				dateFormat : 'dd-mm-yy'
+		var $bdayinput = this.$fullelem.find('[data-element="bday"]').find('input');
+		$bdayinput.datepicker({
+				dateFormat : datepickerFormatDate
 		});
+		$bdayinput.attr('placeholder', $.datepicker.formatDate(datepickerFormatDate, new Date()));
 		this.$fullelem.find('.favorite').on('click', function () {
 			var state = $(this).hasClass('active');
 			if(!self.data) {
@@ -1089,10 +1113,6 @@ OC.Contacts = OC.Contacts || {};
 									var found = false;
 									var et = property.parameters[param][etype];
 									if(typeof et !== 'string') {
-										continue;
-									}
-									//console.log('et', et);
-									if(et.toUpperCase() === 'INTERNET') {
 										continue;
 									}
 									$property.find('select.type option').each(function() {
@@ -1801,12 +1821,20 @@ OC.Contacts = OC.Contacts || {};
 	*/
 	ContactList.prototype.addContact = function(props) {
 		var addressBook;
+		// Find the first address book with write permissions
 		$.each(this.addressbooks, function(idx, book) {
-			if(book.owner === OC.currentUser) {
+			if(book.owner === OC.currentUser || book.permissions & OC.PERMISSION_CREATE) {
 				addressBook = book;
 				return false; // break loop
 			}
 		});
+		if(!addressBook) {
+			$(document).trigger('status.contact.error', {
+				status: 'error',
+				message: t('contacts', 'You have no writable address books.')
+			});
+			return null;
+		}
 		var contact = new Contact(
 			this,
 			null,

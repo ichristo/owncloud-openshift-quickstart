@@ -185,7 +185,7 @@ class OC_DB {
 					} else {
 							$dsn='sqlsrv:Server='.$host.';Database='.$name;
 					}
-					break;                    
+					break;
 				default:
 					return false;
 			}
@@ -365,12 +365,12 @@ class OC_DB {
 		$query = self::processQuery( $query );
 
 		self::connect();
-		
+
 		if ($isManipulation === null) {
 			//try to guess, so we return the number of rows on manipulations
 			$isManipulation = self::isManipulation($query);
 		}
-		
+
 		// return the result
 		if(self::$backend==self::BACKEND_MDB2) {
 			// differentiate between query and manipulation
@@ -401,11 +401,11 @@ class OC_DB {
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * tries to guess the type of statement based on the first 10 characters
 	 * the current check allows some whitespace but does not work with IF EXISTS or other more complex statements
-	 * 
+	 *
 	 * @param string $sql
 	 */
 	static public function isManipulation( $sql ) {
@@ -427,7 +427,7 @@ class OC_DB {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * @brief gets last value of autoincrement
 	 * @param string $table The optional table name (will replace *PREFIX*) and add sequence suffix
@@ -536,7 +536,7 @@ class OC_DB {
 		 * http://www.sqlite.org/lang_createtable.html
 		 * http://docs.oracle.com/cd/B19306_01/server.102/b14200/functions037.htm
 		 */
-		if( $CONFIG_DBTYPE == 'pgsql' ) { //mysql support it too but sqlite doesn't
+		if( $CONFIG_DBTYPE === 'pgsql' || $CONFIG_DBTYPE === 'oci' ) { //mysql support it too but sqlite doesn't
 			$content = str_replace( '<default>0000-00-00 00:00:00</default>',
 				'<default>CURRENT_TIMESTAMP</default>', $content );
 		}
@@ -583,16 +583,41 @@ class OC_DB {
 		$CONFIG_DBTYPE = OC_Config::getValue( "dbtype", "sqlite" );
 
 		self::connectScheme();
-		
+
 		if(OC_Config::getValue('dbtype', 'sqlite')==='oci') {
 			//set dbname, it is unset because oci uses 'service' to connect
 			self::$schema->db->database_name=self::$schema->db->dsn['username'];
+
+			$installedVersion = \OC_Config::getValue('version', '0.0.0');
+			if (version_compare($installedVersion, '5.0.15', '<=')) {
+				//configvalue in oc_appconfig must be allowed to contain NULL
+				//because it is a CLOB, we need to move heaven and earth a bit
+				//i.e. rename it and copy values
+				$ociHandleAppconfig = true;
+
+				$query = \OCP\DB::prepare('SELECT * FROM `*PREFIX*appconfig`');
+				$result = $query->execute();
+				if(\OCP\DB::isError($result)) {
+					unset($ociHandleAppconfig);
+					throw new Exception('Cannot read from table appconfig:'.
+						$result->getMessage());
+				}
+				$ociAppconfigContent = $result->fetchAll();
+
+				$query = \OCP\DB::prepare('ALTER TABLE `*PREFIX*appconfig`
+					RENAME COLUMN `configvalue` TO `configvalue_tmp`');
+				$result = $query->execute();
+				if(\OCP\DB::isError($result)) {
+					OC_Log::write('core', 'Could not alter appconfig.'.
+						', DB upgrade may fail.', OC_Log::WARN);
+				}
+			}
 		}
 
 		// read file
 		$content = file_get_contents( $file );
 
-		$previousSchema = self::$schema->getDefinitionFromDatabase();
+		$previousSchema = self::$schema->getDefinitionFromDatabase($CONFIG_DBTABLEPREFIX);
 		if (PEAR::isError($previousSchema)) {
 			$error = $previousSchema->getMessage();
 			$detail = $previousSchema->getDebugInfo();
@@ -636,6 +661,25 @@ class OC_DB {
 			OC_Log::write('core', $message, OC_Log::FATAL);
 			throw new Exception($message);
 		}
+
+		if(isset($ociHandleAppconfig) && isset($ociAppconfigContent)) {
+			$query = \OCP\DB::prepare('
+				UPDATE `*PREFIX*appconfig`
+				SET `configvalue` = ?
+				WHERE
+					`appid` = ?
+					AND `configkey` = ?
+			');
+			foreach($ociAppconfigContent as $row) {
+				$r = $query->execute(array(
+					$row['configvalue'], $row['appid'], $row['configkey']
+				));
+				if(\OCP\DB::isError($r)) {
+					throw new Exception($r->getMessage());
+				}
+			}
+		}
+
 		return true;
 	}
 
@@ -783,13 +827,13 @@ class OC_DB {
 			$query = str_ireplace( 'UNIX_TIMESTAMP()', '((CAST(SYS_EXTRACT_UTC(systimestamp) AS DATE))-TO_DATE(\'1970101000000\',\'YYYYMMDDHH24MiSS\'))*24*3600', $query );
 		}elseif( $type == 'mssql' ) {
 			$query = preg_replace( "/\`(.*?)`/", "[$1]", $query );
-			$query = str_replace( 'NOW()', 'CURRENT_TIMESTAMP', $query );
-			$query = str_replace( 'now()', 'CURRENT_TIMESTAMP', $query );
+			$query = str_ireplace( 'NOW()', 'CURRENT_TIMESTAMP', $query );
 			$query = str_replace( 'LENGTH(', 'LEN(', $query );
 			$query = str_replace( 'SUBSTR(', 'SUBSTRING(', $query );
-            
-            $query = self::fixLimitClauseForMSSQL($query);
-        }
+			$query = str_ireplace( 'UNIX_TIMESTAMP()', 'DATEDIFF(second,{d \'1970-01-01\'},GETDATE())', $query );
+
+			$query = self::fixLimitClauseForMSSQL($query);
+		}
 
 		// replace table name prefix
 		$query = str_replace( '*PREFIX*', $prefix, $query );
@@ -799,11 +843,11 @@ class OC_DB {
 
     private static function fixLimitClauseForMSSQL($query) {
         $limitLocation = stripos ($query, "LIMIT");
-        
+
         if ( $limitLocation === false ) {
             return $query;
-        } 
-        
+        }
+
         // total == 0 means all results - not zero results
         //
         // First number is either total or offset, locate it by first space
@@ -850,7 +894,7 @@ class OC_DB {
         }
         return $query;
     }
-    
+
 	/**
 	 * @brief drop a table
 	 * @param string $tableName the table to drop
@@ -1032,7 +1076,7 @@ class PDOStatementWrapper{
 		} else {
 			$result = $this->statement->execute();
 		}
-		
+
 		if ($result === false) {
 			return false;
 		}
@@ -1132,7 +1176,7 @@ class PDOStatementWrapper{
 			die ($entry);
 		}
 	}
-    
+
 	/**
 	 * provide numRows
 	 */

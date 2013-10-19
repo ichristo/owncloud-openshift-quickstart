@@ -126,6 +126,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#yaws-configuration">Yaws Configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#hiawatha-configuration">Hiawatha Configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pagekite-configuration">PageKite Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#open-wrt">Open Wrt</a></li>
 </ul>
 </li>
 </ul>
@@ -255,12 +256,12 @@ services in order these changes to be applied.</p>
 lighttpd.</p>
 <p>It is important to note that the <strong>.htaccess</strong> files used by ownCloud to protect the <strong>data</strong> folder are ignored by lighttpd, so you have to secure it by yourself, otherwise your <strong>owncloud.db</strong> database and user data are publicly readable even if directory listing is off. You need to add two snippets to your lighttpd configuration file:</p>
 <p>Disable access to data folder:</p>
-<div class="highlight-python"><pre>$HTTP["url"] =^ "^/owncloud/data/" {
+<div class="highlight-python"><pre>$HTTP["url"] =~ "^/owncloud/data/" {
      url.access-deny = ("")
    }</pre>
 </div>
 <p>Disable directory listing:</p>
-<div class="highlight-python"><pre>$HTTP["url"] =^ "^/owncloud($|/)" {
+<div class="highlight-python"><pre>$HTTP["url"] =~ "^/owncloud($|/)" {
      dir-listing.activate = "disable"
    }</pre>
 </div>
@@ -306,6 +307,10 @@ WebDAV from MacOS will also need to add <strong>AllowDotFiles = yes</strong>.</p
 <h2>PageKite Configuration<a class="headerlink" href="#pagekite-configuration" title="Permalink to this headline">¶</a></h2>
 <p>You can use this <a class="reference external" href="https://pagekite.net/wiki/Howto/GNULinux/OwnCloud/">PageKite how to</a> to make your local ownCloud accessible from the
 internet using PageKite.</p>
+</div>
+<div class="section" id="open-wrt">
+<h2>Open Wrt<a class="headerlink" href="#open-wrt" title="Permalink to this headline">¶</a></h2>
+<p>Here you can find a <a href="#id1"><span class="problematic" id="id2">`tutorial for open Wrt`_</span></a></p>
 </div>
 </div>
 

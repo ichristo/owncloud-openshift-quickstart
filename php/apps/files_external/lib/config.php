@@ -34,7 +34,7 @@ class OC_Mount_Config {
 	* If the configuration parameter should be secret, add a '*' to the beginning of the value
 	* If the configuration parameter is a boolean, add a '!' to the beginning of the value
 	* If the configuration parameter is optional, add a '&' to the beginning of the value
-	* If the configuration parameter is hidden, add a '#' to the begining of the value
+	* If the configuration parameter is hidden, add a '#' to the beginning of the value
 	* @return array
 	*/
 	public static function getBackends() {
@@ -74,8 +74,9 @@ class OC_Mount_Config {
 			'backend' => 'Google Drive',
 			'configuration' => array(
 				'configured' => '#configured',
-				'token' => '#token',
-				'token_secret' => '#token secret'),
+				'client_id' => 'Client ID',
+				'client_secret' => 'Client secret',
+				'token' => '#token'),
 				'custom' => 'google');
 
 		$backends['\OC\Files\Storage\SWIFT']=array(
@@ -87,14 +88,18 @@ class OC_Mount_Config {
 				'root' => '&Root',
 				'secure' => '!Secure ftps://'));
 
-		if(OC_Mount_Config::checksmbclient()) $backends['\OC\Files\Storage\SMB']=array(
-			'backend' => 'SMB / CIFS',
-			'configuration' => array(
-				'host' => 'URL',
-				'user' => 'Username',
-				'password' => '*Password',
-				'share' => 'Share',
-				'root' => '&Root'));
+		if (!OC_Util::runningOnWindows()) {
+			if (OC_Mount_Config::checksmbclient()) {
+				$backends['\OC\Files\Storage\SMB'] = array(
+					'backend' => 'SMB / CIFS',
+					'configuration' => array(
+						'host' => 'URL',
+						'user' => 'Username',
+						'password' => '*Password',
+						'share' => 'Share',
+						'root' => '&Root'));
+			}
+		}
 
 		$backends['\OC\Files\Storage\DAV']=array(
 			'backend' => 'ownCloud / WebDAV',
@@ -112,6 +117,17 @@ class OC_Mount_Config {
 				'user' => 'Username',
 				'password' => '*Password',
 				'root' => '&Root'));
+
+		$backends['\OC\Files\Storage\iRODS']=array(
+			'backend' => 'iRODS',
+			'configuration' => array(
+				'host' => 'Host',
+				'port' => 'Port',
+				'use_logon_credentials' => '!Use ownCloud login',
+				'user' => 'Username',
+				'password' => '*Password',
+				'auth_mode' => 'Authentication Mode',
+				'zone' => 'Zone'));
 
 		return($backends);
 	}
@@ -419,8 +435,10 @@ class OC_Mount_Config {
 	public static function checkDependencies() {
 		$l= new OC_L10N('files_external');
 		$txt='';
-		if(!OC_Mount_Config::checksmbclient()) {
-			$txt.=$l->t('<b>Warning:</b> "smbclient" is not installed. Mounting of CIFS/SMB shares is not possible. Please ask your system administrator to install it.').'<br />';
+		if (!OC_Util::runningOnWindows()) {
+			if(!OC_Mount_Config::checksmbclient()) {
+				$txt.=$l->t('<b>Warning:</b> "smbclient" is not installed. Mounting of CIFS/SMB shares is not possible. Please ask your system administrator to install it.').'<br />';
+			}
 		}
 		if(!OC_Mount_Config::checkphpftp()) {
 			$txt.=$l->t('<b>Warning:</b> The FTP support in PHP is not enabled or installed. Mounting of FTP shares is not possible. Please ask your system administrator to install it.').'<br />';

@@ -27,7 +27,7 @@
     <link rel="top" title="ownCloud Administrators Manual v5.0 documentation" href="../index.html" />
     <link rel="up" title="Configuration" href="index.html" />
     <link rel="next" title="Custom User Backend Configuration" href="custom_user_backend.html" />
-    <link rel="prev" title="Use Server-Side Encryption" href="configuration_encryption.html" />
+    <link rel="prev" title="Custom Mount Configuration Web-GUI" href="custom_mount_config_gui.html" />
 <script type="text/javascript">
 (function () {
   /**
@@ -115,24 +115,30 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Configuration</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="auth_ldap.html">User Authentication with LDAP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="background_jobs.html">Background Jobs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_3rdparty.html">3rd-Party Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_apps.html">Apps Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_automation.html">Automatic Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_custom_clients.html">Custom Client Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_database.html">Database Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_encryption.html">Use Server-Side Encryption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_knowledgebase.html">Knowledge Base Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_language.html">Language Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_logging.html">Logging Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_mail.html">Mail Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_maintenance.html">Maintenance Mode Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_reverseproxy.html">Reverse Proxy Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="configuration_encryption.html">Use Server-Side Encryption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html">Uploading big files &gt; 512MB (as set by default)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html#enabling-uploading-big-files">Enabling uploading big files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_mount_config_gui.html">Custom Mount Configuration Web-GUI</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Custom Mount Configuration</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#backends">Backends</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="custom_user_backend.html">Custom User Backend Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="auth_ldap.html">User Authentication with LDAP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="xsendfile.html">Serving static files via web server</a></li>
-<li class="toctree-l2"><a class="reference internal" href="background_jobs.html">Background Jobs</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../maintenance/index.html">Maintenance</a></li>
@@ -181,8 +187,8 @@ available for use:</p>
 <p>Please keep in mind that some formatting has been applied and carriage returns
 have been added for better readability. In the <tt class="file docutils literal"><span class="pre">data/mount.json</span></tt> all
 values need to be concatenated and written in a row without these modifications!</p>
-<p>It is recommended to use the WebGUI in the administrator panel to add, remove
-or modify mount options to prevent any problems!</p>
+<p>It is recommended to use the <a class="reference internal" href="custom_mount_config_gui.html"><em>Web-GUI</em></a> in the
+administrator panel to add, remove or modify mount options to prevent any problems!</p>
 <div class="section" id="example">
 <h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-json"><pre>{"group":{
@@ -408,20 +414,24 @@ be used is <strong>\OC\Files\Storage\Dropbox</strong> and takes the following op
 <h3>Google Drive<a class="headerlink" href="#google-drive" title="Permalink to this headline">¶</a></h3>
 <p>The Google Drive backend mounts a share in the Google cloud into the virtual
 filesystem and is part of the ‘External storage support’ app, the class to
-be used is <strong>\OC\Files\Storage\Google</strong> and is done via an OAuth request
-and takes the following options:</p>
+be used is <strong>\OC\Files\Storage\Google</strong> and is done via an OAuth2.0 request.
+That means that the App must be registered through the Google APIs Console.
+The result of the registration process is a set of values (incl. client_id, client_secret).
+It takes the following options:</p>
 <ul class="simple">
 <li><strong>configured</strong>: whether the drive has been configured or not (true or false)</li>
-<li><strong>token</strong>: the OAuth token to login to the Google drive</li>
-<li><strong>token_secret</strong>: the OAuth secret to login to the Google drive</li>
+<li><strong>client_id</strong>: the client id to login to the Google drive</li>
+<li><strong>client_secret</strong>: the client secret to login to the Google drive</li>
+<li><strong>token</strong>: a compound value including access and refresh tokens</li>
 </ul>
 <div class="section" id="id8">
 <h4>Example<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
 <div class="highlight-json"><pre>{   "class":"\\OC\\Files\\Storage\\Google",
     "options":{
         "configured":"#configured",
-        "token":"#token",
-        "token_secret":"#token secret"
+        "client_id":"#client_id",
+        "client_secret":"#client_secret",
+        "token":"#token"
     }
 }</pre>
 </div>

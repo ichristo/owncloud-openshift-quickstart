@@ -27,7 +27,7 @@
     <link rel="top" title="ownCloud Administrators Manual v5.0 documentation" href="../index.html" />
     <link rel="up" title="Configuration" href="index.html" />
     <link rel="next" title="Mail Configuration" href="configuration_mail.html" />
-    <link rel="prev" title="Knowledge Base Configuration" href="configuration_knowledgebase.html" />
+    <link rel="prev" title="Language Configuration" href="configuration_language.html" />
 <script type="text/javascript">
 (function () {
   /**
@@ -115,23 +115,29 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Configuration</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="auth_ldap.html">User Authentication with LDAP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="background_jobs.html">Background Jobs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_3rdparty.html">3rd-Party Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_apps.html">Apps Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_automation.html">Automatic Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_custom_clients.html">Custom Client Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_database.html">Database Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_encryption.html">Use Server-Side Encryption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_knowledgebase.html">Knowledge Base Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_language.html">Language Configuration</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Logging Configuration</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_mail.html">Mail Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_maintenance.html">Maintenance Mode Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_reverseproxy.html">Reverse Proxy Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="configuration_encryption.html">Use Server-Side Encryption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html">Uploading big files &gt; 512MB (as set by default)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html#enabling-uploading-big-files">Enabling uploading big files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_mount_config_gui.html">Custom Mount Configuration Web-GUI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="custom_mount_config.html">Custom Mount Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="custom_user_backend.html">Custom User Backend Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="auth_ldap.html">User Authentication with LDAP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="xsendfile.html">Serving static files via web server</a></li>
-<li class="toctree-l2"><a class="reference internal" href="background_jobs.html">Background Jobs</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../maintenance/index.html">Maintenance</a></li>
@@ -176,11 +182,17 @@ configured. By default the log level is set to <strong>2</strong> (WARN).</p>
 viewed using the log menu in the admin menu of ownCloud. By default a log
 file named <strong>owncloud.log</strong> will be created in the directory which has
 been configured by the <strong>datadirectory</strong> parameter.</p>
+<p>The desired date format can optionally be defined using the <strong>logdateformat</strong>.
+By default the <a class="reference external" href="http://www.php.net/manual/en/function.date.php">PHP date function</a> parameter &#8220;<em>c</em>&#8221; is used and therefore the
+date/time is written in the format &#8220;<em>2013-01-10T15:20:25+02:00</em>&#8221;. By using the
+date format in the example the date/time format will be written in the format
+&#8220;<em>January 10, 2013 15:20:25</em>&#8221;.</p>
 <div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
 
   <span class="s2">&quot;log_type&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;owncloud&quot;</span><span class="p">,</span>
   <span class="s2">&quot;logfile&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;owncloud.log&quot;</span><span class="p">,</span>
   <span class="s2">&quot;loglevel&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;3&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;logdateformat&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;F d, Y H:i:s&quot;</span><span class="p">,</span>
 </pre></div>
 </div>
 </div>

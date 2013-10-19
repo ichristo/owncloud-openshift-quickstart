@@ -299,18 +299,20 @@ class OC_Helper {
 		if (!is_dir($path))
 			return chmod($path, $filemode);
 		$dh = opendir($path);
-		while (($file = readdir($dh)) !== false) {
-			if($file != '.' && $file != '..') {
-				$fullpath = $path.'/'.$file;
-				if(is_link($fullpath))
-					return false;
-				elseif(!is_dir($fullpath) && !@chmod($fullpath, $filemode))
+		if(is_resource($dh)) {
+			while (($file = readdir($dh)) !== false) {
+				if($file != '.' && $file != '..') {
+					$fullpath = $path.'/'.$file;
+					if(is_link($fullpath))
 						return false;
-				elseif(!self::chmodr($fullpath, $filemode))
-					return false;
+					elseif(!is_dir($fullpath) && !@chmod($fullpath, $filemode))
+							return false;
+					elseif(!self::chmodr($fullpath, $filemode))
+						return false;
+				}
 			}
+			closedir($dh);
 		}
-		closedir($dh);
 		if(@chmod($path, $filemode))
 			return true;
 		else
@@ -805,20 +807,31 @@ class OC_Helper {
 	}
 
 	/**
-	 * Calculate the disc space
+	 * Calculate the disc space for the given path
+	 *
+	 * @param string $path
+	 * @return array
 	 */
-	public static function getStorageInfo() {
-		$rootInfo = \OC\Files\Filesystem::getFileInfo('/');
+	public static function getStorageInfo($path) {
+		$rootInfo = \OC\Files\Filesystem::getFileInfo($path);
 		$used = $rootInfo['size'];
 		if ($used < 0) {
 			$used = 0;
 		}
-		$free = \OC\Files\Filesystem::free_space();
-		$total = $free + $used;
+		$free = \OC\Files\Filesystem::free_space($path);
+		if ($free >= 0) {
+			$total = $free + $used;
+		} else {
+			$total = $free; //either unknown or unlimited
+		}
 		if ($total == 0) {
 			$total = 1; // prevent division by zero
 		}
-		$relative = round(($used / $total) * 10000) / 100;
+		if ($total >= 0) {
+			$relative = round(($used / $total) * 10000) / 100;
+		} else {
+			$relative = 0;
+		}
 
 		return array('free' => $free, 'used' => $used, 'total' => $total, 'relative' => $relative);
 	}

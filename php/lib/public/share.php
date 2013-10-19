@@ -107,7 +107,6 @@ class Share {
 		return false;
 	}
 
-
 	/**
 	* @brief Prepare a path to be passed to DB as file_target
 	* @return string Prepared path
@@ -141,8 +140,13 @@ class Share {
 		$source = -1;
 		$cache = false;
 
-		$view = new \OC\Files\View('/' . $user . '/files/');
-		$meta = $view->getFileInfo(\OC\Files\Filesystem::normalizePath($path));
+		$view = new \OC\Files\View('/' . $user . '/files');
+		if ($view->file_exists($path)) {
+			$meta = $view->getFileInfo($path);
+		} else {
+			// if the file doesn't exists yet we start with the parent folder
+			$meta = $view->getFileInfo(dirname($path));
+		}
 
 		if($meta !== false) {
 			$source = $meta['fileid'];
@@ -210,7 +214,7 @@ class Share {
 					}
 				}
 			}
-			
+
 			// let's get the parent for the next round
 			$meta = $cache->get((int)$source);
 			if($meta !== false) {
@@ -446,6 +450,7 @@ class Share {
 					$uidOwner, self::FORMAT_NONE, null, 1)) {
 					// remember old token
 					$oldToken = $checkExists['token'];
+					$oldPermissions = $checkExists['permissions'];
 					//delete the old share
 					self::delete($checkExists['id']);
 				}
@@ -455,6 +460,12 @@ class Share {
 					$forcePortable = (CRYPT_BLOWFISH != 1);
 					$hasher = new \PasswordHash(8, $forcePortable);
 					$shareWith = $hasher->HashPassword($shareWith.\OC_Config::getValue('passwordsalt', ''));
+				} else {
+					// reuse the already set password, but only if we change permissions
+					// otherwise the user disabled the password protection
+					if ($checkExists && (int)$permissions !== (int)$oldPermissions) {
+						$shareWith = $checkExists['share_with'];
+					}
 				}
 
 				// Generate token
@@ -658,6 +669,17 @@ class Share {
 			}
 			$query = \OC_DB::prepare('UPDATE `*PREFIX*share` SET `permissions` = ? WHERE `id` = ?');
 			$query->execute(array($permissions, $item['id']));
+			if ($itemType === 'file' || $itemType === 'folder') {
+				\OC_Hook::emit('OCP\Share', 'post_update_permissions', array(
+					'itemType' => $itemType,
+					'itemSource' => $itemSource,
+					'shareType' => $shareType,
+					'shareWith' => $shareWith,
+					'uidOwner' => \OC_User::getUser(),
+					'permissions' => $permissions,
+					'path' => $item['path'],
+				));
+			}
 			// Check if permissions were removed
 			if ($item['permissions'] & ~$permissions) {
 				// If share permission is removed all reshares must be deleted
@@ -827,7 +849,11 @@ class Share {
 		// Get filesystem root to add it to the file target and remove from the
 		// file source, match file_source with the file cache
 		if ($itemType == 'file' || $itemType == 'folder') {
-			$root = \OC\Files\Filesystem::getRoot();
+			if(!is_null($uidOwner)) {
+				$root = \OC\Files\Filesystem::getRoot();
+			} else {
+				$root = '';
+			}
 			$where = 'INNER JOIN `*PREFIX*filecache` ON `file_source` = `*PREFIX*filecache`.`fileid`';
 			if (!isset($item)) {
 				$where .= ' WHERE `file_target` IS NOT NULL';
@@ -1270,6 +1296,8 @@ class Share {
 			.' `file_target`, `token`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)');
 		// Share with a group
 		if ($shareType == self::SHARE_TYPE_GROUP) {
+			$run = true;
+			$error = '';
 			$groupItemTarget = self::generateTarget($itemType, $itemSource, $shareType, $shareWith['group'], $uidOwner, $suggestedItemTarget);
 			\OC_Hook::emit('OCP\Share', 'pre_shared', array(
 				'itemType' => $itemType,
@@ -1280,8 +1308,15 @@ class Share {
 				'uidOwner' => $uidOwner,
 				'permissions' => $permissions,
 				'fileSource' => $fileSource,
-				'token' => $token
+				'token' => $token,
+				'run' => &$run,
+				'error' => &$error
 			));
+
+			if ($run === false) {
+				throw new \Exception($error);
+			}
+
 			if (isset($fileSource)) {
 				if ($parentFolder) {
 					if ($parentFolder === true) {
@@ -1355,6 +1390,8 @@ class Share {
 				return $parentFolders;
 			}
 		} else {
+			$run = true;
+			$error = '';
 			$itemTarget = self::generateTarget($itemType, $itemSource, $shareType, $shareWith, $uidOwner, $suggestedItemTarget);
 			\OC_Hook::emit('OCP\Share', 'pre_shared', array(
 				'itemType' => $itemType,
@@ -1365,8 +1402,15 @@ class Share {
 				'uidOwner' => $uidOwner,
 				'permissions' => $permissions,
 				'fileSource' => $fileSource,
-				'token' => $token
+				'token' => $token,
+				'run' => &$run,
+				'error' => &$error
 			));
+
+			if ($run === false) {
+				throw new \Exception($error);
+			}
+
 			if (isset($fileSource)) {
 				if ($parentFolder) {
 					if ($parentFolder === true) {

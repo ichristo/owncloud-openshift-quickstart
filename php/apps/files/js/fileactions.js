@@ -65,9 +65,12 @@ var FileActions = {
 		FileActions.currentFile = parent;
 		var actions = FileActions.get(FileActions.getCurrentMimeType(), FileActions.getCurrentType(), FileActions.getCurrentPermissions());
 		var file = FileActions.getCurrentFile();
-		if ($('tr').filterAttr('data-file', file).data('renaming')) {
+		if ($('tr[data-file="'+file+'"]').data('renaming')) {
 			return;
 		}
+
+		// recreate fileactions
+		parent.children('a.name').find('.fileactions').remove();
 		parent.children('a.name').append('<span class="fileactions" />');
 		var defaultAction = FileActions.getDefault(FileActions.getCurrentMimeType(), FileActions.getCurrentType(), FileActions.getCurrentPermissions());
 
@@ -117,6 +120,8 @@ var FileActions = {
 			addAction('Share', actions.Share);
 		}
 
+		// remove the existing delete action
+		parent.parent().children().last().find('.action.delete').remove();
 		if (actions['Delete']) {
 			var img = FileActions.icons['Delete'];
 			if (img.call) {
@@ -164,10 +169,11 @@ $(document).ready(function () {
 			window.location = OC.filePath('files', 'ajax', 'download.php') + '?files=' + encodeURIComponent(filename) + '&dir=' + encodeURIComponent($('#dir').val());
 		});
 	}
-
 	$('#fileList tr').each(function () {
 		FileActions.display($(this).children('td.filename'));
 	});
+	
+	$('#fileList').trigger(jQuery.Event("fileActionsReady"));
 
 });
 

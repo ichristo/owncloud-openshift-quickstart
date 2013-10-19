@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class for utility functions
  *
@@ -76,7 +77,7 @@ class OC_Util {
 	public static function getVersion() {
 		// hint: We only can count up. Reset minor/patchlevel when
 		// updating major/minor version number.
-		return array(5, 00, 15);
+		return array(5, 00, 22);
 	}
 
 	/**
@@ -84,7 +85,7 @@ class OC_Util {
 	 * @return string
 	 */
 	public static function getVersionString() {
-		return '5.0.9';
+		return '5.0.12';
 	}
 
 	/**
@@ -311,9 +312,27 @@ class OC_Util {
 	}
 
 	/**
-	* Check for correct file permissions of data directory
-	* @return array arrays with error messages and hints
-	*/
+	 * @brief check if there are still some encrypted files stored
+	 * @return boolean
+	 */
+	public static function encryptedFiles() {
+		//check if encryption was enabled in the past
+		$encryptedFiles = false;
+		if (OC_App::isEnabled('files_encryption') === false) {
+			$view = new OC\Files\View('/' . OCP\User::getUser());
+			if ($view->file_exists('/files_encryption/keyfiles')) {
+				$encryptedFiles = true;
+			}
+		}
+
+		return $encryptedFiles;
+	}
+
+	/**
+	 * @brief Check for correct file permissions of data directory
+	 * @paran string $dataDirectory
+	 * @return array arrays with error messages and hints
+	 */
 	public static function checkDataDirectoryPermissions($dataDirectory) {
 		$errors = array();
 		if (stristr(PHP_OS, 'WIN')) {
@@ -353,6 +372,7 @@ class OC_Util {
 		}
 
 		$parameters['alt_login'] = OC_App::getAlternativeLogIns();
+		$parameters['rememberLoginAllowed'] = self::rememberLoginAllowed();
 		OC_Template::printGuestPage("", "login", $parameters);
 	}
 
@@ -391,7 +411,28 @@ class OC_Util {
 	}
 
 	/**
-	 * Check if the user is a subadmin, redirects to home if not
+	 * Check if it is allowed to remember login.
+	 *
+	 * @note Every app can set 'rememberlogin' to 'false' to disable the remember login feature
+	 *
+	 * @return bool
+	 */
+	public static function rememberLoginAllowed() {
+
+		$apps = OC_App::getEnabledApps();
+
+		foreach ($apps as $app) {
+			$appInfo = OC_App::getAppInfo($app);
+			if (isset($appInfo['rememberlogin']) && $appInfo['rememberlogin'] === 'false') {
+				return false;
+			}
+
+		}
+		return true;
+	}
+
+	/**
+	 * @brief Check if the user is a subadmin, redirects to home if not
 	 * @return array $groups where the current user is subadmin
 	 */
 	public static function checkSubAdminUser() {
@@ -535,7 +576,6 @@ class OC_Util {
 		return $value;
 	}
 
-
 	/**
 	 * Check if the htaccess file is working by creating a test file in the data directory and trying to access via http
 	 */
@@ -676,7 +716,6 @@ class OC_Util {
 			}
 
 		}
-
 	}
 
 	/**
@@ -824,7 +863,7 @@ class OC_Util {
 		$theme = OC_Config::getValue("theme", '');
 
 		if($theme === '') {
-			
+
 			if(is_dir(OC::$SERVERROOT . '/themes/default')) {
 				$theme = 'default';
 			}
@@ -854,4 +893,23 @@ class OC_Util {
 		}
 	}
 
+	/**
+	 * Normalize a unicode string
+	 * @param string $value a not normalized string
+	 * @return bool|string
+	 */
+	public static function normalizeUnicode($value) {
+		require_once 'Patchwork/PHP/Shim/Normalizer.php';
+
+		if(class_exists('Patchwork\PHP\Shim\Normalizer')) {
+			$normalizedValue = \Patchwork\PHP\Shim\Normalizer::normalize($value);
+			if($normalizedValue === false) {
+				\OC_Log::write( 'core', 'normalizing failed for "' . $value . '"', \OC_Log::WARN);
+			} else {
+				$value = $normalizedValue;
+			}
+		}
+
+		return $value;
+	}
 }

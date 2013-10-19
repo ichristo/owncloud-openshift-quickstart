@@ -42,7 +42,7 @@
 // Old Todo:
 //  - Crypt/decrypt button in the userinterface
 //  - Setting if crypto should be on by default
-//  - Add a setting "Don´t encrypt files larger than xx because of performance 
+//  - Add a setting "Don´t encrypt files larger than xx because of performance
 //    reasons"
 
 namespace OCA\Encryption;
@@ -68,7 +68,7 @@ class Util {
 
 	//// DONE: new data filled files added via webdav get encrypted
 	//// DONE: new data filled files added via webdav are readable via webdav
-	//// DONE: reading unencrypted files when encryption is enabled works via 
+	//// DONE: reading unencrypted files when encryption is enabled works via
 	////       webdav
 	//// DONE: files created & encrypted via web ui are readable via webdav
 
@@ -368,16 +368,16 @@ class Util {
 			\OCP\Util::writeLog('Encryption library', \OC_DB::getErrorMessage($query), \OCP\Util::ERROR);
 			return false;
 		}
-		
+
 		$result = $query->execute($args);
 
 		if (\OCP\DB::isError($result)) {
 			\OCP\Util::writeLog('Encryption library', \OC_DB::getErrorMessage($result), \OCP\Util::ERROR);
 			return false;
 		}
-		
+
 		return is_numeric($result);
-		
+
 	}
 
 	/**
@@ -417,7 +417,7 @@ class Util {
 					$filePath = $directory . '/' . $this->view->getRelativePath('/' . $file);
 					$relPath = \OCA\Encryption\Helper::stripUserFilesPath($filePath);
 
-					// If the path is a directory, search 
+					// If the path is a directory, search
 					// its contents
 					if ($this->view->is_dir($filePath)) {
 
@@ -433,8 +433,8 @@ class Util {
 
 						$isEncryptedPath = $this->isEncryptedPath($filePath);
 						// If the file is encrypted
-						// NOTE: If the userId is 
-						// empty or not set, file will 
+						// NOTE: If the userId is
+						// empty or not set, file will
 						// detected as plain
 						// NOTE: This is inefficient;
 						// scanning every file like this
@@ -588,10 +588,11 @@ class Util {
 
 			// get the size from filesystem
 			$fullPath = $this->view->getLocalFile($path);
-			$size = filesize($fullPath);
+			$size = $this->view->filesize($path);
 
 			// calculate last chunk nr
 			$lastChunkNr = floor($size / 8192);
+			$lastChunkSize = $size - ($lastChunkNr * 8192);
 
 			// open stream
 			$stream = fopen('crypt://' . $relativePath, "r");
@@ -604,7 +605,7 @@ class Util {
 				fseek($stream, $lastChunckPos);
 
 				// get the content of the last chunk
-				$lastChunkContent = fread($stream, 8192);
+				$lastChunkContent = fread($stream, $lastChunkSize);
 
 				// calc the real file size with the size of the last chunk
 				$realSize = (($lastChunkNr * 6126) + strlen($lastChunkContent));
@@ -697,6 +698,9 @@ class Util {
 				//relative to data/<user>/file
 				$relPath = $plainFile['path'];
 
+				//get file info
+				$fileInfo = \OC\Files\Filesystem::getFileInfo($plainFile['path']);
+
 				//relative to /data
 				$rawPath = '/' . $this->userId . '/files/' . $plainFile['path'];
 
@@ -720,10 +724,11 @@ class Util {
 
 				// Add the file to the cache
 				\OC\Files\Filesystem::putFileInfo($relPath, array(
-																 'encrypted' => true,
-																 'size' => $size,
-																 'unencrypted_size' => $size
-															));
+					'encrypted' => true,
+					'size' => $size,
+					'unencrypted_size' => $size,
+					'etag' => $fileInfo['etag']
+				));
 			}
 
 			// Encrypt legacy encrypted files
@@ -916,7 +921,7 @@ class Util {
 			&& !Keymanager::getShareKey($this->view, $this->userId, $filePath) // NOTE: we can't use isShared() here because it's a post share hook so it always returns true
 		) {
 
-			// The file has no shareKey, and its keyfile must be 
+			// The file has no shareKey, and its keyfile must be
 			// decrypted conventionally
 			$plainKeyfile = Crypt::keyDecrypt($encKeyfile, $privateKey);
 
@@ -1014,6 +1019,11 @@ class Util {
 		// Make sure that a share key is generated for the owner too
 		list($owner, $ownerPath) = $this->getUidAndFilename($filePath);
 
+		$pathinfo = pathinfo($ownerPath);
+		if(array_key_exists('extension', $pathinfo) && $pathinfo['extension'] === 'part') {
+			$ownerPath = $pathinfo['dirname'] . '/' . $pathinfo['filename'];
+		}
+
 		$userIds = array();
 		if ($sharingEnabled) {
 
@@ -1026,7 +1036,7 @@ class Util {
 
 		}
 
-		// If recovery is enabled, add the 
+		// If recovery is enabled, add the
 		// Admin UID to list of users to share to
 		if ($recoveryEnabled) {
 			// Find recoveryAdmin user ID
@@ -1167,8 +1177,25 @@ class Util {
 	 */
 	public function getUidAndFilename($path) {
 
+		$pathinfo = pathinfo($path);
+		$partfile = false;
+		$parentFolder = false;
+		if (array_key_exists('extension', $pathinfo) && $pathinfo['extension'] === 'part') {
+			// if the real file exists we check this file
+			$filePath = $this->userFilesDir . '/' .$pathinfo['dirname'] . '/' . $pathinfo['filename'];
+			if ($this->view->file_exists($filePath)) {
+				$pathToCheck = $pathinfo['dirname'] . '/' . $pathinfo['filename'];
+			} else { // otherwise we look for the parent
+				$pathToCheck = $pathinfo['dirname'];
+				$parentFolder = true;
+			}
+			$partfile = true;
+		} else {
+			$pathToCheck = $path;
+		}
+
 		$view = new \OC\Files\View($this->userFilesDir);
-		$fileOwnerUid = $view->getOwner($path);
+		$fileOwnerUid = $view->getOwner($pathToCheck);
 
 		// handle public access
 		if ($this->isPublic) {
@@ -1197,12 +1224,18 @@ class Util {
 				$filename = $path;
 
 			} else {
-
-				$info = $view->getFileInfo($path);
+				$info = $view->getFileInfo($pathToCheck);
 				$ownerView = new \OC\Files\View('/' . $fileOwnerUid . '/files');
 
 				// Fetch real file path from DB
-				$filename = $ownerView->getPath($info['fileid']); // TODO: Check that this returns a path without including the user data dir
+				$filename = $ownerView->getPath($info['fileid']);
+				if ($parentFolder) {
+					$filename = $filename . '/'. $pathinfo['filename'];
+				}
+
+				if ($partfile) {
+					$filename = $filename . '.' . $pathinfo['extension'];
+				}
 
 			}
 
@@ -1211,9 +1244,8 @@ class Util {
 				\OC_Filesystem::normalizePath($filename)
 			);
 		}
-
-
 	}
+
 
 	/**
 	 * @brief go recursively through a dir and collect all files and sub files.

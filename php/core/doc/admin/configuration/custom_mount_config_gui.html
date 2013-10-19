@@ -25,6 +25,9 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/bootstrap.js"></script>
     <link rel="top" title="ownCloud Administrators Manual v5.0 documentation" href="../index.html" />
+    <link rel="up" title="Configuration" href="index.html" />
+    <link rel="next" title="Custom Mount Configuration" href="custom_mount_config.html" />
+    <link rel="prev" title="Uploading big files &gt; 512MB (as set by default)" href="configuring_big_file_upload.html" />
 <script type="text/javascript">
 (function () {
   /**
@@ -109,9 +112,35 @@
                   <ul>
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Admin Documentation</a></li>
 </ul>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="index.html">Configuration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Configuration</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="auth_ldap.html">User Authentication with LDAP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="background_jobs.html">Background Jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_3rdparty.html">3rd-Party Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_apps.html">Apps Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_automation.html">Automatic Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_custom_clients.html">Custom Client Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_database.html">Database Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_encryption.html">Use Server-Side Encryption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_knowledgebase.html">Knowledge Base Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_language.html">Language Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_logging.html">Logging Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_mail.html">Mail Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_maintenance.html">Maintenance Mode Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_reverseproxy.html">Reverse Proxy Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html">Uploading big files &gt; 512MB (as set by default)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html#enabling-uploading-big-files">Enabling uploading big files</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Custom Mount Configuration Web-GUI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Dropbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Google Drive</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="custom_mount_config.html">Custom Mount Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_user_backend.html">Custom User Backend Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xsendfile.html">Serving static files via web server</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../maintenance/index.html">Maintenance</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../issues/index.html">Issues</a></li>
 </ul>
@@ -177,8 +206,21 @@ server instead of ftp:// (optional, defaults to false)</li>
 <li><strong>root</strong>: the name of the folder inside the ftp server to mount (optional,
 defaults to ‘/’)</li>
 </ul>
-<p>If <em>Dropbox</em> or <em>Google Drive</em> are chosen as storage backend an OAuth dialog will
-be shown to automatically generate and fetch the required token information.</p>
+<div class="section" id="id1">
+<h2>Dropbox<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>Mounting a Dropbox account requires that you create an app with Dropbox and then provide the app key and secret to the external storage configuration user interface. Go to My apps at Dropbox and create an app. Select <em>Full Dropbox</em> access level. Copy the app key and app secret and paste them into the corresponding fields for the Dropbox storage.</p>
+<p>Click the <em>Grant access</em> button and you will be redirected to a Dropbox website to give ownCloud permission to access your account.</p>
+</div>
+<div class="section" id="id2">
+<h2>Google Drive<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>Mounting a Google Drive account requires that you create an API project in the Google APIs Console. Select <cite>Services</cite> and enable both <cite>Drive API</cite> and <cite>Drive SDK</cite>. Next select <cite>API Access</cite> and click <cite>Create an OAuth 2.0 client ID</cite>. Fill out the Branding Information as you see fit and click Next. In Client Id Settings select <cite>Web application</cite> for the  Application type. Next to <cite>Your site or hostname</cite> click  more options) and add the following to the Authorized Redirect URIs:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://yourowncloud/index.php/settings/personal">http://yourowncloud/index.php/settings/personal</a></li>
+<li><a class="reference external" href="http://yourowncloud/index.php/settings/admin">http://yourowncloud/index.php/settings/admin</a></li>
+</ul>
+<p>Copy the client id and client secret and paste them into the corresponding fields for the Google Drive Storage.</p>
+<p>Click the <em>Grant access</em> button and you will be redirected to a Google website to give ownCloud permission to access your account.</p>
+</div>
 </div>
 
 
