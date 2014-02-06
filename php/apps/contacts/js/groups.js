@@ -16,26 +16,58 @@ OC.Contacts = OC.Contacts || {};
 	 *   'contacts': An array of contact ids belonging to that group
 	 *   'obj': A reference to the groupList object.
 	 */
-	var GroupList = function(groupList, listItemTmpl) {
+	var GroupList = function(storage, groupList, listItemTmpl) {
+		this.storage = storage;
 		this.$groupList = groupList;
 		var self = this;
 		var numtypes = ['category', 'fav', 'all'];
-		this.$groupList.on('click', 'h3', function(event) {
+		this.$groupList.on('click', 'li.group', function(event) {
 			$('.tipsy').remove();
 			if(wrongKey(event)) {
 				return;
 			}
-			console.log($(event.target));
+			console.log('group click', $(this));
 			if($(event.target).is('.action.delete')) {
-				var id = $(event.target).parents('h3').first().data('id');
+				$('.tipsy').remove();
+				$(this).addClass('loading').removeClass('active');
+				event.stopPropagation();
+				event.preventDefault();
+				var id = $(event.target).parents('li').first().data('id');
 				self.deleteGroup(id, function(response) {
-					if(response.status !== 'success') {
-						OC.notify({message:response.data.message});
+					if(response.error) {
+						OC.notify({message:response.message});
 					}
 				});
+			} else if($(event.target).is('.action.edit')) {
+				event.stopPropagation();
+				event.preventDefault();
+				self.editGroup($(this));
 			} else {
-				self.selectGroup({element:$(this)});
+				if($(this).is(':not(.editing)')) {
+					self.selectGroup({element:$(this)});
+				}
 			}
+		});
+		var $addInput = this.$groupList.find('.add-group');
+		$addInput.addnew({
+			addText: t('core', 'Add'),
+			ok: function(event, name) {
+				$addInput.addClass('loading');
+				name = escapeHTML(name);
+				self.addGroup({name:name}, function(response) {
+					if(response.error) {
+						$(document).trigger('status.contacts.error', response);
+					} else {
+						$addInput.addnew('close');
+					}
+					$addInput.removeClass('loading');
+				});
+			}
+		});
+
+		$(document).bind('status.contacts.count', function(e, data) {
+			console.log('Num contacts:', data.count);
+			self.findById('all').find('.numcontacts').text(data.count);
 		});
 
 		this.$groupListItemTemplate = listItemTmpl;
@@ -51,6 +83,14 @@ OC.Contacts = OC.Contacts || {};
 	 * the group hasn't been saved/created yet.
 	 */
 	GroupList.prototype.selectGroup = function(params) {
+		var self = this;
+		/*if(!this.loaded) {
+			console.log('Not loaded');
+			setTimeout(function() {
+				self.selectGroup(params);
+			}, 100);
+			return;
+		}*/
 		var id, $elem;
 		if(typeof params.id !== 'undefined') {
 			id = params.id;
@@ -59,12 +99,12 @@ OC.Contacts = OC.Contacts || {};
 			id = params.element.data('id');
 			$elem = params.element;
 		}
-		if(!$elem) {
-			self.selectGroup('all');
+		if(!$elem.length) {
+			self.selectGroup({id:'all'});
 			return;
 		}
 		console.log('selectGroup', id, $elem);
-		this.$groupList.find('h3').removeClass('active');
+		this.$groupList.find('li').removeClass('active');
 		$elem.addClass('active');
 		if(id === 'new') {
 			return;
@@ -76,6 +116,20 @@ OC.Contacts = OC.Contacts || {};
 			contacts: $elem.data('contacts')
 		});
 	};
+
+	GroupList.prototype.triggerLastGroup = function() {
+		this.selectGroup({id:this.lastgroup});
+	}
+
+	/**
+	 * Test if a group with this name exists (case-insensitive)
+	 *
+	 * @param string name
+	 * @return bool
+	 */
+	GroupList.prototype.hasGroup = function(name) {
+		return (this.findByName(name) !== null);
+	}
 
 	/**
 	 * Get the group name by id.
@@ -91,13 +145,29 @@ OC.Contacts = OC.Contacts || {};
 		//return $.trim(this.findById(id).clone().find("*").remove().end().text()); //.contents().filter(function(){ return(this.nodeType == 3); }).text().trim();
 	};
 
+	/** Get the group element by name.
+	 *
+	 * @param string name. The name of the group to search for (case-insensitive).
+	 * @returns object|null The jQuery object.
+	 */
+	GroupList.prototype.findByName = function(name) {
+		var $elem = null;
+		this.$groupList.find('li[data-type="category"]').each(function() {
+			if ($(this).data('rawname').toLowerCase() === name.toLowerCase()) {
+				$elem = $(this);
+				return false; //break out of loop
+			}
+		});
+		return $elem;
+	};
+
 	/** Get the group element by id.
 	 * 
 	 * @param integer id. The numeric group or addressbook id.
 	 * @returns object The jQuery object.
 	 */
 	GroupList.prototype.findById = function(id) {
-		return this.$groupList.find('h3[data-id="' + id + '"]');
+		return this.$groupList.find('li[data-id="' + id + '"]');
 	};
 
 	/**
@@ -129,41 +199,41 @@ OC.Contacts = OC.Contacts || {};
 	 * @param function cb. Optional callback function.
 	 */
 	GroupList.prototype.setAsFavorite = function(contactid, state, cb) {
-		contactid = parseInt(contactid);
 		var $groupelem = this.findById('fav');
 		var contacts = $groupelem.data('contacts');
 		if(state) {
-			OCCategories.addToFavorites(contactid, 'contact', function(jsondata) {
-				if(jsondata.status === 'success') {
-					contacts.push(contactid);
-					$groupelem.data('contacts', contacts);
-					$groupelem.find('.numcontacts').text(contacts.length);
-					if(contacts.length > 0 && $groupelem.is(':hidden')) {
-						$groupelem.show();
-					}
+			$.when(OC.Tags.addToFavorites(contactid, 'contact'))
+			.then(function(response) {
+				console.log(response);
+				contacts.push(contactid);
+				$groupelem.data('contacts', contacts);
+				$groupelem.find('.numcontacts').text(contacts.length > 0 && contacts.length || '');
+				if(contacts.length > 0 && $groupelem.is(':hidden')) {
+					$groupelem.show();
 				}
 				if(typeof cb === 'function') {
-					cb(jsondata);
-				} else if(jsondata.status !== 'success') {
-					OC.notify({message:t('contacts', jsondata.data.message)});
+					cb(response);
 				}
+			})
+			.fail(function(response) {
+				console.warn(response);
 			});
 		} else {
-			OCCategories.removeFromFavorites(contactid, 'contact', function(jsondata) {
-				if(jsondata.status === 'success') {
-					contacts.splice(contacts.indexOf(contactid), 1);
-					//console.log('contacts', contacts, contacts.indexOf(id), contacts.indexOf(String(id)));
-					$groupelem.data('contacts', contacts);
-					$groupelem.find('.numcontacts').text(contacts.length);
-					if(contacts.length === 0 && $groupelem.is(':visible')) {
-						$groupelem.hide();
-					}
+			$.when(OC.Tags.removeFromFavorites(contactid, 'contact'))
+			.then(function(response) {
+				contacts.splice(contacts.indexOf(contactid), 1);
+				//console.log('contacts', contacts, contacts.indexOf(id), contacts.indexOf(String(id)));
+				$groupelem.data('contacts', contacts);
+				$groupelem.find('.numcontacts').text(contacts.length > 0 && contacts.length || '');
+				if(contacts.length === 0 && $groupelem.is(':visible')) {
+					$groupelem.hide();
 				}
 				if(typeof cb === 'function') {
-					cb(jsondata);
-				} else if(jsondata.status !== 'success') {
-					OC.notify({message:t('contacts', jsondata.data.message)});
+					cb(response);
 				}
+			})
+			.fail(function(response) {
+				console.warn(response);
 			});
 		}
 	};
@@ -185,13 +255,13 @@ OC.Contacts = OC.Contacts || {};
 		}
 		var self = this;
 		var doPost = false;
-		if(typeof contactid === 'number') {
+		if(typeof contactid === 'string') {
 			if(contacts.indexOf(contactid) === -1) {
 				ids.push(contactid);
 				doPost = true;
 			} else {
 				if(typeof cb == 'function') {
-					cb({status:'error', message:t('contacts', 'Contact is already in this group.')});
+					cb({error:true, message:t('contacts', 'Contact is already in this group.')});
 				}
 			}
 		} else if(utils.isArray(contactid)) {
@@ -204,40 +274,36 @@ OC.Contacts = OC.Contacts || {};
 				doPost = true;
 			} else {
 				if(typeof cb == 'function') {
-					cb({status:'error', message:t('contacts', 'Contacts are already in this group.')});
+					cb({error:true, message:t('contacts', 'Contacts are already in this group.')});
 				}
 			}
 		} else {
 			console.warn('Invalid data type: ' + typeof contactid);
 		}
 		if(doPost) {
-			$.post(OC.filePath('contacts', 'ajax', 'categories/addto.php'), {contactids: ids, categoryid: groupid},function(jsondata) {
-				if(!jsondata) {
-					if(typeof cb === 'function') {
-						cb({status:'error', message:'Network or server error. Please inform administrator.'});
-					}
-					return;
-				}
-				if(jsondata.status === 'success') {
+			var groupname = self.nameById(groupid);
+			$.when(this.storage.addToGroup(ids, groupid, groupname)).then(function(response) {
+				if(!response.error) {
 					contacts = contacts.concat(ids).sort();
 					$groupelem.data('contacts', contacts);
 					var $numelem = $groupelem.find('.numcontacts');
-					$numelem.text(contacts.length).switchClass('', 'active', 200);
+					$numelem.text(contacts.length > 0 && contacts.length || '').switchClass('', 'active', 200);
 					setTimeout(function() {
 						$numelem.switchClass('active', '', 1000);
 					}, 2000);
 					if(typeof cb === 'function') {
-						cb({status:'success', ids:ids});
-					} else {
+						cb({ids:ids});
+					}
+					$.each(ids, function(idx, contactid) {
 						$(document).trigger('status.group.contactadded', {
 							contactid: contactid,
 							groupid: groupid,
-							groupname: self.nameById(groupid)
+							groupname: groupname
 						});
-					}
+					});
 				} else {
 					if(typeof cb == 'function') {
-						cb({status:'error', message:jsondata.data.message});
+						cb({error:true, message:response.message});
 					}
 				}
 			});
@@ -246,13 +312,17 @@ OC.Contacts = OC.Contacts || {};
 
 	/**
 	* Removes one or more contact ids from a group
+	* TODO: When deleting contacts this method should just remove the contact id
+	* from its internal list without saving.
 	* @param integer|array contactid. An integer id or an array of integer ids.
 	* @param integer groupid. The integer id of the group
+	* @param boolean onlyInternal If true don't save to backend
 	* @param function cb. Optional call-back function
 	*/
-	GroupList.prototype.removeFrom = function(contactid, groupid, cb) {
+	GroupList.prototype.removeFrom = function(contactid, groupid, onlyInternal, cb) {
 		console.log('GroupList.removeFrom', contactid, groupid);
 		var $groupelem = this.findById(groupid);
+		var groupname = this.nameById(groupid);
 		var contacts = $groupelem.data('contacts');
 		var ids = [];
 
@@ -264,24 +334,24 @@ OC.Contacts = OC.Contacts || {};
 				$numelem.switchClass('active', '', 1000);
 			}, 2000);
 			if(typeof cb === 'function') {
-				cb({status:'success', ids:[id]});
+				cb({ids:[id]});
 			}
 		}
 		// If the contact is in the category remove it from internal list.
 		if(!contacts) {
 			if(typeof cb === 'function') {
-				cb({status:'error', message:t('contacts', 'Couldn\'t get contact list.')});
+				cb({error:true, message:t('contacts', 'Couldn\'t get contact list.')});
 			}
 			return;
 		}
 		var doPost = false;
-		if(typeof contactid === 'number') {
+		if(typeof contactid === 'string') {
 			if(contacts.indexOf(contactid) !== -1) {
 				ids.push(contactid);
 				doPost = true;
 			} else {
 				if(typeof cb == 'function') {
-					cb({status:'error', message:t('contacts', 'Contact is not in this group.')});
+					cb({error:true, message:t('contacts', 'Contact is not in this group.')});
 				}
 			}
 		} else if(utils.isArray(contactid)) {
@@ -295,38 +365,38 @@ OC.Contacts = OC.Contacts || {};
 			} else {
 				console.log(contactid, 'not in', contacts);
 				if(typeof cb == 'function') {
-					cb({status:'error', message:t('contacts', 'Contacts are not in this group.')});
+					cb({error:true, message:t('contacts', 'Contacts are not in this group.')});
 				}
 			}
 		}
+		$.each(ids, function(idx, id) {
+			contacts.splice(contacts.indexOf(id), 1);
+		});
+		$groupelem.find('.numcontacts').text(contacts.length > 0 && contacts.length || '');
+		//console.log('contacts', contacts, contacts.indexOf(id), contacts.indexOf(String(id)));
+		$groupelem.data('contacts', contacts);
 		if(doPost) {
-			$.post(OC.filePath('contacts', 'ajax', 'categories/removefrom.php'), {contactids: ids, categoryid: groupid},function(jsondata) {
-				if(!jsondata) {
-					if(typeof cb === 'function') {
-						cb({status:'error', message:'Network or server error. Please inform administrator.'});
-					}
-					return;
-				}
-				if(jsondata.status === 'success') {
-					$.each(ids, function(idx, id) {
-						contacts.splice(contacts.indexOf(id), 1);
-					});
-					//console.log('contacts', contacts, contacts.indexOf(id), contacts.indexOf(String(id)));
-					$groupelem.data('contacts', contacts);
-					var $numelem = $groupelem.find('.numcontacts');
-					$numelem.text(contacts.length).switchClass('', 'active', 200);
-					setTimeout(function() {
-						$numelem.switchClass('active', '', 1000);
-					}, 2000);
-					if(typeof cb === 'function') {
-						cb({status:'success', ids:ids});
-					}
-				} else {
-					if(typeof cb == 'function') {
-						cb({status:'error', message:jsondata.data.message});
-					}
-				}
+			// If a group is selected the contact has to be removed from the list
+			$.each(ids, function(idx, contactid) {
+				$(document).trigger('status.group.contactremoved', {
+					contactid: contactid,
+					groupid: parseInt(groupid),
+					groupname: groupname
+				});
 			});
+			if(!onlyInternal) {
+				$.when(this.storage.removeFromGroup(ids, groupid, groupname)).then(function(response) {
+					if(!response.error) {
+						if(typeof cb === 'function') {
+							cb({ids:ids});
+						}
+					} else {
+						if(typeof cb == 'function') {
+							cb({error:true, message:response.message});
+						}
+					}
+				});
+			}
 		}
 	};
 
@@ -334,14 +404,15 @@ OC.Contacts = OC.Contacts || {};
 	 * Remove a contact from all groups. Used on contact deletion.
 	 * 
 	 * @param integer contactid.
-	 * @param boolean alsospecial. Whether the contact should also be
+	 * @param boolean alsoSpecial. Whether the contact should also be
 	 *    removed from non 'category' groups.
+	 * @param boolean onlyInternal If true don't save to backend
 	 */
-	GroupList.prototype.removeFromAll = function(contactid, alsospecial) {
+	GroupList.prototype.removeFromAll = function(contactid, alsoSpecial, onlyInternal) {
 		var self = this;
-		var selector = alsospecial ? 'h3' : 'h3[data-type="category"]';
+		var selector = alsoSpecial ? 'li' : 'li[data-type="category"]';
 		$.each(this.$groupList.find(selector), function(i, group) {
-			self.removeFrom(contactid, $(this).data('id'));
+			self.removeFrom(contactid, $(this).data('id'), onlyInternal);
 		});
 	};
 
@@ -356,14 +427,15 @@ OC.Contacts = OC.Contacts || {};
 
 	/**
 	 * Drop handler for for adding contact to group/favorites.
+	 * FIXME: The drag helper object goes below the group elements
 	 * during drag, and the drop target is hard to hit.
 	 */
 	GroupList.prototype.contactDropped = function(event, ui) {
 		var dragitem = ui.draggable, droptarget = $(this);
 		console.log('dropped', dragitem);
 		if(dragitem.is('.name')) {
-			var id = dragitem.parent().data('id');
-			console.log('contact dropped', id, 'on', id);
+			var id = String(dragitem.parent().data('id'));
+			console.log('contact dropped', id, 'on', $(this).data('id'));
 			if($(this).data('type') === 'fav') {
 				$(this).data('obj').setAsFavorite(id, true);
 			} else {
@@ -391,121 +463,110 @@ OC.Contacts = OC.Contacts || {};
 	 */
 	GroupList.prototype.deleteGroup = function(groupid, cb) {
 		var $elem = this.findById(groupid);
-		var $newelem = $elem.prev('h3');
+		var $newelem = $elem.prev('li');
 		var name = this.nameById(groupid);
 		var contacts = $elem.data('contacts');
 		var self = this;
-		console.log('delete group', groupid, contacts);
-		$.post(OC.filePath('contacts', 'ajax', 'categories/delete.php'), {categories: name}, function(jsondata) {
-			if (jsondata && jsondata.status == 'success') {
+		console.log('delete group', $elem, groupid, contacts);
+		$.when(this.storage.deleteGroup(name)).then(function(response) {
+			if (!response.error) {
+				$.each(self.categories, function(idx, category) {
+					if(category.id === groupid) {
+						self.categories.splice(self.categories.indexOf(category), 1);
+						return false; // Break loop
+					}
+				});
 				$(document).trigger('status.group.groupremoved', {
 					groupid: groupid,
 					newgroupid: parseInt($newelem.data('id')),
-					groupname: self.nameById(groupid),
+					groupname: name,
 					contacts: contacts
 				});
 				$elem.remove();
 				self.selectGroup({element:$newelem});
 			} else {
-				//
+				console.log('Error', response);
 			}
 			if(typeof cb === 'function') {
-				cb(jsondata);
+				cb(response);
 			}
+		})
+		.fail(function(response) {
+			console.log( "Request Failed: " + response.message);
+			$(document).trigger('status.contacts.error', response);
 		});
 	};
 
 	/**
 	 * Edit a groups name.
-	 * Currently only used for adding, as renaming a group also
-	 * requires updating all contacts in that group.
 	 * 
-	 * @param integer id. Group id NOTE: Not used yet.
-	 * FIXME: This works fine for adding, but will need refactoring
-	 * if used for renaming.
+	 * @param object $element jQuery element
 	 */
-	GroupList.prototype.editGroup = function(id) {
+	GroupList.prototype.editGroup = function($element) {
+		console.log('editGroup', $element);
 		var self = this;
-		if(this.$editelem) {
-			console.log('Already editing, returning');
-			return;
-		}
-		// NOTE: Currently this only works for adding, not renaming
-		var saveChanges = function($elem, $input) {
-			console.log('saveChanges', $input.val());
-			var name = $.trim($input.val());
-			if(name.length === 0) {
-				return false;
+		var oldname = $element.data('rawname');
+		var id = $element.data('id');
+
+		var $editInput = $('<input type="text" />').val(oldname);
+		$element.hide();
+		$editInput.insertBefore($element).wrap('<li class="group editing" />');
+		var $tmpelem = $editInput.parent('li');
+		console.log('tmpelem', $tmpelem);
+
+		$editInput.addnew({
+			autoOpen: true,
+			addText: t('contacts', 'Save'),
+			ok: function(event, newname) {
+				console.log('New name', newname);
+				$editInput.addClass('loading');
+				self.renameGroup(oldname, newname, function(response) {
+					if(response.error) {
+						$(document).trigger('status.contacts.error', response);
+					} else {
+						$editInput.addnew('close');
+						$(document).trigger('status.group.grouprenamed', {
+							groupid: id,
+							from: oldname,
+							to: newname,
+							contacts: $element.data('contacts')
+						});
+						$element.data('rawname', newname);
+						$element.find('.name').text(escapeHTML(newname));
+					}
+					$editInput.removeClass('loading');
+				});
+			},
+			cancel: function(event) {
+				console.log('cancel');
+				$editInput.removeClass('loading');
+			},
+			close: function() {
+				console.log('close');
+				$tmpelem.remove();
+				$element.show();
 			}
-			$input.prop('disabled', true);
-			$elem.data('rawname', '');
-			self.addGroup({name:name, element: $elem}, function(response) {
-				if(response.status === 'success') {
-					$elem.prepend(escapeHTML(response.name)).removeClass('editing').attr('data-id', response.id);
-					$input.next('.checked').remove();
-					$input.remove();
-					self.$editelem = null;
-				} else {
-					$input.prop('disabled', false);
-					OC.notify({message:response.message});
-				}
-			});
-		};
+		});
 
-		if(typeof id === 'undefined') {
-			// Add new group
-			var tmpl = this.$groupListItemTemplate;
-			self.$editelem = (tmpl).octemplate({
-				id: 'new',
-				type: 'category',
-				num: 0,
-				name: ''
-			});
-			var $input = $('<input type="text" class="active" /><a class="action checked disabled" />');
-			self.$editelem.prepend($input).addClass('editing');
-			self.$editelem.data('contacts', []);
-			self.$editelem.data('rawname', '');
-			this.$groupList.find('h3.group[data-type="fav"]').after(self.$editelem);
-			this.selectGroup({element:self.$editelem});
-			$input.on('input', function(event) {
-				if($(this).val().length > 0) {
-					$(this).next('.checked').removeClass('disabled');
-				} else {
-					$(this).next('.checked').addClass('disabled');
-				}
-			});
-			$input.on('keyup', function(event) {
-				var keyCode = Math.max(event.keyCode, event.which);
-				if(keyCode === 13) {
-					saveChanges(self.$editelem, $(this));
-				} else if(keyCode === 27) {
-					self.$editelem.remove();
-					self.$editelem = null;
-				}
-			});
-			$input.next('.checked').on('click keydown', function(event) {
-				console.log('clicked', event);
-				if(wrongKey(event)) {
-					return;
-				}
-				saveChanges(self.$editelem, $input);
-			});
-			$input.focus();
-		} else if(utils.isUInt(id)) {
-			alert('Renaming groups is not implemented!');
-			return;
-			var $elem = this.findById(id);
-			var $text = $elem.contents().filter(function(){ return(this.nodeType == 3); });
-			var name = $text.text();
-			console.log('Group name', $text, name);
-			$text.remove();
-			var $input = $('<input type="text" class="active" value="' + name + '" /><a class="action checked disabled />');
-			$elem.prepend($input).addClass('editing');
-			$input.focus();
+	};
 
-		} else {
-			throw { name: 'WrongParameterType', message: 'GroupList.editGroup only accept integers.'};
-		}
+	/**
+	 * Rename a group.
+	 *
+	 * @param string from
+	 * @param string to
+	 * @param function cb
+	 */
+	GroupList.prototype.renameGroup = function(from, to, cb) {
+		$.when(this.storage.renameGroup(from, to)).then(function(response) {
+			cb({error:false});
+		})
+		.fail(function(response) {
+			console.log( "Request Failed: " + response);
+			cb({error:true});
+			response.message = t('contacts', 'Failed renaming group: {error}', {error:response.message});
+			$(document).trigger('status.contacts.error', response);
+		});
 	};
 
 	/**
@@ -531,30 +592,22 @@ OC.Contacts = OC.Contacts || {};
 		//console.log('GroupList.addGroup', params);
 		var name = params.name;
 		var contacts = []; // $.map(contacts, function(c) {return parseInt(c)});
-		var self = this, exists = false;
-		self.$groupList.find('h3[data-type="category"]').each(function() {
-			if ($(this).data('rawname').toLowerCase() === name.toLowerCase()) {
-				exists = true;
-				return false; //break out of loop
-			}
-		});
-		if(exists) {
+		var self = this;
+		if(this.hasGroup(name)) {
 			if(typeof cb === 'function') {
-				cb({status:'error', message:t('contacts', 'A group named {group} already exists', {group: escapeHTML(name)})});
+				cb({error:true, message:t('contacts', 'A group named {group} already exists', {group: escapeHTML(name)})});
 			}
 			return;
 		}
-		$.post(OC.filePath('contacts', 'ajax', 'categories/add.php'), {category: name}, function(jsondata) {
-			if (jsondata && jsondata.status == 'success') {
-				name = jsondata.data.name;
-				var id = jsondata.data.id;
+		$.when(this.storage.addGroup(name)).then(function(response) {
+			if (!response.error) {
+				name = response.data.name;
+				var id = response.data.id;
 				var tmpl = self.$groupListItemTemplate;
-				var $elem = params.element
-					? params.element
-					: (tmpl).octemplate({
+				var $elem = (tmpl).octemplate({
 						id: id,
 						type: 'category',
-						num: contacts.length,
+						num: (contacts.length > 0 && contacts.length || ''),
 						name: escapeHTML(name)
 					});
 				self.categories.push({id: id, name: name});
@@ -563,58 +616,67 @@ OC.Contacts = OC.Contacts || {};
 				$elem.data('rawname', name);
 				$elem.data('id', id);
 				var added = false;
-				var $groups = self.$groupList.find('h3.group[data-type="category"]');
-				if($groups.length > 1) {
-					self.$groupList.find('h3.group[data-type="category"]').each(function() {
-						if ($(this).data('rawname').toLowerCase().localeCompare(name.toLowerCase()) > 0) {
-							$(this).before($elem);
-							added = true;
-							return false;
-						}
-					});
-					if(!added) {
-						$elem.insertAfter($groups.last());
+				self.$groupList.find('li.group[data-type="category"]').each(function() {
+					if ($(this).data('rawname').toLowerCase().localeCompare(name.toLowerCase()) > 0) {
+						$(this).before($elem);
+						added = true;
+						return false;
 					}
+				});
+				if(!added) {
+					var $insertAfter = self.$groupList.find('li.group[data-type="category"]').last()
+						|| self.$groupList.find('li.group[data-id="fav"]')
+						|| self.$groupList.find('li.group[data-id="all"]');
+					$elem.insertAfter($insertAfter);
 				}
 				self.selectGroup({element:$elem});
 				$elem.tipsy({trigger:'manual', gravity:'w', fallback: t('contacts', 'You can drag groups to\narrange them as you like.')});
 				$elem.tipsy('show');
 				if(typeof cb === 'function') {
-					cb({status:'success', id:parseInt(id), name:name});
+					cb({id:parseInt(id), name:name});
 				}
 			} else {
 				if(typeof cb === 'function') {
-					cb({status:'error', message:jsondata.data.message});
+					cb({error:true, message:response.data.message});
 				}
 			}
+		})
+		.fail(function(response) {
+			console.log( "Request Failed: " + response);
+			response.message = t('contacts', 'Failed adding group: {error}', {error:response.message})
+			$(document).trigger('status.contacts.error', response);
 		});
 	};
 
-	GroupList.prototype.loadGroups = function(numcontacts, cb) {
+	GroupList.prototype.loadGroups = function(cb) {
 		var self = this;
 		var acceptdrop = '.dragContact';
 		var $groupList = this.$groupList;
 		var tmpl = this.$groupListItemTemplate;
 
-		tmpl.octemplate({id: 'all', type: 'all', num: numcontacts, name: t('contacts', 'All')}).appendTo($groupList);
-		$.getJSON(OC.filePath('contacts', 'ajax', 'categories/list.php'), {}, function(jsondata) {
-			if (jsondata && jsondata.status == 'success') {
-				self.lastgroup = jsondata.data.lastgroup;
-				self.sortorder = jsondata.data.sortorder.length > 0
-					? $.map(jsondata.data.sortorder.split(','), function(c) {return parseInt(c);})
-					: [];
+		if(!this.findById('all').length) {
+			tmpl.octemplate({id: 'all', type: 'all', num: '', name: t('contacts', 'All')}).appendTo($groupList);
+		}
+		return $.when(this.storage.getGroupsForUser()).then(function(response) {
+			if (response && !response.error) {
+				self.lastgroup = response.data.lastgroup;
+				self.sortorder = contacts_groups_sortorder;
 				console.log('sortorder', self.sortorder);
 				// Favorites
-				var contacts = $.map(jsondata.data.favorites, function(c) {return parseInt(c);});
-				var $elem = tmpl.octemplate({
+				// Map to strings to easier lookup in contacts list.
+				var contacts = $.map(response.data.favorites, function(c) {return String(c);});
+				var $elem = self.findById('fav');
+				$elem = $elem.length ? $elem : tmpl.octemplate({
 					id: 'fav',
 					type: 'fav',
-					num: contacts.length,
+					num: contacts.length > 0 && contacts.length || '',
 					name: t('contacts', 'Favorites')
 				}).appendTo($groupList);
 				$elem.data('obj', self);
 				$elem.data('rawname', t('contacts', 'Favorites'));
-				$elem.data('contacts', contacts).find('.numcontacts').before('<span class="starred action" />');
+				if(!$elem.find('.starred').length) {
+					$elem.data('contacts', contacts).find('.numcontacts').before('<span class="starred action" />');
+				}
 				$elem.droppable({
 							drop: self.contactDropped,
 							over: function( event, ui ) {
@@ -629,32 +691,37 @@ OC.Contacts = OC.Contacts || {};
 				}
 				console.log('favorites', $elem.data('contacts'));
 				// Normal groups
-				$.each(jsondata.data.categories, function(c, category) {
-					var contacts = $.map(category.contacts, function(c) {return parseInt(c);});
-					var $elem = (tmpl).octemplate({
-						id: category.id,
-						type: 'category',
-						num: contacts.length,
-						name: category.name
-					});
-					self.categories.push({id: category.id, name: category.name});
-					$elem.data('obj', self);
+				$.each(response.data.categories, function(c, category) {
+					var contacts = $.map(category.contacts, function(c) {return String(c);});
+					var $elem = self.findById(category.id);
+					if($elem.length) {
+						$elem.find('.numcontacts').text(contacts.length > 0 && contacts.length || '');
+					} else {
+						$elem = $elem.length ? $elem : (tmpl).octemplate({
+							id: category.id,
+							type: 'category',
+							num: contacts.length > 0 && contacts.length || '',
+							name: category.name
+						});
+						self.categories.push({id: category.id, name: category.name});
+						$elem.data('obj', self);
+						$elem.data('rawname', category.name);
+						$elem.data('id', category.id);
+						$elem.droppable({
+										drop: self.contactDropped,
+										over: function( event, ui ) {
+											console.log('over group', ui.draggable);
+										},
+										activeClass: 'ui-state-active',
+										hoverClass: 'ui-state-hover',
+										scope: 'contacts'
+									});
+						$elem.appendTo($groupList);
+					}
 					$elem.data('contacts', contacts);
-					$elem.data('rawname', category.name);
-					$elem.data('id', category.id);
-					$elem.droppable({
-									drop: self.contactDropped,
-									over: function( event, ui ) {
-										console.log('over group', ui.draggable);
-									},
-									activeClass: 'ui-state-active',
-									hoverClass: 'ui-state-hover',
-									scope: 'contacts'
-								});
-					$elem.appendTo($groupList);
 				});
 
-				var elems = $groupList.find('h3[data-type="category"]').get();
+				var elems = $groupList.find('li[data-type="category"]').get();
 
 				elems.sort(function(a, b) {
 					return self.sortorder.indexOf(parseInt($(a).data('id'))) > self.sortorder.indexOf(parseInt($(b).data('id')));
@@ -665,13 +732,14 @@ OC.Contacts = OC.Contacts || {};
 				});
 
 				// Shared addressbook
-				$.each(jsondata.data.shared, function(c, shared) {
+				$.each(response.data.shared, function(c, shared) {
 					var sharedindicator = '<img class="shared svg" src="' + OC.imagePath('core', 'actions/shared') + '"'
-						+ 'title="' + t('contacts', 'Shared by {owner}', {owner:shared.userid}) + '" />';
-					var $elem = (tmpl).octemplate({
+						+ 'title="' + t('contacts', 'Shared by {owner}', {owner:shared.owner}) + '" />';
+					var $elem = self.findById(shared.id);
+					$elem = $elem.length ? $elem : (tmpl).octemplate({
 						id: shared.id,
 						type: 'shared',
-						num: '', //jsondata.data.shared.length,
+						num: response.data.shared.length,
 						name: shared.displayname
 					});
 					$elem.find('.numcontacts').after(sharedindicator);
@@ -680,13 +748,19 @@ OC.Contacts = OC.Contacts || {};
 					$elem.data('id', shared.id);
 					$elem.appendTo($groupList);
 				});
+				if(!self.findById('uncategorized').length) {
+					tmpl.octemplate({id: 'uncategorized', type: 'uncategorized', num: '', name: t('contacts', 'Not grouped')}).appendTo($groupList);
+				}
 				$groupList.sortable({
-					items: 'h3[data-type="category"]',
+					items: 'li[data-type="category"]',
 					stop: function() {
 						console.log('stop sorting', $(this));
 						var ids = [];
-						$.each($(this).children('h3[data-type="category"]'), function(i, elem) {
-							ids.push($(elem).data('id'));
+						$.each($(this).children('li[data-type="category"]'), function(i, elem) {
+							var id = $(elem).data('id');
+							if(typeof id === 'number' && id % 1 == 0) {
+								ids.push(id);
+							}
 						});
 						self.sortorder = ids;
 						$(document).trigger('status.groups.sorted', {
@@ -696,15 +770,16 @@ OC.Contacts = OC.Contacts || {};
 				});
 				var $elem = self.findById(self.lastgroup);
 				$elem.addClass('active');
-				$(document).trigger('status.group.selected', {
-					id: self.lastgroup,
-					type: $elem.data('type'),
-					contacts: $elem.data('contacts')
-				});
+				self.loaded = true;
 			} // TODO: else
 			if(typeof cb === 'function') {
 				cb();
 			}
+		})
+		.fail(function(response) {
+			console.log( "Request Failed:", response);
+			response.message = t('contacts', 'Failed loading groups: {error}', {error:response.message});
+			$(document).trigger('status.contacts.error', response);
 		});
 	};
 

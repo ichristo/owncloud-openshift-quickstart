@@ -42,8 +42,8 @@ class Hooks{
 	 * @param paramters parameters from postCreateUser-Hook
 	 * @return array
 	 */
-	static public function createUser($parameters) {
-		Addressbook::addDefault($parameters['uid']);
+	public static function userCreated($parameters) {
+		//Addressbook::addDefault($parameters['uid']);
 		return true;
 	}
 
@@ -52,24 +52,166 @@ class Hooks{
 	 * @param paramters parameters from postDeleteUser-Hook
 	 * @return array
 	 */
-	static public function deleteUser($parameters) {
-		$addressbooks = Addressbook::all($parameters['uid']);
+	public static function userDeleted($parameters) {
+		$backend = new Backend\Database($parameters['uid']);
+		$addressBooks = $backend->getAddressBooksForUser();
 
-		foreach($addressbooks as $addressbook) {
-			if($parameters['uid'] === $addressbook['userid']) {
-				Addressbook::delete($addressbook['id']);
-			}
+		foreach($addressBooks as $addressBook) {
+			// Purging of contact categories and and properties is done by backend.
+			$backend->deleteAddressBook($addressBook['id']);
 		}
-
-		return true;
 	}
 
-	static public function getCalenderSources($parameters) {
+	/**
+	* Delete any registred address books (Future)
+	*/
+	public static function addressBookDeletion($parameters) {
+		// Clean up sharing
+		\OCP\Share::unshareAll('addressbook', $parameters['addressbookid']);
+
+		if(count($parameters['contactids'])) {
+			// Remove contacts from groups
+			$tagMgr = \OC::$server->getTagManager()->load('contact');
+			$tagMgr->purgeObjects($parameters['contactids']);
+
+			// Purge property indexes
+			Utils\Properties::purgeIndexes($parameters['contactids']);
+		}
+	}
+
+	/**
+	 * A contact has been deleted and cleanup for property indexes and
+	 * group/contact relations must be performed.
+	 *
+	 * NOTE: When deleting an entire address book the cleanup is done in the
+	 * addressBookDeletion() hook. Any cleanup procedures most be implemented
+	 * in both.
+	 *
+	 * @param array $parameters Currently only the id of the contact.
+	 */
+	public static function contactDeletion($parameters) {
+		\OCP\Util::writeLog('contacts', __METHOD__.' id: '.$parameters['id'], \OCP\Util::DEBUG);
+		$ids = is_array($parameters['id']) ? $parameters['id'] : array($parameters['id']);
+		$tagMgr = \OC::$server->getTagManager()->load('contact');
+		$tagMgr->purgeObjects($ids);
+		Utils\Properties::purgeIndexes($ids);
+
+		// Contact sharing not implemented, but keep for future.
+		//\OCP\Share::unshareAll('contact', $id);
+	}
+
+	public static function contactAdded($parameters) {
+		\OCP\Util::writeLog('contacts', __METHOD__.' id: '.$parameters['id'], \OCP\Util::DEBUG);
+		$contact = $parameters['contact'];
+		if(isset($contact->CATEGORIES)) {
+			\OCP\Util::writeLog('contacts', __METHOD__.' groups: '.print_r($contact->CATEGORIES->getParts(), true), \OCP\Util::DEBUG);
+			$tagMgr = \OC::$server->getTagManager()->load('contact');
+			foreach($contact->CATEGORIES->getParts() as $group) {
+				\OCP\Util::writeLog('contacts', __METHOD__.' group: '.$group, \OCP\Util::DEBUG);
+				$tagMgr->tagAs($parameters['id'], $group);
+			}
+		}
+		Utils\Properties::updateIndex($parameters['id'], $contact);
+	}
+
+	public static function contactUpdated($parameters) {
+		//\OCP\Util::writeLog('contacts', __METHOD__.' parameters: '.print_r($parameters, true), \OCP\Util::DEBUG);
+		$contact = $parameters['contact'];
+		Utils\Properties::updateIndex($parameters['contactId'], $contact);
+		// If updated via CardDAV we don't know if PHOTO has changed
+		if(isset($parameters['carddav']) && $parameters['carddav']) {
+			if(isset($contact->PHOTO) || isset($contact->LOGO)) {
+				Utils\Properties::cacheThumbnail(
+					$parameters['backend'],
+					$parameters['addressBookId'],
+					$parameters['contactId'],
+					null,
+					$contact,
+					array('update' => true)
+				);
+			}
+			$tagMgr = \OC::$server->getTagManager()->load('contact');
+			$tagMgr->purgeObjects(array($parameters['contactId']));
+			if(isset($contact->CATEGORIES)) {
+				$tagMgr->addMultiple($contact->CATEGORIES->getParts(), true, $parameters['contactId']);
+			}
+		}
+	}
+
+	/**
+	 * Scan vCards for categories.
+	 */
+	public static function scanCategories() {
+		$offset = 0;
+		$limit = 10;
+
+		$tagMgr = \OC::$server->getTagManager()->load('contact');
+		$tags = array();
+
+		foreach($tagMgr->getTags() as $tag) {
+			$tags[] = $tag['name'];
+		}
+
+		// reset tags
+		$tagMgr->delete($tags);
+
+		$backend = $this->app->getBackend('local');
+		$addressBookInfos = $backend->getAddressBooksForUser();
+
+		foreach($addressBookInfos as $addressBookInfo) {
+			$addressBook = new AddressBook($backend, $addressBookInfo);
+			while($contacts = $addressBook->getChildren($limit, $offset, false)) {
+				foreach($contacts as $contact) {
+					if(isset($contact->CATEGORIES)) {
+						$tagMgr->addMultiple($contact->CATEGORIES->getParts(), true, $contact->getId());
+					}
+				}
+				\OCP\Util::writeLog('contacts',
+					__METHOD__ .', scanning: ' . $limit . ' starting from ' . $offset,
+					\OCP\Util::DEBUG);
+				$offset += $limit;
+			}
+		}
+	}
+
+	/**
+	 * Scan vCards for properties.
+	 */
+	public static function indexProperties() {
+		$offset = 0;
+		$limit = 10;
+
+		$app = new App();
+		$backend = $app->getBackend('local');
+		$addressBookInfos = $backend->getAddressBooksForUser();
+
+		foreach($addressBookInfos as $addressBookInfo) {
+			$addressBook = new AddressBook($backend, $addressBookInfo);
+			while($contacts = $addressBook->getChildren($limit, $offset, false)) {
+				foreach($contacts as $contact) {
+					$contact->retrieve();
+				}
+				\OCP\Util::writeLog('contacts',
+					__CLASS__.'::'.__METHOD__
+						.', indexing: ' . $limit . ' starting from ' . $offset,
+					\OCP\Util::DEBUG);
+				Utils\Properties::updateIndex($contact->getId(), $contact);
+				$offset += $limit;
+			}
+		}
+	}
+
+	public static function getCalenderSources($parameters) {
+		//\OCP\Util::writeLog('contacts', __METHOD__.' parameters: '.print_r($parameters, true), \OCP\Util::DEBUG);
+
+		$app = new App();
+		$addressBooks = $app->getAddressBooksForUser();
 		$base_url = \OCP\Util::linkTo('calendar', 'ajax/events.php').'?calendar_id=';
-		foreach(Addressbook::all(\OCP\USER::getUser()) as $addressbook) {
+		foreach($addressBooks as $addressBook) {
+			$info = $addressBook->getMetaData();
 			$parameters['sources'][]
 				= array(
-					'url' => $base_url.'birthday_'. $addressbook['id'],
+					'url' => $base_url.'birthday_'. $info['backend'].'_'.$info['id'],
 					'backgroundColor' => '#cccccc',
 					'borderColor' => '#888',
 					'textColor' => 'black',
@@ -79,48 +221,25 @@ class Hooks{
 		}
 	}
 
-	static public function getBirthdayEvents($parameters) {
+	public static function getBirthdayEvents($parameters) {
+		//\OCP\Util::writeLog('contacts', __METHOD__.' parameters: '.print_r($parameters, true), \OCP\Util::DEBUG);
 		$name = $parameters['calendar_id'];
 		if (strpos($name, 'birthday_') != 0) {
 			return;
 		}
 		$info = explode('_', $name);
-		$aid = $info[1];
-		Addressbook::find($aid);
-		foreach(VCard::all($aid) as $contact) {
-			try {
-				$vcard = VObject\Reader::read($contact['carddata']);
-			} catch (Exception $e) {
-				continue;
-			}
-			$birthday = $vcard->BDAY;
-			if ((string)$birthday) {
-				$title = str_replace('{name}',
-					strtr((string)$vcard->FN, array('\,' => ',', '\;' => ';')),
-					App::$l10n->t('{name}\'s Birthday'));
-				
-				$date = new \DateTime($birthday);
-				$vevent = VObject\Component::create('VEVENT');
-				//$vevent->setDateTime('LAST-MODIFIED', new DateTime($vcard->REV));
-				$vevent->add('DTSTART');
-				$vevent->DTSTART->setDateTime($date,
-					VObject\Property\DateTime::DATE);
-				$vevent->add('DURATION', 'P1D');
-				$vevent->{'UID'} = substr(md5(rand().time()), 0, 10);
-				// DESCRIPTION?
-				$vevent->{'RRULE'} = 'FREQ=YEARLY';
-				$vevent->{'SUMMARY'} = $title;
-				$parameters['events'][] = array(
-					'id' => 0,//$card['id'],
-					'vevent' => $vevent,
-					'repeating' => true,
-					'summary' => $title,
-					'calendardata' => "BEGIN:VCALENDAR\nVERSION:2.0\n"
-						. "PRODID:ownCloud Contacts "
-						. \OCP\App::getAppVersion('contacts') . "\n"
-						. $vevent->serialize() .  "END:VCALENDAR"
-					);
-			}
+		$backend = $info[1];
+		$aid = $info[2];
+		$app = new App();
+		$addressBook = $app->getAddressBook($backend, $aid);
+		foreach($addressBook->getBirthdayEvents() as $vevent) {
+			$parameters['events'][] = array(
+				'id' => 0,
+				'vevent' => $vevent,
+				'repeating' => true,
+				'summary' => $vevent->SUMMARY,
+				'calendardata' => $vevent->serialize()
+			);
 		}
 	}
 }

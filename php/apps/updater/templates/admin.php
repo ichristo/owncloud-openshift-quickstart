@@ -13,9 +13,6 @@
 ?>
 
 <fieldset class="personalblock">
-	<strong>Updater</strong>
-	<br />
-	<?php print_unescaped(OC_Updater::ShowUpdatingHint()) ?>
-	<br />
+	<h2>Updater</h2>
 	<a href="<?php p(\OCP\Util::linkTo('updater', 'update.php')) ?>"><?php p($l->t('Update Center')) ?></a>
 </fieldset>

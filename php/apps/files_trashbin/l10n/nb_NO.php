@@ -1,16 +1,13 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "Couldn't delete %s permanently" => "Kunne ikke slette %s fullstendig",
 "Couldn't restore %s" => "Kunne ikke gjenopprette %s",
-"perform restore operation" => "utfør gjenopprettings operasjon",
-"delete file permanently" => "slett filer permanent",
-"Delete permanently" => "Slett permanent",
-"Name" => "Navn",
-"Deleted" => "Slettet",
-"1 folder" => "1 mappe",
-"{count} folders" => "{count} mapper",
-"1 file" => "1 fil",
-"{count} files" => "{count} filer",
+"Error" => "Feil",
 "Nothing in here. Your trash bin is empty!" => "Ingenting her. Søppelkassen din er tom!",
+"Name" => "Navn",
 "Restore" => "Gjenopprett",
-"Delete" => "Slett"
+"Deleted" => "Slettet",
+"Delete" => "Slett",
+"Deleted Files" => "Slettet filer"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

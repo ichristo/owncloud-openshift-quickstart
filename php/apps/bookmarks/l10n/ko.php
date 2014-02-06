@@ -1,4 +1,5 @@
 <?php $TRANSLATIONS = array(
+"No file provided for import" => "가져올 파일을 지정하지 않았음",
 "Unsupported file type for import" => "가져올 수 없는 파일 형식임",
 "Bookmarks" => "책갈피",
 "Tags" => "태그",
@@ -6,6 +7,7 @@
 "Edit bookmark" => "책갈피 편집",
 "Are you sure you want to remove this tag from every entry?" => "모든 항목에서 이 태그를 삭제하시겠습니까?",
 "Warning" => "경고",
+"Import error" => "가져오기 오류",
 "Import completed successfully." => "성공적으로 가져왔습니다.",
 "Uploading..." => "업로드 중...",
 "Bookm." => "책갈피",
@@ -19,7 +21,6 @@
 "Edit" => "편집",
 "Cancel" => "취소",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "웹 브라우저 책갈피 항목에 다음 링크를 끌어다 놓으면 나중에 볼 웹 페이지를 빠르게 구독할 때 사용할 수 있습니다:",
-"Read later" => "나중에 읽기",
 "Address" => "주소",
 "Add" => "추가",
 "Related Tags" => "관련된 태그",

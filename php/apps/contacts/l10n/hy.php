@@ -1,7 +1,8 @@
 <?php $TRANSLATIONS = array(
+"Save" => "Պահպանել",
+"Close" => "Փակել",
 "Download" => "Բեռնել",
 "Delete" => "Ջնջել",
 "Other" => "Այլ",
-"Close" => "Փակել",
-"Save" => "Պահպանել"
+"Description" => "Նկարագրություն"
 );

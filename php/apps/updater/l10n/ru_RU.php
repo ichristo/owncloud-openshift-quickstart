@@ -1,5 +1,4 @@
 <?php $TRANSLATIONS = array(
-"In progress..." => "В процессе...",
-"Error" => "Ошибка",
-"Update" => "Обновить"
+"Download" => "Загрузка",
+"Delete" => "Удалить"
 );

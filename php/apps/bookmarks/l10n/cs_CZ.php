@@ -1,5 +1,5 @@
 <?php $TRANSLATIONS = array(
-"No file provided for import" => "Nezadán žádný soubor k importu",
+"No file provided for import" => "Nebyl vybrán soubor k importu",
 "Unsupported file type for import" => "Nepodporovaný typ souboru pro import",
 "Bookmarks" => "Záložky",
 "Tags" => "Značky",
@@ -8,7 +8,7 @@
 "Are you sure you want to remove this tag from every entry?" => "Opravdu jste si jisti, že si přejete odstranit tuto značku z každého záznamu?",
 "Warning" => "Varování",
 "Import error" => "Chyba při importu",
-"Import completed successfully." => "Import dokončen úspěšně.",
+"Import completed successfully." => "Import úspěšně dokončen.",
 "Uploading..." => "Odesílám...",
 "Bookm." => "Zál.",
 "Add a bookmark" => "Přidat záložku",
@@ -21,7 +21,7 @@
 "Edit" => "Upravit",
 "Cancel" => "Zrušit",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Přetáhněte do Vašeho prohlížeče a klikněte, pokud si přejete rychle uložit stránku do záložek:",
-"Read later" => "Přečíst později",
+"Add to ownCloud" => "Přidat do ownCloudu",
 "Address" => "Adresa",
 "Add" => "Přidat",
 "Related Tags" => "Podobné značky",
@@ -29,7 +29,7 @@
 "You have no bookmarks" => "Nemáte žádné záložky",
 "You can also try to import a bookmark file" => "Můžete také zkusit importovat soubor záložek",
 "Bookmarklet" => "Rutina pro záložky",
-"Export & Import" => "Import a export",
+"Export & Import" => "Export a import",
 "Export" => "Exportovat",
 "Import" => "Importovat"
 );

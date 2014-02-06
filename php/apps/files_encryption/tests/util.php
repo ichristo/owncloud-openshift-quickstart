@@ -6,13 +6,13 @@
  * See the COPYING-README file.
  */
 
-require_once realpath(dirname(__FILE__) . '/../../../lib/base.php');
-require_once realpath(dirname(__FILE__) . '/../lib/crypt.php');
-require_once realpath(dirname(__FILE__) . '/../lib/keymanager.php');
-require_once realpath(dirname(__FILE__) . '/../lib/proxy.php');
-require_once realpath(dirname(__FILE__) . '/../lib/stream.php');
-require_once realpath(dirname(__FILE__) . '/../lib/util.php');
-require_once realpath(dirname(__FILE__) . '/../appinfo/app.php');
+require_once __DIR__ . '/../../../lib/base.php';
+require_once __DIR__ . '/../lib/crypt.php';
+require_once __DIR__ . '/../lib/keymanager.php';
+require_once __DIR__ . '/../lib/proxy.php';
+require_once __DIR__ . '/../lib/stream.php';
+require_once __DIR__ . '/../lib/util.php';
+require_once __DIR__ . '/../appinfo/app.php';
 
 use OCA\Encryption;
 
@@ -69,12 +69,12 @@ class Test_Encryption_Util extends \PHPUnit_Framework_TestCase {
 		$this->pass = \Test_Encryption_Util::TEST_ENCRYPTION_UTIL_USER1;
 
 		// set content for encrypting / decrypting in tests
-		$this->dataUrl = realpath(dirname(__FILE__) . '/../lib/crypt.php');
+		$this->dataUrl = __DIR__ . '/../lib/crypt.php';
 		$this->dataShort = 'hats';
-		$this->dataLong = file_get_contents(realpath(dirname(__FILE__) . '/../lib/crypt.php'));
-		$this->legacyData = realpath(dirname(__FILE__) . '/legacy-text.txt');
-		$this->legacyEncryptedData = realpath(dirname(__FILE__) . '/legacy-encrypted-text.txt');
-		$this->legacyEncryptedDataKey = realpath(dirname(__FILE__) . '/encryption.key');
+		$this->dataLong = file_get_contents(__DIR__ . '/../lib/crypt.php');
+		$this->legacyData = __DIR__ . '/legacy-text.txt';
+		$this->legacyEncryptedData = __DIR__ . '/legacy-encrypted-text.txt';
+		$this->legacyEncryptedDataKey = __DIR__ . '/encryption.key';
 		$this->legacyKey = "30943623843030686906\0\0\0\0";
 
 		$keypair = Encryption\Crypt::createKeypair();
@@ -118,6 +118,7 @@ class Test_Encryption_Util extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @medium
 	 * @brief test that paths set during User construction are correct
 	 */
 	function testKeyPaths() {
@@ -132,6 +133,7 @@ class Test_Encryption_Util extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @medium
 	 * @brief test setup of encryption directories
 	 */
 	function testSetupServerSide() {
@@ -139,6 +141,7 @@ class Test_Encryption_Util extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @medium
 	 * @brief test checking whether account is ready for encryption,
 	 */
 	function testUserIsReady() {
@@ -159,6 +162,7 @@ class Test_Encryption_Util extends \PHPUnit_Framework_TestCase {
 //	}
 
 	/**
+	 * @medium
 	 * @brief test checking whether account is not ready for encryption,
 	 */
 	function testIsLegacyUser() {
@@ -182,9 +186,12 @@ class Test_Encryption_Util extends \PHPUnit_Framework_TestCase {
 
 		$this->assertTrue(OCA\Encryption\Hooks::login($params));
 
-		$this->assertEquals($this->legacyKey, $_SESSION['legacyKey']);
+		$this->assertEquals($this->legacyKey, \OC::$session->get('legacyKey'));
 	}
 
+	/**
+	 * @medium
+	 */
 	function testRecoveryEnabledForUser() {
 
 		$util = new Encryption\Util($this->view, $this->userId);
@@ -205,11 +212,14 @@ class Test_Encryption_Util extends \PHPUnit_Framework_TestCase {
 
 	}
 
+	/**
+	 * @medium
+	 */
 	function testGetUidAndFilename() {
 
 		\OC_User::setUserId(\Test_Encryption_Util::TEST_ENCRYPTION_UTIL_USER1);
 
-		$filename = '/tmp-' . time() . '.test';
+		$filename = '/tmp-' . uniqid() . '.test';
 
 		// Disable encryption proxy to prevent recursive calls
 		$proxyStatus = \OC_FileProxy::$enabled;
@@ -231,6 +241,37 @@ class Test_Encryption_Util extends \PHPUnit_Framework_TestCase {
 		$this->view->unlink($this->userId . '/files/' . $filename);
 	}
 
+	/**
+<	 * @brief Test that data that is read by the crypto stream wrapper
+	 */
+	function testGetFileSize() {
+		\Test_Encryption_Util::loginHelper(\Test_Encryption_Util::TEST_ENCRYPTION_UTIL_USER1);
+
+		$filename = 'tmp-' . uniqid();
+		$externalFilename = '/' . $this->userId . '/files/' . $filename;
+
+		// Test for 0 byte files
+		$problematicFileSizeData = "";
+		$cryptedFile = $this->view->file_put_contents($externalFilename, $problematicFileSizeData);
+		$this->assertTrue(is_int($cryptedFile));
+		$this->assertEquals($this->util->getFileSize($externalFilename), 0);
+		$decrypt = $this->view->file_get_contents($externalFilename);
+		$this->assertEquals($problematicFileSizeData, $decrypt);
+		$this->view->unlink($this->userId . '/files/' . $filename);
+
+		// Test a file with 18377 bytes as in https://github.com/owncloud/mirall/issues/1009
+		$problematicFileSizeData = str_pad("", 18377, "abc");
+		$cryptedFile = $this->view->file_put_contents($externalFilename, $problematicFileSizeData);
+		$this->assertTrue(is_int($cryptedFile));
+		$this->assertEquals($this->util->getFileSize($externalFilename), 18377);
+		$decrypt = $this->view->file_get_contents($externalFilename);
+		$this->assertEquals($problematicFileSizeData, $decrypt);
+		$this->view->unlink($this->userId . '/files/' . $filename);
+	}
+
+	/**
+	 * @medium
+	 */
 	function testIsSharedPath() {
 		$sharedPath = '/user1/files/Shared/test';
 		$path = '/user1/files/test';
@@ -240,6 +281,67 @@ class Test_Encryption_Util extends \PHPUnit_Framework_TestCase {
 		$this->assertFalse($this->util->isSharedPath($path));
 	}
 
+	function testEncryptAll() {
+
+		$filename = "/encryptAll" . uniqid() . ".txt";
+		$util = new Encryption\Util($this->view, $this->userId);
+
+		// disable encryption to upload a unencrypted file
+		\OC_App::disable('files_encryption');
+
+		$this->view->file_put_contents($this->userId . '/files/' . $filename, $this->dataShort);
+
+		$fileInfoUnencrypted = $this->view->getFileInfo($this->userId . '/files/' . $filename);
+
+		$this->assertTrue(is_array($fileInfoUnencrypted));
+
+		// enable file encryption again
+		\OC_App::enable('files_encryption');
+
+		// encrypt all unencrypted files
+		$util->encryptAll('/' . $this->userId . '/' . 'files');
+
+		$fileInfoEncrypted = $this->view->getFileInfo($this->userId . '/files/' . $filename);
+
+		$this->assertTrue(is_array($fileInfoEncrypted));
+
+		// check if mtime and etags unchanged
+		$this->assertEquals($fileInfoEncrypted['mtime'], $fileInfoUnencrypted['mtime']);
+		$this->assertEquals($fileInfoEncrypted['etag'], $fileInfoUnencrypted['etag']);
+
+		$this->view->unlink($this->userId . '/files/' . $filename);
+	}
+
+
+	function testDecryptAll() {
+
+		$filename = "/decryptAll" . uniqid() . ".txt";
+		$util = new Encryption\Util($this->view, $this->userId);
+
+		$this->view->file_put_contents($this->userId . '/files/' . $filename, $this->dataShort);
+
+		$fileInfoEncrypted = $this->view->getFileInfo($this->userId . '/files/' . $filename);
+
+		$this->assertTrue(is_array($fileInfoEncrypted));
+
+		// encrypt all unencrypted files
+		$util->decryptAll('/' . $this->userId . '/' . 'files');
+
+		$fileInfoUnencrypted = $this->view->getFileInfo($this->userId . '/files/' . $filename);
+
+		$this->assertTrue(is_array($fileInfoUnencrypted));
+
+		// check if mtime and etags unchanged
+		$this->assertEquals($fileInfoEncrypted['mtime'], $fileInfoUnencrypted['mtime']);
+		$this->assertEquals($fileInfoEncrypted['etag'], $fileInfoUnencrypted['etag']);
+
+		$this->view->unlink($this->userId . '/files/' . $filename);
+
+	}
+
+	/**
+	 * @large
+	 */
 	function testEncryptLegacyFiles() {
 		\Test_Encryption_Util::loginHelper(\Test_Encryption_Util::TEST_ENCRYPTION_UTIL_LEGACY_USER);
 
@@ -272,7 +374,7 @@ class Test_Encryption_Util extends \PHPUnit_Framework_TestCase {
 
 		$this->assertTrue(OCA\Encryption\Hooks::login($params));
 
-		$this->assertEquals($this->legacyKey, $_SESSION['legacyKey']);
+		$this->assertEquals($this->legacyKey, \OC::$session->get('legacyKey'));
 
 		$files = $util->findEncFiles('/' . \Test_Encryption_Util::TEST_ENCRYPTION_UTIL_LEGACY_USER . '/files/');
 
@@ -314,10 +416,16 @@ class Test_Encryption_Util extends \PHPUnit_Framework_TestCase {
 		OCA\Encryption\Hooks::login($params);
 	}
 
+	public static function logoutHelper() {
+		\OC_Util::tearDownFS();
+		\OC_User::setUserId('');
+		\OC\Files\Filesystem::tearDown();
+	}
+
 	/**
 	 * helper function to set migration status to the right value
 	 * to be able to test the migration path
-	 * 
+	 *
 	 * @param $status needed migration status for test
 	 * @param $user for which user the status should be set
 	 * @return boolean

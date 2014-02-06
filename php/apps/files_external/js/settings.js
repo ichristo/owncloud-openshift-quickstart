@@ -1,10 +1,23 @@
+(function(){
+
+function updateStatus(statusEl, result){
+	statusEl.removeClass('success error loading-small');
+	if (result && result.status == 'success' && result.data.message) {
+		statusEl.addClass('success');
+		return true;
+	} else {
+		statusEl.addClass('error');
+		return false;
+	}
+}
+
 OC.MountConfig={
-	saveStorage:function(tr) {
+	saveStorage:function(tr, callback) {
 		var mountPoint = $(tr).find('.mountPoint input').val();
 		if (mountPoint == '') {
 			return false;
 		}
-		var statusSpan = $(tr).find('.status span');
+		var statusSpan = $(tr).closest('tr').find('.status span');
 		var backendClass = $(tr).find('.backend').data('class');
 		var configuration = $(tr).find('.configuration input');
 		var addMountPoint = true;
@@ -58,6 +71,7 @@ OC.MountConfig={
 						}
 						users.push(applicable);
 					}
+					statusSpan.addClass('loading-small').removeClass('error success');
 					$.ajax({type: 'POST',
 						url: OC.filePath('files_external', 'ajax', 'addMountPoint.php'),
 						data: {
@@ -68,14 +82,16 @@ OC.MountConfig={
 							applicable: applicable,
 							isPersonal: isPersonal
 						},
-						async: false,
 						success: function(result) {
-							statusSpan.removeClass();
-							if (result && result.status == 'success' && result.data.message) {
-								status = true;
-								statusSpan.addClass('success');
-							} else {
-								statusSpan.addClass('error');
+							status = updateStatus(statusSpan, result);
+							if (callback) {
+								callback(status);
+							}
+						},
+						error: function(result){
+							status = updateStatus(statusSpan, result);
+							if (callback) {
+								callback(status);
 							}
 						}
 					});
@@ -93,8 +109,7 @@ OC.MountConfig={
 							mountType: mountType,
 							applicable: applicable,
 							isPersonal: isPersonal
-						},
-						async: false
+						}
 					});
 				});
 				var mountType = 'user';
@@ -108,14 +123,14 @@ OC.MountConfig={
 							mountType: mountType,
 							applicable: applicable,
 							isPersonal: isPersonal
-						},
-						async: false
+						}
 					});
 				});
 			} else {
 				var isPersonal = true;
 				var mountType = 'user';
 				var applicable = OC.currentUser;
+				statusSpan.addClass('loading-small').removeClass('error success');
 				$.ajax({type: 'POST',
 					url: OC.filePath('files_external', 'ajax', 'addMountPoint.php'),
 					data: {
@@ -126,14 +141,16 @@ OC.MountConfig={
 						applicable: applicable,
 						isPersonal: isPersonal
 					},
-					async: false,
 					success: function(result) {
-						statusSpan.removeClass();
-						if (result && result.status == 'success' && result.data.message) {
-							status = true;
-							statusSpan.addClass('success');
-						} else {
-							statusSpan.addClass('error');
+						status = updateStatus(statusSpan, result);
+						if (callback) {
+							callback(status);
+						}
+					},
+					error: function(result){
+						status = updateStatus(statusSpan, result);
+						if (callback) {
+							callback(status);
 						}
 					}
 				});
@@ -157,7 +174,7 @@ $(document).ready(function() {
 			$(tr).find('.mountPoint input').val(suggestMountPoint(selected));
 		}
 		$(tr).addClass(backendClass);
-		$(tr).find('.status').append('<span class="waiting"></span>');
+		$(tr).find('.status').append('<span></span>');
 		$(tr).find('.backend').data('class', backendClass);
 		var configurations = $(this).data('configurations');
 		var td = $(tr).find('td.configuration');
@@ -247,10 +264,10 @@ $(document).ready(function() {
 		OC.MountConfig.saveStorage($(this).parent().parent());
 	});
 
-	$('#sslCertificate').on('click', 'td.remove>img', function() {
+    $('#sslCertificate').on('click', 'td.remove>img', function() {
 		var $tr = $(this).parent().parent();
-		var row=this.parentNode.parentNode;
-		$.post(OC.filePath('files_external', 'ajax', 'removeRootCertificate.php'), { cert: row.id  });
+		var row = this.parentNode.parentNode;
+		$.post(OC.filePath('files_external', 'ajax', 'removeRootCertificate.php'), {cert: row.id});
 		$tr.remove();
 		return true;
 	});
@@ -258,6 +275,7 @@ $(document).ready(function() {
 	$('#externalStorage').on('click', 'td.remove>img', function() {
 		var tr = $(this).parent().parent();
 		var mountPoint = $(tr).find('.mountPoint input').val();
+
 		if ($('#externalStorage').data('admin') === true) {
 			var isPersonal = false;
 			var multiselect = $(tr).find('.chzn-select').val();
@@ -292,3 +310,5 @@ $(document).ready(function() {
 	});
 
 });
+
+})();

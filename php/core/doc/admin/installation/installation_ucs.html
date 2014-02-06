@@ -2,19 +2,22 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Univention Corporate Server &mdash; ownCloud Administrators Manual v5.0 documentation</title>
+    <title>Univention Corporate Server &mdash; ownCloud Administrators Manual 6.0 documentation</title>
+    
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '5.0',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +27,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/bootstrap.js"></script>
-    <link rel="top" title="ownCloud Administrators Manual v5.0 documentation" href="../index.html" />
+    <link rel="top" title="ownCloud Administrators Manual 6.0 documentation" href="../index.html" />
     <link rel="up" title="Installation" href="index.html" />
     <link rel="next" title="Manual Installation" href="installation_source.html" />
     <link rel="prev" title="Windows 7 and Windows Server 2008" href="installation_windows.html" />
@@ -126,7 +129,8 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="installation_source.html">Manual Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation_others.html">Other Web Servers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation_others.html">PageKite Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation_others.html#open-wrt">Open Wrt</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
@@ -165,139 +169,139 @@ assign your required value.</p>
 <col width="20%" />
 </colgroup>
 <thead valign="bottom">
-<tr><th class="head">Key</th>
+<tr class="row-odd"><th class="head">Key</th>
 <th class="head">Default</th>
 <th class="head">Description</th>
 <th class="head">Introduced</th>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td>owncloud/directory/data</td>
+<tr class="row-even"><td>owncloud/directory/data</td>
 <td>/var/lib/owncloud</td>
 <td>Specifies where the file storage will be placed</td>
 <td>2012.0.1</td>
 </tr>
-<tr><td>owncloud/db/name</td>
+<tr class="row-odd"><td>owncloud/db/name</td>
 <td>owncloud</td>
 <td>Name of the MySQL database. ownCloud will create an own user for it.</td>
 <td>2012.0.1</td>
 </tr>
-<tr><td>owncloud/user/quota</td>
+<tr class="row-even"><td>owncloud/user/quota</td>
 <td>(empty)</td>
 <td>The default quota, when a user is being added. Assign values in human readable strings, e.g. “2 GB”. Unlimited if empty.</td>
 <td>2012.0.1</td>
 </tr>
-<tr><td>owncloud/user/enabled</td>
+<tr class="row-odd"><td>owncloud/user/enabled</td>
 <td>0</td>
 <td>Wether a new user is allowed to use ownCloud by default.</td>
 <td>2012.0.1</td>
 </tr>
-<tr><td>owncloud/group/enabled</td>
+<tr class="row-even"><td>owncloud/group/enabled</td>
 <td>0</td>
 <td>Wether a new group is allowed to be used in ownCloud by default.</td>
 <td>2012.4.0.4</td>
 </tr>
-<tr><td>owncloud/ldap/base/users</td>
+<tr class="row-odd"><td>owncloud/ldap/base/users</td>
 <td>cn=users,$ldap_base</td>
 <td>The users-subtree in the LDAP directory. If left blank it will fall back to the LDAP base.</td>
 <td>2012.4.0.4</td>
 </tr>
-<tr><td>owncloud/ldap/base/groups</td>
+<tr class="row-even"><td>owncloud/ldap/base/groups</td>
 <td>cn=groups,$ldap_base</td>
 <td>The groups-subtree in the LDAP directory. If left blank it will fall back to the LDAP base.</td>
 <td>2012.4.0.4</td>
 </tr>
-<tr><td>owncloud/ldap/groupMemberAssoc</td>
+<tr class="row-odd"><td>owncloud/ldap/groupMemberAssoc</td>
 <td>uniqueMember</td>
 <td>The LDAP attribute showing the group-member relationship. Possible values: uniqueMember, memberUid and member</td>
 <td>2012.4.0.4</td>
 </tr>
-<tr><td>owncloud/ldap/tls</td>
+<tr class="row-even"><td>owncloud/ldap/tls</td>
 <td>1</td>
 <td>Whether to talk to the LDAP server via TLS.</td>
 <td>2012.0.1</td>
 </tr>
-<tr><td>owncloud/ldap/disableMainServer</td>
+<tr class="row-odd"><td>owncloud/ldap/disableMainServer</td>
 <td>0</td>
 <td>Deactivates the (first) LDAP Configuration</td>
 <td>5.0.9</td>
 </tr>
-<tr><td>owncloud/ldap/cacheTTL</td>
+<tr class="row-even"><td>owncloud/ldap/cacheTTL</td>
 <td>600</td>
 <td>Lifetime of the ownCloud LDAP Cache in seconds</td>
 <td>5.0.9</td>
 </tr>
-<tr><td>owncloud/ldap/UUIDAttribute</td>
+<tr class="row-odd"><td>owncloud/ldap/UUIDAttribute</td>
 <td>(empty)</td>
 <td>Attribute that provides a unique value for each user and group entry. Empty value for autodetection.</td>
 <td>5.0.9</td>
 </tr>
-<tr><td>owncloud/ldap/loginFilter</td>
+<tr class="row-even"><td>owncloud/ldap/loginFilter</td>
 <td>(&amp;(|(&amp;(objectClass=posixAccount) (objectClass=shadowAccount)) (objectClass=univentionMail) (objectClass=sambaSamAccount) (objectClass=simpleSecurityObject) (&amp;(objectClass=person) (objectClass=organizationalPerson) (objectClass=inetOrgPerson))) (!(uidNumber=0)) (!(uid=*$)) (&amp;(uid=%uid) (ownCloudEnabled=1)))</td>
 <td>The LDAP filter that shall be used when a user tries to log in.</td>
 <td>2012.0.1</td>
 </tr>
-<tr><td>owncloud/ldap/userlistFilter</td>
+<tr class="row-odd"><td>owncloud/ldap/userlistFilter</td>
 <td>(&amp;(|(&amp;(objectClass=posixAccount) (objectClass=shadowAccount)) (objectClass=univentionMail) (objectClass=sambaSamAccount) (objectClass=simpleSecurityObject) (&amp;(objectClass=person) (objectClass=organizationalPerson) (objectClass=inetOrgPerson))) (!(uidNumber=0))(!(uid=*$)) (&amp;(ownCloudEnabled=1)))</td>
 <td>The LDAP filter that shall be used when the user list is being retrieved (e.g. for sharing)</td>
 <td>2012.0.1</td>
 </tr>
-<tr><td>owncloud/ldap/groupFilter</td>
+<tr class="row-even"><td>owncloud/ldap/groupFilter</td>
 <td>(&amp;(objectClass=posixGroup) (ownCloudEnabled=1))</td>
 <td>The LDAP filter that shall be used when the group list is being retrieved (e.g. for sharing)</td>
 <td>2012.4.0.4</td>
 </tr>
-<tr><td>owncloud/ldap/internalNameAttribute</td>
+<tr class="row-odd"><td>owncloud/ldap/internalNameAttribute</td>
 <td>uid</td>
 <td>Attribute that should be used to create the user&#8217;s owncloud internal name</td>
 <td>5.0.9</td>
 </tr>
-<tr><td>owncloud/ldap/displayName</td>
+<tr class="row-even"><td>owncloud/ldap/displayName</td>
 <td>uid</td>
 <td>The LDAP attribute that should be displayed as name in ownCloud</td>
 <td>2012.0.1</td>
 </tr>
-<tr><td>owncloud/ldap/user/searchAttributes</td>
+<tr class="row-odd"><td>owncloud/ldap/user/searchAttributes</td>
 <td>uid,givenName,sn,description,employeeNumber,mailPrimaryAddress</td>
 <td>Attributes taken into consideration when searching for users (comma separated)</td>
 <td>5.0.9</td>
 </tr>
-<tr><td>owncloud/ldap/user/quotaAttribute</td>
+<tr class="row-even"><td>owncloud/ldap/user/quotaAttribute</td>
 <td>ownCloudQuota</td>
 <td>Name of the quota attribute. The default attribute is provided by owncloud-schema.</td>
 <td>5.0.9</td>
 </tr>
-<tr><td>owncloud/ldap/user/homeAttribute</td>
+<tr class="row-odd"><td>owncloud/ldap/user/homeAttribute</td>
 <td>(empty)</td>
 <td>Attribute that should be used to create the user&#8217;s owncloud internal home folder</td>
 <td>5.0.9</td>
 </tr>
-<tr><td>owncloud/ldap/group/displayName</td>
+<tr class="row-even"><td>owncloud/ldap/group/displayName</td>
 <td>cn</td>
 <td>The LDAP attribute that should be used as groupname in ownCloud</td>
 <td>2012.4.0.4</td>
 </tr>
-<tr><td>owncloud/ldap/group/searchAttributes</td>
+<tr class="row-odd"><td>owncloud/ldap/group/searchAttributes</td>
 <td>cn,description, mailPrimaryAddress</td>
 <td>Attributes taken into consideration when searching for groups (comma separated)</td>
 <td>5.0.9</td>
 </tr>
-<tr><td>owncloud/join/users/update</td>
+<tr class="row-even"><td>owncloud/join/users/update</td>
 <td>yes</td>
 <td>Wether ownCloud LDAP schema should be applied to existing users</td>
 <td>2012.0.1</td>
 </tr>
-<tr><td>owncloud/group/enableDomainUsers</td>
+<tr class="row-odd"><td>owncloud/group/enableDomainUsers</td>
 <td>1</td>
 <td>Wether the group “Domain Users” shall be enabled for ownCloud on install</td>
 <td>2012.4.0.4</td>
 </tr>
-<tr><td>owncloud/join/users/filter</td>
+<tr class="row-even"><td>owncloud/join/users/filter</td>
 <td>(&amp;(|(&amp;(objectClass=posixAccount) (objectClass=shadowAccount)) (objectClass=univentionMail) (objectClass=sambaSamAccount) (objectClass=simpleSecurityObject) (&amp;(objectClass=person) (objectClass=organizationalPerson) (objectClass=inetOrgPerson))) (!(uidNumber=0)) (!(|(uid=*$) (uid=owncloudsystemuser) (uid=join-backup) (uid=join-slave))) (!(objectClass=ownCloudUser)))</td>
 <td>Filters, on which LDAP users the ownCloud schema should be applied to. The default excludes system users and already ownCloudUsers.</td>
 <td>2012.0.1</td>
 </tr>
-<tr><td>owncloud/join/groups/filter</td>
+<tr class="row-odd"><td>owncloud/join/groups/filter</td>
 <td>(empty)</td>
 <td>Filters which LDAP groups will be en/disabled for ownCloud when running the script /usr/share/owncloud/update-groups.sh</td>
 <td>2012.4.0.4</td>
@@ -323,7 +327,7 @@ will see a variety of available applications, including ownCloud.</p>
 <p>Click on ownCloud 5 and follow the instructions.</p>
 <img alt="../_images/ucs-app-center-install.png" src="../_images/ucs-app-center-install.png" />
 <p>In the UCS App Center, you can also upgrade from ownCloud 4.5 by installing
-ownCloud 5.0. They are provided as seperate apps. It is only possible to have
+ownCloud 5.0. They are provided as separate apps. It is only possible to have
 one version of ownCloud installed.</p>
 </div>
 <div class="section" id="manually-by-download">
@@ -354,7 +358,7 @@ MySQL database &#8220;ownCloud&#8221; using the command line:</p>
 <div class="section" id="postconfiguration-optional">
 <h2>Postconfiguration (optional)<a class="headerlink" href="#postconfiguration-optional" title="Permalink to this headline">¶</a></h2>
 <p>There is only one local admin user “owncloudadmin”, you can find his password in
-<tt class="file docutils literal"><span class="pre">/etc/owncloudadmin.secret</span></tt>. Use this account, if you want to change basic
+<cite>/etc/owncloudadmin.secret</cite>. Use this account, if you want to change basic
 ownCloud settings.</p>
 <p>In the installation process a virtual host is set up (Apache is required
 therefore). If you want to modify the settings, edit

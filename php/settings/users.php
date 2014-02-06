@@ -52,14 +52,14 @@ foreach($accessibleusers as $uid => $displayName) {
 		&& array_search($quota, array('none', 'default'))===false;
 
 	$name = $displayName;
-	if ( $displayName != $uid ) {
+	if ( $displayName !== $uid ) {
 		$name = $name . ' ('.$uid.')';
 	}
 
 	$users[] = array(
 		"name" => $uid,
 		"displayName" => $displayName,
-		"groups" => array_values(OC_Group::getUserGroups($uid)),
+		"groups" => OC_Group::getUserGroups($uid),
 		'quota' => $quota,
 		'isQuotaUserDefined' => $isQuotaUserDefined,
 		'subadmin' => OC_SubAdmin::getSubAdminsGroups($uid),
@@ -81,4 +81,5 @@ $tmpl->assign( 'quota_preset', $quotaPreset);
 $tmpl->assign( 'default_quota', $defaultQuota);
 $tmpl->assign( 'defaultQuotaIsUserDefined', $defaultQuotaIsUserDefined);
 $tmpl->assign( 'recoveryAdminEnabled', $recoveryAdminEnabled);
+$tmpl->assign('enableAvatars', \OC_Config::getValue('enable_avatars', true));
 $tmpl->printPage();

@@ -25,9 +25,7 @@ $_['subadmingroups'] = array_flip($items);
 			id="newusergroups" data-placeholder="groups"
 			title="<?php p($l->t('Groups'))?>" multiple="multiple">
 			<?php foreach($_["groups"] as $group): ?>
-			<option value="<?php p($group['name']);?>">
-				<?php p($group['name']);?>
-			</option>
+			<option value="<?php p($group['name']);?>"><?php p($group['name']);?></option>
 			<?php endforeach;?>
 		</select> <input type="submit" value="<?php p($l->t('Create'))?>" />
 	</form>
@@ -43,14 +41,14 @@ $_['subadmingroups'] = array_flip($items);
 	<div class="quota">
 		<span><?php p($l->t('Default Storage'));?></span>
 			<?php if((bool) $_['isadmin']): ?>
-			<select class='quota'>
+			<select class='quota' data-inputtitle="<?php p($l->t('Please enter storage quota (ex: "512 MB" or "12 GB")')) ?>">
 				<option
-					<?php if($_['default_quota']=='none') print_unescaped('selected="selected"');?>
+					<?php if($_['default_quota'] === 'none') print_unescaped('selected="selected"');?>
 						value='none'>
 					<?php p($l->t('Unlimited'));?>
 				</option>
 				<?php foreach($_['quota_preset'] as $preset):?>
-				<?php if($preset!='default'):?>
+				<?php if($preset !== 'default'):?>
 				<option
 				<?php if($_['default_quota']==$preset) print_unescaped('selected="selected"');?>
 					value='<?php p($preset);?>'>
@@ -80,11 +78,14 @@ $_['subadmingroups'] = array_flip($items);
 	</div>
 </div>
 
-<table class="hascontrols" data-groups="<?php p(json_encode($allGroups));?>">
+<table class="hascontrols grid" data-groups="<?php p(json_encode($allGroups));?>">
 	<thead>
 		<tr>
-			<th id='headerName'><?php p($l->t('Login Name'))?></th>
-			<th id="headerDisplayName"><?php p($l->t( 'Display Name' )); ?></th>
+			<?php if ($_['enableAvatars']): ?>
+			<th id='headerAvatar'></th>
+			<?php endif; ?>
+			<th id='headerName'><?php p($l->t('Username'))?></th>
+			<th id="headerDisplayName"><?php p($l->t( 'Full Name' )); ?></th>
 			<th id="headerPassword"><?php p($l->t( 'Password' )); ?></th>
 			<th id="headerGroups"><?php p($l->t( 'Groups' )); ?></th>
 			<?php if(is_array($_['subadmins']) || $_['subadmins']): ?>
@@ -98,10 +99,13 @@ $_['subadmingroups'] = array_flip($items);
 		<?php foreach($_["users"] as $user): ?>
 		<tr data-uid="<?php p($user["name"]) ?>"
 			data-displayName="<?php p($user["displayName"]) ?>">
+			<?php if ($_['enableAvatars']): ?>
+			<td class="avatar"><div class="avatardiv"></div></td>
+			<?php endif; ?>
 			<td class="name"><?php p($user["name"]); ?></td>
 			<td class="displayName"><span><?php p($user["displayName"]); ?></span> <img class="svg action"
 				src="<?php p(image_path('core', 'actions/rename.svg'))?>"
-				alt="<?php p($l->t("change display name"))?>" title="<?php p($l->t("change display name"))?>"/>
+				alt="<?php p($l->t("change full name"))?>" title="<?php p($l->t("change full name"))?>"/>
 			</td>
 			<td class="password"><span>●●●●●●●</span> <img class="svg action"
 				src="<?php print_unescaped(image_path('core', 'actions/rename.svg'))?>"
@@ -114,9 +118,7 @@ $_['subadmingroups'] = array_flip($items);
 				data-placeholder="groups" title="<?php p($l->t('Groups'))?>"
 				multiple="multiple">
 					<?php foreach($_["groups"] as $group): ?>
-					<option value="<?php p($group['name']);?>">
-						<?php p($group['name']);?>
-					</option>
+					<option value="<?php p($group['name']);?>"><?php p($group['name']);?></option>
 					<?php endforeach;?>
 			</select>
 			</td>
@@ -128,22 +130,20 @@ $_['subadmingroups'] = array_flip($items);
 				data-placeholder="subadmins" title="<?php p($l->t('Group Admin'))?>"
 				multiple="multiple">
 					<?php foreach($_["subadmingroups"] as $group): ?>
-					<option value="<?php p($group);?>">
-						<?php p($group);?>
-					</option>
+					<option value="<?php p($group);?>"><?php p($group);?></option>
 					<?php endforeach;?>
 			</select>
 			</td>
 			<?php endif;?>
 			<td class="quota">
-				<select class='quota-user'>
+				<select class='quota-user' data-inputtitle="<?php p($l->t('Please enter storage quota (ex: "512 MB" or "12 GB")')) ?>">
 					<option
-						<?php if($user['quota']=='default') print_unescaped('selected="selected"');?>
+						<?php if($user['quota'] === 'default') print_unescaped('selected="selected"');?>
 							value='default'>
 						<?php p($l->t('Default'));?>
 					</option>
 					<option
-					<?php if($user['quota']=='none') print_unescaped('selected="selected"');?>
+					<?php if($user['quota'] === 'none') print_unescaped('selected="selected"');?>
 							value='none'>
 						<?php p($l->t('Unlimited'));?>
 					</option>

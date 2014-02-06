@@ -6,15 +6,15 @@ define("DBPASS",$_SERVER['OPENSHIFT_MYSQL_DB_PASSWORD'] );
 define("DBHOST",$_SERVER['OPENSHIFT_MYSQL_DB_HOST'] . ':' . $_SERVER['OPENSHIFT_MYSQL_DB_PORT'] );
 
 $AUTOCONFIG = array(
-   'installed' => false,
-   'dbtype' => 'mysql',
-   'dbtableprefix' => 'oc_',
-   'adminlogin' => 'admin',
-   'adminpass' => 'OpenShiftAdmin',
-   'directory' => DIRECTORY,
-   'dbname' => DBNAME,
-   'dbuser' => DBUSER,
-   'dbpass' => DBPASS,
-   'dbhost' => DBHOST, 
-);
+     'installed' => false,
+     'dbtype' => 'mysql',
+     'dbtableprefix' => 'oc_',
+     'adminlogin' => 'admin',
+     'adminpass' => 'OpenShiftAdmin',
+     'directory' => DIRECTORY,
+     'dbname' => DBNAME,
+     'dbuser' => DBUSER,
+     'dbpass' => DBPASS,
+     'dbhost' => DBHOST, 
+  );
 ?>

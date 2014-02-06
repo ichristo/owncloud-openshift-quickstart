@@ -2,19 +2,22 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Serving static files via web server &mdash; ownCloud Administrators Manual v5.0 documentation</title>
+    <title>Serving static files via web server &mdash; ownCloud Administrators Manual 6.0 documentation</title>
+    
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '5.0',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +27,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/bootstrap.js"></script>
-    <link rel="top" title="ownCloud Administrators Manual v5.0 documentation" href="../index.html" />
+    <link rel="top" title="ownCloud Administrators Manual 6.0 documentation" href="../index.html" />
     <link rel="up" title="Configuration" href="index.html" />
     <link rel="next" title="Maintenance" href="../maintenance/index.html" />
     <link rel="prev" title="Custom User Backend Configuration" href="custom_user_backend.html" />
@@ -115,10 +118,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Configuration</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="configuration_apps.html">Apps Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_users.html">User Management</a></li>
 <li class="toctree-l2"><a class="reference internal" href="auth_ldap.html">User Authentication with LDAP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="background_jobs.html">Background Jobs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_3rdparty.html">3rd-Party Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="configuration_apps.html">Apps Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_automation.html">Automatic Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_custom_clients.html">Custom Client Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_database.html">Database Configuration</a></li>
@@ -128,6 +132,7 @@
 <li class="toctree-l2"><a class="reference internal" href="configuration_logging.html">Logging Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_mail.html">Mail Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_maintenance.html">Maintenance Mode Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_preview.html">Preview Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_reverseproxy.html">Reverse Proxy Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html">Uploading big files &gt; 512MB (as set by default)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html#enabling-uploading-big-files">Enabling uploading big files</a></li>
@@ -160,12 +165,13 @@
   <div class="section" id="serving-static-files-via-web-server">
 <h1>Serving static files via web server<a class="headerlink" href="#serving-static-files-via-web-server" title="Permalink to this headline">¶</a></h1>
 <p>Since ownCloud 5 it is possible to let web servers handle static file serving.
-This should generally improve performance (web servers are optimized for this) and in some cases permits controlled file serving (i.e. pause
-and resume downloads).</p>
+This should generally improve performance (web servers are optimized for this) and in some cases permits controlled
+file serving (i.e. pause and resume downloads).</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">This feature can currently only be activated for local files, i.e. files inside the <strong>data/</strong> directory and local mounts. Controlled file serving <strong>does not work for generated zip files</strong>. This is due to how temporary files are created.</p>
+<p class="last">This feature can currently only be activated for local files, i.e. files inside the <strong>data/</strong> directory</p>
 </div>
+<p>and local mounts. Controlled file serving <strong>does not work for generated zip files</strong>. This is due to how temporary files are created.</p>
 <div class="section" id="apache2-x-sendfile">
 <h2>Apache2 (X-Sendfile)<a class="headerlink" href="#apache2-x-sendfile" title="Permalink to this headline">¶</a></h2>
 <p>It is possible to let Apache handle static file serving via <a class="reference external" href="https://tn123.org/mod_xsendfile/">mod_xsendfile</a>.</p>
@@ -200,13 +206,14 @@ For versions below 0.10 (Debian squeeze ships with 0.9)</p>
 <li><strong>SetEnv MOD_X_SENDFILE_ENABLED</strong>: tells ownCloud scripts that they should add the X-Sendfile header when serving files</li>
 <li><strong>XSendFile</strong>: enables web server handling of X-Sendfile headers (and therefore file serving) for the specified Directory</li>
 <li><strong>XSendFileAllowAbove (&lt;0.10)</strong>: enables file serving through web server on path outside the specified Directory. This is needed for PHP temporary directory where zip files are created and for configured local mounts which may reside outside data directory</li>
-<li><strong>XSendFilePath (&gt;=0.10)</strong>: a white list of paths that the web server is allowed to serve outside of the specified Directory. At least PHP temporary directory concatenated with <em>oc-noclean</em> must be configured. Temporary zip files will be created inside this directory when using mod_xsendfile. Other paths which correspond to local mounts should be configured here aswell. For a more in-dept documentation of this directive refer to mod_xsendfile website linked above</li>
+<li><strong>XSendFilePath (&gt;=0.10)</strong>: a white list of paths that the web server is allowed to serve outside of the specified Directory. At least PHP temporary directory concatenated with <em>oc-noclean</em> must be configured. Temporary zip files will be created inside this directory when using mod_xsendfile. Other paths which correspond to local mounts should be configured here as well. For a more in-dept documentation of this directive refer to mod_xsendfile website linked above</li>
 </ul>
 </div>
 </div>
 <div class="section" id="lighttpd-x-sendfile2">
 <h2>LigHTTPd (X-Sendfile2)<a class="headerlink" href="#lighttpd-x-sendfile2" title="Permalink to this headline">¶</a></h2>
-<p>LigHTTPd uses similar headers to Apache2, apart from the fact that it does not handle partial downloads in the same way Apache2 does. For this reason, a different method is used for LigHTTPd.</p>
+<p>LigHTTPd uses similar headers to Apache2, apart from the fact that it does not handle partial downloads in the same way
+Apache2 does. For this reason, a different method is used for LigHTTPd.</p>
 <div class="section" id="id1">
 <h3>Installation<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <p>X-Sendfile and X-Sendfile2 are supported by default in LigHTTPd and no additional operation should be needed to install it.</p>
@@ -230,7 +237,9 @@ For versions below 0.10 (Debian squeeze ships with 0.9)</p>
 </div>
 <div class="section" id="nginx-x-accel-redirect">
 <h2>Nginx (X-Accel-Redirect)<a class="headerlink" href="#nginx-x-accel-redirect" title="Permalink to this headline">¶</a></h2>
-<p>Nginx supports handling of static files differently from Apache. Documentation can be found in the Nginx Wiki section <a class="reference external" href="http://wiki.nginx.org/XSendfile">Mod X-Sendfile</a> and section <a class="reference external" href="http://wiki.nginx.org/X-accel">X-Accell</a>. The header used by Nginx is X-Accel-Redirect.</p>
+<p>Nginx supports handling of static files differently from Apache. Documentation can be found in the Nginx Wiki
+section <a class="reference external" href="http://wiki.nginx.org/XSendfile">Mod X-Sendfile</a> and section <a class="reference external" href="http://wiki.nginx.org/X-accel">X-Accell</a>.
+The header used by Nginx is X-Accel-Redirect.</p>
 <div class="section" id="id3">
 <h3>Installation<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>X-Accel-Redirect is supported by default in Nginx and no additional operation should be needed to install it.</p>

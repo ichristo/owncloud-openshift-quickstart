@@ -2,19 +2,22 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Background Jobs &mdash; ownCloud Administrators Manual v5.0 documentation</title>
+    <title>Background Jobs &mdash; ownCloud Administrators Manual 6.0 documentation</title>
+    
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '5.0',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +27,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/bootstrap.js"></script>
-    <link rel="top" title="ownCloud Administrators Manual v5.0 documentation" href="../index.html" />
+    <link rel="top" title="ownCloud Administrators Manual 6.0 documentation" href="../index.html" />
     <link rel="up" title="Configuration" href="index.html" />
     <link rel="next" title="3rd-Party Configuration" href="configuration_3rdparty.html" />
     <link rel="prev" title="User Authentication with LDAP" href="auth_ldap.html" />
@@ -115,6 +118,8 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Configuration</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="configuration_apps.html">Apps Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_users.html">User Management</a></li>
 <li class="toctree-l2"><a class="reference internal" href="auth_ldap.html">User Authentication with LDAP</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Background Jobs</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
@@ -122,7 +127,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_3rdparty.html">3rd-Party Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="configuration_apps.html">Apps Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_automation.html">Automatic Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_custom_clients.html">Custom Client Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_database.html">Database Configuration</a></li>
@@ -132,6 +136,7 @@
 <li class="toctree-l2"><a class="reference internal" href="configuration_logging.html">Logging Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_mail.html">Mail Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_maintenance.html">Maintenance Mode Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_preview.html">Preview Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_reverseproxy.html">Reverse Proxy Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html">Uploading big files &gt; 512MB (as set by default)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html#enabling-uploading-big-files">Enabling uploading big files</a></li>
@@ -175,7 +180,8 @@ You can choose between the following options:</p>
 </div>
 <div class="section" id="cron-jobs">
 <h2>Cron-Jobs<a class="headerlink" href="#cron-jobs" title="Permalink to this headline">¶</a></h2>
-<p>OwnCloud requires various automated background jobs to be run. There are three methods to achieve this. The default way is AJAX and the recommended way is cron.</p>
+<p>OwnCloud requires various automated background jobs to be run. There are three methods to achieve this.
+The default way is AJAX and the recommended way is cron.</p>
 <div class="section" id="ajax">
 <h3>AJAX<a class="headerlink" href="#ajax" title="Permalink to this headline">¶</a></h3>
 <p>This option is the default option, although it is the least reliable. Every
@@ -200,7 +206,7 @@ regularly. To use such a service your server need to be reachable via the Intern
 because it allows to execute jobs without the limitations which a web server
 may have.</p>
 <p><strong>Example</strong></p>
-<p>To run a cron job on a <em>nix system, e.g. every 15min, under the default webserver
+<p>To run a cron job on a <em>nix system, e.g. every 15min, under the default web server
 user, e.g. **www-data*</em>, you need to set-up the following cron job to call the
 <strong>cron.php</strong> script. Please check the crontab man page for the exact command syntax.</p>
 <div class="highlight-python"><pre># crontab -u www-data -e

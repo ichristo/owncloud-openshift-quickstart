@@ -3,13 +3,13 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# Vincenzo Reale <vinx.reale@gmail.com>, 2013.
+# Vincenzo Reale <vinx.reale@gmail.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
-"Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2013-03-09 00:05+0100\n"
-"PO-Revision-Date: 2013-03-07 23:41+0000\n"
+"Report-Msgid-Bugs-To: translations@owncloud.org\n"
+"POT-Creation-Date: 2013-11-21 10:01-0500\n"
+"PO-Revision-Date: 2013-11-16 07:44+0000\n"
 "Last-Translator: I Robot <owncloud-bot@tmit.eu>\n"
 "Language-Team: Italian (http://www.transifex.com/projects/p/owncloud/language/it/)\n"
 "MIME-Version: 1.0\n"
@@ -18,61 +18,41 @@ msgstr ""
 "Language: it\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ajax/delete.php:40
+#: ajax/delete.php:42
 #, php-format
 msgid "Couldn't delete %s permanently"
 msgstr "Impossibile eliminare %s definitivamente"
 
-#: ajax/undelete.php:41
+#: ajax/undelete.php:42
 #, php-format
 msgid "Couldn't restore %s"
 msgstr "Impossibile ripristinare %s"
 
-#: js/trash.js:7 js/trash.js:96
-msgid "perform restore operation"
-msgstr "esegui operazione di ripristino"
+#: js/trash.js:18 js/trash.js:44 js/trash.js:121 js/trash.js:149
+msgid "Error"
+msgstr "Errore"
 
-#: js/trash.js:34
-msgid "delete file permanently"
-msgstr "elimina il file definitivamente"
+#: lib/trashbin.php:815 lib/trashbin.php:817
+msgid "restored"
+msgstr "ripristinati"
 
-#: js/trash.js:121
-msgid "Delete permanently"
-msgstr "Elimina definitivamente"
-
-#: js/trash.js:174 templates/index.php:17
-msgid "Name"
-msgstr "Nome"
-
-#: js/trash.js:175 templates/index.php:27
-msgid "Deleted"
-msgstr "Eliminati"
-
-#: js/trash.js:184
-msgid "1 folder"
-msgstr "1 cartella"
-
-#: js/trash.js:186
-msgid "{count} folders"
-msgstr "{count} cartelle"
-
-#: js/trash.js:194
-msgid "1 file"
-msgstr "1 file"
-
-#: js/trash.js:196
-msgid "{count} files"
-msgstr "{count} file"
-
-#: templates/index.php:9
+#: templates/index.php:8
 msgid "Nothing in here. Your trash bin is empty!"
 msgstr "Qui non c'è niente. Il tuo cestino è vuoto."
 
-#: templates/index.php:20 templates/index.php:22
+#: templates/index.php:22
+msgid "Name"
+msgstr "Nome"
+
+#: templates/index.php:25 templates/index.php:27
 msgid "Restore"
 msgstr "Ripristina"
 
-#: templates/index.php:30 templates/index.php:31
+#: templates/index.php:33
+msgid "Deleted"
+msgstr "Eliminati"
+
+#: templates/index.php:36 templates/index.php:37
 msgid "Delete"
 msgstr "Elimina"
 

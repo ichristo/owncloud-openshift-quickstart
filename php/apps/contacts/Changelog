@@ -1,5 +1,21 @@
 ownCloud Contacts Changelog
 
+6.0
+ - Don't fire a request for every contacts when mass adding to/removing from groups.
+ - Don't have a request for each thumbnail.
+ - Only load default contact photo once.
+ - Added virtual group "Ungrouped".
+ - Groups can now be renamed. contacts#97
+ - Smoother and more failsafe importing.
+ - Rewritten backend to allow for multiple address book sources.
+ - Abstraction layer for address books and contacts.
+ - Partially ported to App Framework.
+ - Use updated app styles.
+ - Select single contacts by Ctrl/Cmd-click, or a range of contacts by Shift-click.
+ - Experimental contacts merge. Might eat kittens!
+ - Regression fixed: Address book rename added again.
+ - Regression fixed: Contacts can be moved between address books again; also with different backends. contacts#57
+
 5.0.8
  - Regression fix: It is again possible to select which address book a new contact should
    be saved in.
@@ -32,3 +48,5 @@ ownCloud Contacts Changelog
  - Fix: Unescape variables in search results and generated birthday events.
  - Fix: AddressbookProviders could have duplicate keys.
  - Feature: Add support for IMPP:SIP aka Internet calls.
+ - Unescape variables in search results and generated birthday events.
+ - AddressbookProviders could have duplicate keys.

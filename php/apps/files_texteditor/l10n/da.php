@@ -1,6 +1,6 @@
 <?php $TRANSLATIONS = array(
 "Save" => "Gem",
-"Search:" => "Søg:",
+"Search" => "Søg",
 "Close" => "Luk",
 "Next" => "Næste",
 "Clear" => "Ryd",

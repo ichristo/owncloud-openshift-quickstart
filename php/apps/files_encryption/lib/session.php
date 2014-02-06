@@ -30,6 +30,11 @@ class Session {
 
 	private $view;
 
+	const NOT_INITIALIZED = '0';
+	const INIT_EXECUTED = '1';
+	const INIT_SUCCESSFUL = '2';
+
+
 	/**
 	 * @brief if session is started, check if ownCloud key pair is set up, if not create it
 	 * @param \OC_FilesystemView $view
@@ -90,9 +95,7 @@ class Session {
 
 			$encryptedKey = $this->view->file_get_contents(
 				'/owncloud_private_key/' . $publicShareKeyId . '.private.key');
-
 			$privateKey = Crypt::decryptPrivateKey($encryptedKey, '');
-
 			$this->setPublicSharePrivateKey($privateKey);
 
 			\OC_FileProxy::$enabled = $proxyStatus;
@@ -108,10 +111,40 @@ class Session {
 	 */
 	public function setPrivateKey($privateKey) {
 
-		$_SESSION['privateKey'] = $privateKey;
+		\OC::$session->set('privateKey', $privateKey);
 
 		return true;
 
+	}
+
+	/**
+	 * @brief Sets status of encryption app
+	 * @param string $init  INIT_SUCCESSFUL, INIT_EXECUTED, NOT_INOITIALIZED
+	 * @return bool
+	 *
+	 * @note this doesn not indicate of the init was successful, we just remeber the try!
+	 */
+	public function setInitialized($init) {
+
+		\OC::$session->set('encryptionInitialized', $init);
+
+		return true;
+
+	}
+
+
+	/**
+	 * @brief Gets status if we already tried to initialize the encryption app
+	 * @returns init status INIT_SUCCESSFUL, INIT_EXECUTED, NOT_INOITIALIZED
+	 *
+	 * @note this doesn not indicate of the init was successful, we just remeber the try!
+	 */
+	public function getInitialized() {
+		if (!is_null(\OC::$session->get('encryptionInitialized'))) {
+			return \OC::$session->get('encryptionInitialized');
+		} else {
+			return self::NOT_INITIALIZED;
+		}
 	}
 
 	/**
@@ -120,14 +153,12 @@ class Session {
 	 *
 	 */
 	public function getPrivateKey() {
-
 		// return the public share private key if this is a public access
 		if (\OCA\Encryption\Helper::isPublicAccess()) {
 			return $this->getPublicSharePrivateKey();
 		} else {
-
-			if (isset($_SESSION['privateKey']) && !empty($_SESSION['privateKey'])) {
-				return $_SESSION['privateKey'];
+			if (!is_null(\OC::$session->get('privateKey'))) {
+				return \OC::$session->get('privateKey');
 			} else {
 				return false;
 			}
@@ -141,7 +172,7 @@ class Session {
 	 */
 	public function setPublicSharePrivateKey($privateKey) {
 
-		$_SESSION['publicSharePrivateKey'] = $privateKey;
+		\OC::$session->set('publicSharePrivateKey', $privateKey);
 
 		return true;
 
@@ -154,12 +185,11 @@ class Session {
 	 */
 	public function getPublicSharePrivateKey() {
 
-		if (isset($_SESSION['publicSharePrivateKey']) && !empty($_SESSION['publicSharePrivateKey'])) {
-			return $_SESSION['publicSharePrivateKey'];
+		if (!is_null(\OC::$session->get('publicSharePrivateKey'))) {
+			return \OC::$session->get('publicSharePrivateKey');
 		} else {
 			return false;
 		}
-
 	}
 
 
@@ -170,7 +200,7 @@ class Session {
 	 */
 	public function setLegacyKey($legacyKey) {
 
-		$_SESSION['legacyKey'] = $legacyKey;
+		\OC::$session->set('legacyKey', $legacyKey);
 
 		return true;
 	}
@@ -182,12 +212,9 @@ class Session {
 	 */
 	public function getLegacyKey() {
 
-		if (
-			isset($_SESSION['legacyKey'])
-			&& !empty($_SESSION['legacyKey'])
-		) {
+		if (!is_null(\OC::$session->get('legacyKey'))) {
 
-			return $_SESSION['legacyKey'];
+			return \OC::$session->get('legacyKey');
 
 		} else {
 

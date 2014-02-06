@@ -44,7 +44,7 @@ var UserList = {
 
 		// Provide user with option to undo
 		$('#notification').data('deleteuser', true);
-		OC.Notification.showHtml(t('users', 'deleted') + ' ' + escapeHTML(uid) + '<span class="undo">' + t('users', 'undo') + '</span>');
+		OC.Notification.showHtml(t('settings', 'deleted') + ' ' + escapeHTML(uid) + '<span class="undo">' + t('settings', 'undo') + '</span>');
 	},
 
 	/**
@@ -67,7 +67,7 @@ var UserList = {
 				async: false,
 				data: { username: UserList.deleteUid },
 				success: function (result) {
-					if (result.status == 'success') {
+					if (result.status === 'success') {
 						// Remove undo option, & remove user from table
 						OC.Notification.hide();
 						$('tr').filterAttr('data-uid', UserList.deleteUid).remove();
@@ -76,7 +76,7 @@ var UserList = {
 							ready();
 						}
 					} else {
-						oc.dialogs.alert(result.data.message, t('settings', 'Unable to remove user'));
+						OC.dialogs.alert(result.data.message, t('settings', 'Unable to remove user'));
 					}
 				}
 			});
@@ -85,6 +85,9 @@ var UserList = {
 
 	add: function (username, displayname, groups, subadmin, quota, sort) {
 		var tr = $('tbody tr').first().clone();
+		if (tr.find('div.avatardiv')){
+			$('div.avatardiv', tr).avatar(username, 32);
+		}
 		tr.attr('data-uid', username);
 		tr.attr('data-displayName', displayname);
 		tr.find('td.name').text(username);
@@ -102,7 +105,7 @@ var UserList = {
 		}
 		$.each(this.availableGroups, function (i, group) {
 			groupsSelect.append($('<option value="' + escapeHTML(group) + '">' + escapeHTML(group) + '</option>'));
-			if (typeof subadminSelect !== 'undefined' && group != 'admin') {
+			if (typeof subadminSelect !== 'undefined' && group !== 'admin') {
 				subadminSelect.append($('<option value="' + escapeHTML(group) + '">' + escapeHTML(group) + '</option>'));
 			}
 		});
@@ -112,7 +115,7 @@ var UserList = {
 			tr.find('td.subadmins').append(subadminSelect);
 			UserList.applyMultiplySelect(subadminSelect);
 		}
-		if (tr.find('td.remove img').length == 0 && OC.currentUser != username) {
+		if (tr.find('td.remove img').length === 0 && OC.currentUser !== username) {
 			var rm_img = $('<img class="svg action">').attr({
 				src: OC.imagePath('core', 'actions/delete')
 			});
@@ -120,11 +123,11 @@ var UserList = {
 				.attr({ href: '#', 'original-title': t('settings', 'Delete')})
 				.append(rm_img);
 			tr.find('td.remove').append(rm_link);
-		} else if (OC.currentUser == username) {
+		} else if (OC.currentUser === username) {
 			tr.find('td.remove a').remove();
 		}
 		var quotaSelect = tr.find('select.quota-user');
-		if (quota == 'default') {
+		if (quota === 'default') {
 			quotaSelect.find('option').attr('selected', null);
 			quotaSelect.find('option').first().attr('selected', 'selected');
 			quotaSelect.data('previous', 'default');
@@ -144,7 +147,11 @@ var UserList = {
 		quotaSelect.on('change', function () {
 			var uid = $(this).parent().parent().attr('data-uid');
 			var quota = $(this).val();
-			setQuota(uid, quota);
+			setQuota(uid, quota, function(returnedQuota){
+				if (quota !== returnedQuota) {
+					$(quotaSelect).find(':selected').text(returnedQuota);
+				}
+			});
 		});
 	},
 	// From http://my.opera.com/GreyWyvern/blog/show.dml/1671288
@@ -153,7 +160,7 @@ var UserList = {
 			var tz = [], x = 0, y = -1, n = 0, i, j;
 
 			while (i = (j = t.charAt(x++)).charCodeAt(0)) {
-			var m = (i == 46 || (i >=48 && i <= 57));
+			var m = (i === 46 || (i >=48 && i <= 57));
 			if (m !== n) {
 				tz[++y] = "";
 				n = m;
@@ -169,9 +176,11 @@ var UserList = {
 		for (x = 0; aa[x] && bb[x]; x++) {
 			if (aa[x] !== bb[x]) {
 			var c = Number(aa[x]), d = Number(bb[x]);
-			if (c == aa[x] && d == bb[x]) {
+			if (c === aa[x] && d === bb[x]) {
 				return c - d;
-			} else return (aa[x] > bb[x]) ? 1 : -1;
+			} else {
+				return (aa[x] > bb[x]) ? 1 : -1;
+			}
 			}
 		}
 		return aa.length - bb.length;
@@ -212,7 +221,7 @@ var UserList = {
 						return true;
 					}
 					var tr = UserList.add(user.name, user.displayname, user.groups, user.subadmin, user.quota, false);
-					if (index == 9) {
+					if (index === 9) {
 						$(tr).bind('inview', function (event, isInView, visiblePartX, visiblePartY) {
 							$(this).unbind(event);
 							UserList.update();
@@ -230,16 +239,16 @@ var UserList = {
 	applyMultiplySelect: function (element) {
 		var checked = [];
 		var user = element.attr('data-username');
-		if ($(element).attr('class') == 'groupsselect') {
+		if ($(element).attr('class') === 'groupsselect') {
 			if (element.data('userGroups')) {
 				checked = element.data('userGroups');
 			}
 			if (user) {
 				var checkHandeler = function (group) {
-					if (user == OC.currentUser && group == 'admin') {
+					if (user === OC.currentUser && group === 'admin') {
 						return false;
 					}
-					if (!isadmin && checked.length == 1 && checked[0] == group) {
+					if (!isadmin && checked.length === 1 && checked[0] === group) {
 						return false;
 					}
 					$.post(
@@ -268,7 +277,7 @@ var UserList = {
 					if ($(element).find('option[value="' + group + '"]').length === 0 && select.data('msid') !== $(element).data('msid')) {
 						$(element).append('<option value="' + escapeHTML(group) + '">' + escapeHTML(group) + '</option>');
 					}
-				})
+				});
 			};
 			var label;
 			if (isadmin) {
@@ -286,12 +295,12 @@ var UserList = {
 				minWidth: 100
 			});
 		}
-		if ($(element).attr('class') == 'subadminsselect') {
+		if ($(element).attr('class') === 'subadminsselect') {
 			if (element.data('subadmin')) {
 				checked = element.data('subadmin');
 			}
 			var checkHandeler = function (group) {
-				if (group == 'admin') {
+				if (group === 'admin') {
 					return false;
 				}
 				$.post(
@@ -307,10 +316,10 @@ var UserList = {
 
 			var addSubAdmin = function (group) {
 				$('select[multiple]').each(function (index, element) {
-					if ($(element).find('option[value="' + group + '"]').length == 0) {
+					if ($(element).find('option[value="' + group + '"]').length === 0) {
 						$(element).append('<option value="' + escapeHTML(group) + '">' + escapeHTML(group) + '</option>');
 					}
-				})
+				});
 			};
 			element.multiSelect({
 				createCallback: addSubAdmin,
@@ -355,11 +364,11 @@ $(document).ready(function () {
 		img.parent().children('span').replaceWith(input);
 		input.focus();
 		input.keypress(function (event) {
-			if (event.keyCode == 13) {
+			if (event.keyCode === 13) {
 				if ($(this).val().length > 0) {
 					var recoveryPasswordVal = $('input:password[id="recoveryPassword"]').val();
 					$.post(
-						OC.filePath('settings', 'ajax', 'changepassword.php'),
+						OC.Router.generate('settings_users_changepassword'),
 						{username: uid, password: $(this).val(), recoveryPassword: recoveryPasswordVal},
 						function (result) {
 							if (result.status != 'success') {
@@ -381,6 +390,7 @@ $(document).ready(function () {
 	$('input:password[id="recoveryPassword"]').keyup(function(event) {
 		OC.Notification.hide();
 	});
+
 	$('table').on('click', 'td.password', function (event) {
 		$(this).children('img').click();
 	});
@@ -395,12 +405,15 @@ $(document).ready(function () {
 		img.parent().children('span').replaceWith(input);
 		input.focus();
 		input.keypress(function (event) {
-			if (event.keyCode == 13) {
+			if (event.keyCode === 13) {
 				if ($(this).val().length > 0) {
 					$.post(
 						OC.filePath('settings', 'ajax', 'changedisplayname.php'),
 						{username: uid, displayName: $(this).val()},
 						function (result) {
+							if (result && result.status==='success'){
+								img.parent().parent().find('div.avatardiv').avatar(result.data.username, 32);
+							}
 						}
 					);
 					input.blur();
@@ -419,22 +432,27 @@ $(document).ready(function () {
 	});
 
 	$('select.quota, select.quota-user').singleSelect().on('change', function () {
+		var select = $(this);
 		var uid = $(this).parent().parent().attr('data-uid');
 		var quota = $(this).val();
-		setQuota(uid, quota);
+		setQuota(uid, quota, function(returnedQuota){
+			if (quota !== returnedQuota) {
+				select.find(':selected').text(returnedQuota);
+			}
+		});
 	});
 
 	$('#newuser').submit(function (event) {
 		event.preventDefault();
 		var username = $('#newusername').val();
 		var password = $('#newuserpassword').val();
-		if ($.trim(username) == '') {
+		if ($.trim(username) === '') {
 			OC.dialogs.alert(
 				t('settings', 'A valid username must be provided'),
 				t('settings', 'Error creating user'));
 			return false;
 		}
-		if ($.trim(password) == '') {
+		if ($.trim(password) === '') {
 			OC.dialogs.alert(
 				t('settings', 'A valid password must be provided'),
 				t('settings', 'Error creating user'));
@@ -450,13 +468,25 @@ $(document).ready(function () {
 				groups: groups
 			},
 			function (result) {
-				if (result.status != 'success') {
+				if (result.status !== 'success') {
 					OC.dialogs.alert(result.data.message,
 						t('settings', 'Error creating user'));
 				} else {
 					if (result.data.groups) {
 						var addedGroups = result.data.groups;
 						UserList.availableGroups = $.unique($.merge(UserList.availableGroups, addedGroups));
+					}
+					if (result.data.homeExists){
+						OC.Notification.hide();
+						OC.Notification.show(t('settings', 'Warning: Home directory for user "{user}" already exists', {user: result.data.username}));
+						if (UserList.notificationTimeout){
+							window.clearTimeout(UserList.notificationTimeout);
+						}
+						UserList.notificationTimeout = window.setTimeout(
+							function(){
+								OC.Notification.hide();
+								UserList.notificationTimeout = null;
+							}, 10000);
 					}
 					if($('tr[data-uid="' + username + '"]').length === 0) {
 						UserList.add(username, username, result.data.groups, null, 'default', true);
@@ -474,7 +504,7 @@ $(document).ready(function () {
 		}
 		OC.Notification.hide();
 	});
-	UserList.useUndo = ('onbeforeunload' in window)
+	UserList.useUndo = ('onbeforeunload' in window);
 	$(window).bind('beforeunload', function () {
 		UserList.finishDelete(null);
 	});

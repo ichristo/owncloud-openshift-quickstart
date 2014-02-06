@@ -2,19 +2,22 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Migrating ownCloud Installations &mdash; ownCloud Administrators Manual v5.0 documentation</title>
+    <title>Migrating ownCloud Installations &mdash; ownCloud Administrators Manual 6.0 documentation</title>
+    
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '5.0',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,10 +27,10 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/bootstrap.js"></script>
-    <link rel="top" title="ownCloud Administrators Manual v5.0 documentation" href="../index.html" />
+    <link rel="top" title="ownCloud Administrators Manual 6.0 documentation" href="../index.html" />
     <link rel="up" title="Maintenance" href="index.html" />
-    <link rel="next" title="Updating ownCloud" href="update.html" />
-    <link rel="prev" title="Maintenance" href="index.html" />
+    <link rel="next" title="Issues" href="../issues/index.html" />
+    <link rel="prev" title="Restoring ownCloud" href="restore.html" />
 <script type="text/javascript">
 (function () {
   /**
@@ -116,9 +119,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Maintenance</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="">Migrating ownCloud Installations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="backup.html">Backing up ownCloud</a></li>
 <li class="toctree-l2"><a class="reference internal" href="update.html">Updating ownCloud</a></li>
-<li class="toctree-l2"><a class="reference internal" href="backup.html">Backing Up ownCloud</a></li>
+<li class="toctree-l2"><a class="reference internal" href="restore.html">Restoring ownCloud</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Migrating ownCloud Installations</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../issues/index.html">Issues</a></li>
@@ -136,18 +140,11 @@
 						
   <div class="section" id="migrating-owncloud-installations">
 <h1>Migrating ownCloud Installations<a class="headerlink" href="#migrating-owncloud-installations" title="Permalink to this headline">¶</a></h1>
-<p>To migrate an ownCloud install there are three things you need to retain:</p>
+<p>To migrate an ownCloud install, follow those steps:</p>
 <ol class="arabic simple">
-<li>The config folder</li>
-<li>The data folder</li>
-<li>The database (found in the data folder for sqlite installs)</li>
-</ol>
-<p>To restore an ownCloud instance:</p>
-<ol class="arabic simple">
-<li>Extract ownCloud to your webserver</li>
-<li>Copy over your config folder</li>
-<li>Copy over your data folder</li>
-<li>Import your database</li>
+<li>Backup data/config folders and your database (look at &#8220;Backing Up ownCloud&#8221;)</li>
+<li>Move your data</li>
+<li>Restore your data/config folders and your database (look at &#8220;Restore ownCloud&#8221;)</li>
 <li>Update config.php of any changes to your database connection</li>
 </ol>
 </div>

@@ -20,14 +20,14 @@
  *
  */
 
-require_once realpath(dirname(__FILE__) . '/../../../lib/base.php');
-require_once realpath(dirname(__FILE__) . '/../lib/crypt.php');
-require_once realpath(dirname(__FILE__) . '/../lib/keymanager.php');
-require_once realpath(dirname(__FILE__) . '/../lib/proxy.php');
-require_once realpath(dirname(__FILE__) . '/../lib/stream.php');
-require_once realpath(dirname(__FILE__) . '/../lib/util.php');
-require_once realpath(dirname(__FILE__) . '/../appinfo/app.php');
-require_once realpath(dirname(__FILE__) . '/util.php');
+require_once __DIR__ . '/../../../lib/base.php';
+require_once __DIR__ . '/../lib/crypt.php';
+require_once __DIR__ . '/../lib/keymanager.php';
+require_once __DIR__ . '/../lib/proxy.php';
+require_once __DIR__ . '/../lib/stream.php';
+require_once __DIR__ . '/../lib/util.php';
+require_once __DIR__ . '/../appinfo/app.php';
+require_once __DIR__ . '/util.php';
 
 use OCA\Encryption;
 
@@ -99,7 +99,7 @@ class Test_Encryption_Stream extends \PHPUnit_Framework_TestCase {
 	}
 
 	function testStreamOptions() {
-		$filename = '/tmp-' . time();
+		$filename = '/tmp-' . uniqid();
 		$view = new \OC\Files\View('/' . $this->userId . '/files');
 
 		// Save short data as encrypted file using stream wrapper
@@ -122,7 +122,7 @@ class Test_Encryption_Stream extends \PHPUnit_Framework_TestCase {
 	}
 
 	function testStreamSetBlocking() {
-		$filename = '/tmp-' . time();
+		$filename = '/tmp-' . uniqid();
 		$view = new \OC\Files\View('/' . $this->userId . '/files');
 
 		// Save short data as encrypted file using stream wrapper
@@ -140,8 +140,11 @@ class Test_Encryption_Stream extends \PHPUnit_Framework_TestCase {
 		$view->unlink($filename);
 	}
 
+	/**
+	 * @medium
+	 */
 	function testStreamSetTimeout() {
-		$filename = '/tmp-' . time();
+		$filename = '/tmp-' . uniqid();
 		$view = new \OC\Files\View('/' . $this->userId . '/files');
 
 		// Save short data as encrypted file using stream wrapper
@@ -160,7 +163,7 @@ class Test_Encryption_Stream extends \PHPUnit_Framework_TestCase {
 	}
 
 	function testStreamSetWriteBuffer() {
-		$filename = '/tmp-' . time();
+		$filename = '/tmp-' . uniqid();
 		$view = new \OC\Files\View('/' . $this->userId . '/files');
 
 		// Save short data as encrypted file using stream wrapper

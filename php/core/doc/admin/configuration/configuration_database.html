@@ -2,19 +2,22 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Database Configuration &mdash; ownCloud Administrators Manual v5.0 documentation</title>
+    <title>Database Configuration &mdash; ownCloud Administrators Manual 6.0 documentation</title>
+    
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '5.0',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +27,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/bootstrap.js"></script>
-    <link rel="top" title="ownCloud Administrators Manual v5.0 documentation" href="../index.html" />
+    <link rel="top" title="ownCloud Administrators Manual 6.0 documentation" href="../index.html" />
     <link rel="up" title="Configuration" href="index.html" />
     <link rel="next" title="Use Server-Side Encryption" href="configuration_encryption.html" />
     <link rel="prev" title="Custom Client Configuration" href="configuration_custom_clients.html" />
@@ -115,10 +118,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Configuration</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="configuration_apps.html">Apps Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_users.html">User Management</a></li>
 <li class="toctree-l2"><a class="reference internal" href="auth_ldap.html">User Authentication with LDAP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="background_jobs.html">Background Jobs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_3rdparty.html">3rd-Party Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="configuration_apps.html">Apps Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_automation.html">Automatic Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_custom_clients.html">Custom Client Configuration</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Database Configuration</a><ul>
@@ -133,6 +137,7 @@
 <li class="toctree-l2"><a class="reference internal" href="configuration_logging.html">Logging Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_mail.html">Mail Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_maintenance.html">Maintenance Mode Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_preview.html">Preview Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_reverseproxy.html">Reverse Proxy Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html">Uploading big files &gt; 512MB (as set by default)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html#enabling-uploading-big-files">Enabling uploading big files</a></li>
@@ -158,8 +163,10 @@
 						
   <div class="section" id="database-configuration">
 <h1>Database Configuration<a class="headerlink" href="#database-configuration" title="Permalink to this headline">¶</a></h1>
-<p>Owncloud requires a database where administrative data will be held. Four different database types are currently
-supported, <a class="reference external" href="http://www.mysql.com/">MySQL</a>, <a class="reference external" href="https://mariadb.org/">MariaDB</a>, <a class="reference external" href="http://www.sqlite.org/">SQLite</a>, and <a class="reference external" href="http://www.postgresql.org/">PostgreSQL</a>. MySQL or MariaDB are the recommended database engines. By default SQLite is choosen because it is a file based database with the least administrative overhead.</p>
+<p>ownCloud requires a database where administrative data will be held. Four different database types are currently
+supported, <a class="reference external" href="http://www.mysql.com/">MySQL</a>, <a class="reference external" href="https://mariadb.org/">MariaDB</a>, <a class="reference external" href="http://www.sqlite.org/">SQLite</a>,
+and <a class="reference external" href="http://www.postgresql.org/">PostgreSQL</a>. MySQL or MariaDB are the recommended database engines. By default
+SQLite is chosen because it is a file based database with the least administrative overhead.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Because SQLite handles multiple users very badly SQLite is only recommended for single user ownCloud installations</p>
@@ -176,7 +183,8 @@ database first. These steps will not be covered by this description as they are 
 <p>If you decide to use a MySQL or MariaDB database make sure that you have installed and
 enabled the MySQL extension in PHP and that the <strong>mysql.default_socket</strong>
 points to the correct socket (if the database runs on same server as ownCloud).</p>
-<p>Please note that MariaDB is backwards compatible with MySQL, so all instructions will work for both. You will not need to replace mysql with anything.</p>
+<p>Please note that MariaDB is backwards compatible with MySQL, so all instructions will work for both.
+You will not need to replace mysql with anything.</p>
 <p>The PHP configuration in <tt class="file docutils literal"><span class="pre">/etc/php5/conf.d/mysql.ini</span></tt> could look like this:</p>
 <div class="highlight-ini"><div class="highlight"><pre><span class="c"># configuration for PHP MySQL module</span>
 <span class="na">extension</span><span class="o">=</span><span class="s">pdo_mysql.so</span>
@@ -189,7 +197,7 @@ points to the correct socket (if the database runs on same server as ownCloud).<
 <span class="na">mysql.max_persistent</span><span class="o">=</span><span class="s">-1</span>
 <span class="na">mysql.max_links</span><span class="o">=</span><span class="s">-1</span>
 <span class="na">mysql.default_port</span><span class="o">=</span>
-<span class="na">mysql.default_socket</span><span class="o">=</span><span class="s">/var/lib/mysql/mysql.sock  # debian squeeze: /var/run/mysqld/mysqld.sock</span>
+<span class="na">mysql.default_socket</span><span class="o">=</span><span class="s">/var/lib/mysql/mysql.sock  # Debian squeeze: /var/run/mysqld/mysqld.sock</span>
 <span class="na">mysql.default_host</span><span class="o">=</span>
 <span class="na">mysql.default_user</span><span class="o">=</span>
 <span class="na">mysql.default_password</span><span class="o">=</span>
@@ -239,7 +247,10 @@ enabled the SQLite extension in PHP. The PHP configuration in <tt class="file do
 <p>It is not necessary to create a database and a database user in advance
 because this will automatically be done by ownCloud when you login for the
 first time.</p>
-<p>In the ownCloud counfiguration in <tt class="file docutils literal"><span class="pre">config/config.php</span></tt> you need to set at least the <strong>datadirectory</strong> parameter to the directory where your data and database should be stored. No authentication is required to access the database therefore most of the default parameters could be taken as it:</p>
+<p>In the ownCloud configuration in <tt class="file docutils literal"><span class="pre">config/config.php</span></tt> you need to set at least the <strong>datadirectory</strong> parameter to
+the directory where your data and database should be stored. Note that for the PDO SQLite driver this directory must
+be writable (this is recommended for ownCloud anyway).  No authentication is required to access the database therefore
+most of the default parameters could be taken as is:</p>
 <div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
 
   <span class="s2">&quot;dbtype&quot;</span>        <span class="o">=&gt;</span> <span class="s2">&quot;sqlite&quot;</span><span class="p">,</span>
@@ -305,19 +316,25 @@ ownCloud a password is very often not required to access the database.</p>
 <div class="section" id="oracle-database">
 <h3>Oracle Database<a class="headerlink" href="#oracle-database" title="Permalink to this headline">¶</a></h3>
 <p>If you are deploying to an Oracle database make sure that you have installed
-and enabled the <a class="reference external" href="http://php.net/manual/en/book.oci8.php">Oracle extension</a> in PHP. The PHP configuration in <tt class="file docutils literal"><span class="pre">/etc/php5/conf.d/oci8.ini</span></tt> could look like this:</p>
+and enabled the <a class="reference external" href="http://php.net/manual/en/book.oci8.php">Oracle extension</a> in PHP. The PHP configuration in
+<tt class="file docutils literal"><span class="pre">/etc/php5/conf.d/oci8.ini</span></tt> could look like this:</p>
 <div class="highlight-ini"><div class="highlight"><pre><span class="c"># configuration for PHP Oracle extension</span>
 <span class="na">extension</span><span class="o">=</span><span class="s">oci8.so</span>
 </pre></div>
 </div>
-<p>Make sure that the Oracle environment has been set up for the process trying to use the Oracle extension. For a local Oracle XE installation this can be done by exporting the following environment variables (eg. in <tt class="file docutils literal"><span class="pre">/etc/apache2/envvars</span></tt> for Apache)</p>
+<p>Make sure that the Oracle environment has been set up for the process trying to use the Oracle extension.
+For a local Oracle XE installation this can be done by exporting the following environment variables
+(eg. in <tt class="file docutils literal"><span class="pre">/etc/apache2/envvars</span></tt> for Apache)</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nb">export </span><span class="nv">ORACLE_HOME</span><span class="o">=</span>/u01/app/oracle/product/11.2.0/xe
 <span class="nb">export </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="nv">$LD_LIBRARY_PATH</span>:<span class="nv">$ORACLE_HOME</span>/lib
 </pre></div>
 </div>
-<p>Installing and configuring Oracle support for PHP is way out of scope for this document. The official Oracle documentation called <a class="reference external" href="http://www.oracle.com/technetwork/topics/php/underground-php-oracle-manual-098250.html">The Underground PHP and Oracle Manual</a> should help you through the process.</p>
-<p>Creating a database user for ownCloud can be done by using the sqlplus command line
-interface or the Oracle Application Express web interface. The database tables will be created by ownCloud when you login for the first time.</p>
+<p>Installing and configuring Oracle support for PHP is way out of scope for this document.
+The official Oracle documentation called <a class="reference external" href="http://www.oracle.com/technetwork/topics/php/underground-php-oracle-manual-098250.html">The Underground PHP and Oracle Manual</a>
+should help you through the process.</p>
+<p>Creating a database user for ownCloud can be done by using the sqlplus command line interface
+or the Oracle Application Express web interface.
+The database tables will be created by ownCloud when you login for the first time.</p>
 <p>To start the Oracle command line mode with a DBA account use:</p>
 <div class="highlight-python"><pre>sqlplus system AS SYSDBA</pre>
 </div>
@@ -360,8 +377,9 @@ ownCloud to config file could look like this:</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">This example assumes you are running an Oracle Express Edition on <tt class="docutils literal"><span class="pre">localhost</span></tt>. The <tt class="docutils literal"><span class="pre">dbname</span></tt> is the name of the Oracle instance. For Oracle Express Edition it is always <tt class="docutils literal"><span class="pre">XE</span></tt>.</p>
+<p class="last">This example assumes you are running an Oracle Express Edition on <tt class="docutils literal"><span class="pre">localhost</span></tt>. The <tt class="docutils literal"><span class="pre">dbname</span></tt> is the name</p>
 </div>
+<p>of the Oracle instance. For Oracle Express Edition it is always <tt class="docutils literal"><span class="pre">XE</span></tt>.</p>
 </div>
 </div>
 <div class="section" id="trouble-shooting">
@@ -379,7 +397,7 @@ ownCloud to config file could look like this:</p>
 </div>
 <div class="section" id="how-can-i-find-out-if-a-created-user-can-access-a-database">
 <h3>How can I find out if a created user can access a database?<a class="headerlink" href="#how-can-i-find-out-if-a-created-user-can-access-a-database" title="Permalink to this headline">¶</a></h3>
-<p>The easiet way to test if a database can be accessed is by starting the
+<p>The easiest way to test if a database can be accessed is by starting the
 command line interface:</p>
 <p><strong>SQLite</strong>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">sqlite3</span> <span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">htdocs</span><span class="o">/</span><span class="n">owncloud</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">owncloud</span><span class="o">.</span><span class="n">db</span>

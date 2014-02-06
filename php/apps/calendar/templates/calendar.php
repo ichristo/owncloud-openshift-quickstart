@@ -3,10 +3,10 @@
 <div id="notification" style="display:none;"></div>
 <div id="controls">
 	<form id="view">
+		<input type="button" value="<?php p($l->t('Day'));?>" id="onedayview_radio"/>
 		<input type="button" value="<?php p($l->t('Week'));?>" id="oneweekview_radio"/>
-		<input type="button" value="<?php p($l->t('Month'));?>" id="onemonthview_radio"/>
-		<input type="button" value="<?php p($l->t('List'));?>" id="listview_radio"/>&nbsp;&nbsp;
-		<img id="loading" src="<?php print_unescaped(OCP\Util::imagePath('core', 'loading.gif')); ?>" />
+		<input type="button" value="<?php p($l->t('Month'));?>" id="onemonthview_radio"/>&nbsp;&nbsp;
+		<img id="loading" src="<?php print_unescaped(OCP\Util::imagePath('calendar', 'loading.gif')); ?>" />
 	</form>
 	<form id="choosecalendar">
 		<!--<input type="button" id="today_input" value="<?php p($l->t("Today"));?>"/>-->
@@ -15,7 +15,7 @@
 	<form id="datecontrol">
 		<input type="button" value="&nbsp;&lt;&nbsp;" id="datecontrol_left"/>
 		<input type="button" value="" id="datecontrol_date"/>
-		<input type="button" value="<?php p($l->t('Go to Today'));?>" id="datecontrol_today"/>
+		<input type="button" value="<?php p($l->t('Today'));?>" id="datecontrol_today"/>
 		<input type="button" value="&nbsp;&gt;&nbsp;" id="datecontrol_right"/>
 	</form>
 </div>

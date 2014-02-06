@@ -1,12 +1,36 @@
-<?php
-/**
- * Copyright (c) 2011 Bart Visscher <bartv@thisnet.nl>
- * Copyright (c) 2012 Georg Ehrke <ownclouddev at georgswebsite dot de>
- * This file is licensed under the Affero General Public License version 3 or
- * later.
- * See the COPYING-README file.
- */
-?>
+<form id="calendar">
+	<p><b><?php p($l->t('Your calendars')); ?>:</b></p>
+	<table width="100%" style="border: 0;">
+	<?php
+	$option_calendars = OC_Calendar_Calendar::allCalendars(OCP\USER::getUser());
+	for($i = 0; $i < count($option_calendars); $i++) {
+		print_unescaped("<tr data-id='".OC_Util::sanitizeHTML($option_calendars[$i]['id'])."'>");
+		$tmpl = new OCP\Template('calendar', 'part.choosecalendar.rowfields');
+		$tmpl->assign('calendar', $option_calendars[$i]);
+		if ($option_calendars[$i]['userid'] != OCP\User::getUser()) {
+			$sharedCalendar = OCP\Share::getItemSharedWithBySource('calendar', $option_calendars[$i]['id']);
+			$shared = true;
+		} else {
+			$shared = false;
+		}
+		$tmpl->assign('shared', $shared);
+		$tmpl->printpage();
+		print_unescaped("</tr>");
+	}
+	?>
+	<tr>
+		<td colspan="6">
+			<input type="button" value="<?php p($l->t('New Calendar')) ?>" id="newCalendar">
+		</td>
+	</tr>
+	<tr>
+		<td colspan="6">
+			<p style="margin: 0 auto;width: 90%;"><input style="display:none;width: 90%;float: left;" type="text" id="caldav_url" title="<?php p($l->t("CalDav Link")); ?>"><img id="caldav_url_close" style="height: 20px;vertical-align: middle;display: none;" src="<?php p(OCP\Util::imagePath('core', 'actions/delete.svg')) ?>" alt="close"/></p>
+		</td>
+	</tr>
+	</table><br>
+	</fieldset>
+</form>
 <h2 id="title_general"><?php p($l->t('General')); ?></h2>
 <div id="general">
 	<table class="nostyle">
@@ -67,6 +91,7 @@
 				<select style="display: none;" id="firstday" title="<?php p("First day"); ?>" name="firstday">
 					<option value="mo" id="mo"><?php p($l->t("Monday")); ?></option>
 					<option value="su" id="su"><?php p($l->t("Sunday")); ?></option>
+					<option value="sa" id="sa"><?php p($l->t("Saturday")); ?></option>
 				</select>
 			</td>
 		</tr>
@@ -83,12 +108,12 @@
 </div>
 <h2 id="title_urls"><?php p($l->t('URLs')); ?></h2>
 <div id="urls">
-		<?php p($l->t('Calendar CalDAV syncing addresses')); ?> (<a href="http://owncloud.org/synchronisation/" target="_blank"><?php p($l->t('more info')); ?></a>)
+		<?php p($l->t('Calendar CalDAV syncing addresses')); ?> (<a href="http://owncloud.org/synchronisation/" target="_blank" class="link"><?php p($l->t('more info')); ?></a>)
 		<dl>
 		<dt><?php p($l->t('Primary address (Kontact et al)')); ?></dt>
-		<dd><code><?php print_unescaped(OCP\Util::linkToRemote('caldav')); ?></code></dd>
+		<dd><input type="text" style="width: 90%;float: left;" value="<?php print_unescaped(OCP\Util::linkToRemote('caldav')); ?>" readonly></dd>
 		<dt><?php p($l->t('iOS/OS X')); ?></dt>
-		<dd><code><?php print_unescaped(OCP\Util::linkToRemote('caldav')); ?>principals/<?php p(OCP\USER::getUser()); ?></code>/</dd>
+		<dd><input type="text" style="width: 90%;float: left;" value="<?php print_unescaped(OCP\Util::linkToRemote('caldav')); ?>principals/<?php p(OCP\USER::getUser()); ?>/" readonly></dd>
 		<dt><?php p($l->t('Read only iCalendar link(s)')); ?></dt>
 		<dd>
 			<?php foreach($_['calendars'] as $calendar) {
@@ -98,7 +123,7 @@
 				$uri = rawurlencode(html_entity_decode($calendar['uri'], ENT_QUOTES, 'UTF-8')) . '_shared_by_' . $calendar['userid'];
 			}
 			?>
-			<a href="<?php p(OCP\Util::linkToRemote('caldav').'calendars/'.OCP\USER::getUser().'/'.$uri) ?>?export"><?php p(OCP\Util::sanitizeHTML($calendar['displayname'])) ?></a><br />
+			<a href="<?php p(OCP\Util::linkToRemote('caldav').'calendars/'.OCP\USER::getUser().'/'.$uri) ?>?export" class="link"><?php p(OCP\Util::sanitizeHTML($calendar['displayname'])) ?></a><br />
 			<?php } ?>
 		</dd>
 		</dl>

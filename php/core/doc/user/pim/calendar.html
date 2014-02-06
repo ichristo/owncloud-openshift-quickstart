@@ -2,19 +2,22 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Using the Calendar App &mdash; ownCloud User Manual v5.0 documentation</title>
+    <title>Using the Calendar App &mdash; ownCloud User Manual 6.0 documentation</title>
+    
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '5.0',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +27,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/bootstrap.js"></script>
-    <link rel="top" title="ownCloud User Manual v5.0 documentation" href="../index.html" />
+    <link rel="top" title="ownCloud User Manual 6.0 documentation" href="../index.html" />
     <link rel="up" title="Contacts &amp; Calendar" href="index.html" />
     <link rel="next" title="iOS - Synchronize iPhone/iPad" href="sync_ios.html" />
     <link rel="prev" title="Using the Contacts App" href="contacts.html" />
@@ -119,7 +122,7 @@
 <li class="toctree-l2"><a class="reference internal" href="contacts.html">Using the Contacts App</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Using the Calendar App</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#creating-a-calendar">Creating a calendar</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#synchronising-calendars-with-caldav">Synchronising Calendars with CalDav</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synchronising-calendars-with-caldav">Synchronising Calendars with CalDAV</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creating-events">Creating events</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#exporting-importing-events">Exporting / Importing events</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#why-is-the-calendar-app-asking-for-my-current-location">Why is the calendar app asking for my current location?</a></li>
@@ -127,14 +130,16 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sync_ios.html">iOS - Synchronize iPhone/iPad</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sync_osx.html">Synchronizing with OS X</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sync_thunderbird.html">Thunderbird - Synchronize Address Book</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sync_thunderbird.html">Thunderbird - Synchronize Addressbook</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sync_kde.html">Synchronizing with KDE SC</a></li>
 <li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../bookmarks.html">Using the Bookmarks App</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../mediaplayer.html">Native Media Player Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documents.html">Documents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../migration.html">User Account Migration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userpreferences.html">Changing Preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../external_storage/google_drive.html">External storage</a></li>
 </ul>
 
 								</ul>
@@ -152,16 +157,17 @@
 <div class="section" id="creating-a-calendar">
 <h2>Creating a calendar<a class="headerlink" href="#creating-a-calendar" title="Permalink to this headline">¶</a></h2>
 <div class="figure">
-<a class="reference internal image-reference" href="../_images/calendar_manage-calendars.png"><img alt="../_images/calendar_manage-calendars.png" src="../_images/calendar_manage-calendars.png" /></a>
+<img alt="../_images/calendar_manage-calendars.png" src="../_images/calendar_manage-calendars.png" />
 </div>
+<p>Calendar view</p>
 <p>If you use the calendar the first time, there will be already a calendar called
 &#8220;Default calendar&#8221;. You can manage your calendars with a click on the &#8220;Calendar&#8221;
 button in the top right corner. In the dialog, which will appear, you can add,
 edit, export, enable, disable and delete your calendars. There will be also a
-link for CalDav access.</p>
+link for CalDAV access.</p>
 </div>
 <div class="section" id="synchronising-calendars-with-caldav">
-<h2>Synchronising Calendars with CalDav<a class="headerlink" href="#synchronising-calendars-with-caldav" title="Permalink to this headline">¶</a></h2>
+<h2>Synchronising Calendars with CalDAV<a class="headerlink" href="#synchronising-calendars-with-caldav" title="Permalink to this headline">¶</a></h2>
 <p>Assuming you access your web interface via an address like this:</p>
 <div class="highlight-python"><pre>http://ADDRESS</pre>
 </div>
@@ -190,22 +196,24 @@ URL, including the trailing slash:</p>
 timeframe in the weekview. In the dialog which will appear you can enter your
 information like title, category, etc.</p>
 <div class="figure">
-<a class="reference internal image-reference" href="../_images/calendar_createevent.png"><img alt="../_images/calendar_createevent.png" src="../_images/calendar_createevent.png" /></a>
+<img alt="../_images/calendar_createevent.png" src="../_images/calendar_createevent.png" />
 </div>
+<p>New event window</p>
 <p>With the advanced options you can set the
 description, the location and the repetition rate of an event. If the repeating
 should end you can choose between setting the end by date or by occurrences. If
 you choose in the weekview all days from Monday to Friday it will automatically
 set the repeat rule to &#8220;every weekday&#8221;. If the interval of the weekview can be
-devided by two it automatically set the repeat rule to &#8220;Bi-Weekly&#8221;.</p>
+divided by two it automatically set the repeat rule to &#8220;Bi-Weekly&#8221;.</p>
 </div>
 <div class="section" id="exporting-importing-events">
 <h2>Exporting / Importing events<a class="headerlink" href="#exporting-importing-events" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="export">
 <h3>Export<a class="headerlink" href="#export" title="Permalink to this headline">¶</a></h3>
 <div class="figure">
-<a class="reference internal image-reference" href="../_images/calendar_export.png"><img alt="../_images/calendar_export.png" src="../_images/calendar_export.png" /></a>
+<img alt="../_images/calendar_export.png" src="../_images/calendar_export.png" />
 </div>
+<p>Exporting an event</p>
 <p>You can export either a single event or a whole calendar. If you want to export
 a single event click on it and press the export button in the bottom right
 corner. If you want to export a whole calendar use the &#8220;Calendar&#8221; button as
@@ -214,14 +222,15 @@ described in the chapter &#8220;Creating a calendar&#8221;.</p>
 <div class="section" id="import">
 <h3>Import<a class="headerlink" href="#import" title="Permalink to this headline">¶</a></h3>
 <div class="figure">
-<a class="reference internal image-reference" href="../_images/calendar_import.png"><img alt="../_images/calendar_import.png" src="../_images/calendar_import.png" /></a>
+<img alt="../_images/calendar_import.png" src="../_images/calendar_import.png" />
 </div>
-<p>Import your calendar as ical file using the files app. Just click on the
+<p>Importing events</p>
+<p>Import your calendar as iCal file using the files app. Just click on the
 calendar file to open the import dialog. You can import the calendar into a new
 calendar or into an already existing calendar.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">If the progressbar does not work properly, the folder
+<p class="last">If the progress bar does not work properly, the folder
 <tt class="docutils literal"><span class="pre">apps/calendar/import_tmp/</span></tt> has probably no write permission.</p>
 </div>
 </div>
@@ -229,8 +238,9 @@ calendar or into an already existing calendar.</p>
 <div class="section" id="why-is-the-calendar-app-asking-for-my-current-location">
 <h2>Why is the calendar app asking for my current location?<a class="headerlink" href="#why-is-the-calendar-app-asking-for-my-current-location" title="Permalink to this headline">¶</a></h2>
 <div class="figure">
-<a class="reference internal image-reference" href="../_images/calendar_newtimezone1.png"><img alt="../_images/calendar_newtimezone1.png" src="../_images/calendar_newtimezone1.png" /></a>
+<img alt="../_images/calendar_newtimezone1.png" src="../_images/calendar_newtimezone1.png" />
 </div>
+<p>Timezone set notification</p>
 <p>The calendar needs your current position in order to detect your timezone.
 Without the correct timezone there will be a time offset between the events in
 ownCloud and your desktop calendar you synchronise with ownCloud. You can also

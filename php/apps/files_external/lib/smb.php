@@ -8,7 +8,7 @@
 
 namespace OC\Files\Storage;
 
-require_once 'smb4php/smb.php';
+require_once __DIR__ . '/../3rdparty/smb4php/smb.php';
 
 class SMB extends \OC\Files\Storage\StreamWrapper{
 	private $password;
@@ -47,8 +47,13 @@ class SMB extends \OC\Files\Storage\StreamWrapper{
 
 	public function constructUrl($path) {
 		if (substr($path, -1)=='/') {
-			$path=substr($path, 0, -1);
+			$path = substr($path, 0, -1);
 		}
+		if (substr($path, 0, 1)=='/') {
+			$path = substr($path, 1);
+		}
+		// remove trailing dots which some versions of samba don't seem to like
+		$path = rtrim($path, '.');
 		$path = urlencode($path);
 		$user = urlencode($this->user);
 		$pass = urlencode($this->password);
@@ -57,13 +62,41 @@ class SMB extends \OC\Files\Storage\StreamWrapper{
 
 	public function stat($path) {
 		if ( ! $path and $this->root=='/') {//mtime doesn't work for shares
-			$mtime=$this->shareMTime();
 			$stat=stat($this->constructUrl($path));
+			if (empty($stat)) {
+				return false;
+			}
+			$mtime=$this->shareMTime();
 			$stat['mtime']=$mtime;
 			return $stat;
 		} else {
-			return stat($this->constructUrl($path));
+			$stat = stat($this->constructUrl($path));
+
+			// smb4php can return an empty array if the connection could not be established
+			if (empty($stat)) {
+				return false;
+			}
+
+			return $stat;
 		}
+	}
+
+	/**
+	 * Unlinks file or directory
+	 * @param string @path
+	 */
+	public function unlink($path) {
+		if ($this->is_dir($path)) {
+			$this->rmdir($path);
+		}
+		else {
+			$url = $this->constructUrl($path);
+			unlink($url);
+			clearstatcache(false, $url);
+		}
+		// smb4php still returns false even on success so
+		// check here whether file was really deleted
+		return !file_exists($path);
 	}
 
 	/**

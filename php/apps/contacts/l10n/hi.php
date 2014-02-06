@@ -1,3 +1,7 @@
 <?php $TRANSLATIONS = array(
-"Settings" => "सेटिंग्स"
+"Save" => "सहेजें",
+"Add" => "डाले",
+"Close" => "बंद करें ",
+"Error" => "त्रुटि",
+"Share" => "साझा करें"
 );

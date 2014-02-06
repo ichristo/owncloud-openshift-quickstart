@@ -2,19 +2,22 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Custom Mount Configuration &mdash; ownCloud Administrators Manual v5.0 documentation</title>
+    <title>Custom Mount Configuration &mdash; ownCloud Administrators Manual 6.0 documentation</title>
+    
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '5.0',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +27,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/bootstrap.js"></script>
-    <link rel="top" title="ownCloud Administrators Manual v5.0 documentation" href="../index.html" />
+    <link rel="top" title="ownCloud Administrators Manual 6.0 documentation" href="../index.html" />
     <link rel="up" title="Configuration" href="index.html" />
     <link rel="next" title="Custom User Backend Configuration" href="custom_user_backend.html" />
     <link rel="prev" title="Custom Mount Configuration Web-GUI" href="custom_mount_config_gui.html" />
@@ -115,10 +118,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Configuration</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="configuration_apps.html">Apps Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_users.html">User Management</a></li>
 <li class="toctree-l2"><a class="reference internal" href="auth_ldap.html">User Authentication with LDAP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="background_jobs.html">Background Jobs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_3rdparty.html">3rd-Party Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="configuration_apps.html">Apps Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_automation.html">Automatic Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_custom_clients.html">Custom Client Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_database.html">Database Configuration</a></li>
@@ -128,6 +132,7 @@
 <li class="toctree-l2"><a class="reference internal" href="configuration_logging.html">Logging Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_mail.html">Mail Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_maintenance.html">Maintenance Mode Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_preview.html">Preview Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_reverseproxy.html">Reverse Proxy Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html">Uploading big files &gt; 512MB (as set by default)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html#enabling-uploading-big-files">Enabling uploading big files</a></li>
@@ -228,9 +233,10 @@ takes the following options:</p>
 </ul>
 <div class="section" id="id1">
 <h4>Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-json"><pre>{ "class":"\\OC\\Files\\Storage\\Local",
-  "options":{ "datadir":"\/mnt\/additional_storage" }
-}</pre>
+<div class="highlight-json"><div class="highlight"><pre><span class="p">{</span> <span class="nt">&quot;class&quot;</span><span class="p">:</span><span class="s2">&quot;\\OC\\Files\\Storage\\Local&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;options&quot;</span><span class="p">:{</span> <span class="nt">&quot;datadir&quot;</span><span class="p">:</span><span class="s2">&quot;\/mnt\/additional_storage&quot;</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -255,15 +261,16 @@ to ‘/’)</li>
 </ul>
 <div class="section" id="id2">
 <h4>Example<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-json"><pre>{   "class":"\\OC\\Files\\Storage\\FTP",
-    "options":{
-        "host":"ftp.myhost.com",
-        "user":"johndoe",
-        "password":"secret",
-        "root":"\/Videos",
-        "secure":"false"
-    }
-}</pre>
+<div class="highlight-json"><div class="highlight"><pre><span class="p">{</span>   <span class="nt">&quot;class&quot;</span><span class="p">:</span><span class="s2">&quot;\\OC\\Files\\Storage\\FTP&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;options&quot;</span><span class="p">:{</span>
+        <span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="s2">&quot;ftp.myhost.com&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;user&quot;</span><span class="p">:</span><span class="s2">&quot;johndoe&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;password&quot;</span><span class="p">:</span><span class="s2">&quot;secret&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;root&quot;</span><span class="p">:</span><span class="s2">&quot;\/Videos&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;secure&quot;</span><span class="p">:</span><span class="s2">&quot;false&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -286,14 +293,15 @@ to ‘/’)</li>
 </ul>
 <div class="section" id="id3">
 <h4>Example<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-json"><pre>{   "class":"\\OC\\Files\\Storage\\SFTP",
-    "options":{
-        "host":"ssh.myhost.com",
-        "user":"johndoe",
-        "password":"secret",
-        "root":"\/Books"
-    }
-}</pre>
+<div class="highlight-json"><div class="highlight"><pre><span class="p">{</span>   <span class="nt">&quot;class&quot;</span><span class="p">:</span><span class="s2">&quot;\\OC\\Files\\Storage\\SFTP&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;options&quot;</span><span class="p">:{</span>
+        <span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="s2">&quot;ssh.myhost.com&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;user&quot;</span><span class="p">:</span><span class="s2">&quot;johndoe&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;password&quot;</span><span class="p">:</span><span class="s2">&quot;secret&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;root&quot;</span><span class="p">:</span><span class="s2">&quot;\/Books&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -321,15 +329,16 @@ to ‘/’)</li>
 </div>
 <div class="section" id="id4">
 <h4>Example<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-json"><pre>{   "class":"\\OC\\Files\\Storage\\SMB",
-    "options":{
-        "host":"myhost.com",
-        "user":"johndoe",
-        "password":"secret",
-        "share":"\/test",
-        "root":"\/Pictures"
-    }
-}</pre>
+<div class="highlight-json"><div class="highlight"><pre><span class="p">{</span>   <span class="nt">&quot;class&quot;</span><span class="p">:</span><span class="s2">&quot;\\OC\\Files\\Storage\\SMB&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;options&quot;</span><span class="p">:{</span>
+        <span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="s2">&quot;myhost.com&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;user&quot;</span><span class="p">:</span><span class="s2">&quot;johndoe&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;password&quot;</span><span class="p">:</span><span class="s2">&quot;secret&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;share&quot;</span><span class="p">:</span><span class="s2">&quot;\/test&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;root&quot;</span><span class="p">:</span><span class="s2">&quot;\/Pictures&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 </div>
 </div>
 </div>
@@ -350,14 +359,15 @@ defaults to ‘/’)</li>
 </ul>
 <div class="section" id="id5">
 <h4>Example<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-json"><pre>{   "class":"\\OC\\Files\\Storage\\DAV",
-    "options":{
-        "host":"myhost.com\/webdav.php",
-        "user":"johndoe",
-        "password":"secret",
-        "secure":"true"
-    }
-}</pre>
+<div class="highlight-json"><div class="highlight"><pre><span class="p">{</span>   <span class="nt">&quot;class&quot;</span><span class="p">:</span><span class="s2">&quot;\\OC\\Files\\Storage\\DAV&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;options&quot;</span><span class="p">:{</span>
+        <span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="s2">&quot;myhost.com\/webdav.php&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;user&quot;</span><span class="p">:</span><span class="s2">&quot;johndoe&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;password&quot;</span><span class="p">:</span><span class="s2">&quot;secret&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;secure&quot;</span><span class="p">:</span><span class="s2">&quot;true&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 </div>
 </div>
 </div>
@@ -374,13 +384,14 @@ options:</p>
 </ul>
 <div class="section" id="id6">
 <h4>Example<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-json"><pre>{   "class":"\\OC\\Files\\Storage\\AmazonS3",
-    "options":{
-        "key":"key",
-        "secret":"secret",
-        "bucket":"bucket"
-    }
-}</pre>
+<div class="highlight-json"><div class="highlight"><pre><span class="p">{</span>   <span class="nt">&quot;class&quot;</span><span class="p">:</span><span class="s2">&quot;\\OC\\Files\\Storage\\AmazonS3&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;options&quot;</span><span class="p">:{</span>
+        <span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="s2">&quot;key&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;secret&quot;</span><span class="p">:</span><span class="s2">&quot;secret&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;bucket&quot;</span><span class="p">:</span><span class="s2">&quot;bucket&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 </div>
 </div>
 </div>
@@ -398,15 +409,16 @@ be used is <strong>\OC\Files\Storage\Dropbox</strong> and takes the following op
 </ul>
 <div class="section" id="id7">
 <h4>Example<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-json"><pre>{   "class":"\\OC\\Files\\Storage\\Dropbox",
-    "options":{
-        "configured":"#configured",
-        "app_key":"key",
-        "app_secret":"secret",
-        "token":"#token",
-        "token_secret":"#token_secret"
-    }
-}</pre>
+<div class="highlight-json"><div class="highlight"><pre><span class="p">{</span>   <span class="nt">&quot;class&quot;</span><span class="p">:</span><span class="s2">&quot;\\OC\\Files\\Storage\\Dropbox&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;options&quot;</span><span class="p">:{</span>
+        <span class="nt">&quot;configured&quot;</span><span class="p">:</span><span class="s2">&quot;#configured&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;app_key&quot;</span><span class="p">:</span><span class="s2">&quot;key&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;app_secret&quot;</span><span class="p">:</span><span class="s2">&quot;secret&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;token&quot;</span><span class="p">:</span><span class="s2">&quot;#token&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;token_secret&quot;</span><span class="p">:</span><span class="s2">&quot;#token_secret&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 </div>
 </div>
 </div>
@@ -426,14 +438,15 @@ It takes the following options:</p>
 </ul>
 <div class="section" id="id8">
 <h4>Example<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-json"><pre>{   "class":"\\OC\\Files\\Storage\\Google",
-    "options":{
-        "configured":"#configured",
-        "client_id":"#client_id",
-        "client_secret":"#client_secret",
-        "token":"#token"
-    }
-}</pre>
+<div class="highlight-json"><div class="highlight"><pre><span class="p">{</span>   <span class="nt">&quot;class&quot;</span><span class="p">:</span><span class="s2">&quot;\\OC\\Files\\Storage\\Google&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;options&quot;</span><span class="p">:{</span>
+        <span class="nt">&quot;configured&quot;</span><span class="p">:</span><span class="s2">&quot;#configured&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;client_id&quot;</span><span class="p">:</span><span class="s2">&quot;#client_id&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;client_secret&quot;</span><span class="p">:</span><span class="s2">&quot;#client_secret&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;token&quot;</span><span class="p">:</span><span class="s2">&quot;#token&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 </div>
 </div>
 </div>
@@ -455,15 +468,16 @@ defaults to ‘/’)</li>
 </ul>
 <div class="section" id="id9">
 <h4>Example<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-json"><pre>{   "class":"\\OC\\Files\\Storage\\SWIFT",
-    "options":{
-        "host":"swift.myhost.com\/auth",
-        "user":"johndoe",
-        "token":"secret",
-        "root":"\/Videos",
-        "secure":"true"
-    }
-}</pre>
+<div class="highlight-json"><div class="highlight"><pre><span class="p">{</span>   <span class="nt">&quot;class&quot;</span><span class="p">:</span><span class="s2">&quot;\\OC\\Files\\Storage\\SWIFT&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;options&quot;</span><span class="p">:{</span>
+        <span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="s2">&quot;swift.myhost.com\/auth&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;user&quot;</span><span class="p">:</span><span class="s2">&quot;johndoe&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;token&quot;</span><span class="p">:</span><span class="s2">&quot;secret&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;root&quot;</span><span class="p">:</span><span class="s2">&quot;\/Videos&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;secure&quot;</span><span class="p">:</span><span class="s2">&quot;true&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 </div>
 </div>
 </div>

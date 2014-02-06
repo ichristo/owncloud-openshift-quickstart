@@ -1,4 +1,5 @@
 <?php $TRANSLATIONS = array(
+"No file provided for import" => "Không có tập tin nào để nhập vào",
 "Unsupported file type for import" => "Loại tập tin không được hỗ trợ để nhập vào",
 "Bookmarks" => "Bookmarks",
 "Tags" => "Tags",
@@ -6,6 +7,7 @@
 "Edit bookmark" => "Sửa bookmark",
 "Are you sure you want to remove this tag from every entry?" => "Bạn có chắc chắn bạn muốn loại bỏ tags này ?",
 "Warning" => "Cảnh báo",
+"Import error" => "Lỗi khi nhập",
 "Import completed successfully." => "Nhập vào thành công",
 "Uploading..." => "tải lên...",
 "Bookm." => "Bookm.",
@@ -19,7 +21,6 @@
 "Edit" => "Sửa",
 "Cancel" => "Hủy",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Kéo vào bookmark trình duyệt của bạn và nhấp vào nó, khi bạn muốn đánh dấu một trang web một cách nhanh chóng:",
-"Read later" => "Đọc sau",
 "Address" => "Địa chỉ",
 "Add" => "Thêm",
 "Related Tags" => "Những Tag có liên quan",

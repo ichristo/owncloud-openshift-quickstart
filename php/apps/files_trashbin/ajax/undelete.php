@@ -12,7 +12,8 @@ $success = array();
 
 $i = 0;
 foreach ($list as $file) {
-	if ( $dirlisting=='0') {
+	if ( $dirlisting === '0') {
+		$file = ltrim($file, '/');
 		$delimiter = strrpos($file, '.d');
 		$filename = substr($file, 0, $delimiter);
 		$timestamp =  substr($file, $delimiter+2);
@@ -24,6 +25,7 @@ foreach ($list as $file) {
 
 	if ( !OCA\Files_Trashbin\Trashbin::restore($file, $filename, $timestamp) ) {
 		$error[] = $filename;
+		OC_Log::write('trashbin','can\'t restore ' . $filename, OC_Log::ERROR);
 	} else {
 		$success[$i]['filename'] = $file;
 		$success[$i]['timestamp'] = $timestamp;

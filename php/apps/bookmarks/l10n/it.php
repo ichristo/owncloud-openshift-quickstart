@@ -21,7 +21,7 @@
 "Edit" => "Modifica",
 "Cancel" => "Annulla",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Quando vuoi creare rapidamente un segnalibro, trascinalo sui segnalibri del browser e fai clic su di esso:",
-"Read later" => "Leggi dopo",
+"Add to ownCloud" => "Aggiungi a ownCloud",
 "Address" => "Indirizzo",
 "Add" => "Aggiungi",
 "Related Tags" => "Tag correlati",

@@ -24,15 +24,15 @@
 OCP\App::registerAdmin('user_ldap', 'settings');
 
 $configPrefixes = OCA\user_ldap\lib\Helper::getServerConfigurationPrefixes(true);
-if(count($configPrefixes) == 1) {
-	$connector = new OCA\user_ldap\lib\Connection($configPrefixes[0]);
-	$userBackend  = new OCA\user_ldap\USER_LDAP();
-	$userBackend->setConnector($connector);
-	$groupBackend = new OCA\user_ldap\GROUP_LDAP();
-	$groupBackend->setConnector($connector);
-} else {
-	$userBackend  = new OCA\user_ldap\User_Proxy($configPrefixes);
-	$groupBackend  = new OCA\user_ldap\Group_Proxy($configPrefixes);
+$ldapWrapper = new OCA\user_ldap\lib\LDAP();
+if(count($configPrefixes) === 1) {
+	$connector = new OCA\user_ldap\lib\Connection($ldapWrapper, $configPrefixes[0]);
+	$ldapAccess = new OCA\user_ldap\lib\Access($connector, $ldapWrapper);
+	$userBackend  = new OCA\user_ldap\USER_LDAP($ldapAccess);
+	$groupBackend = new OCA\user_ldap\GROUP_LDAP($ldapAccess);
+} else if(count($configPrefixes) > 1) {
+	$userBackend  = new OCA\user_ldap\User_Proxy($configPrefixes, $ldapWrapper);
+	$groupBackend  = new OCA\user_ldap\Group_Proxy($configPrefixes, $ldapWrapper);
 }
 
 if(count($configPrefixes) > 0) {
@@ -49,7 +49,7 @@ $entry = array(
 	'name' => 'LDAP'
 );
 
-OCP\Backgroundjob::addRegularTask('OCA\user_ldap\lib\Jobs', 'updateGroups');
+OCP\Backgroundjob::registerJob('OCA\user_ldap\lib\Jobs');
 if(OCP\App::isEnabled('user_webdavauth')) {
 	OCP\Util::writeLog('user_ldap',
 		'user_ldap and user_webdavauth are incompatible. You may experience unexpected behaviour',

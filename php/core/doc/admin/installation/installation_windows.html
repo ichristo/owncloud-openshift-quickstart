@@ -2,19 +2,22 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Windows 7 and Windows Server 2008 &mdash; ownCloud Administrators Manual v5.0 documentation</title>
+    <title>Windows 7 and Windows Server 2008 &mdash; ownCloud Administrators Manual 6.0 documentation</title>
+    
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '5.0',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +27,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/bootstrap.js"></script>
-    <link rel="top" title="ownCloud Administrators Manual v5.0 documentation" href="../index.html" />
+    <link rel="top" title="ownCloud Administrators Manual 6.0 documentation" href="../index.html" />
     <link rel="up" title="Installation" href="index.html" />
     <link rel="next" title="Univention Corporate Server" href="installation_ucs.html" />
     <link rel="prev" title="Mac OS X" href="installation_macos.html" />
@@ -128,7 +131,8 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="installation_ucs.html">Univention Corporate Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation_source.html">Manual Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation_others.html">Other Web Servers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation_others.html">PageKite Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation_others.html#open-wrt">Open Wrt</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
@@ -164,10 +168,10 @@ Microsoft SQL Server is not yet support.</p>
 <p>Enabling SSL is not yet covered by this section.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">If you make your desktop machine or server available outside of your</p>
-</div>
-<p>LAN, you must maintain it. Monitor the logs, manage the access, apply patches to
+<p class="last">If you make your desktop machine or server available outside of your
+LAN, you must maintain it. Monitor the logs, manage the access, apply patches to
 avoid compromising the system at large.</p>
+</div>
 <p>There are 4 primary steps to the installation, and then a 5th step
 required for configuring everything to allow files larger than the
 default 2MB.</p>
@@ -313,13 +317,13 @@ your wwwroot directory (probably <strong>C:\inetpub\wwwroot</strong>).</li>
 </ol>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">You cannot install directly into the directory <strong>wwwroot</strong> from jzip,</p>
-</div>
-<p>as only the administrator can unzip into the <strong>wwwroot</strong> directory. If you save
+<p class="last">You cannot install directly into the directory <strong>wwwroot</strong> from jzip,
+as only the administrator can unzip into the <strong>wwwroot</strong> directory. If you save
 it in a different folder, and then move the files into <strong>wwwroot</strong> in windows
 explorer, it works. This will install ownCloud locally in your root web
 directory. You can use a subdirectory called owncloud, or whatever you want –
 the www root, or something else.</p>
+</div>
 <ol class="arabic simple" start="4">
 <li>It is now time to give write access to the ownCloud directory to the ownCloud
 server: Navigate your windows explorer over to  <strong>inetpub/wwwroot/owncloud</strong> (or
@@ -333,14 +337,13 @@ is installed in the root www directory). This should bring up the ownCloud
 configuration page.</li>
 <li>At this page, you enter your desired ownCloud user name and password for the
 administrator, and expand the little arrow.</li>
-<li>Select MySQL as the database, and enter your MySQL database user name,</li>
-</ol>
-<blockquote>
+<li>Select MySQL as the database, and enter your MySQL database user name,
 password and desired instance name – use the user name and password you setup
-for MySQL earlier in step 3, and pick any name for the database instance.</blockquote>
+for MySQL earlier in step 3, and pick any name for the database instance.</li>
+</ol>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The owncloud admin password and the MySQL password CANNOT be the same
+<p class="last">The ownCloud admin password and the MySQL password CANNOT be the same
 in any way.</p>
 </div>
 <ol class="arabic simple" start="11">

@@ -1,24 +1,24 @@
 <?php
 /**
-* ownCloud
-*
-* @author Frank Karlitschek
-* @copyright 2012 Frank Karlitschek frank@owncloud.org
-*
-* This library is free software; you can redistribute it and/or
-* modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
-* License as published by the Free Software Foundation; either
-* version 3 of the License, or any later version.
-*
-* This library is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU AFFERO GENERAL PUBLIC LICENSE for more details.
-*
-* You should have received a copy of the GNU Affero General Public
-* License along with this library.  If not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * ownCloud
+ *
+ * @author Frank Karlitschek
+ * @copyright 2012 Frank Karlitschek frank@owncloud.org
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public
+ * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 /**
  * Public interface of ownCloud for apps to use.
@@ -27,7 +27,7 @@
  */
 
 /**
- * @brief use OCP namespace for all classes that are considered public.
+ * Use OCP namespace for all classes that are considered public.
  *
  * Classes that use this namespace are for use by apps, and not for use by internal
  * OC classes
@@ -40,7 +40,7 @@ namespace OCP;
  */
 class Config {
 	/**
-	 * @brief Gets a value from config.php
+	 * Gets a value from config.php
 	 * @param string $key key
 	 * @param string $default = null default value
 	 * @return string the value or $default
@@ -49,11 +49,11 @@ class Config {
 	 * $default will be returned.
 	 */
 	public static function getSystemValue( $key, $default = null ) {
-		return(\OC_Config::getValue( $key, $default ));
+		return \OC_Config::getValue( $key, $default );
 	}
 
 	/**
-	 * @brief Sets a value
+	 * Sets a value
 	 * @param string $key key
 	 * @param string $value value
 	 * @return bool
@@ -62,11 +62,16 @@ class Config {
 	 * not be written, false will be returned.
 	 */
 	public static function setSystemValue( $key, $value ) {
-		return(\OC_Config::setValue( $key, $value ));
+		try {
+			\OC_Config::setValue( $key, $value );
+		} catch (Exception $e) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
-	 * @brief Gets the config value
+	 * Gets the config value
 	 * @param string $app app
 	 * @param string $key key
 	 * @param string $default = null, default value if the key does not exist
@@ -76,11 +81,11 @@ class Config {
 	 * not exist the default value will be returned
 	 */
 	public static function getAppValue( $app, $key, $default = null ) {
-		return(\OC_Appconfig::getValue( $app, $key, $default ));
+		return \OC_Appconfig::getValue( $app, $key, $default );
 	}
 
 	/**
-	 * @brief sets a value in the appconfig
+	 * Sets a value in the appconfig
 	 * @param string $app app
 	 * @param string $key key
 	 * @param string $value value
@@ -89,11 +94,16 @@ class Config {
 	 * Sets a value. If the key did not exist before it will be created.
 	 */
 	public static function setAppValue( $app, $key, $value ) {
-		return(\OC_Appconfig::setValue( $app, $key, $value ));
+		try {
+			\OC_Appconfig::setValue( $app, $key, $value );
+		} catch (Exception $e) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
-	 * @brief Gets the preference
+	 * Gets the preference
 	 * @param string $user user
 	 * @param string $app app
 	 * @param string $key key
@@ -104,21 +114,26 @@ class Config {
 	 * not exist the default value will be returned
 	 */
 	public static function getUserValue( $user, $app, $key, $default = null ) {
-		return(\OC_Preferences::getValue( $user, $app, $key, $default ));
+		return \OC_Preferences::getValue( $user, $app, $key, $default );
 	}
 
 	/**
-	 * @brief sets a value in the preferences
+	 * Sets a value in the preferences
 	 * @param string $user user
 	 * @param string $app app
 	 * @param string $key key
 	 * @param string $value value
-	 * @returns bool
+	 * @return bool
 	 *
 	 * Adds a value to the preferences. If the key did not exist before, it
 	 * will be added automagically.
 	 */
 	public static function setUserValue( $user, $app, $key, $value ) {
-		return(\OC_Preferences::setValue( $user, $app, $key, $value ));
+		try {
+			\OC_Preferences::setValue( $user, $app, $key, $value );
+		} catch (Exception $e) {
+			return false;
+		}
+		return true;
 	}
 }

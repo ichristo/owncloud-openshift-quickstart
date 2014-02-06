@@ -1,5 +1,6 @@
 <?php $TRANSLATIONS = array(
-"In progress..." => "Sedang diproses...",
-"Error" => "kesalahan",
-"Update" => "Pembaruan"
+"Here is your backup: " => "Ini cadangan Anda:",
+"Update" => "Pembaruan",
+"Download" => "Unduh",
+"Delete" => "Hapus"
 );

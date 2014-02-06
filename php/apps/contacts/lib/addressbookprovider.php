@@ -21,9 +21,11 @@
  */
 
 namespace OCA\Contacts;
+use OCA\Contacts\Utils\Properties;
 
 /**
  * This class manages our addressbooks.
+ * TODO: Port this to use the new backend
  */
 class AddressbookProvider implements \OCP\IAddressBook {
 
@@ -38,32 +40,28 @@ class AddressbookProvider implements \OCP\IAddressBook {
 	
 	/**
 	 * Addressbook info array
-	 * @var array
+	 * @var AddressBook
 	 */
-	public $addressbook;
+	public $addressBook;
 
 	/**
 	 * Constructor
 	 * @param integer $id
 	 */
-	public function __construct($id) {
-		$this->id = $id;
-		\Sabre\VObject\Property::$classMap['GEO'] = 'Sabre\\VObject\\Property\\Compound';
+	public function __construct($addressBook) {
+		$this->addressBook = $addressBook;
 	}
 	
 	public function getAddressbook() {
-		if(!$this->addressbook) {
-			$this->addressbook = Addressbook::find($this->id);
-		}
-		return $this->addressbook;
+		return $this->addressBook;
 	}
 	
 	/**
 	* @return string defining the technical unique key
 	*/
 	public function getKey() {
-		$book = $this->getAddressbook();
-		return $book['uri'].':'.$book['userid'];
+		$metaData = $this->addressBook->getMetaData();
+		return $metaData['backend'].':'.$metaData['id'];
 	}
 
 	/**
@@ -71,16 +69,14 @@ class AddressbookProvider implements \OCP\IAddressBook {
 	* @return mixed
 	*/
 	public function getDisplayName() {
-		$book = $this->getAddressbook();
-		return $book['displayname'];
+		return $this->addressBook->getDisplayName();
 	}
 
 	/**
 	* @return mixed
 	*/
 	public function getPermissions() {
-		$book = $this->getAddressbook();
-		return $book['permissions'];
+		return $this->addressBook->getPermissions();
 	}
 
 	private function getProperty(&$results, $row) {
@@ -107,7 +103,7 @@ class AddressbookProvider implements \OCP\IAddressBook {
 				break;
 		}
 		
-		if(in_array($row['name'], App::$multi_properties)) {
+		if(in_array($row['name'], Properties::$multi_properties)) {
 			if(!isset($results[$row['contactid']])) {
 				$results[$row['contactid']] = array('id' => $row['contactid'], $row['name'] => array($value));
 			} elseif(!isset($results[$row['contactid']][$row['name']])) {
@@ -131,7 +127,6 @@ class AddressbookProvider implements \OCP\IAddressBook {
 	* @return array|false
 	*/
 	public function search($pattern, $searchProperties, $options) {
-		\OCP\Util::writeLog('contacts', __METHOD__.' pattern: '.$pattern.' book: '.$this->id, \OCP\Util::DEBUG);
 		$ids = array();
 		$results = array();
 		$query = 'SELECT DISTINCT `contactid` FROM `' . self::PROPERTY_TABLE . '` WHERE (';
@@ -146,8 +141,8 @@ class AddressbookProvider implements \OCP\IAddressBook {
 
 		$stmt = \OCP\DB::prepare($query);
 		$result = $stmt->execute($params);
-		if (\OC_DB::isError($result)) {
-			\OC_Log::write('contacts', __METHOD__ . 'DB error: ' . \OC_DB::getErrorMessage($result), 
+		if (\OCP\DB::isError($result)) {
+			\OCP\Util::writeLog('contacts', __METHOD__ . 'DB error: ' . \OC_DB::getErrorMessage($result),
 				\OCP\Util::ERROR);
 			return false;
 		}
@@ -159,12 +154,11 @@ class AddressbookProvider implements \OCP\IAddressBook {
 			$query = 'SELECT `' . self::CONTACT_TABLE . '`.`addressbookid`, `' . self::PROPERTY_TABLE . '`.`contactid`, `' 
 				. self::PROPERTY_TABLE . '`.`name`, `' . self::PROPERTY_TABLE . '`.`value` FROM `' 
 				. self::PROPERTY_TABLE . '`,`' . self::CONTACT_TABLE . '` WHERE `'
-				. self::CONTACT_TABLE . '`.`addressbookid` = \'' . $this->id . '\' AND `'
+				. self::CONTACT_TABLE . '`.`addressbookid` = \'' . $this->addressBook->getId() . '\' AND `'
 				. self::PROPERTY_TABLE . '`.`contactid` = `' . self::CONTACT_TABLE . '`.`id` AND `' 
 				. self::PROPERTY_TABLE . '`.`contactid` IN (' . join(',', array_fill(0, count($ids), '?')) . ')';
 
-			\OC_Log::write('contacts', __METHOD__ . 'DB query: ' . $query, \OCP\Util::DEBUG);
-		\OCP\Util::writeLog('contacts', __METHOD__.' params: '.print_r($ids, true), \OCP\Util::DEBUG);
+			\OCP\Util::writeLog('contacts', __METHOD__ . 'DB query: ' . $query, \OCP\Util::DEBUG);
 			$stmt = \OCP\DB::prepare($query);
 			$result = $stmt->execute($ids);
 		}
@@ -199,7 +193,7 @@ class AddressbookProvider implements \OCP\IAddressBook {
 			try {
 				$id = VCard::add($this->id, $vcard, null, true);
 			} catch(Exception $e) {
-				\OC_Log::write('contacts', __METHOD__ . ' ' . $e->getMessage(), \OCP\Util::ERROR);
+				\OCP\Util::writeLog('contacts', __METHOD__ . ' ' . $e->getMessage(), \OCP\Util::ERROR);
 				return false;
 			}
 		}
@@ -242,7 +236,7 @@ class AddressbookProvider implements \OCP\IAddressBook {
 		try {
 			VCard::edit($id, $vcard);
 		} catch(Exception $e) {
-			\OC_Log::write('contacts', __METHOD__ . ' ' . $e->getMessage(), \OCP\Util::ERROR);
+			\OCP\Util::writeLog('contacts', __METHOD__ . ' ' . $e->getMessage(), \OCP\Util::ERROR);
 			return false;
 		}
 		
@@ -260,13 +254,13 @@ class AddressbookProvider implements \OCP\IAddressBook {
 			$query = 'SELECT * FROM `*PREFIX*contacts_cards` WHERE `id` = ? AND `addressbookid` = ?';
 			$stmt = \OCP\DB::prepare($query);
 			$result = $stmt->execute(array($id, $this->id));
-			if (\OC_DB::isError($result)) {
-				\OC_Log::write('contacts', __METHOD__ . 'DB error: ' . \OC_DB::getErrorMessage($result), 
+			if (\OCP\DB::isError($result)) {
+				\OCP\Util::writeLog('contacts', __METHOD__ . 'DB error: ' . \OC_DB::getErrorMessage($result),
 					\OCP\Util::ERROR);
 				return false;
 			}
 			if($result->numRows() === 0) {
-				\OC_Log::write('contacts', __METHOD__ 
+				\OCP\Util::writeLog('contacts', __METHOD__
 					. 'Contact with id ' . $id . 'doesn\'t belong to addressbook with id ' . $this->id, 
 					\OCP\Util::ERROR);
 				return false;

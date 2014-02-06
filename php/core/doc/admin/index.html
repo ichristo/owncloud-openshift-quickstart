@@ -2,19 +2,22 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Admin Documentation &mdash; ownCloud Administrators Manual v5.0 documentation</title>
+    <title>Admin Documentation &mdash; ownCloud Administrators Manual 6.0 documentation</title>
+    
     <link rel="stylesheet" href="_static/style.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/style.css" type="text/css" />
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '5.0',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +27,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/bootstrap.js"></script>
-    <link rel="top" title="ownCloud Administrators Manual v5.0 documentation" href="#" />
+    <link rel="top" title="ownCloud Administrators Manual 6.0 documentation" href="#" />
     <link rel="next" title="Installation" href="installation/index.html" />
     <link rel="prev" title="ownCloud documentation contents" href="contents.html" />
 <script type="text/javascript">
@@ -118,7 +121,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#maintenance">Maintenance</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 </li>
 </ul>
@@ -164,42 +166,43 @@ environment, e.g. how to setup LDAP or how to mount your storage.</p>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>This chapter will introduce you to the installation of ownCloud in different
-scenarios.</p>
-<p>If you want to just try ownCloud in a virtual machine without any configuration, check the section <a class="reference internal" href="installation/installation_appliance.html"><em>Appliances</em></a>, where you will find ready-to-use images.</p>
+<p>This chapter will introduce you to the installation of ownCloud in different scenarios.</p>
+<p>If you want to just try ownCloud in a virtual machine without any configuration, check the section
+<a class="reference internal" href="installation/installation_appliance.html"><em>Appliances</em></a>, where you will find ready-to-use images.</p>
 <ul class="simple">
-<li><a class="reference internal" href="installation/installation_appliance.html"><em>Appliances</em></a></li>
-<li><a class="reference internal" href="installation/installation_linux.html"><em>Linux Distributions</em></a></li>
-<li><a class="reference internal" href="installation/installation_macos.html"><em>Mac OS X</em></a></li>
+<li><a class="reference internal" href="installation/installation_linux.html"><em>Linux Distributions</em></a> (recommended)</li>
 <li><a class="reference internal" href="installation/installation_windows.html"><em>Windows 7 and Windows Server 2008</em></a></li>
-<li><a class="reference internal" href="installation/installation_ucs.html"><em>Univention Corporate Server</em></a></li>
 <li><a class="reference internal" href="installation/installation_source.html"><em>Manual Installation</em></a></li>
-<li><a class="reference internal" href="installation/installation_others.html"><em>Other Web Servers</em></a></li>
+<li><a class="reference internal" href="installation/installation_others.html"><em>PageKite Configuration</em></a></li>
+<li><a class="reference internal" href="installation/installation_ucs.html"><em>Univention Corporate Server</em></a></li>
+<li><a class="reference internal" href="installation/installation_macos.html"><em>Mac OS X</em></a> (not supported)</li>
+<li><a class="reference internal" href="installation/installation_appliance.html"><em>Appliances</em></a></li>
 </ul>
 </div>
 <div class="section" id="configuration">
 <h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
-<p>This chapter covers ownCloud and Webserver configuration.</p>
+<p>This chapter covers ownCloud and web server configuration.</p>
 <ul class="simple">
-<li><a class="reference internal" href="configuration/configuration_3rdparty.html"><em>3rd-Party Configuration</em></a></li>
 <li><a class="reference internal" href="configuration/configuration_apps.html"><em>Apps Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_automation.html"><em>Automatic Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/configuration_users.html"><em>User Management</em></a></li>
 <li><a class="reference internal" href="configuration/configuration_database.html"><em>Database Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/auth_ldap.html"><em>User Authentication with LDAP</em></a></li>
+<li><a class="reference internal" href="configuration/custom_mount_config_gui.html"><em>Custom Mount Configuration Web-GUI</em></a></li>
+<li><a class="reference internal" href="configuration/custom_mount_config.html"><em>Custom Mount Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/background_jobs.html"><em>Background Jobs</em></a></li>
+<li><a class="reference internal" href="configuration/configuration_mail.html"><em>Mail Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/configuration_automation.html"><em>Automatic Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/configuration_encryption.html"><em>Use Server-Side Encryption</em></a></li>
+<li><a class="reference internal" href="configuration/configuring_big_file_upload.html"><em>Uploading big files &gt; 512MB (as set by default)</em></a></li>
+<li><a class="reference internal" href="configuration/configuration_reverseproxy.html"><em>Reverse Proxy Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/xsendfile.html"><em>Serving static files via web server</em></a></li>
+<li><a class="reference internal" href="configuration/configuration_3rdparty.html"><em>3rd-Party Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/custom_user_backend.html"><em>Custom User Backend Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/configuration_custom_clients.html"><em>Custom Client Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/configuration_maintenance.html"><em>Maintenance Mode Configuration</em></a></li>
 <li><a class="reference internal" href="configuration/configuration_knowledgebase.html"><em>Knowledge Base Configuration</em></a></li>
 <li><a class="reference internal" href="configuration/configuration_logging.html"><em>Logging Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_mail.html"><em>Mail Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_reverseproxy.html"><em>Reverse Proxy Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/custom_mount_config.html"><em>Custom Mount Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/custom_mount_config_gui.html"><em>Custom Mount Configuration Web-GUI</em></a></li>
-<li><a class="reference internal" href="configuration/custom_user_backend.html"><em>Custom User Backend Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/auth_ldap.html"><em>User Authentication with LDAP</em></a></li>
-<li><a class="reference internal" href="configuration/xsendfile.html"><em>Serving static files via web server</em></a></li>
-<li><a class="reference internal" href="configuration/background_jobs.html"><em>Background Jobs</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_custom_clients.html"><em>Custom Client Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_encryption.html"><em>Use Server-Side Encryption</em></a></li>
 <li><a class="reference internal" href="configuration/configuration_language.html"><em>Language Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_maintenance.html"><em>Maintenance Mode Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/configuring_big_file_upload.html"><em>Uploading big files &gt; 512MB (as set by default)</em></a></li>
 </ul>
 </div>
 <div class="section" id="maintenance">
@@ -208,12 +211,6 @@ scenarios.</p>
 <ul class="simple">
 <li><a class="reference internal" href="maintenance/migrating.html"><em>Migrating ownCloud Installations</em></a></li>
 <li><a class="reference internal" href="maintenance/update.html"><em>Updating ownCloud</em></a></li>
-</ul>
-</div>
-<div class="section" id="indices-and-tables">
-<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
 </ul>
 </div>
 </div>

@@ -3,18 +3,17 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-#   <florentin.lemoal@gmail.com>, 2012.
-#   <gp4004@arghh.org>, 2012.
-# Guillaume Paumier <guillom.pom@gmail.com>, 2012.
-# Romain DEP. <rom1dep@gmail.com>, 2012.
-#   <windes@tructor.net>, 2012.
+# square <benben390-390@yahoo.fr>, 2013
+# Christophe Lherieau <skimpax@gmail.com>, 2013
+# etiess <etiess@gmail.com>, 2013
+# ogre_sympathique <ogre.sympathique@speed.1s.fr>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
-"Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2012-09-25 02:02+0200\n"
-"PO-Revision-Date: 2012-09-24 14:21+0000\n"
-"Last-Translator: Romain DEP. <rom1dep@gmail.com>\n"
+"Report-Msgid-Bugs-To: translations@owncloud.org\n"
+"POT-Creation-Date: 2013-11-15 22:54-0500\n"
+"PO-Revision-Date: 2013-11-13 16:11+0000\n"
+"Last-Translator: etiess <etiess@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/owncloud/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -23,31 +22,67 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: templates/authenticate.php:4
+msgid "This share is password-protected"
+msgstr "Ce partage est protégé par un mot de passe"
+
+#: templates/authenticate.php:7
+msgid "The password is wrong. Try again."
+msgstr "Le mot de passe est incorrect. Veuillez réessayer."
+
+#: templates/authenticate.php:10
 msgid "Password"
 msgstr "Mot de passe"
 
-#: templates/authenticate.php:6
-msgid "Submit"
-msgstr "Envoyer"
+#: templates/part.404.php:3
+msgid "Sorry, this link doesn’t seem to work anymore."
+msgstr "Désolé, mais le lien semble ne plus fonctionner."
 
-#: templates/public.php:9
+#: templates/part.404.php:4
+msgid "Reasons might be:"
+msgstr "Les raisons peuvent être :"
+
+#: templates/part.404.php:6
+msgid "the item was removed"
+msgstr "l'item a été supprimé"
+
+#: templates/part.404.php:7
+msgid "the link expired"
+msgstr "le lien a expiré"
+
+#: templates/part.404.php:8
+msgid "sharing is disabled"
+msgstr "le partage est désactivé"
+
+#: templates/part.404.php:10
+msgid "For more info, please ask the person who sent this link."
+msgstr "Pour plus d'informations, veuillez contacter la personne qui a envoyé ce lien."
+
+#: templates/public.php:18
 #, php-format
 msgid "%s shared the folder %s with you"
 msgstr "%s a partagé le répertoire %s avec vous"
 
-#: templates/public.php:11
+#: templates/public.php:21
 #, php-format
 msgid "%s shared the file %s with you"
 msgstr "%s a partagé le fichier %s avec vous"
 
-#: templates/public.php:14 templates/public.php:30
+#: templates/public.php:29 templates/public.php:95
 msgid "Download"
 msgstr "Télécharger"
 
-#: templates/public.php:29
+#: templates/public.php:46 templates/public.php:49
+msgid "Upload"
+msgstr "Envoyer"
+
+#: templates/public.php:59
+msgid "Cancel upload"
+msgstr "Annuler l'envoi"
+
+#: templates/public.php:92
 msgid "No preview available for"
 msgstr "Pas d'aperçu disponible pour"
 
-#: templates/public.php:37
-msgid "web services under your control"
-msgstr "services web sous votre contrôle"
+#: templates/public.php:99
+msgid "Direct link"
+msgstr "Lien direct"

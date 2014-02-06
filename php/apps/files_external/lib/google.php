@@ -286,7 +286,7 @@ class Google extends \OC\Files\Storage\Common {
 				// Check if this is a Google Doc
 				if ($this->getMimeType($path) !== $file->getMimeType()) {
 					// Return unknown file size
-					$stat['size'] = \OC\Files\FREE_SPACE_UNKNOWN;
+					$stat['size'] = \OC\Files\SPACE_UNKNOWN;
 				} else {
 					$stat['size'] = $file->getFileSize();
 				}
@@ -315,10 +315,6 @@ class Google extends \OC\Files\Storage\Common {
 				return false;
 			}
 		}
-	}
-
-	public function isReadable($path) {
-		return $this->file_exists($path);
 	}
 
 	public function isUpdatable($path) {

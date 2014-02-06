@@ -1,4 +1,5 @@
 <?php $TRANSLATIONS = array(
+"No file provided for import" => "Neniu dosiero aldonita por enporti",
 "Unsupported file type for import" => "Dosiertipo nekongrua kun enporto",
 "Bookmarks" => "Legosignoj",
 "Tags" => "Etikedoj",
@@ -6,6 +7,7 @@
 "Edit bookmark" => "Redakti legosignon",
 "Are you sure you want to remove this tag from every entry?" => "Ĉu vi vere volas forigi ĉi tiun etikedon el ĉiu ero?",
 "Warning" => "Averto",
+"Import error" => "Enporta eraro",
 "Import completed successfully." => "Enporto plenumiĝis sukcese.",
 "Uploading..." => "Alŝutante...",
 "Bookm." => "Legos.",
@@ -19,7 +21,6 @@
 "Edit" => "Redakti",
 "Cancel" => "Nuligi",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Ŝovu tion ĉi al la legosignoj de via TTT-legilo kaj klaku ĝin, se vi volas rapide legosignigi TTT-paĝon:",
-"Read later" => "Legi poste",
 "Address" => "Adreso",
 "Add" => "Aldoni",
 "Related Tags" => "Rilataj etikedoj",

@@ -2,19 +2,22 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Apps Configuration &mdash; ownCloud Administrators Manual v5.0 documentation</title>
+    <title>Apps Configuration &mdash; ownCloud Administrators Manual 6.0 documentation</title>
+    
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '5.0',
+        VERSION:     '6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,10 +27,10 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/bootstrap.js"></script>
-    <link rel="top" title="ownCloud Administrators Manual v5.0 documentation" href="../index.html" />
+    <link rel="top" title="ownCloud Administrators Manual 6.0 documentation" href="../index.html" />
     <link rel="up" title="Configuration" href="index.html" />
-    <link rel="next" title="Automatic Configuration" href="configuration_automation.html" />
-    <link rel="prev" title="3rd-Party Configuration" href="configuration_3rdparty.html" />
+    <link rel="next" title="User Management" href="configuration_users.html" />
+    <link rel="prev" title="Configuration" href="index.html" />
 <script type="text/javascript">
 (function () {
   /**
@@ -115,13 +118,14 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Configuration</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="auth_ldap.html">User Authentication with LDAP</a></li>
-<li class="toctree-l2"><a class="reference internal" href="background_jobs.html">Background Jobs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="configuration_3rdparty.html">3rd-Party Configuration</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Apps Configuration</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_users.html">User Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auth_ldap.html">User Authentication with LDAP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="background_jobs.html">Background Jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_3rdparty.html">3rd-Party Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_automation.html">Automatic Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_custom_clients.html">Custom Client Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_database.html">Database Configuration</a></li>
@@ -131,6 +135,7 @@
 <li class="toctree-l2"><a class="reference internal" href="configuration_logging.html">Logging Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_mail.html">Mail Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_maintenance.html">Maintenance Mode Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_preview.html">Preview Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration_reverseproxy.html">Reverse Proxy Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html">Uploading big files &gt; 512MB (as set by default)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuring_big_file_upload.html#enabling-uploading-big-files">Enabling uploading big files</a></li>
@@ -156,9 +161,22 @@
 						
   <div class="section" id="apps-configuration">
 <h1>Apps Configuration<a class="headerlink" href="#apps-configuration" title="Permalink to this headline">¶</a></h1>
-<p>After you have installed ownCloud you might realize that it would be nice to
+<p>After you have installed ownCloud, you might realize that it would be nice to
 provide an additional function on top of the core functionality in your ownCloud installation.</p>
-<p>The first step should be to check out the <a class="reference external" href="http://apps.owncloud.com/">ownCloud apps store</a>. There you will find a lot of ready-to-use apps provided by the ownCloud community.</p>
+<p>With ownCloud installation, you will find some apps enabled by default. To see which applications
+are enabled, click on Apps button on the web interface navigation to go into applications page:</p>
+<div class="figure">
+<img alt="../_images/oc_admin_app_page.png" src="../_images/oc_admin_app_page.png" />
+</div>
+<p>Administrator application page</p>
+<p>In this page, you can enable or disable applications simply by clicking on their names.
+Enabled applications will be shown in <strong>bold</strong> while disabled ones will be shown in normal font.
+If the app is not developed by ownCloud, it will have the <em>3rd party</em> notice next to it. To see what an
+application does, clicking on its name will show a description on the right side of the same page.</p>
+<p>To install new apps, you can use <em>More apps</em> button or check out the <a class="reference external" href="http://apps.owncloud.com/">ownCloud apps store</a>.
+There you will find a lot of ready-to-use apps provided by the ownCloud community.</p>
+<p>If you would like to add your own app, please use <em>Add your App...</em> button on the same page. This will redirect you to
+our <a class="reference external" href="http://owncloud.org/dev">Developer Center</a>.</p>
 <div class="section" id="parameters">
 <h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
 <p>Parameters are set in the <tt class="file docutils literal"><span class="pre">config/config.php</span></tt> inside the <strong>$CONFIG</strong> array.</p>
@@ -172,17 +190,18 @@ web root. The key <strong>writable</strong> indicates if a user can install apps
 folder.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">If you want to make sure that the default <strong>/apps/</strong> folder only contains apps shipped with ownCloud, you should follow the example and set-up a <strong>/apps2/</strong> folder which will be used to store all apps downloaded by users</p>
+<p class="last">If you want to make sure that the default <strong>/apps/</strong> folder only contains apps shipped with ownCloud, you
+should follow the example and set-up a <strong>/apps2/</strong> folder which will be used to store all apps downloaded by users</p>
 </div>
 <div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
 
   <span class="s2">&quot;apps_paths&quot;</span> <span class="o">=&gt;</span> <span class="k">array</span> <span class="p">(</span>
-      <span class="m">0</span> <span class="o">=&gt;</span> <span class="k">array</span> <span class="p">(</span>
+      <span class="mi">0</span> <span class="o">=&gt;</span> <span class="k">array</span> <span class="p">(</span>
               <span class="s2">&quot;path&quot;</span>     <span class="o">=&gt;</span> <span class="nx">OC</span><span class="o">::</span><span class="nv">$SERVERROOT</span><span class="o">.</span><span class="s2">&quot;/apps&quot;</span><span class="p">,</span>
               <span class="s2">&quot;url&quot;</span>      <span class="o">=&gt;</span> <span class="s2">&quot;/apps&quot;</span><span class="p">,</span>
               <span class="s2">&quot;writable&quot;</span> <span class="o">=&gt;</span> <span class="k">false</span><span class="p">,</span>
       <span class="p">),</span>
-      <span class="m">1</span> <span class="o">=&gt;</span> <span class="k">array</span> <span class="p">(</span>
+      <span class="mi">1</span> <span class="o">=&gt;</span> <span class="k">array</span> <span class="p">(</span>
               <span class="s2">&quot;path&quot;</span>     <span class="o">=&gt;</span> <span class="nx">OC</span><span class="o">::</span><span class="nv">$SERVERROOT</span><span class="o">.</span><span class="s2">&quot;/apps2&quot;</span><span class="p">,</span>
               <span class="s2">&quot;url&quot;</span>      <span class="o">=&gt;</span> <span class="s2">&quot;/apps2&quot;</span><span class="p">,</span>
               <span class="s2">&quot;writable&quot;</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span>
@@ -195,7 +214,7 @@ folder.</p>
 <h3>Use your own appstore<a class="headerlink" href="#use-your-own-appstore" title="Permalink to this headline">¶</a></h3>
 <p>If you want to allow the installation of apps from the apps store you have to
 set <strong>appstoreenabled</strong> parameter, but this can only be done if at least one
-of the configured apps directories is writeable.</p>
+of the configured apps directories is writable.</p>
 <p>The <strong>appstoreurl</strong> is used to set the http path to the ownCloud apps store. The appstore server has to use <abbr title="Open Collaboration Services">OCS</abbr>.</p>
 <div class="highlight-php"><div class="highlight"><pre><span class="cp">&lt;?php</span>
 

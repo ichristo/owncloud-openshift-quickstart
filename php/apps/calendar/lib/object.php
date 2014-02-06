@@ -62,14 +62,14 @@ class OC_Calendar_Object{
 	 * in ['calendardata']
 	 */
 	public static function allInPeriod($id, $start, $end) {
-		$stmt = OCP\DB::prepare( 'SELECT * FROM `*PREFIX*clndr_objects` WHERE `calendarid` = ?'
-		.' AND ((`startdate` >= ? AND `startdate` <= ? AND `repeating` = 0)'
-		.' OR (`enddate` >= ? AND `enddate` <= ? AND `repeating` = 0)'
-		.' OR (`startdate` <= ? AND `repeating` = 1))' );
+		$stmt = OCP\DB::prepare( 'SELECT * FROM `*PREFIX*clndr_objects` WHERE `calendarid` = ? AND `objecttype`= ?' 
+		.' AND ((`startdate` >= ? AND `enddate` <= ? AND `repeating` = 0)'
+		.' OR (`enddate` >= ? AND `startdate` <= ? AND `repeating` = 0)'
+		.' OR (`startdate` <= ? AND `repeating` = 1) )' );
 		$start = self::getUTCforMDB($start);
 		$end = self::getUTCforMDB($end);
-		$result = $stmt->execute(array($id,
-					$start, $end,
+		$result = $stmt->execute(array($id,'VEVENT',
+					$start, $end,					
 					$start, $end,
 					$end));
 
@@ -276,8 +276,6 @@ class OC_Calendar_Object{
 		OCP\Share::unshareAll('event', $id);
 
 		OCP\Util::emitHook('OC_Calendar', 'deleteEvent', $id);
-
-		OC_Calendar_App::getVCategories()->purgeObject($id);
 
 		return true;
 	}
@@ -530,9 +528,9 @@ class OC_Calendar_Object{
 	 */
 	public static function getAccessClassOptions($l10n) {
 		return array(
-			'PUBLIC'       => (string)$l10n->t('Public'),
-			'PRIVATE'      => (string)$l10n->t('Private'),
-			'CONFIDENTIAL' => (string)$l10n->t('Confidential')
+			'PUBLIC'       => (string)$l10n->t('Show full event'),
+			'PRIVATE'      => (string)$l10n->t('Show only busy'),
+			'CONFIDENTIAL' => (string)$l10n->t('Hide event')
 		);
 	}
 
@@ -1036,11 +1034,9 @@ class OC_Calendar_Object{
 			$timezone = OC_Calendar_App::getTimezone();
 			$timezone = new DateTimeZone($timezone);
 			$start = new DateTime($from.' '.$fromtime, $timezone);
-			$start->setTimezone(new DateTimeZone('UTC'));
 			$end = new DateTime($to.' '.$totime, $timezone);
-			$end->setTimezone(new DateTimeZone('UTC'));
-			$vevent->setDateTime('DTSTART', $start, Sabre\VObject\Property\DateTime::UTC);
-			$vevent->setDateTime('DTEND', $end, Sabre\VObject\Property\DateTime::UTC);
+			$vevent->setDateTime('DTSTART', $start, Sabre\VObject\Property\DateTime::LOCALTZ);
+			$vevent->setDateTime('DTEND', $end, Sabre\VObject\Property\DateTime::LOCALTZ);
 		}
 		unset($vevent->DURATION);
 
@@ -1062,6 +1058,7 @@ class OC_Calendar_Object{
 	 * @return string
 	 */
 	public static function getowner($id) {
+		if ($id == 0) return null;
 		$event = self::find($id);
 		$cal = OC_Calendar_Calendar::find($event['calendarid']);
 		if($cal === false || is_array($cal) === false){
@@ -1114,8 +1111,10 @@ class OC_Calendar_Object{
 			}
 			$return['end'] = $end_dt->format('Y-m-d');
 		}else{
-			$start_dt->setTimezone(new DateTimeZone($tz));
-			$end_dt->setTimezone(new DateTimeZone($tz));
+			if($dtstart->getDateType() !== Sabre\VObject\Property\DateTime::LOCAL) {
+				$start_dt->setTimezone(new DateTimeZone($tz));
+				$end_dt->setTimezone(new DateTimeZone($tz));
+			}
 			$return['start'] = $start_dt->format('Y-m-d H:i:s');
 			$return['end'] = $end_dt->format('Y-m-d H:i:s');
 		}

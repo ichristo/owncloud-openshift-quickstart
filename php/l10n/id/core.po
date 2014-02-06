@@ -3,18 +3,13 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-#  <evanlimanto@gmail.com>, 2013.
-#   <mr.pige_ina@yahoo.co.id>, 2012.
-# Muhammad Fauzan <yosanpro@gmail.com>, 2012.
-# Muhammad Panji <sumodirjo@gmail.com>, 2012.
-# Muhammad Radifar <m_radifar05@yahoo.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
-"Report-Msgid-Bugs-To: http://bugs.owncloud.org/\n"
-"POT-Creation-Date: 2013-03-06 00:07+0100\n"
-"PO-Revision-Date: 2013-03-05 14:10+0000\n"
-"Last-Translator: evanlimanto <evanlimanto@gmail.com>\n"
+"Report-Msgid-Bugs-To: translations@owncloud.org\n"
+"POT-Creation-Date: 2013-11-26 10:45-0500\n"
+"PO-Revision-Date: 2013-11-26 15:45+0000\n"
+"Last-Translator: I Robot <owncloud-bot@tmit.eu>\n"
 "Language-Team: Indonesian (http://www.transifex.com/projects/p/owncloud/language/id/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -22,419 +17,500 @@ msgstr ""
 "Language: id\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ajax/share.php:97
+#: ajax/share.php:119 ajax/share.php:198
 #, php-format
-msgid "User %s shared a file with you"
+msgid "%s shared »%s« with you"
 msgstr ""
 
-#: ajax/share.php:99
+#: ajax/share.php:169
 #, php-format
-msgid "User %s shared a folder with you"
+msgid "Couldn't send mail to following users: %s "
 msgstr ""
 
-#: ajax/share.php:101
-#, php-format
-msgid ""
-"User %s shared the file \"%s\" with you. It is available for download here: "
-"%s"
+#: ajax/update.php:11
+msgid "Turned on maintenance mode"
 msgstr ""
 
-#: ajax/share.php:104
-#, php-format
-msgid ""
-"User %s shared the folder \"%s\" with you. It is available for download "
-"here: %s"
+#: ajax/update.php:14
+msgid "Turned off maintenance mode"
 msgstr ""
 
-#: ajax/vcategories/add.php:26 ajax/vcategories/edit.php:25
-msgid "Category type not provided."
-msgstr "Tipe kategori tidak diberikan."
+#: ajax/update.php:17
+msgid "Updated database"
+msgstr ""
 
-#: ajax/vcategories/add.php:30
-msgid "No category to add?"
-msgstr "Tidak ada kategori yang akan ditambahkan?"
+#: ajax/update.php:20
+msgid "Updating filecache, this may take really long..."
+msgstr ""
 
-#: ajax/vcategories/add.php:37
+#: ajax/update.php:23
+msgid "Updated filecache"
+msgstr ""
+
+#: ajax/update.php:26
 #, php-format
-msgid "This category already exists: %s"
-msgstr "Kategori ini sudah ada: %s"
+msgid "... %d%% done ..."
+msgstr ""
 
-#: ajax/vcategories/addToFavorites.php:26 ajax/vcategories/delete.php:27
-#: ajax/vcategories/favorites.php:24
-#: ajax/vcategories/removeFromFavorites.php:26
-msgid "Object type not provided."
-msgstr "Tipe obyek tidak diberikan."
+#: avatar/controller.php:62
+msgid "No image or file provided"
+msgstr ""
 
-#: ajax/vcategories/addToFavorites.php:30
-#: ajax/vcategories/removeFromFavorites.php:30
-#, php-format
-msgid "%s ID not provided."
-msgstr "%s ID tidak diberikan."
+#: avatar/controller.php:81
+msgid "Unknown filetype"
+msgstr ""
 
-#: ajax/vcategories/addToFavorites.php:35
-#, php-format
-msgid "Error adding %s to favorites."
-msgstr "Kesalahan menambah %s ke favorit"
+#: avatar/controller.php:85
+msgid "Invalid image"
+msgstr ""
 
-#: ajax/vcategories/delete.php:35 js/oc-vcategories.js:136
-msgid "No categories selected for deletion."
-msgstr "Tidak ada kategori terpilih untuk penghapusan."
+#: avatar/controller.php:115 avatar/controller.php:142
+msgid "No temporary profile picture available, try again"
+msgstr ""
 
-#: ajax/vcategories/removeFromFavorites.php:35
-#, php-format
-msgid "Error removing %s from favorites."
-msgstr "Kesalahan menghapus %s dari favorit"
+#: avatar/controller.php:135
+msgid "No crop data provided"
+msgstr ""
+
+#: js/config.php:32
+msgid "Sunday"
+msgstr "Minggu"
+
+#: js/config.php:33
+msgid "Monday"
+msgstr "Senin"
 
 #: js/config.php:34
-msgid "Sunday"
-msgstr "minggu"
+msgid "Tuesday"
+msgstr "Selasa"
 
 #: js/config.php:35
-msgid "Monday"
-msgstr "senin"
+msgid "Wednesday"
+msgstr "Rabu"
 
 #: js/config.php:36
-msgid "Tuesday"
-msgstr "selasa"
+msgid "Thursday"
+msgstr "Kamis"
 
 #: js/config.php:37
-msgid "Wednesday"
-msgstr "rabu"
+msgid "Friday"
+msgstr "Jumat"
 
 #: js/config.php:38
-msgid "Thursday"
-msgstr "kamis"
-
-#: js/config.php:39
-msgid "Friday"
-msgstr "jumat"
-
-#: js/config.php:40
 msgid "Saturday"
-msgstr "sabtu"
+msgstr "Sabtu"
 
-#: js/config.php:45
+#: js/config.php:43
 msgid "January"
 msgstr "Januari"
 
-#: js/config.php:46
+#: js/config.php:44
 msgid "February"
 msgstr "Februari"
 
-#: js/config.php:47
+#: js/config.php:45
 msgid "March"
 msgstr "Maret"
 
-#: js/config.php:48
+#: js/config.php:46
 msgid "April"
 msgstr "April"
 
-#: js/config.php:49
+#: js/config.php:47
 msgid "May"
 msgstr "Mei"
 
-#: js/config.php:50
+#: js/config.php:48
 msgid "June"
 msgstr "Juni"
 
-#: js/config.php:51
+#: js/config.php:49
 msgid "July"
 msgstr "Juli"
 
-#: js/config.php:52
+#: js/config.php:50
 msgid "August"
 msgstr "Agustus"
 
-#: js/config.php:53
+#: js/config.php:51
 msgid "September"
 msgstr "September"
 
-#: js/config.php:54
+#: js/config.php:52
 msgid "October"
 msgstr "Oktober"
 
-#: js/config.php:55
+#: js/config.php:53
 msgid "November"
-msgstr "Nopember"
+msgstr "November"
 
-#: js/config.php:56
+#: js/config.php:54
 msgid "December"
 msgstr "Desember"
 
-#: js/js.js:286
+#: js/js.js:387
 msgid "Settings"
 msgstr "Setelan"
 
-#: js/js.js:777
+#: js/js.js:858
 msgid "seconds ago"
 msgstr "beberapa detik yang lalu"
 
-#: js/js.js:778
-msgid "1 minute ago"
-msgstr "1 menit lalu"
+#: js/js.js:859
+msgid "%n minute ago"
+msgid_plural "%n minutes ago"
+msgstr[0] ""
 
-#: js/js.js:779
-msgid "{minutes} minutes ago"
-msgstr "{minutes} menit yang lalu"
+#: js/js.js:860
+msgid "%n hour ago"
+msgid_plural "%n hours ago"
+msgstr[0] ""
 
-#: js/js.js:780
-msgid "1 hour ago"
-msgstr "1 jam yang lalu"
-
-#: js/js.js:781
-msgid "{hours} hours ago"
-msgstr "{hours} jam yang lalu"
-
-#: js/js.js:782
+#: js/js.js:861
 msgid "today"
 msgstr "hari ini"
 
-#: js/js.js:783
+#: js/js.js:862
 msgid "yesterday"
 msgstr "kemarin"
 
-#: js/js.js:784
-msgid "{days} days ago"
-msgstr "{days} hari yang lalu"
+#: js/js.js:863
+msgid "%n day ago"
+msgid_plural "%n days ago"
+msgstr[0] ""
 
-#: js/js.js:785
+#: js/js.js:864
 msgid "last month"
 msgstr "bulan kemarin"
 
-#: js/js.js:786
-msgid "{months} months ago"
-msgstr "{months} bulan yang lalu"
+#: js/js.js:865
+msgid "%n month ago"
+msgid_plural "%n months ago"
+msgstr[0] ""
 
-#: js/js.js:787
+#: js/js.js:866
 msgid "months ago"
 msgstr "beberapa bulan lalu"
 
-#: js/js.js:788
+#: js/js.js:867
 msgid "last year"
 msgstr "tahun kemarin"
 
-#: js/js.js:789
+#: js/js.js:868
 msgid "years ago"
 msgstr "beberapa tahun lalu"
 
-#: js/oc-dialogs.js:126
+#: js/oc-dialogs.js:123
 msgid "Choose"
-msgstr "pilih"
+msgstr "Pilih"
 
-#: js/oc-dialogs.js:146 js/oc-dialogs.js:166
-msgid "Cancel"
-msgstr "Batalkan"
+#: js/oc-dialogs.js:146
+msgid "Error loading file picker template: {error}"
+msgstr ""
 
-#: js/oc-dialogs.js:162
-msgid "No"
-msgstr "Tidak"
-
-#: js/oc-dialogs.js:163
+#: js/oc-dialogs.js:172
 msgid "Yes"
 msgstr "Ya"
 
-#: js/oc-dialogs.js:180
+#: js/oc-dialogs.js:182
+msgid "No"
+msgstr "Tidak"
+
+#: js/oc-dialogs.js:199
 msgid "Ok"
 msgstr "Oke"
 
-#: js/oc-vcategories.js:5 js/oc-vcategories.js:85 js/oc-vcategories.js:102
-#: js/oc-vcategories.js:117 js/oc-vcategories.js:132 js/oc-vcategories.js:162
-msgid "The object type is not specified."
+#: js/oc-dialogs.js:219
+msgid "Error loading message template: {error}"
 msgstr ""
 
-#: js/oc-vcategories.js:95 js/oc-vcategories.js:125 js/oc-vcategories.js:136
-#: js/oc-vcategories.js:195 js/share.js:152 js/share.js:159 js/share.js:582
-#: js/share.js:594
-msgid "Error"
-msgstr "gagal"
+#: js/oc-dialogs.js:347
+msgid "{count} file conflict"
+msgid_plural "{count} file conflicts"
+msgstr[0] ""
 
-#: js/oc-vcategories.js:179
-msgid "The app name is not specified."
+#: js/oc-dialogs.js:361
+msgid "One file conflict"
 msgstr ""
 
-#: js/oc-vcategories.js:194
-msgid "The required file {file} is not installed!"
+#: js/oc-dialogs.js:367
+msgid "Which files do you want to keep?"
 msgstr ""
 
-#: js/share.js:29 js/share.js:43 js/share.js:90
+#: js/oc-dialogs.js:368
+msgid ""
+"If you select both versions, the copied file will have a number added to its"
+" name."
+msgstr ""
+
+#: js/oc-dialogs.js:376
+msgid "Cancel"
+msgstr "Batal"
+
+#: js/oc-dialogs.js:386
+msgid "Continue"
+msgstr ""
+
+#: js/oc-dialogs.js:433 js/oc-dialogs.js:446
+msgid "(all selected)"
+msgstr ""
+
+#: js/oc-dialogs.js:436 js/oc-dialogs.js:449
+msgid "({count} selected)"
+msgstr ""
+
+#: js/oc-dialogs.js:457
+msgid "Error loading file exists template"
+msgstr ""
+
+#: js/share.js:51 js/share.js:66 js/share.js:106
 msgid "Shared"
-msgstr "Terbagi"
+msgstr "Dibagikan"
 
-#: js/share.js:93
+#: js/share.js:109
 msgid "Share"
-msgstr "Bagi"
+msgstr "Bagikan"
 
-#: js/share.js:141 js/share.js:622
+#: js/share.js:158 js/share.js:171 js/share.js:178 js/share.js:707
+#: js/share.js:719
+msgid "Error"
+msgstr "Galat"
+
+#: js/share.js:160 js/share.js:747
 msgid "Error while sharing"
-msgstr "gagal ketika membagikan"
+msgstr "Galat ketika membagikan"
 
-#: js/share.js:152
+#: js/share.js:171
 msgid "Error while unsharing"
-msgstr "gagal ketika membatalkan pembagian"
+msgstr "Galat ketika membatalkan pembagian"
 
-#: js/share.js:159
+#: js/share.js:178
 msgid "Error while changing permissions"
-msgstr "gagal ketika merubah perijinan"
+msgstr "Galat ketika mengubah izin"
 
-#: js/share.js:168
+#: js/share.js:187
 msgid "Shared with you and the group {group} by {owner}"
-msgstr "dibagikan dengan anda dan grup {group} oleh {owner}"
-
-#: js/share.js:170
-msgid "Shared with you by {owner}"
-msgstr "dibagikan dengan anda oleh {owner}"
-
-#: js/share.js:175
-msgid "Share with"
-msgstr "bagikan dengan"
-
-#: js/share.js:180
-msgid "Share with link"
-msgstr "bagikan dengan tautan"
-
-#: js/share.js:183
-msgid "Password protect"
-msgstr "lindungi dengan kata kunci"
-
-#: js/share.js:185 templates/installation.php:47 templates/login.php:35
-msgid "Password"
-msgstr "Password"
+msgstr "Dibagikan dengan Anda dan grup {group} oleh {owner}"
 
 #: js/share.js:189
-msgid "Email link to person"
-msgstr "Email link ini ke orang"
+msgid "Shared with you by {owner}"
+msgstr "Dibagikan dengan Anda oleh {owner}"
 
-#: js/share.js:190
+#: js/share.js:213
+msgid "Share with user or group …"
+msgstr ""
+
+#: js/share.js:219
+msgid "Share link"
+msgstr ""
+
+#: js/share.js:222
+msgid "Password protect"
+msgstr "Lindungi dengan sandi"
+
+#: js/share.js:224 templates/installation.php:57 templates/login.php:32
+msgid "Password"
+msgstr "Sandi"
+
+#: js/share.js:229
+msgid "Allow Public Upload"
+msgstr ""
+
+#: js/share.js:233
+msgid "Email link to person"
+msgstr "Emailkan tautan ini ke orang"
+
+#: js/share.js:234
 msgid "Send"
 msgstr "Kirim"
 
-#: js/share.js:194
+#: js/share.js:239
 msgid "Set expiration date"
-msgstr "set tanggal kadaluarsa"
+msgstr "Setel tanggal kedaluwarsa"
 
-#: js/share.js:195
+#: js/share.js:240
 msgid "Expiration date"
-msgstr "tanggal kadaluarsa"
+msgstr "Tanggal kedaluwarsa"
 
-#: js/share.js:227
+#: js/share.js:275
 msgid "Share via email:"
-msgstr "berbagi memlalui surel:"
+msgstr "Bagian lewat email:"
 
-#: js/share.js:229
+#: js/share.js:278
 msgid "No people found"
-msgstr "tidak ada orang ditemukan"
+msgstr "Tidak ada orang ditemukan"
 
-#: js/share.js:256
+#: js/share.js:322 js/share.js:359
+msgid "group"
+msgstr "grup"
+
+#: js/share.js:333
 msgid "Resharing is not allowed"
-msgstr "berbagi ulang tidak diperbolehkan"
+msgstr "Berbagi ulang tidak diizinkan"
 
-#: js/share.js:292
+#: js/share.js:375
 msgid "Shared in {item} with {user}"
-msgstr "dibagikan dalam {item} dengan {user}"
+msgstr "Dibagikan dalam {item} dengan {user}"
 
-#: js/share.js:313
+#: js/share.js:397
 msgid "Unshare"
-msgstr "batalkan berbagi"
+msgstr "Batalkan berbagi"
 
-#: js/share.js:325
+#: js/share.js:405
+msgid "notify by email"
+msgstr ""
+
+#: js/share.js:408
 msgid "can edit"
-msgstr "dapat merubah"
+msgstr "dapat mengedit"
 
-#: js/share.js:327
+#: js/share.js:410
 msgid "access control"
 msgstr "kontrol akses"
 
-#: js/share.js:330
+#: js/share.js:413
 msgid "create"
-msgstr "buat baru"
+msgstr "buat"
 
-#: js/share.js:333
+#: js/share.js:416
 msgid "update"
-msgstr "baharui"
+msgstr "perbarui"
 
-#: js/share.js:336
+#: js/share.js:419
 msgid "delete"
 msgstr "hapus"
 
-#: js/share.js:339
+#: js/share.js:422
 msgid "share"
 msgstr "bagikan"
 
-#: js/share.js:373 js/share.js:569
+#: js/share.js:464 js/share.js:694
 msgid "Password protected"
-msgstr "dilindungi kata kunci"
+msgstr "Dilindungi sandi"
 
-#: js/share.js:582
+#: js/share.js:707
 msgid "Error unsetting expiration date"
-msgstr "gagal melepas tanggal kadaluarsa"
+msgstr "Galat ketika menghapus tanggal kedaluwarsa"
 
-#: js/share.js:594
+#: js/share.js:719
 msgid "Error setting expiration date"
-msgstr "gagal memasang tanggal kadaluarsa"
+msgstr "Galat ketika menyetel tanggal kedaluwarsa"
 
-#: js/share.js:609
+#: js/share.js:734
 msgid "Sending ..."
-msgstr "Sedang mengirim ..."
+msgstr "Mengirim ..."
 
-#: js/share.js:620
+#: js/share.js:745
 msgid "Email sent"
 msgstr "Email terkirim"
 
-#: js/update.js:14
+#: js/share.js:769
+msgid "Warning"
+msgstr "Peringatan"
+
+#: js/tags.js:4
+msgid "The object type is not specified."
+msgstr "Tipe objek tidak ditentukan."
+
+#: js/tags.js:13
+msgid "Enter new"
+msgstr ""
+
+#: js/tags.js:27
+msgid "Delete"
+msgstr "Hapus"
+
+#: js/tags.js:31
+msgid "Add"
+msgstr "Tambah"
+
+#: js/tags.js:39
+msgid "Edit tags"
+msgstr ""
+
+#: js/tags.js:57
+msgid "Error loading dialog template: {error}"
+msgstr ""
+
+#: js/tags.js:261
+msgid "No tags selected for deletion."
+msgstr ""
+
+#: js/update.js:8
+msgid "Please reload the page."
+msgstr ""
+
+#: js/update.js:17
 msgid ""
 "The update was unsuccessful. Please report this issue to the <a "
 "href=\"https://github.com/owncloud/core/issues\" target=\"_blank\">ownCloud "
 "community</a>."
-msgstr ""
+msgstr "Pembaruan gagal. Silakan laporkan masalah ini ke <a href=\"https://github.com/owncloud/core/issues\" target=\"_blank\">komunitas ownCloud</a>."
 
-#: js/update.js:18
+#: js/update.js:21
 msgid "The update was successful. Redirecting you to ownCloud now."
-msgstr "Update sukses. Membawa anda ke ownCloud sekarang."
+msgstr "Pembaruan sukses. Anda akan diarahkan ulang ke ownCloud."
 
-#: lostpassword/controller.php:48
-msgid "ownCloud password reset"
-msgstr "reset password ownCloud"
+#: lostpassword/controller.php:62
+#, php-format
+msgid "%s password reset"
+msgstr ""
 
 #: lostpassword/templates/email.php:2
 msgid "Use the following link to reset your password: {link}"
-msgstr "Gunakan tautan berikut untuk mereset password anda: {link}"
+msgstr "Gunakan tautan berikut untuk menyetel ulang sandi Anda: {link}"
 
-#: lostpassword/templates/lostpassword.php:3
-msgid "You will receive a link to reset your password via Email."
-msgstr "Anda akan mendapatkan link untuk mereset password anda lewat Email."
-
-#: lostpassword/templates/lostpassword.php:5
-msgid "Reset email send."
+#: lostpassword/templates/lostpassword.php:7
+msgid ""
+"The link to reset your password has been sent to your email.<br>If you do "
+"not receive it within a reasonable amount of time, check your spam/junk "
+"folders.<br>If it is not there ask your local administrator ."
 msgstr ""
 
-#: lostpassword/templates/lostpassword.php:8
-msgid "Request failed!"
-msgstr "Permintaan gagal!"
+#: lostpassword/templates/lostpassword.php:15
+msgid "Request failed!<br>Did you make sure your email/username was right?"
+msgstr ""
 
-#: lostpassword/templates/lostpassword.php:11 templates/installation.php:41
-#: templates/login.php:28
+#: lostpassword/templates/lostpassword.php:18
+msgid "You will receive a link to reset your password via Email."
+msgstr "Anda akan menerima tautan penyetelan ulang sandi lewat Email."
+
+#: lostpassword/templates/lostpassword.php:21 templates/installation.php:51
+#: templates/login.php:25
 msgid "Username"
-msgstr "Username"
+msgstr "Nama pengguna"
 
-#: lostpassword/templates/lostpassword.php:14
-msgid "Request reset"
-msgstr "Meminta reset"
+#: lostpassword/templates/lostpassword.php:25
+msgid ""
+"Your files are encrypted. If you haven't enabled the recovery key, there "
+"will be no way to get your data back after your password is reset. If you "
+"are not sure what to do, please contact your administrator before you "
+"continue. Do you really want to continue?"
+msgstr ""
+
+#: lostpassword/templates/lostpassword.php:27
+msgid "Yes, I really want to reset my password now"
+msgstr ""
+
+#: lostpassword/templates/lostpassword.php:30
+msgid "Reset"
+msgstr ""
 
 #: lostpassword/templates/resetpassword.php:4
 msgid "Your password was reset"
-msgstr "Password anda telah direset"
+msgstr "Sandi Anda telah disetel ulang"
 
 #: lostpassword/templates/resetpassword.php:5
 msgid "To login page"
-msgstr "Ke halaman login"
+msgstr "Ke halaman masuk"
 
 #: lostpassword/templates/resetpassword.php:8
 msgid "New password"
-msgstr "Password baru"
+msgstr "Sandi baru"
 
 #: lostpassword/templates/resetpassword.php:11
 msgid "Reset password"
-msgstr "Reset password"
+msgstr "Setel ulang sandi"
 
 #: strings.php:5
 msgid "Personal"
@@ -444,7 +520,7 @@ msgstr "Pribadi"
 msgid "Users"
 msgstr "Pengguna"
 
-#: strings.php:7
+#: strings.php:7 templates/layout.user.php:110
 msgid "Apps"
 msgstr "Aplikasi"
 
@@ -456,144 +532,232 @@ msgstr "Admin"
 msgid "Help"
 msgstr "Bantuan"
 
+#: tags/controller.php:22
+msgid "Error loading tags"
+msgstr ""
+
+#: tags/controller.php:48
+msgid "Tag already exists"
+msgstr ""
+
+#: tags/controller.php:64
+msgid "Error deleting tag(s)"
+msgstr ""
+
+#: tags/controller.php:75
+msgid "Error tagging"
+msgstr ""
+
+#: tags/controller.php:86
+msgid "Error untagging"
+msgstr ""
+
+#: tags/controller.php:97
+msgid "Error favoriting"
+msgstr ""
+
+#: tags/controller.php:108
+msgid "Error unfavoriting"
+msgstr ""
+
 #: templates/403.php:12
 msgid "Access forbidden"
-msgstr "Akses Ditiadakan"
+msgstr "Akses ditolak"
 
-#: templates/404.php:12
+#: templates/404.php:15
 msgid "Cloud not found"
 msgstr "Cloud tidak ditemukan"
 
-#: templates/edit_categories_dialog.php:4
-msgid "Edit categories"
-msgstr "Edit kategori"
-
-#: templates/edit_categories_dialog.php:16
-msgid "Add"
-msgstr "Tambahkan"
-
-#: templates/installation.php:24 templates/installation.php:31
-msgid "Security Warning"
-msgstr "peringatan keamanan"
-
-#: templates/installation.php:25
+#: templates/altmail.php:2
+#, php-format
 msgid ""
-"No secure random number generator is available, please enable the PHP "
-"OpenSSL extension."
+"Hey there,\n"
+"\n"
+"just letting you know that %s shared %s with you.\n"
+"View it: %s\n"
+"\n"
 msgstr ""
 
+#: templates/altmail.php:4 templates/mail.php:17
+#, php-format
+msgid "The share will expire on %s."
+msgstr ""
+
+#: templates/altmail.php:7 templates/mail.php:20
+msgid "Cheers!"
+msgstr ""
+
+#: templates/installation.php:24 templates/installation.php:31
+#: templates/installation.php:38
+msgid "Security Warning"
+msgstr "Peringatan Keamanan"
+
+#: templates/installation.php:25
+msgid "Your PHP version is vulnerable to the NULL Byte attack (CVE-2006-7243)"
+msgstr "Versi PHP Anda rentan terhadap serangan NULL Byte (CVE-2006-7243)"
+
 #: templates/installation.php:26
-msgid ""
-"Without a secure random number generator an attacker may be able to predict "
-"password reset tokens and take over your account."
-msgstr "tanpa generator angka acak, penyerang mungkin dapat menebak token reset kata kunci dan mengambil alih akun anda."
+#, php-format
+msgid "Please update your PHP installation to use %s securely."
+msgstr ""
 
 #: templates/installation.php:32
 msgid ""
-"Your data directory and files are probably accessible from the internet "
-"because the .htaccess file does not work."
-msgstr ""
+"No secure random number generator is available, please enable the PHP "
+"OpenSSL extension."
+msgstr "Generator acak yang aman tidak tersedia, silakan aktifkan ekstensi OpenSSL pada PHP."
 
 #: templates/installation.php:33
 msgid ""
+"Without a secure random number generator an attacker may be able to predict "
+"password reset tokens and take over your account."
+msgstr "Tanpa generator acak, penyerang mungkin dapat menebak token penyetelan sandi dan mengambil alih akun Anda."
+
+#: templates/installation.php:39
+msgid ""
+"Your data directory and files are probably accessible from the internet "
+"because the .htaccess file does not work."
+msgstr "Kemungkinan direktori data dan berkas Anda dapat diakses dari internet karena berkas .htaccess tidak berfungsi."
+
+#: templates/installation.php:41
+#, php-format
+msgid ""
 "For information how to properly configure your server, please see the <a "
-"href=\"http://doc.owncloud.org/server/5.0/admin_manual/installation.html\" "
-"target=\"_blank\">documentation</a>."
+"href=\"%s\" target=\"_blank\">documentation</a>."
 msgstr ""
 
-#: templates/installation.php:37
+#: templates/installation.php:47
 msgid "Create an <strong>admin account</strong>"
 msgstr "Buat sebuah <strong>akun admin</strong>"
 
-#: templates/installation.php:55
+#: templates/installation.php:66
 msgid "Advanced"
-msgstr "Tingkat Lanjut"
+msgstr "Lanjutan"
 
-#: templates/installation.php:57
+#: templates/installation.php:73
 msgid "Data folder"
 msgstr "Folder data"
 
-#: templates/installation.php:66
+#: templates/installation.php:85
 msgid "Configure the database"
-msgstr "Konfigurasi database"
+msgstr "Konfigurasikan basis data"
 
-#: templates/installation.php:71 templates/installation.php:83
-#: templates/installation.php:94 templates/installation.php:105
-#: templates/installation.php:117
+#: templates/installation.php:90 templates/installation.php:102
+#: templates/installation.php:113 templates/installation.php:124
+#: templates/installation.php:136
 msgid "will be used"
 msgstr "akan digunakan"
 
-#: templates/installation.php:129
+#: templates/installation.php:148
 msgid "Database user"
-msgstr "Pengguna database"
+msgstr "Pengguna basis data"
 
-#: templates/installation.php:134
+#: templates/installation.php:155
 msgid "Database password"
-msgstr "Password database"
+msgstr "Sandi basis data"
 
-#: templates/installation.php:139
+#: templates/installation.php:160
 msgid "Database name"
-msgstr "Nama database"
+msgstr "Nama basis data"
 
-#: templates/installation.php:149
+#: templates/installation.php:168
 msgid "Database tablespace"
-msgstr "tablespace basis data"
+msgstr "Tablespace basis data"
 
-#: templates/installation.php:156
+#: templates/installation.php:175
 msgid "Database host"
-msgstr "Host database"
+msgstr "Host basis data"
 
-#: templates/installation.php:162
+#: templates/installation.php:184
 msgid "Finish setup"
 msgstr "Selesaikan instalasi"
 
-#: templates/layout.guest.php:40
-msgid "web services under your control"
-msgstr "web service dibawah kontrol anda"
+#: templates/installation.php:184
+msgid "Finishing …"
+msgstr ""
 
-#: templates/layout.user.php:58
+#: templates/layout.user.php:43
+#, php-format
+msgid "%s is available. Get more information on how to update."
+msgstr ""
+
+#: templates/layout.user.php:71 templates/singleuser.user.php:8
 msgid "Log out"
 msgstr "Keluar"
 
-#: templates/login.php:10
+#: templates/login.php:9
 msgid "Automatic logon rejected!"
-msgstr "login otomatis ditolak!"
+msgstr "Masuk otomatis ditolak!"
 
-#: templates/login.php:11
+#: templates/login.php:10
 msgid ""
 "If you did not change your password recently, your account may be "
 "compromised!"
-msgstr "apabila anda tidak merubah kata kunci belakangan ini, akun anda dapat di gunakan orang lain!"
+msgstr "Jika tidak pernah mengubah sandi Anda baru-baru ini, akun Anda mungkin dalam bahaya!"
 
-#: templates/login.php:13
+#: templates/login.php:12
 msgid "Please change your password to secure your account again."
-msgstr "mohon ubah kata kunci untuk mengamankan akun anda"
+msgstr "Mohon ubah sandi Anda untuk mengamankan kembali akun Anda."
 
-#: templates/login.php:19
+#: templates/login.php:17
+msgid "Server side authentication failed!"
+msgstr ""
+
+#: templates/login.php:18
+msgid "Please contact your administrator."
+msgstr ""
+
+#: templates/login.php:38
 msgid "Lost your password?"
-msgstr "Lupa password anda?"
-
-#: templates/login.php:41
-msgid "remember"
-msgstr "selalu login"
+msgstr "Lupa sandi?"
 
 #: templates/login.php:43
+msgid "remember"
+msgstr "selalu masuk"
+
+#: templates/login.php:46
 msgid "Log in"
 msgstr "Masuk"
 
-#: templates/login.php:49
+#: templates/login.php:52
 msgid "Alternative Logins"
-msgstr "Login dengan cara lain"
+msgstr "Cara Alternatif untuk Masuk"
 
-#: templates/part.pagenavi.php:3
-msgid "prev"
-msgstr "sebelum"
+#: templates/mail.php:15
+#, php-format
+msgid ""
+"Hey there,<br><br>just letting you know that %s shared »%s« with you.<br><a "
+"href=\"%s\">View it!</a><br><br>"
+msgstr ""
 
-#: templates/part.pagenavi.php:20
-msgid "next"
-msgstr "selanjutnya"
+#: templates/singleuser.user.php:3
+msgid "This ownCloud instance is currently in single user mode."
+msgstr ""
 
-#: templates/update.php:3
+#: templates/singleuser.user.php:4
+msgid "This means only administrators can use the instance."
+msgstr ""
+
+#: templates/singleuser.user.php:5 templates/update.user.php:5
+msgid ""
+"Contact your system administrator if this message persists or appeared "
+"unexpectedly."
+msgstr ""
+
+#: templates/singleuser.user.php:7 templates/update.user.php:6
+msgid "Thank you for your patience."
+msgstr ""
+
+#: templates/update.admin.php:3
 #, php-format
 msgid "Updating ownCloud to version %s, this may take a while."
+msgstr "Memperbarui ownCloud ke versi %s, prosesnya akan berlangsung beberapa saat."
+
+#: templates/update.user.php:3
+msgid ""
+"This ownCloud instance is currently being updated, which may take a while."
+msgstr ""
+
+#: templates/update.user.php:4
+msgid "Please reload this page after a short time to continue using ownCloud."
 msgstr ""

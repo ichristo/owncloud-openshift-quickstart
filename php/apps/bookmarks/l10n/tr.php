@@ -1,4 +1,5 @@
 <?php $TRANSLATIONS = array(
+"No file provided for import" => "İçe aktarılacak dosya yok",
 "Unsupported file type for import" => "İçe aktarmak için desteklenmeyen dosya türü",
 "Bookmarks" => "Yer İmleri",
 "Tags" => "Etiketler",
@@ -6,6 +7,7 @@
 "Edit bookmark" => "Yer imini düzenle",
 "Are you sure you want to remove this tag from every entry?" => "Bu etiketi tüm girdilerden silmek istediğinizden emin misiniz?",
 "Warning" => "Uyarı",
+"Import error" => "İçeri aktarım hatası",
 "Import completed successfully." => "İçe aktarım başarıyla tamamlandı.",
 "Uploading..." => "Yükleniyor...",
 "Bookm." => "Yer imi",
@@ -19,7 +21,7 @@
 "Edit" => "Düzenle",
 "Cancel" => "İptal",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Bir web sayfasını hızlıca yer imlerine eklemek istediğinizde onu tarayıcınızın yer imlerine sürükleyin ve tıklayın.",
-"Read later" => "Sonra oku",
+"Add to ownCloud" => "ownCloud'a Ekle",
 "Address" => "Adres",
 "Add" => "Ekle",
 "Related Tags" => "İlgili etiketler",

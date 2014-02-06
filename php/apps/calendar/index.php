@@ -26,8 +26,8 @@ if(OCP\Config::getUserValue(OCP\USER::getUser(), 'calendar', 'currentview', 'mon
 	OCP\Config::setUserValue(OCP\USER::getUser(), "calendar", "currentview", "list");
 }
 
-OCP\Util::addscript('3rdparty/fullcalendar', 'fullcalendar');
-OCP\Util::addStyle('3rdparty/fullcalendar', 'fullcalendar');
+OCP\Util::addscript('calendar/3rdparty/fullcalendar', 'fullcalendar');
+OCP\Util::addStyle('calendar/3rdparty/fullcalendar', 'fullcalendar');
 OCP\Util::addscript('3rdparty/timepicker', 'jquery.ui.timepicker');
 OCP\Util::addStyle('3rdparty/timepicker', 'jquery.ui.timepicker');
 if(OCP\Config::getUserValue(OCP\USER::getUser(), "calendar", "timezone") == null || OCP\Config::getUserValue(OCP\USER::getUser(), 'calendar', 'timezonedetection') == 'true') {
@@ -37,8 +37,8 @@ OCP\Util::addscript('calendar', 'calendar');
 OCP\Util::addStyle('calendar', 'style');
 OCP\Util::addscript('', 'jquery.multiselect');
 OCP\Util::addStyle('', 'jquery.multiselect');
-OCP\Util::addscript('contacts','jquery.multi-autocomplete');
-OCP\Util::addscript('','oc-vcategories');
+OCP\Util::addscript('calendar','jquery.multi-autocomplete');
+OCP\Util::addscript('','tags');
 OCP\Util::addscript('calendar','on-event');
 OCP\App::setActiveNavigationEntry('calendar_index');
 $tmpl = new OCP\Template('calendar', 'calendar', 'user');

@@ -30,12 +30,17 @@ return array(
 		'client_secret' => '',
 		'token' => '',
 	),
-	'swift'=>array(
-		'run'=>false,
-		'user'=>'test:tester',
-		'token'=>'testing',
-		'host'=>'localhost.local:8080/auth',
-		'root'=>'/',
+	'swift' => array(
+		'run' => false,
+		'user' => 'test',
+		'bucket' => 'test',
+		'region' => 'DFW',
+		'key' => 'test', //to be used only with Rackspace Cloud Files
+		//'tenant' => 'test', //to be used only with OpenStack Object Storage
+		//'password' => 'test', //to be use only with OpenStack Object Storage
+		//'service_name' => 'swift', //should be 'swift' for OpenStack Object Storage and 'cloudFiles' for Rackspace Cloud Files (default value)
+		//'url' => 'https://identity.api.rackspacecloud.com/v2.0/', //to be used with Rackspace Cloud Files and OpenStack Object Storage
+		//'timeout' => 5 // timeout of HTTP requests in seconds
 	),
 	'smb'=>array(
 		'run'=>false,
@@ -49,7 +54,13 @@ return array(
 		'run'=>false,
 		'key'=>'test',
 		'secret'=>'test',
-		'bucket'=>'bucket',
+		'bucket'=>'bucket'
+		//'hostname' => 'your.host.name',
+		//'port' => '443',
+		//'use_ssl' => 'true',
+		//'region' => 'eu-west-1',
+		//'test'=>'true',
+		//'timeout'=>20
 	),
 	'dropbox' => array (
 		'run'=>false,

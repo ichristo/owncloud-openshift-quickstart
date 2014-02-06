@@ -1,5 +1,7 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "WebDAV Authentication" => "Overitev WebDAV",
-"URL: http://" => "URL: http://",
-"ownCloud will send the user credentials to this URL. This plugin checks the response and will interpret the HTTP statuscodes 401 and 403 as invalid credentials, and all other responses as valid credentials." => "Sistem ownCloud bo poslal uporabniška poverila na navedeni naslov URL. Ta vstavek preveri odziv in tolmači kode stanja HTTP 401 in HTTP 403 kot spodletel odgovor in vse ostale odzive kot veljavna poverila."
+"Address: " => "Naslov:",
+"The user credentials will be sent to this address. This plugin checks the response and will interpret the HTTP statuscodes 401 and 403 as invalid credentials, and all other responses as valid credentials." => "Uporabniška poverila bodo poslana na ta naslov. Vstavek preveri odziv in kodi stanja 401 in 403 kot neveljavna poverila, vse ostale odzive pa kot veljavna."
 );
+$PLURAL_FORMS = "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);";

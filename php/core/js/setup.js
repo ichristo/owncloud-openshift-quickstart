@@ -9,44 +9,27 @@ $(document).ready(function() {
 	};
 	
 	$('#selectDbType').buttonset();
-	$('#datadirContent').hide(250);
-	$('#databaseField').hide(250);
-	if($('#hasSQLite').val()=='true'){
+	
+	if($('#hasSQLite').val()){
 		$('#use_other_db').hide();
-		$('#dbhost').hide();
-		$('#dbhostlabel').hide();
+		$('#use_oracle_db').hide();
 	}
 	$('#adminlogin').change(function(){
 		$('#adminlogin').val($.trim($('#adminlogin').val()));
 	});
 	$('#sqlite').click(function() {
 		$('#use_other_db').slideUp(250);
-		$('#dbhost').hide(250);
-		$('#dbhostlabel').hide(250);
+		$('#use_oracle_db').slideUp(250);
 	});
 
-	$('#mysql').click(function() {
+	$('#mysql,#pgsql,#mssql').click(function() {
 		$('#use_other_db').slideDown(250);
-		$('#dbhost').show(250);
-		$('#dbhostlabel').show(250);
+		$('#use_oracle_db').slideUp(250);
 	});
-	
-	$('#pgsql').click(function() {
-		$('#use_other_db').slideDown(250);
-		$('#dbhost').show(250);
-		$('#dbhostlabel').show(250);
-	});
-	
+
 	$('#oci').click(function() {
 		$('#use_other_db').slideDown(250);
-		$('#dbhost').show(250);
-		$('#dbhostlabel').show(250);
-	});
-    
-	$('#mssql').click(function() {
-		$('#use_other_db').slideDown(250);
-		$('#dbhost').show(250);
-		$('#dbhostlabel').show(250);
+		$('#use_oracle_db').show(250);
 	});
 
 	$('input[checked]').trigger('click');
@@ -60,7 +43,7 @@ $(document).ready(function() {
 		var post = $(this).serializeArray();
 
 		// Disable inputs
-		$(':submit', this).attr('disabled','disabled').val('Finishing …');
+		$(':submit', this).attr('disabled','disabled').val($(':submit', this).data('finishing'));
 		$('input', this).addClass('ui-state-disabled').attr('disabled','disabled');
 		$('#selectDbType').buttonset('disable');
 
@@ -80,9 +63,17 @@ $(document).ready(function() {
 		form.submit();
 		return false;
 	});
-
-	if(!dbtypes.sqlite){
-		$('#showAdvanced').click();
+	
+	// Expand latest db settings if page was reloaded on error
+	var currentDbType = $('input[type="radio"]:checked').val();
+	
+	if (currentDbType === undefined){
 		$('input[type="radio"]').first().click();
 	}
+	
+	if (currentDbType === 'sqlite' || (dbtypes.sqlite && currentDbType === undefined)){
+		$('#datadirContent').hide(250);
+		$('#databaseField').hide(250);
+	}
+	
 });
