@@ -18,7 +18,7 @@ Create a PHP application with a MySQL cartridge:
 
 Add this upstream ownCloud quickstart repo
 
-	cd owncloud
+	cd owncloud7
 	rm php/index.php
 	git remote add upstream -m master git://github.com/tvvocold/owncloud-openshift-quickstart.git
 	git pull -s recursive -X theirs upstream master
