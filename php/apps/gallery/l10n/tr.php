@@ -1,10 +1,9 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Resimler",
-"Shared by" => "Paylaşan",
 "Picture view" => "Resim görünümü",
-"Error loading slideshow template" => "slayt gösterisi şablonu yükleme hatası",
+"Error loading slideshow template" => "Slayt gösteri şablonu yüklenirken hata",
 "Share" => "Paylaş",
-"The \"Image Viewer\" application also need to be enabled to use this application." => "\"Resim Görüntüleyici\" uygulamasını kullanmak için bu uygulamada etkin olması gerekir.",
-"%s shared <strong>%s</strong> with you" => "%s, sizinle <strong>%s</strong> paylaşımı yaptı",
+"No pictures found! If you upload pictures in the files app, they will be displayed here." => "Hiç resim bulunamadı! Dosyalar uygulaması ile resim yüklediğinizde, burada gösterilecekler.",
+"shared by %s" => "paylaşan: %s",
 "File list" => "Dosya listesi"
 );

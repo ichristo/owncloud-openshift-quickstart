@@ -22,20 +22,20 @@ class Cache {
 	/**
 	 * @var array partial data for the cache
 	 */
-	private $partial = array();
+	protected $partial = array();
 
 	/**
 	 * @var string
 	 */
-	private $storageId;
+	protected $storageId;
 
 	/**
 	 * @var Storage $storageCache
 	 */
-	private $storageCache;
+	protected $storageCache;
 
-	private static $mimetypeIds = array();
-	private static $mimetypes = array();
+	protected static $mimetypeIds = array();
+	protected static $mimetypes = array();
 
 	/**
 	 * @param \OC\Files\Storage\Storage|string $storage
@@ -109,7 +109,7 @@ class Cache {
 	 * get the stored metadata of a file or folder
 	 *
 	 * @param string/int $file
-	 * @return array | false
+	 * @return array|false
 	 */
 	public function get($file) {
 		if (is_string($file) or $file == '') {
@@ -123,7 +123,7 @@ class Cache {
 			$params = array($file);
 		}
 		$sql = 'SELECT `fileid`, `storage`, `path`, `parent`, `name`, `mimetype`, `mimepart`, `size`, `mtime`,
-					   `storage_mtime`, `encrypted`, `unencrypted_size`, `etag`
+					   `storage_mtime`, `encrypted`, `unencrypted_size`, `etag`, `permissions`
 				FROM `*PREFIX*filecache` ' . $where;
 		$result = \OC_DB::executeAudited($sql, $params);
 		$data = $result->fetchRow();
@@ -142,17 +142,18 @@ class Cache {
 		} else {
 			//fix types
 			$data['fileid'] = (int)$data['fileid'];
-			$data['size'] = (int)$data['size'];
+			$data['size'] = 0 + $data['size'];
 			$data['mtime'] = (int)$data['mtime'];
 			$data['storage_mtime'] = (int)$data['storage_mtime'];
 			$data['encrypted'] = (bool)$data['encrypted'];
-            $data['unencrypted_size'] = (int)$data['unencrypted_size'];
+            $data['unencrypted_size'] = 0 + $data['unencrypted_size'];
 			$data['storage'] = $this->storageId;
 			$data['mimetype'] = $this->getMimetype($data['mimetype']);
 			$data['mimepart'] = $this->getMimetype($data['mimepart']);
 			if ($data['storage_mtime'] == 0) {
 				$data['storage_mtime'] = $data['mtime'];
 			}
+			$data['permissions'] = (int)$data['permissions'];
 		}
 
 		return $data;
@@ -166,9 +167,19 @@ class Cache {
 	 */
 	public function getFolderContents($folder) {
 		$fileId = $this->getId($folder);
+		return $this->getFolderContentsById($fileId);
+	}
+
+	/**
+	 * get the metadata of all files stored in $folder
+	 *
+	 * @param int $fileId the file id of the folder
+	 * @return array
+	 */
+	public function getFolderContentsById($fileId) {
 		if ($fileId > -1) {
 			$sql = 'SELECT `fileid`, `storage`, `path`, `parent`, `name`, `mimetype`, `mimepart`, `size`, `mtime`,
-						   `storage_mtime`, `encrypted`, `unencrypted_size`, `etag`
+						   `storage_mtime`, `encrypted`, `unencrypted_size`, `etag`, `permissions`
 					FROM `*PREFIX*filecache` WHERE `parent` = ? ORDER BY `name` ASC';
 			$result = \OC_DB::executeAudited($sql,array($fileId));
 			$files = $result->fetchAll();
@@ -182,6 +193,7 @@ class Cache {
 					$file['encrypted_size'] = $file['size'];
 					$file['size'] = $file['unencrypted_size'];
 				}
+				$file['permissions'] = (int)$file['permissions'];
 			}
 			return $files;
 		} else {
@@ -267,7 +279,9 @@ class Cache {
 	 * @return array
 	 */
 	function buildParts(array $data) {
-		$fields = array('path', 'parent', 'name', 'mimetype', 'size', 'mtime', 'storage_mtime', 'encrypted', 'unencrypted_size', 'etag');
+		$fields = array(
+			'path', 'parent', 'name', 'mimetype', 'size', 'mtime', 'storage_mtime', 'encrypted', 'unencrypted_size',
+			'etag', 'permissions');
 		$params = array();
 		$queryParts = array();
 		foreach ($data as $name => $value) {
@@ -360,9 +374,6 @@ class Cache {
 		
 		$sql = 'DELETE FROM `*PREFIX*filecache` WHERE `fileid` = ?';
 		\OC_DB::executeAudited($sql, array($entry['fileid']));
-
-		$permissionsCache = new Permissions($this->storageId);
-		$permissionsCache->remove($entry['fileid']);
 	}
 
 	/**
@@ -440,16 +451,24 @@ class Cache {
 	 * search for files matching $pattern
 	 *
 	 * @param string $pattern
-	 * @return array of file data
+	 * @return array an array of file data
 	 */
 	public function search($pattern) {
 
 		// normalize pattern
 		$pattern = $this->normalize($pattern);
 
-		$sql = 'SELECT `fileid`, `storage`, `path`, `parent`, `name`, `mimetype`, `mimepart`, `size`, `mtime`, `encrypted`, `unencrypted_size`, `etag`
-				FROM `*PREFIX*filecache` WHERE `name` LIKE ? AND `storage` = ?';
-		$result = \OC_DB::executeAudited($sql, array($pattern, $this->getNumericStorageId()));
+
+		$sql = '
+			SELECT `fileid`, `storage`, `path`, `parent`, `name`,
+				`mimetype`, `mimepart`, `size`, `mtime`, `encrypted`,
+				`unencrypted_size`, `etag`, `permissions`
+			FROM `*PREFIX*filecache`
+			WHERE `storage` = ? AND `name` ILIKE ?';
+		$result = \OC_DB::executeAudited($sql,
+			array($this->getNumericStorageId(), $pattern)
+		);
+
 		$files = array();
 		while ($row = $result->fetchRow()) {
 			$row['mimetype'] = $this->getMimetype($row['mimetype']);
@@ -471,7 +490,7 @@ class Cache {
 		} else {
 			$where = '`mimepart` = ?';
 		}
-		$sql = 'SELECT `fileid`, `storage`, `path`, `parent`, `name`, `mimetype`, `mimepart`, `size`, `mtime`, `encrypted`, `unencrypted_size`, `etag`
+		$sql = 'SELECT `fileid`, `storage`, `path`, `parent`, `name`, `mimetype`, `mimepart`, `size`, `mtime`, `encrypted`, `unencrypted_size`, `etag`, `permissions`
 				FROM `*PREFIX*filecache` WHERE ' . $where . ' AND `storage` = ?';
 		$mimetype = $this->getMimetypeId($mimetype);
 		$result = \OC_DB::executeAudited($sql, array($mimetype, $this->getNumericStorageId()));
@@ -487,10 +506,11 @@ class Cache {
 	/**
 	 * update the folder size and the size of all parent folders
 	 *
-	 * @param $path
+	 * @param string|boolean $path
+	 * @param array $data (optional) meta data of the folder
 	 */
-	public function correctFolderSize($path) {
-		$this->calculateFolderSize($path);
+	public function correctFolderSize($path, $data = null) {
+		$this->calculateFolderSize($path, $data);
 		if ($path !== '') {
 			$parent = dirname($path);
 			if ($parent === '.' or $parent === '/') {
@@ -504,11 +524,14 @@ class Cache {
 	 * get the size of a folder and set it in the cache
 	 *
 	 * @param string $path
+	 * @param array $entry (optional) meta data of the folder
 	 * @return int
 	 */
-	public function calculateFolderSize($path) {
+	public function calculateFolderSize($path, $entry = null) {
 		$totalSize = 0;
-		$entry = $this->get($path);
+		if (is_null($entry) or !isset($entry['fileid'])) {
+			$entry = $this->get($path);
+		}
 		if ($entry && $entry['mimetype'] === 'httpd/unix-directory') {
 			$id = $entry['fileid'];
 			$sql = 'SELECT SUM(`size`) AS f1, MIN(`size`) AS f2, ' .
@@ -518,9 +541,9 @@ class Cache {
 			$result = \OC_DB::executeAudited($sql, array($id, $this->getNumericStorageId()));
 			if ($row = $result->fetchRow()) {
 				list($sum, $min, $unencryptedSum) = array_values($row);
-				$sum = (int)$sum;
-				$min = (int)$min;
-				$unencryptedSum = (int)$unencryptedSum;
+				$sum = 0 + $sum;
+				$min = 0 + $min;
+				$unencryptedSum = 0 + $unencryptedSum;
 				if ($min === -1) {
 					$totalSize = $min;
 				} else {
@@ -530,7 +553,7 @@ class Cache {
 				if ($entry['size'] !== $totalSize) {
 					$update['size'] = $totalSize;
 				}
-				if ($entry['unencrypted_size'] !== $unencryptedSum) {
+				if (!isset($entry['unencrypted_size']) or $entry['unencrypted_size'] !== $unencryptedSum) {
 					$update['unencrypted_size'] = $unencryptedSum;
 				}
 				if (count($update) > 0) {
@@ -580,7 +603,29 @@ class Cache {
 	}
 
 	/**
+	 * get the path of a file on this storage by it's id
+	 *
+	 * @param int $id
+	 * @return string|null
+	 */
+	public function getPathById($id) {
+		$sql = 'SELECT `path` FROM `*PREFIX*filecache` WHERE `fileid` = ? AND `storage` = ?';
+		$result = \OC_DB::executeAudited($sql, array($id, $this->getNumericStorageId()));
+		if ($row = $result->fetchRow()) {
+			// Oracle stores empty strings as null...
+			if ($row['path'] === null) {
+				return '';
+			}
+			return $row['path'];
+		} else {
+			return null;
+		}
+	}
+
+	/**
 	 * get the storage id of the storage for a file and the internal path of the file
+	 * unlike getPathById this does not limit the search to files on this storage and
+	 * instead does a global search in the cache table
 	 *
 	 * @param int $id
 	 * @return array, first element holding the storage id, second the path
@@ -604,7 +649,7 @@ class Cache {
 
 	/**
 	 * normalize the given path
-	 * @param $path
+	 * @param string $path
 	 * @return string
 	 */
 	public function normalize($path) {

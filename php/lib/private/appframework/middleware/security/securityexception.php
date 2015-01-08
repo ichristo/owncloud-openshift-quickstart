@@ -4,7 +4,7 @@
  * ownCloud - App Framework
  *
  * @author Bernhard Posselt
- * @copyright 2012 Bernhard Posselt nukeawhale@gmail.com
+ * @copyright 2012 Bernhard Posselt <dev@bernhard-posselt.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -32,7 +32,6 @@ class SecurityException extends \Exception {
 
 	/**
 	 * @param string $msg the security error message
-	 * @param bool $ajax true if it resulted because of an ajax request
 	 */
 	public function __construct($msg, $code = 0) {
 		parent::__construct($msg, $code);

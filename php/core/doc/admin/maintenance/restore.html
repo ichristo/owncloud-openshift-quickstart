@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Restoring ownCloud &mdash; ownCloud Administrators Manual 6.0 documentation</title>
+    <title>Restoring ownCloud &mdash; ownCloud Administrators Manual 7.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '6.0',
+        VERSION:     '7.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -27,10 +27,10 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/bootstrap.js"></script>
-    <link rel="top" title="ownCloud Administrators Manual 6.0 documentation" href="../index.html" />
+    <link rel="top" title="ownCloud Administrators Manual 7.0 documentation" href="../index.html" />
     <link rel="up" title="Maintenance" href="index.html" />
     <link rel="next" title="Migrating ownCloud Installations" href="migrating.html" />
-    <link rel="prev" title="Updating ownCloud" href="update.html" />
+    <link rel="prev" title="Upgrading Your ownCloud Server" href="upgrade.html" />
 <script type="text/javascript">
 (function () {
   /**
@@ -113,20 +113,24 @@
 										<li><a href="../contents.html">Overview</a></li>
 									</ul>
                   <ul>
-<li class="toctree-l1"><a class="reference internal" href="../index.html">Admin Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Introduction</a></li>
 </ul>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whats_new_admin.html">What&#8217;s New for Admins in ownCloud 7</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Maintenance</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="enable_maintenance.html">Maintenance Mode Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="backup.html">Backing up ownCloud</a></li>
-<li class="toctree-l2"><a class="reference internal" href="update.html">Updating ownCloud</a></li>
+<li class="toctree-l2"><a class="reference internal" href="update.html">Updating ownCloud with the Updater App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrade.html">Upgrading Your ownCloud Server</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Restoring ownCloud</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#restore-folders">Restore Folders</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#restore-database">Restore Database</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="migrating.html">Migrating ownCloud Installations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="convert_db.html">Converting Database Type</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../issues/index.html">Issues</a></li>
@@ -156,7 +160,7 @@
 <p class="first admonition-title">Note</p>
 <p class="last">This guide assumes that your previous backup is called &#8220;owncloud-dirbkp&#8221;</p>
 </div>
-<p>Simply copy your config and data folder (or even your whole ownCloud install and data folder) to a place outside of
+<p>Simply copy your config and data folder (or even your whole ownCloud install and data folder) to
 your ownCloud environment. You could use this command:</p>
 <div class="highlight-python"><pre>rsync -Aax owncloud-dirbkp/ owncloud/</pre>
 </div>
@@ -170,7 +174,7 @@ your ownCloud environment. You could use this command:</p>
 <div class="section" id="mysql">
 <h3>MySQL<a class="headerlink" href="#mysql" title="Permalink to this headline">¶</a></h3>
 <p>MySQL is the recommended database engine. To backup MySQL:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">mysql</span> <span class="o">-</span><span class="n">h</span> <span class="p">[</span><span class="n">server</span><span class="p">]</span> <span class="o">-</span><span class="n">u</span> <span class="p">[</span><span class="n">username</span><span class="p">]</span> <span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="n">password</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">owncloud</span><span class="o">-</span><span class="n">sqlbkp</span><span class="o">.</span><span class="n">bak</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">mysql</span> <span class="o">-</span><span class="n">h</span> <span class="p">[</span><span class="n">server</span><span class="p">]</span> <span class="o">-</span><span class="n">u</span> <span class="p">[</span><span class="n">username</span><span class="p">]</span> <span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="n">password</span><span class="p">]</span> <span class="p">[</span><span class="n">db_name</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">owncloud</span><span class="o">-</span><span class="n">sqlbkp</span><span class="o">.</span><span class="n">bak</span>
 </pre></div>
 </div>
 </div>

@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Jiri Grönroos <jiri.gronroos@iki.fi>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: translations@owncloud.org\n"
-"POT-Creation-Date: 2013-11-27 12:08-0500\n"
-"PO-Revision-Date: 2013-11-27 17:09+0000\n"
-"Last-Translator: I Robot <owncloud-bot@tmit.eu>\n"
+"POT-Creation-Date: 2014-06-19 01:54-0400\n"
+"PO-Revision-Date: 2014-06-18 06:12+0000\n"
+"Last-Translator: Jiri Grönroos <jiri.gronroos@iki.fi>\n"
 "Language-Team: Finnish (Finland) (http://www.transifex.com/projects/p/owncloud/language/fi_FI/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -23,19 +24,19 @@ msgstr ""
 
 #: ajax/deleteConfiguration.php:34
 msgid "Failed to delete the server configuration"
-msgstr ""
+msgstr "Palvelinmäärityksen poistaminen epäonnistui"
 
-#: ajax/testConfiguration.php:37
+#: ajax/testConfiguration.php:39
 msgid "The configuration is valid and the connection could be established!"
-msgstr ""
+msgstr "Määritys on kelvollinen ja yhteys kyettiin muodostamaan!"
 
-#: ajax/testConfiguration.php:40
+#: ajax/testConfiguration.php:42
 msgid ""
 "The configuration is valid, but the Bind failed. Please check the server "
 "settings and credentials."
 msgstr ""
 
-#: ajax/testConfiguration.php:44
+#: ajax/testConfiguration.php:46
 msgid ""
 "The configuration is invalid. Please have a look at the logs for further "
 "details."
@@ -64,11 +65,15 @@ msgstr "Poisto epäonnistui"
 
 #: js/settings.js:83
 msgid "Take over settings from recent server configuration?"
-msgstr ""
+msgstr "Otetaanko asetukset viimeisimmistä palvelinmäärityksistä?"
 
 #: js/settings.js:84
 msgid "Keep settings?"
 msgstr "Säilytetäänkö asetukset?"
+
+#: js/settings.js:93
+msgid "{nthServer}. Server"
+msgstr ""
 
 #: js/settings.js:99
 msgid "Cannot add server configuration"
@@ -86,67 +91,95 @@ msgstr "Onnistui!"
 msgid "Error"
 msgstr "Virhe"
 
-#: js/settings.js:777
+#: js/settings.js:244
+msgid "Please specify a Base DN"
+msgstr ""
+
+#: js/settings.js:245
+msgid "Could not determine Base DN"
+msgstr ""
+
+#: js/settings.js:276
+msgid "Please specify the port"
+msgstr "Määritä portti"
+
+#: js/settings.js:780
 msgid "Configuration OK"
-msgstr ""
+msgstr "Määritykset OK"
 
-#: js/settings.js:786
+#: js/settings.js:789
 msgid "Configuration incorrect"
-msgstr ""
+msgstr "Määritykset väärin"
 
-#: js/settings.js:795
+#: js/settings.js:798
 msgid "Configuration incomplete"
-msgstr ""
+msgstr "Määritykset puutteelliset"
 
-#: js/settings.js:812 js/settings.js:821
+#: js/settings.js:815 js/settings.js:824
 msgid "Select groups"
 msgstr "Valitse ryhmät"
 
-#: js/settings.js:815 js/settings.js:824
+#: js/settings.js:818 js/settings.js:827
 msgid "Select object classes"
 msgstr ""
 
-#: js/settings.js:818
+#: js/settings.js:821
 msgid "Select attributes"
 msgstr ""
 
-#: js/settings.js:845
+#: js/settings.js:848
 msgid "Connection test succeeded"
 msgstr "Yhteystesti onnistui"
 
-#: js/settings.js:852
+#: js/settings.js:855
 msgid "Connection test failed"
 msgstr "Yhteystesti epäonnistui"
 
-#: js/settings.js:861
+#: js/settings.js:864
 msgid "Do you really want to delete the current Server Configuration?"
-msgstr ""
+msgstr "Haluatko varmasti poistaa nykyisen palvelinmäärityksen?"
 
-#: js/settings.js:862
+#: js/settings.js:865
 msgid "Confirm Deletion"
 msgstr "Vahvista poisto"
 
-#: lib/wizard.php:79 lib/wizard.php:93
+#: lib/wizard.php:83 lib/wizard.php:97
 #, php-format
 msgid "%s group found"
 msgid_plural "%s groups found"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s ryhmä löytynyt"
+msgstr[1] "%s ryhmää löytynyt"
 
-#: lib/wizard.php:122
+#: lib/wizard.php:130
 #, php-format
 msgid "%s user found"
 msgid_plural "%s users found"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s käyttäjä löytynyt"
+msgstr[1] "%s käyttäjää löytynyt"
 
-#: lib/wizard.php:779 lib/wizard.php:791
+#: lib/wizard.php:825 lib/wizard.php:837
 msgid "Invalid Host"
 msgstr ""
 
-#: lib/wizard.php:952
+#: lib/wizard.php:1025
 msgid "Could not find the desired feature"
 msgstr ""
+
+#: settings.php:52
+msgid "Server"
+msgstr "Palvelin"
+
+#: settings.php:53
+msgid "User Filter"
+msgstr ""
+
+#: settings.php:54
+msgid "Login Filter"
+msgstr ""
+
+#: settings.php:55
+msgid "Group Filter"
+msgstr "Ryhmien suodatus"
 
 #: templates/part.settingcontrols.php:2
 msgid "Save"
@@ -154,7 +187,7 @@ msgstr "Tallenna"
 
 #: templates/part.settingcontrols.php:4
 msgid "Test Configuration"
-msgstr ""
+msgstr "Testaa määritys"
 
 #: templates/part.settingcontrols.php:10 templates/part.wizardcontrols.php:14
 msgid "Help"
@@ -162,7 +195,7 @@ msgstr "Ohje"
 
 #: templates/part.wizard-groupfilter.php:4
 #, php-format
-msgid "Limit the access to %s to groups meeting this criteria:"
+msgid "Groups meeting these criteria are available in %s:"
 msgstr ""
 
 #: templates/part.wizard-groupfilter.php:8
@@ -195,19 +228,19 @@ msgstr ""
 
 #: templates/part.wizard-groupfilter.php:38
 msgid "groups found"
-msgstr ""
+msgstr "ryhmää löytynyt"
 
 #: templates/part.wizard-loginfilter.php:4
-msgid "What attribute shall be used as login name:"
+msgid "Users login with this attribute:"
 msgstr ""
 
 #: templates/part.wizard-loginfilter.php:8
 msgid "LDAP Username:"
-msgstr ""
+msgstr "LDAP-käyttäjätunnus:"
 
 #: templates/part.wizard-loginfilter.php:16
 msgid "LDAP Email Address:"
-msgstr ""
+msgstr "LDAP-sähköpostiosoite:"
 
 #: templates/part.wizard-loginfilter.php:24
 msgid "Other Attributes:"
@@ -220,9 +253,22 @@ msgid ""
 "username in the login action. Example: \"uid=%%uid\""
 msgstr ""
 
+#: templates/part.wizard-server.php:6
+msgid "1. Server"
+msgstr "1. Palvelin"
+
+#: templates/part.wizard-server.php:13
+#, php-format
+msgid "%s. Server:"
+msgstr "%s. Palvelin:"
+
 #: templates/part.wizard-server.php:18
 msgid "Add Server Configuration"
-msgstr ""
+msgstr "Lisää palvelinmääritys"
+
+#: templates/part.wizard-server.php:21
+msgid "Delete Configuration"
+msgstr "Poista määritys"
 
 #: templates/part.wizard-server.php:30
 msgid "Host"
@@ -266,7 +312,7 @@ msgstr "Voit määrittää käyttäjien ja ryhmien oletus DN:n (distinguished na
 
 #: templates/part.wizard-userfilter.php:4
 #, php-format
-msgid "Limit the access to %s to users meeting this criteria:"
+msgid "Limit %s access to users meeting these criteria:"
 msgstr ""
 
 #: templates/part.wizard-userfilter.php:31
@@ -277,7 +323,7 @@ msgstr ""
 
 #: templates/part.wizard-userfilter.php:38
 msgid "users found"
-msgstr ""
+msgstr "käyttäjää löytynyt"
 
 #: templates/part.wizardcontrols.php:5
 msgid "Back"
@@ -286,6 +332,14 @@ msgstr "Takaisin"
 #: templates/part.wizardcontrols.php:8
 msgid "Continue"
 msgstr "Jatka"
+
+#: templates/settings.php:7
+msgid "Expert"
+msgstr ""
+
+#: templates/settings.php:8
+msgid "Advanced"
+msgstr "Lisäasetukset"
 
 #: templates/settings.php:11
 msgid ""
@@ -298,7 +352,7 @@ msgstr ""
 msgid ""
 "<b>Warning:</b> The PHP LDAP module is not installed, the backend will not "
 "work. Please ask your system administrator to install it."
-msgstr ""
+msgstr "<b>Varoitus:</b> PHP:n LDAP-moduulia ei ole asennettu, taustaosa ei toimi. Pyydä järjestelmän ylläpitäjää asentamaan se."
 
 #: templates/settings.php:20
 msgid "Connection Settings"
@@ -324,7 +378,7 @@ msgstr ""
 
 #: templates/settings.php:24
 msgid "Backup (Replica) Port"
-msgstr ""
+msgstr "Varmuuskopioinnin (replikoinnin) portti"
 
 #: templates/settings.php:25
 msgid "Disable Main Server"
@@ -332,10 +386,10 @@ msgstr "Poista pääpalvelin käytöstä"
 
 #: templates/settings.php:25
 msgid "Only connect to the replica server."
-msgstr ""
+msgstr "Yhdistä vain replikointipalvelimeen."
 
 #: templates/settings.php:26
-msgid "Case insensitve LDAP server (Windows)"
+msgid "Case insensitive LDAP server (Windows)"
 msgstr "Kirjainkoosta piittamaton LDAP-palvelin (Windows)"
 
 #: templates/settings.php:27
@@ -409,41 +463,62 @@ msgstr ""
 msgid "Group-Member association"
 msgstr "Ryhmän ja jäsenen assosiaatio (yhteys)"
 
+#: templates/settings.php:39
+msgid "Nested Groups"
+msgstr ""
+
+#: templates/settings.php:39
+msgid ""
+"When switched on, groups that contain groups are supported. (Only works if "
+"the group member attribute contains DNs.)"
+msgstr ""
+
 #: templates/settings.php:40
-msgid "Special Attributes"
+msgid "Paging chunksize"
+msgstr ""
+
+#: templates/settings.php:40
+msgid ""
+"Chunksize used for paged LDAP searches that may return bulky results like "
+"user or group enumeration. (Setting it 0 disables paged LDAP searches in "
+"those situations.)"
 msgstr ""
 
 #: templates/settings.php:42
+msgid "Special Attributes"
+msgstr ""
+
+#: templates/settings.php:44
 msgid "Quota Field"
 msgstr ""
 
-#: templates/settings.php:43
+#: templates/settings.php:45
 msgid "Quota Default"
 msgstr ""
 
-#: templates/settings.php:43
+#: templates/settings.php:45
 msgid "in bytes"
 msgstr "tavuissa"
 
-#: templates/settings.php:44
+#: templates/settings.php:46
 msgid "Email Field"
 msgstr "Sähköpostikenttä"
 
-#: templates/settings.php:45
+#: templates/settings.php:47
 msgid "User Home Folder Naming Rule"
 msgstr ""
 
-#: templates/settings.php:45
+#: templates/settings.php:47
 msgid ""
 "Leave empty for user name (default). Otherwise, specify an LDAP/AD "
 "attribute."
 msgstr "Jätä tyhjäksi käyttäjänimi (oletusasetus). Muutoin anna LDAP/AD-atribuutti."
 
-#: templates/settings.php:51
+#: templates/settings.php:53
 msgid "Internal Username"
 msgstr ""
 
-#: templates/settings.php:52
+#: templates/settings.php:54
 msgid ""
 "By default the internal username will be created from the UUID attribute. It"
 " makes sure that the username is unique and characters do not need to be "
@@ -459,15 +534,15 @@ msgid ""
 "effect only on newly mapped (added) LDAP users."
 msgstr ""
 
-#: templates/settings.php:53
+#: templates/settings.php:55
 msgid "Internal Username Attribute:"
 msgstr ""
 
-#: templates/settings.php:54
+#: templates/settings.php:56
 msgid "Override UUID detection"
 msgstr ""
 
-#: templates/settings.php:55
+#: templates/settings.php:57
 msgid ""
 "By default, the UUID attribute is automatically detected. The UUID attribute"
 " is used to doubtlessly identify LDAP users and groups. Also, the internal "
@@ -478,19 +553,19 @@ msgid ""
 "Changes will have effect only on newly mapped (added) LDAP users and groups."
 msgstr ""
 
-#: templates/settings.php:56
+#: templates/settings.php:58
 msgid "UUID Attribute for Users:"
 msgstr ""
 
-#: templates/settings.php:57
+#: templates/settings.php:59
 msgid "UUID Attribute for Groups:"
 msgstr ""
 
-#: templates/settings.php:58
+#: templates/settings.php:60
 msgid "Username-LDAP User Mapping"
 msgstr ""
 
-#: templates/settings.php:59
+#: templates/settings.php:61
 msgid ""
 "Usernames are used to store and assign (meta) data. In order to precisely "
 "identify and recognize users, each LDAP user will have a internal username. "
@@ -504,10 +579,10 @@ msgid ""
 "experimental stage."
 msgstr ""
 
-#: templates/settings.php:60
+#: templates/settings.php:62
 msgid "Clear Username-LDAP User Mapping"
 msgstr ""
 
-#: templates/settings.php:60
+#: templates/settings.php:62
 msgid "Clear Groupname-LDAP Group Mapping"
 msgstr ""

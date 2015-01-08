@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "Checking your installation..." => "Kontrollerar din installation ...",
 "Upgrade is not possible. Make sure that your webserver has write access to the following files and directories:" => "En uppgradering är inte möjlig. Kontrollera att din webserver har skrivrättigheter i följande filer och mappar: ",
 "Version not found" => "Kan inte hitta version",
@@ -12,7 +13,9 @@
 "Moving files..." => "Flyttar filer...",
 "All done. Click to the link below to start database upgrade." => "Allt klart. Klicka vidare till länken nedan för att starta databasuppgradering.",
 "Update failed" => "Uppdatering misslyckades",
-"The update was unsuccessful. Please report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "Uppdateringen misslyckades. Vänligen rapportera detta fel till <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>.",
+"The update was unsuccessful. Please check logs at admin page and report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "Uppdateringen misslyckades. Vänligen kontrollera loggen på admin sidan och rapportera detta fel hos <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud kommunitet</a>.",
+"Proceed" => "Fortsätt",
+"Updater" => "Updatera",
 "Update Center" => "Uppdateringscenter",
 "Backup Management" => "Hantering av säkerhetskopiering",
 "Update" => "Uppdatera",
@@ -23,3 +26,4 @@
 "Delete" => "Radera",
 "No backups found" => "Inga säkerhetskopior hittades"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

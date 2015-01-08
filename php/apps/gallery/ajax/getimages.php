@@ -31,12 +31,13 @@ if (isset($_GET['token'])) {
 		$view = new \OC\Files\View(\OC\Files\Filesystem::getView()->getAbsolutePath($path));
 		$images = $view->searchByMime('image');
 
-		foreach ($images as &$image) {
-			$image['path'] = $token . $image['path'];
+		$result = array();
+		foreach ($images as $image) {
+			$result[] = $token . $image['path'];
 		}
 
 		OCP\JSON::setContentTypeHeader();
-		echo json_encode(array('images' => $images, 'users' => array(), 'displayNames' => array()));
+		echo json_encode(array('images' => $result, 'users' => array(), 'displayNames' => array()));
 
 		exit;
 	}
@@ -47,36 +48,22 @@ OCP\JSON::checkAppEnabled('gallery');
 
 $images = \OCP\Files::searchByMime('image');
 $user = \OCP\User::getUser();
+$users = array();
+$result = array();
 
 foreach ($images as &$image) {
-	$path = $user . $image['path'];
+	// we show shared images another way
+	if ($image->getStorage() instanceof \OC\Files\Storage\Shared) {
+		$owner = $image['uid_owner'];
+		$users[$owner] = $owner;
+	} else {
+		$owner = $user;
+	}
+	$path = $image['path'];
 	if (strpos($path, DIRECTORY_SEPARATOR . ".")) {
 		continue;
 	}
-	$image['path'] = $user . $image['path'];
-}
-
-$shared = array();
-$sharedSources = OCP\Share::getItemsSharedWith('file');
-$users = array();
-foreach ($sharedSources as $sharedSource) {
-	$owner = $sharedSource['uid_owner'];
-	if (array_search($owner, $users) === false) {
-		$users[] = $owner;
-	}
-	\OC\Files\Filesystem::initMountPoints($owner);
-	$ownerView = new \OC\Files\View('/' . $owner . '/files');
-	$path = $ownerView->getPath($sharedSource['item_source']);
-	if ($path) {
-		$shareName = basename($path);
-		$shareView = new \OC\Files\View('/' . $owner . '/files' . $path);
-		$sharedImages = $shareView->searchByMime('image');
-		foreach ($sharedImages as $sharedImage) {
-			// set the file_source in the path so we can get the original shared folder later
-			$sharedImage['path'] = $owner . '/' . $sharedSource['file_source'] . '/' . $shareName . $sharedImage['path'];
-			$images[] = $sharedImage;
-		}
-	}
+	$result[] = $owner . $path;
 }
 
 $displayNames = array();
@@ -89,4 +76,4 @@ function startsWith($haystack, $needle) {
 }
 
 OCP\JSON::setContentTypeHeader();
-echo json_encode(array('images' => $images, 'users' => $users, 'displayNames' => $displayNames));
+echo json_encode(array('images' => $result, 'users' => array_values($users), 'displayNames' => $displayNames));

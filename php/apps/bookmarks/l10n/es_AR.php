@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "No file provided for import" => "No se proveyeron archivos para importar",
 "Unsupported file type for import" => "Tipo de archivo no soportado para importar",
 "Bookmarks" => "Marcadores",
@@ -21,6 +22,7 @@
 "Edit" => "Editar",
 "Cancel" => "Cancelar",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Arrastrá desde aquí a los marcadores de tu navegador, y hacé click cuando quieras marcar una página web:",
+"Add to ownCloud" => "Agregar a ownCloud",
 "Address" => "Dirección",
 "Add" => "Agregar",
 "Related Tags" => "Etiquetas relacionadas",
@@ -32,3 +34,4 @@
 "Export" => "Exportar",
 "Import" => "Importar"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

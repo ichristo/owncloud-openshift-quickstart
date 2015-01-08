@@ -28,8 +28,8 @@ OC_Preferences::$object = new \OC\Preferences(OC_DB::getConnection());
 class OC_Preferences{
 	public static $object;
 	/**
-	 * @brief Get all users using the preferences
-	 * @return array with user ids
+	 * Get all users using the preferences
+	 * @return array an array of user ids
 	 *
 	 * This function returns a list of all users that have at least one entry
 	 * in the preferences table.
@@ -39,9 +39,9 @@ class OC_Preferences{
 	}
 
 	/**
-	 * @brief Get all apps of a user
+	 * Get all apps of a user
 	 * @param string $user user
-	 * @return array with app ids
+	 * @return integer[] with app ids
 	 *
 	 * This function returns a list of all apps of the user that have at least
 	 * one entry in the preferences table.
@@ -51,10 +51,10 @@ class OC_Preferences{
 	}
 
 	/**
-	 * @brief Get the available keys for an app
+	 * Get the available keys for an app
 	 * @param string $user user
 	 * @param string $app the app we are looking for
-	 * @return array with key names
+	 * @return array an array of key names
 	 *
 	 * This function gets all keys of an app of an user. Please note that the
 	 * values are not returned.
@@ -64,7 +64,7 @@ class OC_Preferences{
 	}
 
 	/**
-	 * @brief Gets the preference
+	 * Gets the preference
 	 * @param string $user user
 	 * @param string $app app
 	 * @param string $key key
@@ -79,23 +79,23 @@ class OC_Preferences{
 	}
 
 	/**
-	 * @brief sets a value in the preferences
+	 * sets a value in the preferences
 	 * @param string $user user
 	 * @param string $app app
 	 * @param string $key key
 	 * @param string $value value
-	 * @return bool
+	 * @param string $preCondition only set value if the key had a specific value before
+	 * @return bool true if value was set, otherwise false
 	 *
 	 * Adds a value to the preferences. If the key did not exist before, it
 	 * will be added automagically.
 	 */
-	public static function setValue( $user, $app, $key, $value ) {
-		self::$object->setValue( $user, $app, $key, $value );
-		return true;
+	public static function setValue( $user, $app, $key, $value, $preCondition = null ) {
+		return self::$object->setValue( $user, $app, $key, $value, $preCondition );
 	}
 
 	/**
-	 * @brief Deletes a key
+	 * Deletes a key
 	 * @param string $user user
 	 * @param string $app app
 	 * @param string $key key
@@ -108,7 +108,7 @@ class OC_Preferences{
 	}
 
 	/**
-	 * @brief Remove app of user from preferences
+	 * Remove app of user from preferences
 	 * @param string $user user
 	 * @param string $app app
 	 * @return bool
@@ -121,7 +121,7 @@ class OC_Preferences{
 	}
 
 	/**
-	 * @brief Remove user from preferences
+	 * Remove user from preferences
 	 * @param string $user user
 	 * @return bool
 	 *
@@ -133,7 +133,7 @@ class OC_Preferences{
 	}
 
 	/**
-	 * @brief Remove app from all users
+	 * Remove app from all users
 	 * @param string $app app
 	 * @return bool
 	 *

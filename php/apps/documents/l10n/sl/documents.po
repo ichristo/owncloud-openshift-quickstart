@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# mateju <>, 2013
+# Marko <marko.ambrozic@gmail.com>, 2014
+# Matej Urbančič <>, 2013-2014
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: translations@owncloud.org\n"
-"POT-Creation-Date: 2013-11-29 11:21-0500\n"
-"PO-Revision-Date: 2013-11-27 18:15+0000\n"
-"Last-Translator: mateju <>\n"
+"POT-Creation-Date: 2014-06-25 06:27-0400\n"
+"PO-Revision-Date: 2014-06-24 13:52+0000\n"
+"Last-Translator: Matej Urbančič <>\n"
 "Language-Team: Slovenian (http://www.transifex.com/projects/p/owncloud/language/sl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,50 +19,85 @@ msgstr ""
 "Language: sl\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);\n"
 
-#: appinfo/app.php:35 templates/personal.php:2 templates/settings.php:2
+#: ajax/admin.php:22
+msgid "Format filter server is down or misconfigured"
+msgstr "Strežnik filtriranja je nedejaven, ali pa ni pravilno nastavljen"
+
+#: ajax/documentController.php:43
+msgid "Can't create document"
+msgstr "Dokumenta ni mogoče ustvariti"
+
+#: ajax/documentController.php:82
+msgid "You don't have permission to rename this document"
+msgstr "Ni ustreznih dovoljenj za preimenovanje tega dokumenta ..."
+
+#: ajax/personal.php:26
+msgid "An error occurred while changing directory."
+msgstr "Med spreminjanjem mape je prišlo do napake."
+
+#: ajax/personal.php:34
+msgid "Directory saved successfully."
+msgstr "Mapa je uspešno shranjena."
+
+#: appinfo/app.php:34 templates/admin.php:3 templates/personal.php:2
+#: templates/settings.php:2
 msgid "Documents"
 msgstr "Dokumenti"
 
-#: js/3rdparty/webodf/webodf.js:831
-msgid "document-styles"
-msgstr "slogi dokumenta"
+#: js/documents.js:86
+msgid "Failed to load documents."
+msgstr "Nalaganje dokumentov je spodletelo."
 
-#: js/3rdparty/webodf/webodf.js:832
-msgid "document-content"
-msgstr "vsebina dokumenta"
+#: js/documents.js:121
+msgid "No documents are found. Please upload or create a document!"
+msgstr "Ni najdenih dokumentov. Pošljite dokument na strežnik, ali pa ga ustvarite."
 
-#: js/documents.js:23 js/locale.js:12 js/viewer/viewer.js:50
-msgid "Close"
-msgstr "Zapri"
-
-#: js/documents.js:26
+#: js/documents.js:156
 msgid "Share"
 msgstr "Souporaba"
 
-#: js/documents.js:102
+#: js/documents.js:159 js/locale.js:12 js/viewer/viewer.js:80
+msgid "Close"
+msgstr "Zapri"
+
+#: js/documents.js:275
 msgid "No connection to server. Trying to reconnect."
 msgstr "Ni povezave s strežnikom. Poskus povezave bo ponovljen."
 
-#: js/documents.js:153
+#: js/documents.js:339
 msgid ""
 "Leaving this page in Editor mode might cause unsaved data. It is recommended"
 " to use 'Close' button instead."
 msgstr "Odhod s strani v načinu urejevalnika lahko vpliva na shranjevanje podatkov. Priporočljivo je raje uporabiti gumb za 'zapiranje' okna."
 
-#: js/documents.js:166
+#: js/documents.js:360
 msgid ""
 "Failed to load this document. Please check if it can be opened with an "
 "external odt editor. This might also mean it has been unshared or deleted "
 "recently."
 msgstr "Nalaganje dokumenta je spodletelo. Preverite, ali ga je mogoče odpreti v zunanjem urejevalniku datotek odt. Do napake je lahko prišlo tudi, če je datoteka izbrisana, ali pa ni več v souporabi."
 
-#: js/documents.js:332
-msgid "Failed to load documents."
-msgstr "Nalaganje dokumentov je spodletelo."
+#: js/documents.js:382 js/locale.js:39
+msgid "Save"
+msgstr "Shrani"
 
-#: js/documents.js:375
-msgid "No documents are found. Please upload or create a document!"
-msgstr "Ni najdenih dokumentov. Pošljite dokument na strežnik, ali pa ga ustvarite."
+#: js/documents.js:724 templates/documents.php:31
+msgid "Loading documents..."
+msgstr "Nalaganje dokumentov ..."
+
+#: js/documents.js:757
+msgid "'.' is an invalid file name."
+msgstr "'.' je neveljavno ime datoteke."
+
+#: js/documents.js:759
+msgid "File name cannot be empty."
+msgstr "Ime datoteke ne sme biti prazno polje."
+
+#: js/documents.js:766
+msgid ""
+"Invalid name, '\\', '/', '<', '>', ':', '\"', '|', '?' and '*' are not "
+"allowed."
+msgstr "Neveljavno ime; znaki '\\', '/', '<', '>', ':', '\"', '|', '?' in '*' niso dovoljeni."
 
 #: js/locale.js:1
 msgid "Align Left"
@@ -211,10 +247,6 @@ msgstr "Ponovno uveljavi"
 msgid "Right"
 msgstr "Desno"
 
-#: js/locale.js:39
-msgid "Save"
-msgstr "Shrani"
-
 #: js/locale.js:40
 msgid "Size"
 msgstr "Velikost"
@@ -251,27 +283,60 @@ msgstr "Razveljavi"
 msgid "Unknown Author"
 msgstr "Neznan avtor"
 
-#: lib/invite.php:64
-msgid "Sent"
-msgstr "Poslano"
+#: js/viewer/viewer.js:31
+msgid "Edit"
+msgstr "Uredi"
 
-#: lib/invite.php:65 lib/invite.php:75
-msgid "Declined"
-msgstr "Zavrnjeno"
+#: lib/db/member.php:39
+msgid "guest"
+msgstr "gost"
 
-#: lib/invite.php:66 lib/invite.php:76
-msgid "Accepted"
-msgstr "Sprejeto"
+#: templates/admin.php:4
+msgid "MS Word support (requires openOffice/libreOffice)"
+msgstr "Podpora za MS Word (zahteva namestitev OpenOffice/LibreOffice)"
 
-#: lib/invite.php:74
-msgid "Incoming"
-msgstr "Prihajajoče"
+#: templates/admin.php:9
+msgid "Local"
+msgstr "Krajevno"
+
+#: templates/admin.php:10
+msgid ""
+"openOffice/libreOffice is installed on this server. Path to binary is "
+"provided via preview_libreoffice_path in config.php"
+msgstr "OpenOffice oziroma LibreOffice je nameščen na strežniku. Pot to izvedljive datoteke je podana preko možnosti preview_libreoffice_path v datoteki config.php"
+
+#: templates/admin.php:16
+msgid "External"
+msgstr "Zunanje"
+
+#: templates/admin.php:17
+msgid ""
+"openOffice/libreOffice is installed on external server running a format "
+"filter server"
+msgstr "Pisarniški paket OpenOffice.org oziroma LibreOffice je nameščen na zunanjem strežniku z zagnanim strežnikom filtra za odpiranje pisarniških datotek."
+
+#: templates/admin.php:22
+msgid "scheme://domain.tld[:port]"
+msgstr "shema://domena.tld[:vrata]"
+
+#: templates/admin.php:25
+msgid "Server URL"
+msgstr "Naslov URL strežnika"
+
+#: templates/admin.php:27
+msgid "Apply"
+msgstr "Uveljavi"
 
 #: templates/documents.php:5
 msgid "New document"
 msgstr "Nov dokument"
 
-#: templates/documents.php:7 templates/documents.php:27
+#: templates/documents.php:7
+#, php-format
+msgid "Upload (max. %s)"
+msgstr "Pošiljanje (omejitev %s)"
+
+#: templates/documents.php:27
 msgid "Upload"
 msgstr "Pošlji"
 
@@ -288,14 +353,11 @@ msgid "Password"
 msgstr "Geslo"
 
 #: templates/public.php:17
-msgid "Please enter your nickname"
-msgstr "Vnesite vzdevek"
+#, php-format
+msgid "Guest %s"
+msgstr "Gost %s"
 
-#: templates/public.php:18
-msgid "Join"
-msgstr "Pridruži se"
-
-#: templates/public.php:24
+#: templates/public.php:21
 msgid ""
 "This link has been expired or is never existed. Please contact the person "
 "who shared it with you for details."

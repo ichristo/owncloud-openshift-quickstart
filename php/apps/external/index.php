@@ -16,30 +16,31 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
+ * You should have received a copy of the GNU Affero General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
-require_once 'lib/external.php';
 
+use OCA\External\External;
+
+OCP\JSON::checkAppEnabled('external');
 OCP\User::checkLoggedIn();
 
-if (isset($_GET['id'])) {
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 1;
 
-	$id = $_GET['id'];
-	$id = (int) $id;
+$sites = External::getSites();
+if (sizeof($sites) >= $id) {
+	$url = $sites[$id - 1][1];
+	OCP\App::setActiveNavigationEntry('external_index' . $id);
 
-	$sites = OC_External::getSites();
-	if (sizeof($sites) >= $id) {
-		$url = $sites[$id - 1][1];
-		OCP\App::setActiveNavigationEntry('external_index' . $id);
-		
-		$tmpl = new OCP\Template('external', 'frame', 'user');
-		//overwrite x-frame-options
-		$tmpl->addHeader('X-Frame-Options', 'ALLOW-FROM *');
-		
-		$tmpl->assign('url', $url);
-		$tmpl->printPage();
-	}
+	$tmpl = new OCP\Template('external', 'frame', 'user');
+	//overwrite x-frame-options
+	header('X-Frame-Options: ALLOW-FROM *');
+
+	$tmpl->assign('url', $url);
+	$tmpl->printPage();
+} else {
+	\OC_Util::redirectToDefaultPage();
 }
+

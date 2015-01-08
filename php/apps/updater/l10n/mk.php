@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "Checking your installation..." => "Ја проверувам вашата инсталација...",
 "Upgrade is not possible. Make sure that your webserver has write access to the following files and directories:" => "Надградбата не е возможна. Обезбедете да вашиот веб сервер има пристап и дозвола за запишување на следните датотеки и директориуми:",
 "Version not found" => "Верзијата не е пронајдена",
@@ -12,7 +13,9 @@
 "Moving files..." => "Префрлам датотеки...",
 "All done. Click to the link below to start database upgrade." => "Се е завршено. Кликни на линкот подолу за да започне надградба на базата на податоци.",
 "Update failed" => "Надградбата е неуспешна",
-"The update was unsuccessful. Please report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "Надградбата не беше успешна. Ве молиме пријавете го овој проблем на <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>.",
+"The update was unsuccessful. Please check logs at admin page and report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "Надградбата не беше успешна. Ве молиме проверете ги логовите на администаторската страна и пријавете го овој проблем на <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>.",
+"Proceed" => "Продолжи",
+"Updater" => "Надградувач",
 "Update Center" => "Центар за надградба",
 "Backup Management" => "Управување со бекап",
 "Update" => "Ажурирај",
@@ -23,3 +26,4 @@
 "Delete" => "Избриши",
 "No backups found" => "Не е пронајден ниту еден бекап"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : 1;";

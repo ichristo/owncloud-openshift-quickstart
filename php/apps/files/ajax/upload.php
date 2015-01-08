@@ -8,6 +8,7 @@ OCP\JSON::setContentTypeHeader('text/plain');
 // If no token is sent along, rely on login only
 
 $allowedPermissions = OCP\PERMISSION_ALL;
+$errorCode = null;
 
 $l = OC_L10N::get('files');
 if (empty($_POST['dirToken'])) {
@@ -19,8 +20,15 @@ if (empty($_POST['dirToken'])) {
 		die();
 	}
 } else {
+	// TODO: ideally this code should be in files_sharing/ajax/upload.php
+	// and the upload/file transfer code needs to be refactored into a utility method
+	// that could be used there
+
+	\OC_User::setIncognitoMode(true);
+
 	// return only read permissions for public upload
 	$allowedPermissions = OCP\PERMISSION_READ;
+	$publicDirectory = !empty($_POST['subdir']) ? $_POST['subdir'] : '/';
 
 	$linkItem = OCP\Share::getShareByToken($_POST['dirToken']);
 	if ($linkItem === false) {
@@ -44,18 +52,24 @@ if (empty($_POST['dirToken'])) {
 		$dir = sprintf(
 			"/%s/%s",
 			$path,
-			isset($_POST['subdir']) ? $_POST['subdir'] : ''
+			$publicDirectory
 		);
 
 		if (!$dir || empty($dir) || $dir === false) {
 			OCP\JSON::error(array('data' => array_merge(array('message' => $l->t('Unable to set upload directory.')))));
 			die();
 		}
+
+		$dir = rtrim($dir, '/');
 	}
 }
 
 
 OCP\JSON::callCheck();
+if (!\OCP\App::isEnabled('files_encryption')) {
+	// encryption app need to create keys later, so can't close too early
+	\OC::$session->close();
+}
 
 
 // get array with current storage stats (e.g. max file size)
@@ -78,7 +92,9 @@ foreach ($_FILES['files']['error'] as $error) {
 			UPLOAD_ERR_NO_TMP_DIR => $l->t('Missing a temporary folder'),
 			UPLOAD_ERR_CANT_WRITE => $l->t('Failed to write to disk'),
 		);
-		OCP\JSON::error(array('data' => array_merge(array('message' => $errors[$error]), $storageStats)));
+		$errorMessage = $errors[$error];
+		\OC::$server->getLogger()->alert("Upload error: $error - $errorMessage", array('app' => 'files'));
+		OCP\JSON::error(array('data' => array_merge(array('message' => $errorMessage), $storageStats)));
 		exit();
 	}
 }
@@ -104,14 +120,31 @@ $result = array();
 if (strpos($dir, '..') === false) {
 	$fileCount = count($files['name']);
 	for ($i = 0; $i < $fileCount; $i++) {
+
+		// target directory for when uploading folders
+		$relativePath = '';
+		if(!empty($_POST['file_directory'])) {
+			$relativePath = '/'.$_POST['file_directory'];
+		}
+
 		// $path needs to be normalized - this failed within drag'n'drop upload to a sub-folder
 		if (isset($_POST['resolution']) && $_POST['resolution']==='autorename') {
 			// append a number in brackets like 'filename (2).ext'
-			$target = OCP\Files::buildNotExistingFileName(stripslashes($dir), $files['name'][$i]);
+			$target = OCP\Files::buildNotExistingFileName(stripslashes($dir . $relativePath), $files['name'][$i]);
 		} else {
-			$target = \OC\Files\Filesystem::normalizePath(stripslashes($dir).'/'.$files['name'][$i]);
+			$target = \OC\Files\Filesystem::normalizePath(stripslashes($dir . $relativePath).'/'.$files['name'][$i]);
 		}
-		
+
+		// relative dir to return to the client
+		if (isset($publicDirectory)) {
+			// path relative to the public root
+			$returnedDir = $publicDirectory . $relativePath;
+		} else {
+			// full path
+			$returnedDir = $dir . $relativePath;
+		}
+		$returnedDir = \OC\Files\Filesystem::normalizePath($returnedDir);
+
 		if ( ! \OC\Files\Filesystem::file_exists($target)
 			|| (isset($_POST['resolution']) && $_POST['resolution']==='replace')
 		) {
@@ -125,20 +158,17 @@ if (strpos($dir, '..') === false) {
 
 					$meta = \OC\Files\Filesystem::getFileInfo($target);
 					if ($meta === false) {
-						$error = $l->t('Upload failed. Could not get file info.');
+						$error = $l->t('The target folder has been moved or deleted.');
+						$errorCode = 'targetnotfound';
 					} else {
-						$result[] = array('status' => 'success',
-							'mime' => $meta['mimetype'],
-							'mtime' => $meta['mtime'],
-							'size' => $meta['size'],
-							'id' => $meta['fileid'],
-							'name' => basename($target),
-							'etag' => $meta['etag'],
-							'originalname' => $files['tmp_name'][$i],
-							'uploadMaxFilesize' => $maxUploadFileSize,
-							'maxHumanFilesize' => $maxHumanFileSize,
-							'permissions' => $meta['permissions'] & $allowedPermissions
-						);
+						$data = \OCA\Files\Helper::formatFileInfo($meta);
+						$data['status'] = 'success';
+						$data['originalname'] = $files['tmp_name'][$i];
+						$data['uploadMaxFilesize'] = $maxUploadFileSize;
+						$data['maxHumanFilesize'] = $maxHumanFileSize;
+						$data['permissions'] = $meta['permissions'] & $allowedPermissions;
+						$data['directory'] = $returnedDir;
+						$result[] = $data;
 					}
 
 				} else {
@@ -147,25 +177,22 @@ if (strpos($dir, '..') === false) {
 			} catch(Exception $ex) {
 				$error = $ex->getMessage();
 			}
-			
+
 		} else {
 			// file already exists
 			$meta = \OC\Files\Filesystem::getFileInfo($target);
 			if ($meta === false) {
 				$error = $l->t('Upload failed. Could not get file info.');
 			} else {
-				$result[] = array('status' => 'existserror',
-					'mime' => $meta['mimetype'],
-					'mtime' => $meta['mtime'],
-					'size' => $meta['size'],
-					'id' => $meta['fileid'],
-					'name' => basename($target),
-					'etag' => $meta['etag'],
-					'originalname' => $files['tmp_name'][$i],
-					'uploadMaxFilesize' => $maxUploadFileSize,
-					'maxHumanFilesize' => $maxHumanFileSize,
-					'permissions' => $meta['permissions'] & $allowedPermissions
-				);
+				$data = \OCA\Files\Helper::formatFileInfo($meta);
+				$data['permissions'] = $data['permissions'] & $allowedPermissions;
+				$data['status'] = 'existserror';
+				$data['originalname'] = $files['tmp_name'][$i];
+				$data['uploadMaxFilesize'] = $maxUploadFileSize;
+				$data['maxHumanFilesize'] = $maxHumanFileSize;
+				$data['permissions'] = $meta['permissions'] & $allowedPermissions;
+				$data['directory'] = $returnedDir;
+				$result[] = $data;
 			}
 		}
 	}
@@ -175,7 +202,6 @@ if (strpos($dir, '..') === false) {
 
 if ($error === false) {
 	OCP\JSON::encodedPrint($result);
-	exit();
 } else {
-	OCP\JSON::error(array(array('data' => array_merge(array('message' => $error), $storageStats))));
+	OCP\JSON::error(array(array('data' => array_merge(array('message' => $error, 'code' => $errorCode), $storageStats))));
 }

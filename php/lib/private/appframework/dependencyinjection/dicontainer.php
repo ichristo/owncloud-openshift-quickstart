@@ -4,7 +4,7 @@
  * ownCloud - App Framework
  *
  * @author Bernhard Posselt
- * @copyright 2012 Bernhard Posselt nukeawhale@gmail.com
+ * @copyright 2012 Bernhard Posselt <dev@bernhard-posselt.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -30,11 +30,12 @@ use OC\AppFramework\Http\Dispatcher;
 use OC\AppFramework\Core\API;
 use OC\AppFramework\Middleware\MiddlewareDispatcher;
 use OC\AppFramework\Middleware\Security\SecurityMiddleware;
+use OC\AppFramework\Middleware\Security\CORSMiddleware;
 use OC\AppFramework\Utility\SimpleContainer;
 use OC\AppFramework\Utility\TimeFactory;
+use OC\AppFramework\Utility\ControllerMethodReflector;
 use OCP\AppFramework\IApi;
 use OCP\AppFramework\IAppContainer;
-use OCP\AppFramework\IMiddleWare;
 use OCP\AppFramework\Middleware;
 use OCP\IServerContainer;
 
@@ -81,7 +82,12 @@ class DIContainer extends SimpleContainer implements IAppContainer{
 		});
 
 		$this['Dispatcher'] = $this->share(function($c) {
-			return new Dispatcher($c['Protocol'], $c['MiddlewareDispatcher']);
+			return new Dispatcher(
+				$c['Protocol'],
+				$c['MiddlewareDispatcher'],
+				$c['ControllerMethodReflector'],
+				$c['Request']
+			);
 		});
 
 
@@ -90,16 +96,33 @@ class DIContainer extends SimpleContainer implements IAppContainer{
 		 */
 		$app = $this;
 		$this['SecurityMiddleware'] = $this->share(function($c) use ($app){
-			return new SecurityMiddleware($app, $c['Request']);
+			return new SecurityMiddleware(
+				$c['Request'],
+				$c['ControllerMethodReflector'],
+				$app->getServer()->getNavigationManager(),
+				$app->getServer()->getURLGenerator(),
+				$app->getServer()->getLogger(),
+				$c['AppName'],
+				$app->isLoggedIn(),
+				$app->isAdminUser()
+			);
 		});
 
-        $middleWares = $this->middleWares;
-		$this['MiddlewareDispatcher'] = $this->share(function($c) use ($middleWares) {
+		$this['CORSMiddleware'] = $this->share(function($c) {
+			return new CORSMiddleware(
+				$c['Request'],
+				$c['ControllerMethodReflector']
+			);
+		});
+
+		$middleWares = &$this->middleWares;
+		$this['MiddlewareDispatcher'] = $this->share(function($c) use (&$middleWares) {
 			$dispatcher = new MiddlewareDispatcher();
 			$dispatcher->registerMiddleware($c['SecurityMiddleware']);
+			$dispatcher->registerMiddleware($c['CORSMiddleware']);
 
 			foreach($middleWares as $middleWare) {
-				$dispatcher->registerMiddleware($middleWare);
+				$dispatcher->registerMiddleware($c[$middleWare]);
 			}
 
 			return $dispatcher;
@@ -113,6 +136,9 @@ class DIContainer extends SimpleContainer implements IAppContainer{
 			return new TimeFactory();
 		});
 
+		$this['ControllerMethodReflector'] = $this->share(function($c) {
+			return new ControllerMethodReflector();
+		});
 
 	}
 
@@ -134,10 +160,10 @@ class DIContainer extends SimpleContainer implements IAppContainer{
 	}
 
 	/**
-	 * @param Middleware $middleWare
-	 * @return boolean
+	 * @param string $middleWare
+	 * @return boolean|null
 	 */
-	function registerMiddleWare(Middleware $middleWare) {
+	function registerMiddleWare($middleWare) {
 		array_push($this->middleWares, $middleWare);
 	}
 
@@ -169,8 +195,8 @@ class DIContainer extends SimpleContainer implements IAppContainer{
 	}
 
 	/**
-	 * @param $message
-	 * @param $level
+	 * @param string $message
+	 * @param string $level
 	 * @return mixed
 	 */
 	function log($message, $level) {

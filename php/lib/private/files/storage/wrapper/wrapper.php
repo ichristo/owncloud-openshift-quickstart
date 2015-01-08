@@ -361,20 +361,28 @@ class Wrapper implements \OC\Files\Storage\Storage {
 	 * get a cache instance for the storage
 	 *
 	 * @param string $path
+	 * @param \OC\Files\Storage\Storage (optional) the storage to pass to the cache
 	 * @return \OC\Files\Cache\Cache
 	 */
-	public function getCache($path = '') {
-		return $this->storage->getCache($path);
+	public function getCache($path = '', $storage = null) {
+		if (!$storage) {
+			$storage = $this;
+		}
+		return $this->storage->getCache($path, $storage);
 	}
 
 	/**
 	 * get a scanner instance for the storage
 	 *
 	 * @param string $path
+	 * @param \OC\Files\Storage\Storage (optional) the storage to pass to the scanner
 	 * @return \OC\Files\Cache\Scanner
 	 */
-	public function getScanner($path = '') {
-		return $this->storage->getScanner($path);
+	public function getScanner($path = '', $storage = null) {
+		if (!$storage) {
+			$storage = $this;
+		}
+		return $this->storage->getScanner($path, $storage);
 	}
 
 
@@ -389,23 +397,17 @@ class Wrapper implements \OC\Files\Storage\Storage {
 	}
 
 	/**
-	 * get a permissions cache instance for the cache
-	 *
-	 * @param string $path
-	 * @return \OC\Files\Cache\Permissions
-	 */
-	public function getPermissionsCache($path = '') {
-		return $this->storage->getPermissionsCache($path);
-	}
-
-	/**
 	 * get a watcher instance for the cache
 	 *
 	 * @param string $path
+	 * @param \OC\Files\Storage\Storage (optional) the storage to pass to the watcher
 	 * @return \OC\Files\Cache\Watcher
 	 */
-	public function getWatcher($path = '') {
-		return $this->storage->getWatcher($path);
+	public function getWatcher($path = '', $storage = null) {
+		if (!$storage) {
+			$storage = $this;
+		}
+		return $this->storage->getWatcher($path, $storage);
 	}
 
 	/**
@@ -427,9 +429,40 @@ class Wrapper implements \OC\Files\Storage\Storage {
 
 	/**
 	 * Returns true
+	 *
 	 * @return true
 	 */
 	public function test() {
 		return $this->storage->test();
+	}
+
+	/**
+	 * Returns the wrapped storage's value for isLocal()
+	 *
+	 * @return bool wrapped storage's isLocal() value
+	 */
+	public function isLocal() {
+		return $this->storage->isLocal();
+	}
+
+	/**
+	 * Check if the storage is an instance of $class or is a wrapper for a storage that is an instance of $class
+	 *
+	 * @param string $class
+	 * @return bool
+	 */
+	public function instanceOfStorage($class) {
+		return is_a($this, $class) or $this->storage->instanceOfStorage($class);
+	}
+
+	/**
+	 * Pass any methods custom to specific storage implementations to the wrapped storage
+	 *
+	 * @param string $method
+	 * @param array $args
+	 * @return mixed
+	 */
+	public function __call($method, $args) {
+		return call_user_func_array(array($this->storage, $method), $args);
 	}
 }

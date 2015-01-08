@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "No file provided for import" => "لم يتم اضافة ملف للتدخيل",
 "Unsupported file type for import" => "نوعية الملف غير صالحه للاستيراد",
 "Bookmarks" => "اشارات المرجعية",
@@ -21,6 +22,7 @@
 "Edit" => "تعديل",
 "Cancel" => "الغاء",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "اسحب هذه الى قائمة المرجعيه في متصفحك, و اضغط عليه عندما تريد اضافة صفحه :",
+"Add to ownCloud" => "أضف إلى سحابتك الخاصه \"أوون كلاود\"",
 "Address" => "عنوان",
 "Add" => "أدخل",
 "Related Tags" => "فئات متشابهه",
@@ -32,3 +34,4 @@
 "Export" => "تصدير المعلومات",
 "Import" => "استيراد"
 );
+$PLURAL_FORMS = "nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;";

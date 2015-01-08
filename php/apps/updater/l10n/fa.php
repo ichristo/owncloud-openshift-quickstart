@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "Checking your installation..." => "نصب و راه اندازی خود را بررسی کنید...",
 "Upgrade is not possible. Make sure that your webserver has write access to the following files and directories:" => "ارتقا امکان پذیر نیست. مطمئن شوید که وب سرور شما دسترسی نوشتن به فایل ها و دایرکتوری زیر را داراست:",
 "Version not found" => "نسخه یافت نشد",
@@ -12,7 +13,6 @@
 "Moving files..." => "انتقال فایل ها ...",
 "All done. Click to the link below to start database upgrade." => "همه انجام شده. لینک زیر را برای شروع ارتقاء پایگاه داده کلیک کنید.",
 "Update failed" => "بروز رسانی ناموفق بود.",
-"The update was unsuccessful. Please report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "به روز رسانی ناموفق بود. لطفا این مسئله را به انجمن ownCloud اطلاع رسانی<a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">کنید</a>.",
 "Update Center" => "مرکز به روز رسانی ",
 "Backup Management" => "مدیریت پشتیبان گیری",
 "Update" => "به روز رسانی",
@@ -23,3 +23,4 @@
 "Delete" => "حذف",
 "No backups found" => "هیچ پشتیبانی یافت نشد"
 );
+$PLURAL_FORMS = "nplurals=1; plural=0;";

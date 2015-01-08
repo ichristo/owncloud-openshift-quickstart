@@ -24,20 +24,20 @@
 namespace OCA\Encryption;
 
 /**
- * @brief Class to manage storage and retrieval of encryption keys
+ * Class to manage storage and retrieval of encryption keys
  * @note Where a method requires a view object, it's root must be '/'
  */
 class Keymanager {
 
 	/**
-	 * @brief retrieve the ENCRYPTED private key from a user
+	 * retrieve the ENCRYPTED private key from a user
 	 *
-	 * @param \OC_FilesystemView $view
+	 * @param \OC\Files\View $view
 	 * @param string $user
 	 * @return string private key or false (hopefully)
 	 * @note the key returned by this method must be decrypted before use
 	 */
-	public static function getPrivateKey(\OC_FilesystemView $view, $user) {
+	public static function getPrivateKey(\OC\Files\View $view, $user) {
 
 		$path = '/' . $user . '/' . 'files_encryption' . '/' . $user . '.private.key';
 		$key = false;
@@ -55,12 +55,12 @@ class Keymanager {
 	}
 
 	/**
-	 * @brief retrieve public key for a specified user
-	 * @param \OC_FilesystemView $view
-	 * @param $userId
+	 * retrieve public key for a specified user
+	 * @param \OC\Files\View $view
+	 * @param string $userId
 	 * @return string public key or false
 	 */
-	public static function getPublicKey(\OC_FilesystemView $view, $userId) {
+	public static function getPublicKey(\OC\Files\View $view, $userId) {
 
 		$proxyStatus = \OC_FileProxy::$enabled;
 		\OC_FileProxy::$enabled = false;
@@ -74,12 +74,12 @@ class Keymanager {
 	}
 
 	/**
-	 * @brief Retrieve a user's public and private key
-	 * @param \OC_FilesystemView $view
-	 * @param $userId
+	 * Retrieve a user's public and private key
+	 * @param \OC\Files\View $view
+	 * @param string $userId
 	 * @return array keys: privateKey, publicKey
 	 */
-	public static function getUserKeys(\OC_FilesystemView $view, $userId) {
+	public static function getUserKeys(\OC\Files\View $view, $userId) {
 
 		return array(
 			'publicKey' => self::getPublicKey($view, $userId),
@@ -89,12 +89,12 @@ class Keymanager {
 	}
 
 	/**
-	 * @brief Retrieve public keys for given users
-	 * @param \OC_FilesystemView $view
+	 * Retrieve public keys for given users
+	 * @param \OC\Files\View $view
 	 * @param array $userIds
 	 * @return array of public keys for the specified users
 	 */
-	public static function getPublicKeys(\OC_FilesystemView $view, array $userIds) {
+	public static function getPublicKeys(\OC\Files\View $view, array $userIds) {
 
 		$keys = array();
 
@@ -109,9 +109,9 @@ class Keymanager {
 	}
 
 	/**
-	 * @brief store file encryption key
+	 * store file encryption key
 	 *
-	 * @param \OC_FilesystemView $view
+	 * @param \OC\Files\View $view
 	 * @param \OCA\Encryption\Util $util
 	 * @param string $path relative path of the file, including filename
 	 * @param string $catfile keyfile content
@@ -119,7 +119,7 @@ class Keymanager {
 	 * @note The keyfile is not encrypted here. Client code must
 	 * asymmetrically encrypt the keyfile before passing it to this method
 	 */
-	public static function setFileKey(\OC_FilesystemView $view, $util, $path, $catfile) {
+	public static function setFileKey(\OC\Files\View $view, $util, $path, $catfile) {
 
 		$proxyStatus = \OC_FileProxy::$enabled;
 		\OC_FileProxy::$enabled = false;
@@ -133,20 +133,7 @@ class Keymanager {
 			$basePath = '/' . $owner . '/files_encryption/keyfiles';
 		}
 
-		$targetPath = self::keySetPreparation($view, $filename, $basePath, $owner);
-
-		if (!$view->is_dir($basePath . '/' . $targetPath)) {
-
-			// create all parent folders
-			$info = pathinfo($basePath . '/' . $targetPath);
-			$keyfileFolderName = $view->getLocalFolder($info['dirname']);
-
-			if (!file_exists($keyfileFolderName)) {
-
-				mkdir($keyfileFolderName, 0750, true);
-
-			}
-		}
+		$targetPath = self::keySetPreparation($view, $filename, $basePath);
 
 		// try reusing key file if part file
 		if (Helper::isPartialFilePath($targetPath)) {
@@ -167,10 +154,10 @@ class Keymanager {
 	}
 
 	/**
-	 * @brief retrieve keyfile for an encrypted file
-	 * @param \OC_FilesystemView $view
+	 * retrieve keyfile for an encrypted file
+	 * @param \OC\Files\View $view
 	 * @param \OCA\Encryption\Util $util
-	 * @param $filePath
+	 * @param string|false $filePath
 	 * @internal param \OCA\Encryption\file $string name
 	 * @return string file key or false
 	 * @note The keyfile returned is asymmetrically encrypted. Decryption
@@ -210,19 +197,28 @@ class Keymanager {
 	}
 
 	/**
-	 * @brief Delete a keyfile
+	 * Delete a keyfile
 	 *
-	 * @param \OC_FilesystemView $view
+	 * @param \OC\Files\View $view
 	 * @param string $path path of the file the key belongs to
+	 * @param string $userId the user to whom the file belongs
 	 * @return bool Outcome of unlink operation
 	 * @note $path must be relative to data/user/files. e.g. mydoc.txt NOT
 	 *       /data/admin/files/mydoc.txt
 	 */
-	public static function deleteFileKey(\OC_FilesystemView $view, $path) {
+	public static function deleteFileKey($view, $path, $userId=null) {
 
 		$trimmed = ltrim($path, '/');
 
-		$userId = Helper::getUser($path);
+		if ($trimmed === '') {
+			\OCP\Util::writeLog('Encryption library',
+				'Can\'t delete file-key empty path given!', \OCP\Util::ERROR);
+			return false;
+		}
+
+		if ($userId === null) {
+			$userId = Helper::getUser($path);
+		}
 		$util = new Util($view, $userId);
 
 		if($util->isSystemWideMountPoint($path)) {
@@ -232,24 +228,23 @@ class Keymanager {
 		}
 
 		$result = false;
+		$fileExists = $view->file_exists('/' . $userId . '/files/' . $trimmed);
 
-		if ($view->is_dir($keyPath)) {
-
+		if ($view->is_dir($keyPath) && !$fileExists) {
+			\OCP\Util::writeLog('files_encryption', 'deleteFileKey: delete file key: ' . $keyPath, \OCP\Util::DEBUG);
 			$result = $view->unlink($keyPath);
+		} elseif ($view->file_exists($keyPath . '.key') && !$fileExists) {
+			\OCP\Util::writeLog('files_encryption', 'deleteFileKey: delete file key: ' . $keyPath, \OCP\Util::DEBUG);
+			$result = $view->unlink($keyPath . '.key');
 
-		} else {
-			if ($view->file_exists($keyPath . '.key')) {
-
-				$result = $view->unlink($keyPath . '.key');
-
-			}
 		}
 
-		if (!$result) {
-
+		if ($fileExists) {
 			\OCP\Util::writeLog('Encryption library',
-				'Could not delete keyfile; does not exist: "' . $keyPath, \OCP\Util::ERROR);
-
+					'Did not delete the file key, file still exists: ' . '/' . $userId . '/files/' . $trimmed, \OCP\Util::ERROR);
+		} elseif (!$result) {
+			\OCP\Util::writeLog('Encryption library',
+					'Could not delete keyfile; does not exist: "' . $keyPath, \OCP\Util::ERROR);
 		}
 
 		return $result;
@@ -257,25 +252,30 @@ class Keymanager {
 	}
 
 	/**
-	 * @brief store private key from the user
+	 * store private key from the user
 	 * @param string $key
 	 * @return bool
 	 * @note Encryption of the private key must be performed by client code
 	 * as no encryption takes place here
 	 */
-	public static function setPrivateKey($key) {
+	public static function setPrivateKey($key, $user = '') {
 
-		$user = \OCP\User::getUser();
+		if ($user === '') {
+			$user = \OCP\User::getUser();
+		}
 
-		$view = new \OC_FilesystemView('/' . $user . '/files_encryption');
+		$header = Crypt::generateHeader();
+
+		$view = new \OC\Files\View('/' . $user . '/files_encryption');
 
 		$proxyStatus = \OC_FileProxy::$enabled;
 		\OC_FileProxy::$enabled = false;
 
-		if (!$view->file_exists(''))
+		if (!$view->file_exists('')) {
 			$view->mkdir('');
+		}
 
-		$result = $view->file_put_contents($user . '.private.key', $key);
+		$result = $view->file_put_contents($user . '.private.key', $header . $key);
 
 		\OC_FileProxy::$enabled = $proxyStatus;
 
@@ -284,16 +284,43 @@ class Keymanager {
 	}
 
 	/**
-	 * @brief store share key
+	 * write private system key (recovery and public share key) to disk
 	 *
-	 * @param \OC_FilesystemView $view
+	 * @param string $key encrypted key
+	 * @param string $keyName name of the key file
+	 * @return boolean
+	 */
+	public static function setPrivateSystemKey($key, $keyName) {
+
+		$header = Crypt::generateHeader();
+
+		$view = new \OC\Files\View('/owncloud_private_key');
+
+		$proxyStatus = \OC_FileProxy::$enabled;
+		\OC_FileProxy::$enabled = false;
+
+		if (!$view->file_exists('')) {
+			$view->mkdir('');
+		}
+
+		$result = $view->file_put_contents($keyName, $header . $key);
+
+		\OC_FileProxy::$enabled = $proxyStatus;
+
+		return $result;
+	}
+
+	/**
+	 * store share key
+	 *
+	 * @param \OC\Files\View $view
 	 * @param string $path where the share key is stored
-	 * @param $shareKey
+	 * @param string $shareKey
 	 * @return bool true/false
 	 * @note The keyfile is not encrypted here. Client code must
 	 * asymmetrically encrypt the keyfile before passing it to this method
 	 */
-	private static function setShareKey(\OC_FilesystemView $view, $path, $shareKey) {
+	private static function setShareKey(\OC\Files\View $view, $path, $shareKey) {
 
 		$proxyStatus = \OC_FileProxy::$enabled;
 		\OC_FileProxy::$enabled = false;
@@ -310,14 +337,14 @@ class Keymanager {
 	}
 
 	/**
-	 * @brief store multiple share keys for a single file
-	 * @param \OC_FilesystemView $view
+	 * store multiple share keys for a single file
+	 * @param \OC\Files\View $view
 	 * @param \OCA\Encryption\Util $util
 	 * @param string $path
 	 * @param array $shareKeys
 	 * @return bool
 	 */
-	public static function setShareKeys(\OC_FilesystemView $view, $util, $path, array $shareKeys) {
+	public static function setShareKeys(\OC\Files\View $view, $util, $path, array $shareKeys) {
 
 		// $shareKeys must be  an array with the following format:
 		// [userId] => [encrypted key]
@@ -331,7 +358,7 @@ class Keymanager {
 			$basePath = '/' . $owner . '/files_encryption/share-keys';
 		}
 
-		$shareKeyPath = self::keySetPreparation($view, $filename, $basePath, $owner);
+		$shareKeyPath = self::keySetPreparation($view, $filename, $basePath);
 
 		$result = true;
 
@@ -356,8 +383,8 @@ class Keymanager {
 	}
 
 	/**
-	 * @brief retrieve shareKey for an encrypted file
-	 * @param \OC_FilesystemView $view
+	 * retrieve shareKey for an encrypted file
+	 * @param \OC\Files\View $view
 	 * @param string $userId
 	 * @param \OCA\Encryption\Util $util
 	 * @param string $filePath
@@ -365,7 +392,7 @@ class Keymanager {
 	 * @note The sharekey returned is encrypted. Decryption
 	 * of the keyfile must be performed by client code
 	 */
-	public static function getShareKey(\OC_FilesystemView $view, $userId, $util, $filePath) {
+	public static function getShareKey(\OC\Files\View $view, $userId, $util, $filePath) {
 
 		// try reusing key file if part file
 		$proxyStatus = \OC_FileProxy::$enabled;
@@ -397,12 +424,26 @@ class Keymanager {
 	}
 
 	/**
-	 * @brief delete all share keys of a given file
-	 * @param \OC_FilesystemView $view
+	 * delete all share keys of a given file
+	 * @param \OC\Files\View $view
 	 * @param string $userId owner of the file
 	 * @param string $filePath path to the file, relative to the owners file dir
 	 */
-	public static function delAllShareKeys(\OC_FilesystemView $view, $userId, $filePath) {
+	public static function delAllShareKeys($view, $userId, $filePath) {
+
+		$filePath = ltrim($filePath, '/');
+
+		if ($view->file_exists('/' . $userId . '/files/' . $filePath)) {
+			\OCP\Util::writeLog('Encryption library',
+					'File still exists, stop deleting share keys!', \OCP\Util::ERROR);
+			return false;
+		}
+
+		if ($filePath === '') {
+			\OCP\Util::writeLog('Encryption library',
+					'Can\'t delete share-keys empty path given!', \OCP\Util::ERROR);
+			return false;
+		}
 
 		$util = new util($view, $userId);
 
@@ -412,36 +453,44 @@ class Keymanager {
 			$baseDir = $userId . '/files_encryption/share-keys/';
 		}
 
+		$result = true;
 
-		if ($view->is_dir($userId . '/files/' . $filePath)) {
-			$view->unlink($baseDir . $filePath);
+		if ($view->is_dir($baseDir . $filePath)) {
+			\OCP\Util::writeLog('files_encryption', 'delAllShareKeys: delete share keys: ' . $baseDir . $filePath, \OCP\Util::DEBUG);
+			$result = $view->unlink($baseDir . $filePath);
 		} else {
-			$localKeyPath = $view->getLocalFile($baseDir . $filePath);
-			$escapedPath = Helper::escapeGlobPattern($localKeyPath);
-			$matches = glob($escapedPath . '*.shareKey');
-			foreach ($matches as $ma) {
-				$result = unlink($ma);
-				if (!$result) {
-					\OCP\Util::writeLog('Encryption library',
-						'Keyfile or shareKey could not be deleted for file "' . $filePath . '"', \OCP\Util::ERROR);
+			$sharingEnabled = \OCP\Share::isEnabled();
+			$users = $util->getSharingUsersArray($sharingEnabled, $filePath);
+			foreach($users as $user) {
+				$keyName = $baseDir . $filePath . '.' . $user . '.shareKey';
+				if ($view->file_exists($keyName)) {
+					\OCP\Util::writeLog(
+						'files_encryption',
+						'dellAllShareKeys: delete share keys: "' . $keyName . '"',
+						\OCP\Util::DEBUG
+					);
+					$result &= $view->unlink($keyName);
 				}
 			}
 		}
+
+		return (bool)$result;
 	}
 
 	/**
-	 * @brief Delete a single user's shareKey for a single file
+	 * Delete a single user's shareKey for a single file
+	 *
+	 * @param \OC\Files\View $view relative to data/
+	 * @param array $userIds list of users we want to remove
+	 * @param string $filename the owners name of the file for which we want to remove the users relative to data/user/files
+	 * @param string $owner owner of the file
 	 */
-	public static function delShareKey(\OC_FilesystemView $view, $userIds, $filePath) {
+	public static function delShareKey($view, $userIds, $filename, $owner) {
 
 		$proxyStatus = \OC_FileProxy::$enabled;
 		\OC_FileProxy::$enabled = false;
 
-		$userId = Helper::getUser($filePath);
-
-		$util = new Util($view, $userId);
-
-		list($owner, $filename) = $util->getUidAndFilename($filePath);
+		$util = new Util($view, $owner);
 
 		if ($util->isSystemWideMountPoint($filename)) {
 			$shareKeyPath = \OC\Files\Filesystem::normalizePath('/files_encryption/share-keys/' . $filename);
@@ -451,19 +500,23 @@ class Keymanager {
 
 		if ($view->is_dir($shareKeyPath)) {
 
-			$localPath = \OC\Files\Filesystem::normalizePath($view->getLocalFolder($shareKeyPath));
-			self::recursiveDelShareKeys($localPath, $userIds);
+			self::recursiveDelShareKeys($shareKeyPath, $userIds, $owner, $view);
 
 		} else {
 
 			foreach ($userIds as $userId) {
 
-				if (!$view->unlink($shareKeyPath . '.' . $userId . '.shareKey')) {
+				if ($userId === $owner && $view->file_exists('/' . $owner . '/files/' . $filename)) {
+					\OCP\Util::writeLog('files_encryption', 'Tried to delete owner key, but the file still exists!', \OCP\Util::FATAL);
+					continue;
+				}
+				$result = $view->unlink($shareKeyPath . '.' . $userId . '.shareKey');
+				\OCP\Util::writeLog('files_encryption', 'delShareKey: delete share key: ' . $shareKeyPath . '.' . $userId . '.shareKey' , \OCP\Util::DEBUG);
+				if (!$result) {
 					\OCP\Util::writeLog('Encryption library',
 						'Could not delete shareKey; does not exist: "' . $shareKeyPath . '.' . $userId
 						. '.shareKey"', \OCP\Util::ERROR);
 				}
-
 			}
 		}
 
@@ -471,35 +524,53 @@ class Keymanager {
 	}
 
 	/**
-	 * @brief recursively delete share keys from given users
+	 * recursively delete share keys from given users
 	 *
 	 * @param string $dir directory
 	 * @param array $userIds user ids for which the share keys should be deleted
+	 * @param string $owner owner of the file
+	 * @param \OC\Files\View $view view relative to data/
 	 */
-	private static function recursiveDelShareKeys($dir, $userIds) {
-		foreach ($userIds as $userId) {
-			$extension = '.' . $userId . '.shareKey';
-			$escapedDir = Helper::escapeGlobPattern($dir);
-			$escapedExtension = Helper::escapeGlobPattern($extension);
-			$matches = glob($escapedDir . '/*' . $escapedExtension);
-		}
-		/** @var $matches array */
-		foreach ($matches as $ma) {
-			if (!unlink($ma)) {
-				\OCP\Util::writeLog('Encryption library',
-					'Could not delete shareKey; does not exist: "' . $ma . '"', \OCP\Util::ERROR);
+	private static function recursiveDelShareKeys($dir, $userIds, $owner, $view) {
+
+		$dirContent = $view->opendir($dir);
+		$dirSlices = explode('/', ltrim($dir, '/'));
+		$realFileDir = '/' . $owner . '/files/' . implode('/', array_slice($dirSlices, 3)) . '/';
+
+		if (is_resource($dirContent)) {
+			while (($file = readdir($dirContent)) !== false) {
+				if (!\OC\Files\Filesystem::isIgnoredDir($file)) {
+					if ($view->is_dir($dir . '/' . $file)) {
+						self::recursiveDelShareKeys($dir . '/' . $file, $userIds, $owner, $view);
+					} else {
+						foreach ($userIds as $userId) {
+							$fileNameFromShareKey = self::getFilenameFromShareKey($file, $userId);
+							if (!$fileNameFromShareKey) {
+								continue;
+							}
+							$realFile = $realFileDir . $fileNameFromShareKey;
+
+							if ($userId === $owner &&
+									$view->file_exists($realFile)) {
+								\OCP\Util::writeLog('files_encryption', 'original file still exists, keep owners share key!', \OCP\Util::ERROR);
+								continue;
+							}
+							\OCP\Util::writeLog('files_encryption', 'recursiveDelShareKey: delete share key: ' . $file, \OCP\Util::DEBUG);
+							$view->unlink($dir . '/' . $file);
+						}
+					}
+				}
 			}
-		}
-		$subdirs = $directories = glob($escapedDir . '/*', GLOB_ONLYDIR);
-		foreach ($subdirs as $subdir) {
-			self::recursiveDelShareKeys($subdir, $userIds);
+			closedir($dirContent);
 		}
 	}
 
 	/**
-	 * @brief Make preparations to vars and filesystem for saving a keyfile
+	 * Make preparations to vars and filesystem for saving a keyfile
+	 * @param string|boolean $path
+	 * @param string $basePath
 	 */
-	public static function keySetPreparation(\OC_FilesystemView $view, $path, $basePath, $userId) {
+	protected static function keySetPreparation(\OC\Files\View $view, $path, $basePath) {
 
 		$targetPath = ltrim($path, '/');
 
@@ -510,7 +581,7 @@ class Keymanager {
 			isset($path_parts['dirname'])
 			&& !$view->file_exists($basePath . '/' . $path_parts['dirname'])
 		) {
-			$sub_dirs = explode(DIRECTORY_SEPARATOR, $basePath . '/' . $path_parts['dirname']);
+			$sub_dirs = explode('/', $basePath . '/' . $path_parts['dirname']);
 			$dir = '';
 			foreach ($sub_dirs as $sub_dir) {
 				$dir .= '/' . $sub_dir;
@@ -522,5 +593,24 @@ class Keymanager {
 
 		return $targetPath;
 
+	}
+
+	/**
+	 * extract filename from share key name
+	 * @param string $shareKey (filename.userid.sharekey)
+	 * @param string $userId
+	 * @return string|false filename or false
+	 */
+	protected static function getFilenameFromShareKey($shareKey, $userId) {
+		$expectedSuffix = '.' . $userId . '.' . 'shareKey';
+		$suffixLen = strlen($expectedSuffix);
+
+		$suffix = substr($shareKey, -$suffixLen);
+
+		if ($suffix !== $expectedSuffix) {
+			return false;
+		}
+
+		return substr($shareKey, 0, -$suffixLen);
 	}
 }

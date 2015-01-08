@@ -3,7 +3,7 @@
  * ownCloud - App Framework
  *
  * @author Bernhard Posselt
- * @copyright 2012 Bernhard Posselt nukeawhale@gmail.com
+ * @copyright 2012 Bernhard Posselt <dev@bernhard-posselt.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -49,8 +49,7 @@ class JSONResponse extends Response {
 	public function __construct($data=array(), $statusCode=Http::STATUS_OK) {
 		$this->data = $data;
 		$this->setStatus($statusCode);
-		$this->addHeader('X-Content-Type-Options', 'nosniff');
-		$this->addHeader('Content-type', 'application/json; charset=utf-8');
+		$this->addHeader('Content-Type', 'application/json; charset=utf-8');
 	}
 
 
@@ -66,9 +65,12 @@ class JSONResponse extends Response {
 	 * Sets values in the data json array
 	 * @param array|object $data an array or object which will be transformed
 	 *                             to JSON
+	 * @return JSONResponse Reference to this object
 	 */
 	public function setData($data){
 		$this->data = $data;
+
+		return $this;
 	}
 
 

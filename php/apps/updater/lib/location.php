@@ -28,23 +28,6 @@ abstract class Location {
 		$this->newBase = $newBase;
 	}
 
-	public function check() {
-		$errors = array();
-
-		if ($this->oldBase && !is_writable($this->oldBase)) {
-			$errors[] = $this->oldBase;
-		}
-
-		$collected = $this->collect(true);
-		foreach ($collected['old'] as $item) {
-			if (!is_writable($item)) {
-				$errors[] = $item;
-			}
-		}
-		
-		return $errors;
-	}
-
 	// Move sources 
 	public function update($tmpDir = '') {
 		Helper::mkdir($tmpDir, true);
@@ -115,7 +98,7 @@ abstract class Location {
 		foreach ($pathArray as $path) {
 			// There is a little sense to make these entries absolute
 			if (!in_array($path, array('.', '..'))) {
-				$result [$path] = $base . '/' . $path;
+				$result [$path] = realpath($base . '/' . $path);
 			}
 		}
 		return $result;

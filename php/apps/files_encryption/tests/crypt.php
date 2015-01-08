@@ -23,7 +23,7 @@ use OCA\Encryption;
 /**
  * Class Test_Encryption_Crypt
  */
-class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
+class Test_Encryption_Crypt extends \OCA\Files_Encryption\Tests\TestCase {
 
 	const TEST_ENCRYPTION_CRYPT_USER1 = "test-crypt-user1";
 
@@ -34,7 +34,7 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 	public $dataUrl;
 	public $dataShort;
 	/**
-	 * @var OC_FilesystemView
+	 * @var OC\Files\View
 	 */
 	public $view;
 	public $legacyEncryptedData;
@@ -42,6 +42,8 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 	public $genPublicKey;
 
 	public static function setUpBeforeClass() {
+		parent::setUpBeforeClass();
+
 		// reset backend
 		\OC_User::clearBackends();
 		\OC_User::useBackend('database');
@@ -57,10 +59,12 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 		\OC_FileProxy::register(new OCA\Encryption\Proxy());
 
 		// create test user
-		\Test_Encryption_Util::loginHelper(\Test_Encryption_Crypt::TEST_ENCRYPTION_CRYPT_USER1, true);
+		self::loginHelper(\Test_Encryption_Crypt::TEST_ENCRYPTION_CRYPT_USER1, true);
 	}
 
-	function setUp() {
+	protected function setUp() {
+		parent::setUp();
+
 		// set user id
 		\OC_User::setUserId(\Test_Encryption_Crypt::TEST_ENCRYPTION_CRYPT_USER1);
 		$this->userId = \Test_Encryption_Crypt::TEST_ENCRYPTION_CRYPT_USER1;
@@ -79,7 +83,7 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 		$this->genPublicKey = $keypair['publicKey'];
 		$this->genPrivateKey = $keypair['privateKey'];
 
-		$this->view = new \OC_FilesystemView('/');
+		$this->view = new \OC\Files\View('/');
 
 		// remember files_trashbin state
 		$this->stateFilesTrashbin = OC_App::isEnabled('files_trashbin');
@@ -88,24 +92,39 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 		\OC_App::disable('files_trashbin');
 	}
 
-	function tearDown() {
+	protected function tearDown() {
 		// reset app files_trashbin
 		if ($this->stateFilesTrashbin) {
 			OC_App::enable('files_trashbin');
 		} else {
 			OC_App::disable('files_trashbin');
 		}
+
+		$this->assertTrue(\OC_FileProxy::$enabled);
+		\OCP\Config::deleteSystemValue('cipher');
+
+		parent::tearDown();
 	}
 
 	public static function tearDownAfterClass() {
 		// cleanup test user
 		\OC_User::deleteUser(\Test_Encryption_Crypt::TEST_ENCRYPTION_CRYPT_USER1);
+
+		\OC_Hook::clear();
+		\OC_FileProxy::clearProxies();
+
+		// Delete keys in /data/
+		$view = new \OC\Files\View('/');
+		$view->rmdir('public-keys');
+		$view->rmdir('owncloud_private_key');
+
+		parent::tearDownAfterClass();
 	}
 
 	/**
 	 * @medium
 	 */
-	function testGenerateKey() {
+	public function testGenerateKey() {
 
 		# TODO: use more accurate (larger) string length for test confirmation
 
@@ -115,12 +134,14 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 
 	}
 
-	function testDecryptPrivateKey() {
+	public function testDecryptPrivateKey() {
 
 		// test successful decrypt
 		$crypted = Encryption\Crypt::symmetricEncryptFileContent($this->genPrivateKey, 'hat');
 
-		$decrypted = Encryption\Crypt::decryptPrivateKey($crypted, 'hat');
+		$header = Encryption\Crypt::generateHeader();
+
+		$decrypted = Encryption\Crypt::decryptPrivateKey($header . $crypted, 'hat');
 
 		$this->assertEquals($this->genPrivateKey, $decrypted);
 
@@ -135,7 +156,7 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @medium
 	 */
-	function testSymmetricEncryptFileContent() {
+	public function testSymmetricEncryptFileContent() {
 
 		# TODO: search in keyfile for actual content as IV will ensure this test always passes
 
@@ -153,11 +174,27 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @medium
 	 */
-	function testSymmetricStreamEncryptShortFileContent() {
+	public function testSymmetricEncryptFileContentAes128() {
 
-		$filename = 'tmp-' . uniqid() . '.test';
+		# TODO: search in keyfile for actual content as IV will ensure this test always passes
 
-		$util = new Encryption\Util(new \OC_FilesystemView(), $this->userId);
+		$crypted = Encryption\Crypt::symmetricEncryptFileContent($this->dataShort, 'hat', 'AES-128-CFB');
+
+		$this->assertNotEquals($this->dataShort, $crypted);
+
+
+		$decrypt = Encryption\Crypt::symmetricDecryptFileContent($crypted, 'hat', 'AES-128-CFB');
+
+		$this->assertEquals($this->dataShort, $decrypt);
+
+	}
+
+	/**
+	 * @medium
+	 */
+	public function testSymmetricStreamEncryptShortFileContent() {
+
+		$filename = 'tmp-' . $this->getUniqueID() . '.test';
 
 		$cryptedFile = file_put_contents('crypt:///' . $this->userId . '/files/'. $filename, $this->dataShort);
 
@@ -177,26 +214,11 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 		// Check that the file was encrypted before being written to disk
 		$this->assertNotEquals($this->dataShort, $retreivedCryptedFile);
 
-		// Get the encrypted keyfile
-		$encKeyfile = Encryption\Keymanager::getFileKey($this->view, $util, $filename);
-
-		// Attempt to fetch the user's shareKey
-		$shareKey = Encryption\Keymanager::getShareKey($this->view, $this->userId, $util, $filename);
-
-		// get session
-		$session = new \OCA\Encryption\Session($this->view);
-
-		// get private key
-		$privateKey = $session->getPrivateKey($this->userId);
-
-		// Decrypt keyfile with shareKey
-		$plainKeyfile = Encryption\Crypt::multiKeyDecrypt($encKeyfile, $shareKey, $privateKey);
-
-		// Manually decrypt
-		$manualDecrypt = Encryption\Crypt::symmetricDecryptFileContent($retreivedCryptedFile, $plainKeyfile);
+		// Get file contents with the encryption wrapper
+		$decrypted = file_get_contents('crypt:///' . $this->userId . '/files/'. $filename);
 
 		// Check that decrypted data matches
-		$this->assertEquals($this->dataShort, $manualDecrypt);
+		$this->assertEquals($this->dataShort, $decrypted);
 
 		// Teardown
 		$this->view->unlink($this->userId . '/files/' . $filename);
@@ -206,17 +228,56 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @medium
-	 * @brief Test that data that is written by the crypto stream wrapper
+	 */
+	public function testSymmetricStreamEncryptShortFileContentAes128() {
+
+		$filename = 'tmp-' . $this->getUniqueID() . '.test';
+
+		\OCP\Config::setSystemValue('cipher', 'AES-128-CFB');
+
+		$cryptedFile = file_put_contents('crypt:///' . $this->userId . '/files/'. $filename, $this->dataShort);
+
+		// Test that data was successfully written
+		$this->assertTrue(is_int($cryptedFile));
+
+		\OCP\Config::deleteSystemValue('cipher');
+
+		// Disable encryption proxy to prevent recursive calls
+		$proxyStatus = \OC_FileProxy::$enabled;
+		\OC_FileProxy::$enabled = false;
+
+		// Get file contents without using any wrapper to get it's actual contents on disk
+		$retreivedCryptedFile = $this->view->file_get_contents($this->userId . '/files/' . $filename);
+
+		// Re-enable proxy - our work is done
+		\OC_FileProxy::$enabled = $proxyStatus;
+
+		// Check that the file was encrypted before being written to disk
+		$this->assertNotEquals($this->dataShort, $retreivedCryptedFile);
+
+		// Get file contents with the encryption wrapper
+		$decrypted = file_get_contents('crypt:///' . $this->userId . '/files/'. $filename);
+
+		// Check that decrypted data matches
+		$this->assertEquals($this->dataShort, $decrypted);
+
+		// Teardown
+		$this->view->unlink($this->userId . '/files/' . $filename);
+
+		Encryption\Keymanager::deleteFileKey($this->view, $filename);
+	}
+
+	/**
+	 * @medium
+	 * Test that data that is written by the crypto stream wrapper
 	 * @note Encrypted data is manually prepared and decrypted here to avoid dependency on success of stream_read
 	 * @note If this test fails with truncate content, check that enough array slices are being rejoined to form $e, as the crypt.php file may have gotten longer and broken the manual
 	 * reassembly of its data
 	 */
-	function testSymmetricStreamEncryptLongFileContent() {
+	public function testSymmetricStreamEncryptLongFileContent() {
 
 		// Generate a a random filename
-		$filename = 'tmp-' . uniqid() . '.test';
-
-		$util = new Encryption\Util(new \OC_FilesystemView(), $this->userId);
+		$filename = 'tmp-' . $this->getUniqueID() . '.test';
 
 		// Save long data as encrypted file using stream wrapper
 		$cryptedFile = file_put_contents('crypt:///' . $this->userId . '/files/' . $filename, $this->dataLong . $this->dataLong);
@@ -238,50 +299,9 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 		// Check that the file was encrypted before being written to disk
 		$this->assertNotEquals($this->dataLong . $this->dataLong, $retreivedCryptedFile);
 
-		// Manuallly split saved file into separate IVs and encrypted chunks
-		$r = preg_split('/(00iv00.{16,18})/', $retreivedCryptedFile, NULL, PREG_SPLIT_DELIM_CAPTURE);
+		$decrypted = file_get_contents('crypt:///' . $this->userId . '/files/'. $filename);
 
-		//print_r($r);
-
-		// Join IVs and their respective data chunks
-		$e = array();
-		$i = 0;
-		while ($i < count($r)-1) {
-			$e[] = $r[$i] . $r[$i+1];
-			$i = $i + 2;
-		}
-
-		//print_r($e);
-
-		// Get the encrypted keyfile
-		$encKeyfile = Encryption\Keymanager::getFileKey($this->view, $util, $filename);
-
-		// Attempt to fetch the user's shareKey
-		$shareKey = Encryption\Keymanager::getShareKey($this->view, $this->userId, $util, $filename);
-
-		// get session
-		$session = new \OCA\Encryption\Session($this->view);
-
-		// get private key
-		$privateKey = $session->getPrivateKey($this->userId);
-
-		// Decrypt keyfile with shareKey
-		$plainKeyfile = Encryption\Crypt::multiKeyDecrypt($encKeyfile, $shareKey, $privateKey);
-
-		// Set var for reassembling decrypted content
-		$decrypt = '';
-
-		// Manually decrypt chunk
-		foreach ($e as $chunk) {
-
-			$chunkDecrypt = Encryption\Crypt::symmetricDecryptFileContent($chunk, $plainKeyfile);
-
-			// Assemble decrypted chunks
-			$decrypt .= $chunkDecrypt;
-
-		}
-
-		$this->assertEquals($this->dataLong . $this->dataLong, $decrypt);
+		$this->assertEquals($this->dataLong . $this->dataLong, $decrypted);
 
 		// Teardown
 
@@ -293,14 +313,20 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @medium
-	 * @brief Test that data that is read by the crypto stream wrapper
+	 * Test that data that is written by the crypto stream wrapper with AES 128
+	 * @note Encrypted data is manually prepared and decrypted here to avoid dependency on success of stream_read
+	 * @note If this test fails with truncate content, check that enough array slices are being rejoined to form $e, as the crypt.php file may have gotten longer and broken the manual
+	 * reassembly of its data
 	 */
-	function testSymmetricStreamDecryptShortFileContent() {
+	public function testSymmetricStreamEncryptLongFileContentAes128() {
 
-		$filename = 'tmp-' . uniqid();
+		// Generate a a random filename
+		$filename = 'tmp-' . $this->getUniqueID() . '.test';
+
+		\OCP\Config::setSystemValue('cipher', 'AES-128-CFB');
 
 		// Save long data as encrypted file using stream wrapper
-		$cryptedFile = file_put_contents('crypt:///'. $this->userId . '/files/' . $filename, $this->dataShort);
+		$cryptedFile = file_put_contents('crypt:///' . $this->userId . '/files/' . $filename, $this->dataLong . $this->dataLong);
 
 		// Test that data was successfully written
 		$this->assertTrue(is_int($cryptedFile));
@@ -309,51 +335,92 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 		$proxyStatus = \OC_FileProxy::$enabled;
 		\OC_FileProxy::$enabled = false;
 
-		$this->assertTrue(Encryption\Crypt::isEncryptedMeta($filename));
+		\OCP\Config::deleteSystemValue('cipher');
 
+		// Get file contents without using any wrapper to get it's actual contents on disk
+		$retreivedCryptedFile = $this->view->file_get_contents($this->userId . '/files/' . $filename);
+
+		// Re-enable proxy - our work is done
 		\OC_FileProxy::$enabled = $proxyStatus;
 
-		// Get file decrypted contents
-		$decrypt = file_get_contents('crypt:///' . $this->userId . '/files/' . $filename);
 
-		$this->assertEquals($this->dataShort, $decrypt);
+		// Check that the file was encrypted before being written to disk
+		$this->assertNotEquals($this->dataLong . $this->dataLong, $retreivedCryptedFile);
 
-		// tear down
+		$decrypted = file_get_contents('crypt:///' . $this->userId . '/files/'. $filename);
+
+		$this->assertEquals($this->dataLong . $this->dataLong, $decrypted);
+
+		// Teardown
+
 		$this->view->unlink($this->userId . '/files/' . $filename);
+
+		Encryption\Keymanager::deleteFileKey($this->view, $filename);
+
 	}
 
 	/**
 	 * @medium
+	 * Test that data that is written by the crypto stream wrapper with AES 128
+	 * @note Encrypted data is manually prepared and decrypted here to avoid dependency on success of stream_read
+	 * @note If this test fails with truncate content, check that enough array slices are being rejoined to form $e, as the crypt.php file may have gotten longer and broken the manual
+	 * reassembly of its data
 	 */
-	function testSymmetricStreamDecryptLongFileContent() {
+	public function testStreamDecryptLongFileContentWithoutHeader() {
 
-		$filename = 'tmp-' . uniqid();
+		// Generate a a random filename
+		$filename = 'tmp-' . $this->getUniqueID() . '.test';
+
+		\OCP\Config::setSystemValue('cipher', 'AES-128-CFB');
 
 		// Save long data as encrypted file using stream wrapper
-		$cryptedFile = file_put_contents('crypt:///' . $this->userId . '/files/' . $filename, $this->dataLong);
+		$cryptedFile = file_put_contents('crypt:///' . $this->userId . '/files/' . $filename, $this->dataLong . $this->dataLong);
+
+		\OCP\Config::deleteSystemValue('cipher');
 
 		// Test that data was successfully written
 		$this->assertTrue(is_int($cryptedFile));
 
-		// Get file decrypted contents
-		$decrypt = file_get_contents('crypt:///' . $this->userId . '/files/' . $filename);
+		// Disable encryption proxy to prevent recursive calls
+		$proxyStatus = \OC_FileProxy::$enabled;
+		\OC_FileProxy::$enabled = false;
 
-		$this->assertEquals($this->dataLong, $decrypt);
+		// Get file contents without using any wrapper to get it's actual contents on disk
+		$retreivedCryptedFile = $this->view->file_get_contents($this->userId . '/files/' . $filename);
 
-		// tear down
+		// Check that the file was encrypted before being written to disk
+		$this->assertNotEquals($this->dataLong . $this->dataLong, $retreivedCryptedFile);
+
+		// remove the header to check if we can also decrypt old files without a header,
+		//  this files should fall back to AES-128
+		$cryptedWithoutHeader = substr($retreivedCryptedFile, Encryption\Crypt::BLOCKSIZE);
+		$this->view->file_put_contents($this->userId . '/files/' . $filename, $cryptedWithoutHeader);
+
+		// Re-enable proxy - our work is done
+		\OC_FileProxy::$enabled = $proxyStatus;
+
+		$decrypted = file_get_contents('crypt:///' . $this->userId . '/files/'. $filename);
+
+		$this->assertEquals($this->dataLong . $this->dataLong, $decrypted);
+
+		// Teardown
+
 		$this->view->unlink($this->userId . '/files/' . $filename);
+
+		Encryption\Keymanager::deleteFileKey($this->view, $filename);
+
 	}
 
 	/**
 	 * @medium
 	 */
-	function testIsEncryptedContent() {
+	public function testIsEncryptedContent() {
 
 		$this->assertFalse(Encryption\Crypt::isCatfileContent($this->dataUrl));
 
 		$this->assertFalse(Encryption\Crypt::isCatfileContent($this->legacyEncryptedData));
 
-		$keyfileContent = Encryption\Crypt::symmetricEncryptFileContent($this->dataUrl, 'hat');
+		$keyfileContent = Encryption\Crypt::symmetricEncryptFileContent($this->dataUrl, 'hat', 'AES-128-CFB');
 
 		$this->assertTrue(Encryption\Crypt::isCatfileContent($keyfileContent));
 
@@ -362,7 +429,7 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @large
 	 */
-	function testMultiKeyEncrypt() {
+	public function testMultiKeyEncrypt() {
 
 		# TODO: search in keyfile for actual content as IV will ensure this test always passes
 
@@ -388,7 +455,7 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @medium
-	 * @brief test decryption using legacy blowfish method
+	 * test decryption using legacy blowfish method
 	 */
 	function testLegacyDecryptShort() {
 
@@ -402,7 +469,7 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @medium
-	 * @brief test decryption using legacy blowfish method
+	 * test decryption using legacy blowfish method
 	 */
 	function testLegacyDecryptLong() {
 
@@ -416,9 +483,9 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @medium
 	 */
-	function testRenameFile() {
+	public function testRenameFile() {
 
-		$filename = 'tmp-' . uniqid();
+		$filename = 'tmp-' . $this->getUniqueID();
 
 		// Save long data as encrypted file using stream wrapper
 		$cryptedFile = file_put_contents('crypt:///' . $this->userId . '/files/' . $filename, $this->dataLong);
@@ -431,7 +498,7 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 
 		$this->assertEquals($this->dataLong, $decrypt);
 
-		$newFilename = 'tmp-new-' . uniqid();
+		$newFilename = 'tmp-new-' . $this->getUniqueID();
 		$view = new \OC\Files\View('/' . $this->userId . '/files');
 		$view->rename($filename, $newFilename);
 
@@ -447,9 +514,9 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @medium
 	 */
-	function testMoveFileIntoFolder() {
+	public function testMoveFileIntoFolder() {
 
-		$filename = 'tmp-' . uniqid();
+		$filename = 'tmp-' . $this->getUniqueID();
 
 		// Save long data as encrypted file using stream wrapper
 		$cryptedFile = file_put_contents('crypt:///' . $this->userId . '/files/' . $filename, $this->dataLong);
@@ -462,8 +529,8 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 
 		$this->assertEquals($this->dataLong, $decrypt);
 
-		$newFolder = '/newfolder' . uniqid();
-		$newFilename = 'tmp-new-' . uniqid();
+		$newFolder = '/newfolder' . $this->getUniqueID();
+		$newFilename = 'tmp-new-' . $this->getUniqueID();
 		$view = new \OC\Files\View('/' . $this->userId . '/files');
 		$view->mkdir($newFolder);
 		$view->rename($filename, $newFolder . '/' . $newFilename);
@@ -480,12 +547,12 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @medium
 	 */
-	function testMoveFolder() {
+	public function testMoveFolder() {
 
 		$view = new \OC\Files\View('/' . $this->userId . '/files');
 
-		$filename = '/tmp-' . uniqid();
-		$folder = '/folder' . uniqid();
+		$filename = '/tmp-' . $this->getUniqueID();
+		$folder = '/folder' . $this->getUniqueID();
 
 		$view->mkdir($folder);
 
@@ -500,7 +567,7 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 
 		$this->assertEquals($this->dataLong, $decrypt);
 
-		$newFolder = '/newfolder/subfolder' . uniqid();
+		$newFolder = '/newfolder/subfolder' . $this->getUniqueID();
 		$view->mkdir('/newfolder');
 
 		$view->rename($folder, $newFolder);
@@ -518,8 +585,8 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @medium
 	 */
-	function testChangePassphrase() {
-		$filename = 'tmp-' . uniqid();
+	public function testChangePassphrase() {
+		$filename = 'tmp-' . $this->getUniqueID();
 
 		// Save long data as encrypted file using stream wrapper
 		$cryptedFile = file_put_contents('crypt:///' . $this->userId . '/files/' . $filename, $this->dataLong);
@@ -555,9 +622,9 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @medium
 	 */
-	function testViewFilePutAndGetContents() {
+	public function testViewFilePutAndGetContents() {
 
-		$filename = '/tmp-' . uniqid();
+		$filename = '/tmp-' . $this->getUniqueID();
 		$view = new \OC\Files\View('/' . $this->userId . '/files');
 
 		// Save short data as encrypted file using stream wrapper
@@ -589,8 +656,8 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @large
 	 */
-	function testTouchExistingFile() {
-		$filename = '/tmp-' . uniqid();
+	public function testTouchExistingFile() {
+		$filename = '/tmp-' . $this->getUniqueID();
 		$view = new \OC\Files\View('/' . $this->userId . '/files');
 
 		// Save short data as encrypted file using stream wrapper
@@ -613,8 +680,8 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @medium
 	 */
-	function testTouchFile() {
-		$filename = '/tmp-' . uniqid();
+	public function testTouchFile() {
+		$filename = '/tmp-' . $this->getUniqueID();
 		$view = new \OC\Files\View('/' . $this->userId . '/files');
 
 		$view->touch($filename);
@@ -637,8 +704,8 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @medium
 	 */
-	function testFopenFile() {
-		$filename = '/tmp-' . uniqid();
+	public function testFopenFile() {
+		$filename = '/tmp-' . $this->getUniqueID();
 		$view = new \OC\Files\View('/' . $this->userId . '/files');
 
 		// Save short data as encrypted file using stream wrapper
@@ -655,19 +722,20 @@ class Test_Encryption_Crypt extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals($this->dataShort, $decrypt);
 
 		// tear down
+		fclose($handle);
 		$view->unlink($filename);
 	}
 
 
 	/**
-	 * @brief encryption using legacy blowfish method
-	 * @param $data string data to encrypt
-	 * @param $passwd string password
+	 * encryption using legacy blowfish method
+	 * @param string $data data to encrypt
+	 * @param string $passwd password
 	 * @return string
 	 */
 	function legacyEncrypt($data, $passwd) {
 
-		$bf = new \Crypt_Blowfish($passwd);
+		$bf = new Legacy_Crypt_Blowfish($passwd);
 		$crypted = $bf->encrypt($data);
 
 		return $crypted;

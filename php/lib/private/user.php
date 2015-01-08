@@ -37,6 +37,10 @@
  *   logout()
  */
 class OC_User {
+
+	/**
+	 * @return \OC\User\Session
+	 */
 	public static function getUserSession() {
 		return OC::$server->getUserSession();
 	}
@@ -58,7 +62,7 @@ class OC_User {
 	private static $incognitoMode = false;
 
 	/**
-	 * @brief registers backend
+	 * registers backend
 	 * @param string $backend name of the backend
 	 * @deprecated Add classes by calling useBackend with a class instance instead
 	 * @return bool
@@ -71,9 +75,9 @@ class OC_User {
 	}
 
 	/**
-	 * @brief gets available backends
+	 * gets available backends
 	 * @deprecated
-	 * @returns array of backends
+	 * @return array an array of backends
 	 *
 	 * Returns the names of all backends.
 	 */
@@ -82,9 +86,9 @@ class OC_User {
 	}
 
 	/**
-	 * @brief gets used backends
+	 * gets used backends
 	 * @deprecated
-	 * @returns array of backends
+	 * @return array an array of backends
 	 *
 	 * Returns the names of all used backends.
 	 */
@@ -93,8 +97,8 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Adds the backend to the list of used backends
-	 * @param string | OC_User_Backend $backend default: database The backend to use for user management
+	 * Adds the backend to the list of used backends
+	 * @param string|OC_User_Interface $backend default: database The backend to use for user management
 	 * @return bool
 	 *
 	 * Set the User Authentication Module
@@ -165,7 +169,7 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Create a new user
+	 * Create a new user
 	 * @param string $uid The username of the user to create
 	 * @param string $password The password of the new user
 	 * @throws Exception
@@ -181,7 +185,7 @@ class OC_User {
 	}
 
 	/**
-	 * @brief delete a user
+	 * delete a user
 	 * @param string $uid The username of the user to delete
 	 * @return bool
 	 *
@@ -205,6 +209,9 @@ class OC_User {
 				// Delete user files in /data/
 				OC_Helper::rmdirr(\OC_User::getHome($uid));
 
+				// Delete the users entry in the storage table
+				\OC\Files\Cache\Storage::remove('home::' . $uid);
+
 				// Remove it from the Cache
 				self::getManager()->delete($uid);
 			}
@@ -216,19 +223,39 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Try to login a user
-	 * @param $uid The username of the user to log in
-	 * @param $password The password of the user
-	 * @return bool
+	 * Try to login a user
+	 * @param string $loginname The login name of the user to log in
+	 * @param string $password The password of the user
+	 * @return boolean|null
 	 *
 	 * Log in a user and regenerate a new session - if the password is ok
 	 */
-	public static function login($uid, $password) {
-		return self::getUserSession()->login($uid, $password);
+	public static function login($loginname, $password) {
+		$loginname = str_replace("\0", '', $loginname);
+		$password = str_replace("\0", '', $password);
+
+		session_regenerate_id(true);
+		$result = self::getUserSession()->login($loginname, $password);
+		if ($result) {
+			//we need to pass the user name, which may differ from login name
+			OC_Util::setupFS(self::getUserSession()->getUser()->getUID());
+		}
+		return $result;
 	}
 
 	/**
-	 * @brief Try to login a user, assuming authentication
+	 * Try to login a user using the magic cookie (remember login)
+	 *
+	 * @param string $uid The username of the user to log in
+	 * @param string $token
+	 * @return bool
+	 */
+	public static function loginWithCookie($uid, $token) {
+		return self::getUserSession()->loginWithCookie($uid, $token);
+	}
+
+	/**
+	 * Try to login a user, assuming authentication
 	 * has already happened (e.g. via Single Sign On).
 	 *
 	 * Log in a user and regenerate a new session.
@@ -243,7 +270,6 @@ class OC_User {
 		OC_Hook::emit( "OC_User", "pre_login", array( "run" => &$run, "uid" => $uid ));
 
 		if($uid) {
-			session_regenerate_id(true);
 			self::setUserId($uid);
 			self::setDisplayName($uid);
 			self::getUserSession()->setLoginName($uid);
@@ -255,7 +281,7 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Verify with Apache whether user is authenticated.
+	 * Verify with Apache whether user is authenticated.
 	 *
 	 * @return boolean|null
 	 *          true: authenticated
@@ -279,14 +305,17 @@ class OC_User {
 
 
 	/**
-	 * @brief Sets user id for session and triggers emit
+	 * Sets user id for session and triggers emit
 	 */
 	public static function setUserId($uid) {
 		OC::$session->set('user_id', $uid);
 	}
 
 	/**
-	 * @brief Sets user display name for session
+	 * Sets user display name for session
+	 * @param string $uid
+	 * @param null $displayName
+	 * @return bool Whether the display name could get set
 	 */
 	public static function setDisplayName($uid, $displayName = null) {
 		if (is_null($displayName)) {
@@ -301,7 +330,7 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Logs the current user out and kills all the session data
+	 * Logs the current user out and kills all the session data
 	 *
 	 * Logout, destroys session
 	 */
@@ -310,22 +339,24 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Check if the user is logged in
-	 * @returns bool
-	 *
-	 * Checks if the user is logged in
+	 * Check if the user is logged in, considers also the HTTP basic credentials
+	 * @return bool
 	 */
 	public static function isLoggedIn() {
-		if (\OC::$session->get('user_id') && self::$incognitoMode === false) {
-			OC_App::loadApps(array('authentication'));
-			self::setupBackends();
+		if (\OC::$session->get('user_id') !== null && self::$incognitoMode === false) {
 			return self::userExists(\OC::$session->get('user_id'));
 		}
+
+		// Check whether the user has authenticated using Basic Authentication
+		if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
+			return \OC_User::login($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
+		}
+
 		return false;
 	}
 
 	/**
-	 * @brief set incognito mode, e.g. if a user wants to open a public link
+	 * set incognito mode, e.g. if a user wants to open a public link
 	 * @param bool $status
 	 */
 	public static function setIncognitoMode($status) {
@@ -346,11 +377,11 @@ class OC_User {
 			return $backend->getLogoutAttribute();
 		}
 
-		return 'href="' . link_to('', 'index.php') . '?logout=true"';
+		return 'href="' . link_to('', 'index.php') . '?logout=true&requesttoken=' . OC_Util::callRegister() . '"';
 	}
 
 	/**
-	 * @brief Check if the user is an admin user
+	 * Check if the user is an admin user
 	 * @param string $uid uid of the admin
 	 * @return bool
 	 */
@@ -363,7 +394,7 @@ class OC_User {
 
 
 	/**
-	 * @brief get the user id of the user currently logged in.
+	 * get the user id of the user currently logged in.
 	 * @return string uid or false
 	 */
 	public static function getUser() {
@@ -376,7 +407,7 @@ class OC_User {
 	}
 
 	/**
-	 * @brief get the display name of the user currently logged in.
+	 * get the display name of the user currently logged in.
 	 * @param string $uid
 	 * @return string uid or false
 	 */
@@ -399,7 +430,7 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Autogenerate a password
+	 * Autogenerate a password
 	 * @return string
 	 *
 	 * generates a password
@@ -409,7 +440,7 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Set password
+	 * Set password
 	 * @param string $uid The username
 	 * @param string $password The new password
 	 * @param string $recoveryPassword for the encryption app to reset encryption keys
@@ -427,7 +458,7 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Check whether user can change his avatar
+	 * Check whether user can change his avatar
 	 * @param string $uid The username
 	 * @return bool
 	 *
@@ -443,7 +474,7 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Check whether user can change his password
+	 * Check whether user can change his password
 	 * @param string $uid The username
 	 * @return bool
 	 *
@@ -459,7 +490,7 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Check whether user can change his display name
+	 * Check whether user can change his display name
 	 * @param string $uid The username
 	 * @return bool
 	 *
@@ -475,10 +506,10 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Check if the password is correct
+	 * Check if the password is correct
 	 * @param string $uid The username
 	 * @param string $password The password
-	 * @return mixed user id a string on success, false otherwise
+	 * @return string|false user id a string on success, false otherwise
 	 *
 	 * Check if the password is correct without logging in the user
 	 * returns the user id or false
@@ -508,10 +539,13 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Get a list of all users
-	 * @returns array with all uids
+	 * Get a list of all users
+	 * @return array an array of all uids
 	 *
 	 * Get a list of all users.
+	 * @param string $search
+	 * @param integer $limit
+	 * @param integer $offset
 	 */
 	public static function getUsers($search = '', $limit = null, $offset = null) {
 		$users = self::getManager()->search($search, $limit, $offset);
@@ -523,7 +557,7 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Get a list of all users display name
+	 * Get a list of all users display name
 	 * @param string $search
 	 * @param int $limit
 	 * @param int $offset
@@ -541,7 +575,7 @@ class OC_User {
 	}
 
 	/**
-	 * @brief check if a user exists
+	 * check if a user exists
 	 * @param string $uid the username
 	 * @return boolean
 	 */
@@ -589,7 +623,7 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Set cookie value to use in next page load
+	 * Set cookie value to use in next page load
 	 * @param string $username username to be set
 	 * @param string $token
 	 */
@@ -598,15 +632,15 @@ class OC_User {
 	}
 
 	/**
-	 * @brief Remove cookie for "remember username"
+	 * Remove cookie for "remember username"
 	 */
 	public static function unsetMagicInCookie() {
 		self::getUserSession()->unsetMagicInCookie();
 	}
 
 	/**
-	 * @brief Returns the first active backend from self::$_usedBackends.
-	 * @return null if no backend active, otherwise OCP\Authentication\IApacheBackend
+	 * Returns the first active backend from self::$_usedBackends.
+	 * @return OCP\Authentication\IApacheBackend|null if no backend active, otherwise OCP\Authentication\IApacheBackend
 	 */
 	private static function findFirstActiveUsedBackend() {
 		foreach (self::$_usedBackends as $backend) {

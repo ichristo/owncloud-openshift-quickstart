@@ -39,6 +39,7 @@ interface Storage {
 	 * $parameters is a free form array with the configuration options needed to construct the storage
 	 *
 	 * @param array $parameters
+	 * @return void
 	 */
 	public function __construct($parameters);
 
@@ -315,4 +316,27 @@ interface Storage {
 	 * @return string
 	 */
 	public function getETag($path);
+
+	/**
+	 * Returns whether the storage is local, which means that files
+	 * are stored on the local filesystem instead of remotely.
+	 * Calling getLocalFile() for local storages should always
+	 * return the local files, whereas for non-local storages
+	 * it might return a temporary file.
+	 *
+	 * @return bool true if the files are stored locally, false otherwise
+	 */
+	public function isLocal();
+
+	/**
+	 * Check if the storage is an instance of $class or is a wrapper for a storage that is an instance of $class
+	 *
+	 * @param string $class
+	 * @return bool
+	 */
+	public function instanceOfStorage($class);
+}
+
+interface IHomeStorage {
+
 }

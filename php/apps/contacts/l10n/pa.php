@@ -1,11 +1,13 @@
 <?php $TRANSLATIONS = array(
 "Contacts" => "ਸੰਪਰਕ",
+"Ok" => "ਠੀਕ ਹੈ",
 "Cancel" => "ਰੱਦ ਕਰੋ",
 "OK" => "ਠੀਕ ਹੈ",
-"Error" => "ਗਲਤੀ",
-"Download" => "ਡਾਊਨਲੋਡ",
-"Delete" => "ਹਟਾਓ",
 "Unknown error" => "ਅਣਜਾਣ ਗਲਤੀ",
+"ownCloud" => "ਓਵਨਕਲਾਉਡ",
+"Delete" => "ਹਟਾਓ",
 "Groups" => "ਗਰੁੱਪ",
-"Share" => "ਸਾਂਝਾ ਕਰੋ"
+"Download" => "ਡਾਊਨਲੋਡ",
+"Share" => "ਸਾਂਝਾ ਕਰੋ",
+"Password" => "ਪਾਸਵਰ"
 );

@@ -8,7 +8,21 @@
 
 namespace OC\Memcache;
 
-class Factory {
+use \OCP\ICacheFactory;
+
+class Factory implements ICacheFactory {
+	/**
+	 * @var string $globalPrefix
+	 */
+	private $globalPrefix;
+
+	/**
+	 * @param string $globalPrefix
+	 */
+	public function __construct($globalPrefix) {
+		$this->globalPrefix = $globalPrefix;
+	}
+
 	/**
 	 * get a cache instance, will return null if no backend is available
 	 *
@@ -16,6 +30,7 @@ class Factory {
 	 * @return \OC\Memcache\Cache
 	 */
 	function create($prefix = '') {
+		$prefix = $this->globalPrefix . '/' . $prefix;
 		if (XCache::isAvailable()) {
 			return new XCache($prefix);
 		} elseif (APCu::isAvailable()) {
@@ -42,9 +57,10 @@ class Factory {
 	 * get a in-server cache instance, will return null if no backend is available
 	 *
 	 * @param string $prefix
-	 * @return \OC\Memcache\Cache
+	 * @return null|Cache
 	 */
-	public static function createLowLatency($prefix = '') {
+	public function createLowLatency($prefix = '') {
+		$prefix = $this->globalPrefix . '/' . $prefix;
 		if (XCache::isAvailable()) {
 			return new XCache($prefix);
 		} elseif (APCu::isAvailable()) {
@@ -61,7 +77,7 @@ class Factory {
 	 *
 	 * @return bool
 	 */
-	public static function isAvailableLowLatency() {
+	public function isAvailableLowLatency() {
 		return XCache::isAvailable() || APCu::isAvailable() || APC::isAvailable();
 	}
 

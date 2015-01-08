@@ -33,9 +33,9 @@ namespace OCP;
 
 /**
  * Make OC_Helper::imagePath available as a simple function
- * @param string app
- * @param string image
- * @return link to the image
+ * @param string $app
+ * @param string $image
+ * @return string to the image
  *
  * @see OC_Helper::imagePath
  */
@@ -46,8 +46,8 @@ function image_path( $app, $image ) {
 
 /**
  * Make OC_Helper::mimetypeIcon available as a simple function
- * @param string mimetype
- * @return path to the image of this file type.
+ * @param string $mimetype
+ * @return string to the image of this file type.
  */
 function mimetype_icon( $mimetype ) {
 	return(\mimetype_icon( $mimetype ));
@@ -55,8 +55,8 @@ function mimetype_icon( $mimetype ) {
 
 /**
  * Make preview_icon available as a simple function
- * @param string path of file
- * @return path to the preview of the image
+ * @param string $path path to file
+ * @return string to the preview of the image
  */
 function preview_icon( $path ) {
 	return(\preview_icon( $path ));
@@ -65,9 +65,9 @@ function preview_icon( $path ) {
 /**
  * Make publicpreview_icon available as a simple function
  * Returns the path to the preview of the image.
- * @param string path of file
- * @param string token
- * @return link to the preview
+ * @param string $path of file
+ * @param string $token
+ * @return string link to the preview
  */
 function publicPreview_icon ( $path, $token ) {
 	return(\publicPreview_icon( $path, $token ));
@@ -76,8 +76,8 @@ function publicPreview_icon ( $path, $token ) {
 /**
  * Make OC_Helper::humanFileSize available as a simple function
  * Example: 2048 to 2 kB.
- * @param int size in bytes
- * @return size as string
+ * @param int $size in bytes
+ * @return string size as string
  */
 function human_file_size( $bytes ) {
 	return(\human_file_size( $bytes ));
@@ -86,9 +86,9 @@ function human_file_size( $bytes ) {
 
 /**
  * Return the relative date in relation to today. Returns something like "last hour" or "two month ago"
- * @param int unix timestamp
- * @param boolean date only
- * @return human readable interpretation of the timestamp
+ * @param int $timestamp unix timestamp
+ * @param boolean $dateOnly
+ * @return OC_L10N_String human readable interpretation of the timestamp
  */
 function relative_modified_date( $timestamp, $dateOnly = false ) {
 	return(\relative_modified_date($timestamp, null, $dateOnly));
@@ -98,8 +98,8 @@ function relative_modified_date( $timestamp, $dateOnly = false ) {
 /**
  * Return a human readable outout for a file size.
  * @deprecated human_file_size() instead
- * @param integer size of a file in byte
- * @return human readable interpretation of a file size
+ * @param integer $bytes size of a file in byte
+ * @return string human readable interpretation of a file size
  */
 function simple_file_size($bytes) {
 	return(\human_file_size($bytes));
@@ -108,10 +108,10 @@ function simple_file_size($bytes) {
 
 /**
  * Generate html code for an options block.
- * @param $options the options
- * @param $selected which one is selected?
- * @param array the parameters
- * @return html options
+ * @param array $options the options
+ * @param mixed $selected which one is selected?
+ * @param array $params the parameters
+ * @return string html options
  */
 function html_select_options($options, $selected, $params=array()) {
 	return(\html_select_options($options, $selected, $params));

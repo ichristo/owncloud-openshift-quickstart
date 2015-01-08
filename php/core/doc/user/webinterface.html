@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>The ownCloud Web Interface &mdash; ownCloud User Manual 6.0 documentation</title>
+    <title>The ownCloud Web Interface &mdash; ownCloud User Manual 7.0 documentation</title>
     
     <link rel="stylesheet" href="_static/style.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '6.0',
+        VERSION:     '7.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -27,9 +27,9 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/bootstrap.js"></script>
-    <link rel="top" title="ownCloud User Manual 6.0 documentation" href="index.html" />
+    <link rel="top" title="ownCloud User Manual 7.0 documentation" href="index.html" />
     <link rel="next" title="Files &amp; Synchronization" href="files/index.html" />
-    <link rel="prev" title="User Documentation" href="index.html" />
+    <link rel="prev" title="What’s New for Users in ownCloud 7" href="whats_new.html" />
 <script type="text/javascript">
 (function () {
   /**
@@ -112,20 +112,21 @@
 										<li><a href="contents.html">Overview</a></li>
 									</ul>
                   <ul>
-<li class="toctree-l1"><a class="reference internal" href="index.html">User Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">ownCloud 7.0 User Documentation</a></li>
 </ul>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What&#8217;s New for Users in ownCloud 7</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">The ownCloud Web Interface</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accessing-the-owncloud-web-interface">Accessing the ownCloud Web Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#navigating-the-main-user-interface">Navigating the Main User Interface</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="files/index.html">Files &amp; Synchronization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pim/index.html">Contacts &amp; Calendar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documents.html">Collaborative Document Editing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bookmarks.html">Using the Bookmarks App</a></li>
-<li class="toctree-l1"><a class="reference internal" href="documents.html">Documents</a></li>
-<li class="toctree-l1"><a class="reference internal" href="migration.html">User Account Migration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="userpreferences.html">Changing Preferences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="external_storage/google_drive.html">External storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userpreferences.html">Setting Your Preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="external_storage/google_drive.html">Configuring External Storage</a></li>
 </ul>
 
 								</ul>
@@ -140,52 +141,130 @@
 						
   <div class="section" id="the-owncloud-web-interface">
 <h1>The ownCloud Web Interface<a class="headerlink" href="#the-owncloud-web-interface" title="Permalink to this headline">¶</a></h1>
-<p>You can connect to ownCloud with your web browser by pointing
-it to the address that you have received from your service
-provider. In case you are administering the server yourself,
-have a look at <a class="reference external" href="http://doc.owncloud.org/server/6.0/admin_manual/">ownCloud Administrators Manual</a>.</p>
-<p>When you enter the URL, you will receive a page that is similar
-to the one depicted below:</p>
+<p>You can connect to your ownCloud server using any web browser. To access the
+ownCloud server using a web browser, specify the uniform resource link (URL)
+address of the server in the browser navigation bar.  This can be the URL
+address of your personal ownCloud setup or a URL address that you have received
+from your company or your service provider.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you are administering the server yourself, we recommend that you
+read the <a class="reference external" href="http://doc.owncloud.org/server/7.0/admin_manual/">ownCloud Administrators Guide</a>.</p>
+</div>
+<div class="section" id="accessing-the-owncloud-web-interface">
+<h2>Accessing the ownCloud Web Interface<a class="headerlink" href="#accessing-the-owncloud-web-interface" title="Permalink to this headline">¶</a></h2>
+<p>To access the ownCloud web interface:</p>
+<p>1. Enter the URL address of the ownCloud server into your browser navigation
+bar.</p>
+<blockquote>
+<div><p>The ownCloud login window opens.</p>
 <div class="figure">
-<img alt="_images/oc_connect.png" src="_images/oc_connect.png" />
-<p class="caption">The ownCloud login screen</p>
+<a class="reference internal image-reference" href="_images/oc_connect.png"><img alt="_images/oc_connect.png" src="_images/oc_connect.png" style="width: 325.5px; height: 321.75px;" /></a>
+<p class="caption"><strong>ownCloud login window</strong></p>
 </div>
-<p>Login with the user name and password with you have received from
-your service provider. If you have set up the server yourself,
-log in with the user name which you have created during the
-setup process. You can add further users through the settings,
-or by hooking up a user backend, such as LDAP.</p>
-<div class="section" id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
-<p>After clicking the <em class="guilabel">Log in</em> button, you will be redirected
-to ownCloud&#8217;s main web interface:</p>
-<div class="figure align-center">
-<img alt="_images/oc_ui.png" src="_images/oc_ui.png" />
-<p class="caption">The ownCloud main interface with the essential elements numbered</p>
+</div></blockquote>
+<ol class="arabic" start="2">
+<li><p class="first">Enter your valid username and password.</p>
+<p>The username and password combination can be those that you set up yourself
+when creating your ownCloud server setup or those provided by your company or
+your service provider.</p>
+<p>If you have set up the server yourself or are administering the server, you
+can add additional users by configuring a user backend (for example, LDAP).</p>
+</li>
+<li><p class="first">Click the <em class="guilabel">Log in</em> button.</p>
+<p>The ownCloud main interface opens.</p>
+<div class="figure">
+<img alt="_images/oc_main_web.png" src="_images/oc_main_web.png" />
+<p class="caption"><strong>ownCloud main user interface</strong></p>
 </div>
-<p>The web interface comprises of the following items:</p>
-<ol class="arabic simple">
-<li><strong>Navigation bar</strong>: Allows navigation between different parts of ownCloud,
-provided by apps. Not all apps depicted in this screenshot are installed
-and enabled by default.</li>
-<li><strong>Application view</strong>: This is where apps show their content. By default, this
-will show the files and directory (file view) of your user on the ownCloud
-installation.</li>
-<li><strong>New/Upload button</strong>: This allows you to create new files or upload
-existing ones from your device. Note that you can also drop files from
-Explorer or Finder onto the ownCloud file view and they will get uploaded to
-ownCloud. With <em>New</em> button, you can create a text file, folder or download
-a file from the provided URL.</li>
-<li><strong>Search/Settings</strong>: Search allows you to look for files and
-directories. Currently, ownCloud provides a full text search. If full text seach does
-not work, administrators need to enable this app from app settings.
-Settings menu provides access to the settings menu, where you can
-change your personal settings, such as the interface language or your
-password. You can also retrieve the WebDAV URL (see next chapter) and show
-your quota. Administrators will also get access to user management
-(<em class="guilabel">Users</em>), the apps settings (<em class="guilabel">Apps</em>) and administrative settings (<em class="guilabel">Admin</em>) including access to ownCloud&#8217;s log. You will also find logout button in this menu.</li>
-<li><strong>Apps</strong>: This button is only visible to administrators. Using this button allows administrators to enable/disable apps.</li>
+</li>
 </ol>
+</div>
+<div class="section" id="navigating-the-main-user-interface">
+<h2>Navigating the Main User Interface<a class="headerlink" href="#navigating-the-main-user-interface" title="Permalink to this headline">¶</a></h2>
+<p>Once you have accessed the ownCloud Server main web interface you can add files,
+remove files, and make changes based on the access privileges set by you
+(if you are administering the server) or by your server administrator.</p>
+<div class="figure">
+<img alt="_images/oc_main_web_labelled.png" src="_images/oc_main_web_labelled.png" />
+<p class="caption"><strong>Navigating the main user interface</strong></p>
+</div>
+<p>The ownCloud Main User Interface contains the following fields and functions:</p>
+<ul class="simple">
+<li><strong>Apps Selection Menu</strong>: Located in the upper left corner of the user
+interface, this bar contains apps that are configured on the ownCloud server.
+The icons in this bar enable you to launch the different apps available and
+navigate between them within the ownCloud user interface.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">ownCloud supports a number of apps that can be installed and used for
+various features and functions.  Not all apps are installed and enabled by
+default.  For example, the <em class="guilabel">Apps</em> button is visible only to
+administrators.  This button allows administrators to enable or disable
+installed applications.</p>
+</div>
+<ul class="simple">
+<li><strong>Apps Information</strong> field: Located in the left side bar, this field provides
+filters and tasks associated with the chosen app.  For example, using the
+Files app, you can use the filters in the apps information field to view only
+files that have been shared with you, files that you have shared with others,
+files that you have shared through the use of a link, or an option to delete
+files.  Other app-specific information fields might provide tasks for creating
+new documents or modifying calendar entries.</li>
+<li><strong>Application View</strong>: The main, central field in the ownCloud user interface.
+This field displays the contents or user features of the app selected in the
+Navigation Bar.  By default, this field shows the files and directory
+(&#8220;Files&#8221; view) of your user account.</li>
+<li><strong>Navigation Bar</strong>: Located over the main viewing window (the Application
+View), this bar provides a type of breadcrumbs navigation that enables you to
+migrate to higher levels of the folder hierarchy up to the root level (home)
+of your ownCloud instance.</li>
+<li><strong>New</strong> button: Located in the Navigation Bar, the <em class="guilabel">New</em> button
+enables you to create new files, new folders, or upload existing files from a
+specified link.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can also drag and drop files from your file manager (e.g. Windows
+Explorer or your Mac OS X Finder) into the ownCloud Files Application
+View to upload them to ownCloud.</p>
+</div>
+<ul>
+<li><p class="first"><strong>Upload</strong> button: Located next to the <em class="guilabel">New</em> button in the
+Navigation Bar, the <em class="guilabel">Upload</em> button enables you to upload files
+from your system to the ownCloud server.  Clicking this button launches a
+file picker (e.g. Windows Explorer or Mac OS X Finder) window with which you
+can choose files for uploading.</p>
+</li>
+<li><p class="first"><strong>Search</strong> field: Residing in the upper right hand corner of the Main User
+Interface window, the Search field enables you to search for files and
+folders stored in ownCloud. The ownCloud search function provides a full text
+search. However, for searching to function, administrators must enable the app
+in the search app settings.</p>
+</li>
+<li><p class="first"><strong>Personal Settings</strong> menu: Located to the right of the Search field, the
+Personal Settings dropdown menu provides access to your personal settings
+page and the ability to log out of your ownCloud user session.  The personal
+settings page provides access to the following:</p>
+<ul class="simple">
+<li>Activity notifications</li>
+<li>Server usage and space availability</li>
+<li>Password management</li>
+<li>Name, email, and profile picture settings</li>
+<li>Interface language settings</li>
+<li>WebDAV URL for receiving files using WebDAV (see next chapter).</li>
+<li>Mozilla Sync information for creating a synchronization to a Mozilla
+(Firefox) account.</li>
+<li>ownCloud Version information</li>
+</ul>
+<p>You can see <a class="reference internal" href="userpreferences.html"><em>Setting Your Preferences</em></a> section to learn more about those settings.</p>
+</li>
+</ul>
+<p>In addition to these standard settings, administrators have access to user
+management (<em class="guilabel">Users</em>), apps settings (<em class="guilabel">Apps</em>), and
+administrative settings (<em class="guilabel">Admin</em>) including access to the ownCloud
+log files.</p>
 </div>
 </div>
 

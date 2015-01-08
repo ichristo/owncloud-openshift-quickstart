@@ -89,12 +89,11 @@ class Autoloader {
 		} elseif (strpos($class, 'OCA\\') === 0) {
 			list(, $app, $rest) = explode('\\', $class, 3);
 			$app = strtolower($app);
-			foreach (\OC::$APPSROOTS as $appDir) {
-				if (stream_resolve_include_path($appDir['path'] . '/' . $app)) {
-					$paths[] = $appDir['path'] . '/' . $app . '/' . strtolower(str_replace('\\', '/', $rest) . '.php');
-					// If not found in the root of the app directory, insert '/lib' after app id and try again.
-					$paths[] = $appDir['path'] . '/' . $app . '/lib/' . strtolower(str_replace('\\', '/', $rest) . '.php');
-				}
+			$appPath = \OC_App::getAppPath($app);
+			if ($appPath && stream_resolve_include_path($appPath)) {
+				$paths[] = $appPath . '/' . strtolower(str_replace('\\', '/', $rest) . '.php');
+				// If not found in the root of the app directory, insert '/lib' after app id and try again.
+				$paths[] = $appPath . '/lib/' . strtolower(str_replace('\\', '/', $rest) . '.php');
 			}
 		} elseif (strpos($class, 'Test_') === 0) {
 			$paths[] = 'tests/lib/' . strtolower(str_replace('_', '/', substr($class, 5)) . '.php');
@@ -147,7 +146,7 @@ class Autoloader {
 	}
 
 	/**
-	 * @brief Sets the optional low-latency cache for class to path mapping.
+	 * Sets the optional low-latency cache for class to path mapping.
 	 * @param \OC\Memcache\Cache $memoryCache Instance of memory cache.
 	 */
 	public function setMemoryCache(\OC\Memcache\Cache $memoryCache = null) {

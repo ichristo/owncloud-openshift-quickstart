@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "Checking your installation..." => "Überprüfe Ihre Installation...",
 "Upgrade is not possible. Make sure that your webserver has write access to the following files and directories:" => "Hochrüstung nicht möglich. Stellen Sie sicher, dass Ihr Webserver Schreibrechte auf die folgenden Dateien und Verzeichnisse hat:",
 "Version not found" => "Version nicht gefunden",
@@ -12,7 +13,6 @@
 "Moving files..." => "Verschiebe Dateien...",
 "All done. Click to the link below to start database upgrade." => "Alles erledigt. Klicken Sie auf den unteren Link um die Datenbank-Aufwertung zu starten.",
 "Update failed" => "Update fehlgeschlagen",
-"The update was unsuccessful. Please report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "Das Update ist fehlgeschlagen. Bitte melden Sie dieses Problem an die <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud Gemeinschaft</a>.",
 "Update Center" => "Update-Center",
 "Backup Management" => "Backup-Verwaltung",
 "Update" => "Update durchführen",
@@ -23,3 +23,4 @@
 "Delete" => "Löschen",
 "No backups found" => "Keine Backups gefunden"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

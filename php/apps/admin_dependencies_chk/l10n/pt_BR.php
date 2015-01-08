@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "The php-json module is needed by the many applications for inter communications" => "O módulo php-json é necessário para a intercomunicação de várias aplicações",
 "The php-curl module is needed to fetch the page title when adding a bookmark" => "O módulo php-curl é necessário para obter o título da página quando adicionar um favorito",
 "The php-gd module is needed to create thumbnails of your images" => "O módulo php-gd é necessário para criar miniaturas das suas imagens",
@@ -9,7 +10,8 @@
 "The php-xml module is needed to share files with webdav." => "O módulo php-xml é necessário para compartilhar arquivos com WebDAV.",
 "The allow_url_fopen directive of your php.ini should be set to 1 to retrieve knowledge base from OCS servers" => "A diretiva allow_url_fopen do seu php.ini deve ser definida para 1 para obter a base de conhecimento dos servidores OCS",
 "The php-pdo module is needed to store owncloud data into a database." => "O módulo php-pdo é necessário para armazenar dados do ownCloud em um banco de dados.",
-"The iconv module is needed to convert data into the correct charset." => "O módulo iconv é necessário para converter dados da cadeira de caracteres correta.",
-"Dependencies status" => "Status da dependência",
+"The iconv module is needed to convert data into the correct charset." => "O módulo iconv é necessário para converter dados da cadeia de caracteres corretamente.",
+"Dependencies status" => "Status das dependências",
 "Used by :" => "Usado por:"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n > 1);";

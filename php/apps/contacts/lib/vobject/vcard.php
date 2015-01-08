@@ -7,6 +7,7 @@
  *
  * @author Thomas Tanghus
  * @author Evert Pot (http://www.rooftopsolutions.nl/)
+ * @copyright 2013-2014 Thomas Tanghus (thomas@tanghus.net)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -32,6 +33,20 @@ use Sabre\VObject;
  * This class overrides \Sabre\VObject\Component\VCard::validate() to be add
  * to import partially invalid vCards by ignoring invalid lines and to
  * validate and upgrade using ....
+ *
+ * Satisfy PHP Analyzer:
+ * @property \OC\VObject\CompoundProperty N
+ * @property \OC\VObject\CompoundProperty ORG
+ * @property \OC\VObject\CompoundProperty ADR
+ * @property \OCA\Contacts\VObject\GroupProperty CATEGORIES
+ * @property \OC\VObject\StringProperty FN
+ * @property \OC\VObject\StringProperty EMAIL
+ * @property \OC\VObject\StringProperty VERSION
+ * @property \OC\VObject\StringProperty BDAY
+ * @property \OC\VObject\StringProperty UID
+ * @property \OC\VObject\StringProperty REV
+ * @property \OC\VObject\StringProperty PHOTO
+ * @property \OC\VObject\StringProperty LOGO
 */
 class VCard extends VObject\Component\VCard {
 
@@ -98,7 +113,7 @@ class VCard extends VObject\Component\VCard {
 	/**
 	* Decode properties for upgrading from v. 2.1
 	*
-	* @param Sabre_VObject_Property $property Reference to a \Sabre\VObject\Property.
+	* @param \Sabre\VObject\Property $property Reference to a \Sabre\VObject\Property.
 	* The only encoding allowed in version 3.0 is 'b' for binary. All encoded strings
 	* must therefore be decoded and the parameters removed.
 	*/
@@ -133,13 +148,12 @@ class VCard extends VObject\Component\VCard {
 	* Work around issue in older VObject sersions
 	* https://github.com/fruux/sabre-vobject/issues/24
 	*
-	* @param Sabre_VObject_Property $property Reference to a Sabre_VObject_Property.
+	* @param \Sabre\VObject\Property $property Reference to a \Sabre\VObject\Property.
 	*/
 	public function fixPropertyParameters(&$property) {
 		// Work around issue in older VObject sersions
 		// https://github.com/fruux/sabre-vobject/issues/24
 		foreach($property->parameters as $key=>$parameter) {
-			$delim = '';
 			if(strpos($parameter->value, ',') === false) {
 				continue;
 			}
@@ -176,7 +190,8 @@ class VCard extends VObject\Component\VCard {
 
 		if ($options & self::UPGRADE) {
 			$this->VERSION = self::DEFAULT_VERSION;
-			foreach($this->children as &$property) {
+			foreach($this->children as $idx => &$property) {
+
 				$this->decodeProperty($property);
 				$this->fixPropertyParameters($property);
 				/* What exactly was I thinking here?
@@ -221,17 +236,21 @@ class VCard extends VObject\Component\VCard {
 			}
 
 		}
+
 		$fn = $this->select('FN');
-		if (count($fn) !== 1) {
+		if (count($fn) !== 1 || trim((string)$this->FN) === '') {
 			$warnings[] = array(
 				'level' => 1,
 				'message' => 'The FN property must appear in the VCARD component exactly 1 time',
 				'node' => $this,
 			);
-			if (($options & self::REPAIR) && count($fn) === 0) {
+			if ($options & self::REPAIR) {
 				// We're going to try to see if we can use the contents of the
 				// N property.
-				if (isset($this->N)) {
+				if (isset($this->N)
+					&& substr((string)$this->N, 2) !== ';;'
+					&& (string)$this->N !== ''
+				) {
 					$value = explode(';', (string)$this->N);
 					if (isset($value[1]) && $value[1]) {
 						$this->FN = $value[1] . ' ' . $value[0];
@@ -245,6 +264,30 @@ class VCard extends VObject\Component\VCard {
 					$this->FN = (string)$this->EMAIL;
 				}
 
+			}
+		}
+
+		if(isset($this->BDAY)) {
+			if ($options & self::REPAIR) {
+				// If the BDAY has a format of e.g. 19960401
+				$bday = (string)$this->BDAY;
+				if(strlen($bday) >= 8
+					&& is_int(substr($bday, 0, 4))
+					&& is_int(substr($bday, 4, 2))
+					&& is_int(substr($bday, 6, 2))) {
+					$this->BDAY = substr($bday, 0, 4).'-'.substr($bday, 4, 2).'-'.substr($bday, 6, 2);
+					$this->BDAY->VALUE = 'DATE';
+				} else if($bday[5] !== '-' || $bday[7] !== '-') {
+					try {
+						// Skype exports as e.g. Jan 14, 1996
+						$date = new \DateTime($bday);
+						$this->BDAY = $date->format('Y-m-d');
+						$this->BDAY->VALUE = 'DATE';
+					} catch(\Exception $e) {
+						\OCP\Util::writeLog('contacts', __METHOD__.' Removing invalid BDAY: ' . $bday, \OCP\Util::DEBUG);
+						unset($this->BDAY);
+					}
+				}
 			}
 		}
 
@@ -266,7 +309,7 @@ class VCard extends VObject\Component\VCard {
 			}
 		}
 
-		if (!isset($this->UID)) {
+		if (!isset($this->UID) || trim((string)$this->UID) === '') {
 			$warnings[] = array(
 				'level' => 1,
 				'message' => 'Every vCard must have a UID',
@@ -291,6 +334,9 @@ class VCard extends VObject\Component\VCard {
 
 	/**
 	 * Get all group names in the vCards properties
+	 *
+	 * NOTE: Not to confuse with CATEGORIES groups
+	 *
 	 * @return array
 	 */
 	public function propertyGroups() {
@@ -304,5 +350,64 @@ class VCard extends VObject\Component\VCard {
 		}
 		return $this->groups;
 	}
+
+	/**
+	* Test if vcard has group (CATEGORIES) $name
+	*
+	* @param string $name
+	* @return bool
+	*/
+	public function inGroup($name) {
+		if(!isset($this->CATEGORIES)) {
+			false;
+		}
+
+		return $this->CATEGORIES->hasGroup($name);
+	}
+
+	/**
+	* Add group (CATEGORIES) $name to vcard
+	*
+	* Return true if contact wasn't already in group
+	*
+	* @param string $name
+	* @return bool
+	*/
+	public function addToGroup($name) {
+		if(!isset($this->CATEGORIES)) {
+			$this->add('CATEGORIES');
+		}
+
+		return $this->CATEGORIES->addGroup($name);
+	}
+
+	/**
+	* Remove group (CATEGORIES) $name from vcard
+	*
+	* Return true if vcard has been updated.
+	*
+	* @param string $name
+	* @return bool
+	*/
+	public function removeFromGroup($name) {
+
+		if(!isset($this->CATEGORIES)) {
+			return false;
+		}
+
+		$updated = $this->CATEGORIES->removeGroup($name);
+		// getParts() returns an array with an empty element if
+		// CATEGORIES is empty
+		$groups = $this->CATEGORIES->getParts();
+		// Remove empty elements
+		$groups = array_filter($groups, 'strlen');
+		if(count($groups) === 0) {
+			unset($this->{'CATEGORIES'});
+			$updated = true;
+		}
+
+		return $updated;
+	}
+
 
 }

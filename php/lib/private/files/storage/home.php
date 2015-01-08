@@ -11,7 +11,7 @@ namespace OC\Files\Storage;
 /**
  * Specialized version of Local storage for home directory usage
  */
-class Home extends Local {
+class Home extends Local implements \OCP\Files\IHomeStorage {
 	/**
 	 * @var string
 	 */
@@ -23,7 +23,7 @@ class Home extends Local {
 	protected $user;
 
 	/**
-	 * @brief Construct a Home storage instance
+	 * Construct a Home storage instance
 	 * @param array $arguments array with "user" containing the
 	 * storage owner and "legacy" containing "true" if the storage is
 	 * a legacy storage with "local::" URL instead of the new "home::" one.
@@ -49,28 +49,21 @@ class Home extends Local {
 	/**
 	 * @return \OC\Files\Cache\HomeCache
 	 */
-	public function getCache($path = '') {
+	public function getCache($path = '', $storage = null) {
+		if (!$storage) {
+			$storage = $this;
+		}
 		if (!isset($this->cache)) {
-			$this->cache = new \OC\Files\Cache\HomeCache($this);
+			$this->cache = new \OC\Files\Cache\HomeCache($storage);
 		}
 		return $this->cache;
 	}
 
 	/**
-	 * @brief Returns the owner of this home storage
+	 * Returns the owner of this home storage
 	 * @return \OC\User\User owner of this home storage
 	 */
 	public function getUser() {
 		return $this->user;
-	}
-	
-	/**
-	 * get the owner of a path
-	 *
-	 * @param string $path The path to get the owner
-	 * @return string uid or false
-	 */
-	public function getOwner($path) {
-		return $this->getUser()->getUID();
 	}
 }

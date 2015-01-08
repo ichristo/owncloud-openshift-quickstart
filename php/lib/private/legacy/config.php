@@ -6,53 +6,31 @@
  * @author Jakob Sack
  * @copyright 2012 Frank Karlitschek frank@owncloud.org
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
- *
- * You should have received a copy of the GNU Affero General Public
- * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
-/*
- *
- * An example of config.php
- *
- * <?php
- * $CONFIG = array(
- *     "database" => "mysql",
- *     "firstrun" => false,
- *     "pi" => 3.14
- * );
- * ?>
- *
+ * This file is licensed under the Affero General Public License version 3 or
+ * later.
+ * See the COPYING-README file.
  */
 
 /**
  * This class is responsible for reading and writing config.php, the very basic
  * configuration file of ownCloud.
  */
-OC_Config::$object = new \OC\Config(OC::$SERVERROOT.'/config/');
 class OC_Config {
 
-	/**
-	 * @var \OC\Config
-	 */
+	/** @var \OC\Config */
 	public static $object;
 
+	/**
+	 * Returns the config instance
+	 * @return \OC\Config
+	 */
 	public static function getObject() {
 		return self::$object;
 	}
 
 	/**
-	 * @brief Lists all available config keys
-	 * @return array with key names
+	 * Lists all available config keys
+	 * @return array an array of key names
 	 *
 	 * This function returns all keys saved in config.php. Please note that it
 	 * does not return the values.
@@ -62,10 +40,10 @@ class OC_Config {
 	}
 
 	/**
-	 * @brief Gets a value from config.php
+	 * Gets a value from config.php
 	 * @param string $key key
-	 * @param string $default = null default value
-	 * @return string the value or $default
+	 * @param mixed $default = null default value
+	 * @return mixed the value or $default
 	 *
 	 * This function gets the value from config.php. If it does not exist,
 	 * $default will be returned.
@@ -75,9 +53,9 @@ class OC_Config {
 	}
 
 	/**
-	 * @brief Sets a value
+	 * Sets a value
 	 * @param string $key key
-	 * @param string $value value
+	 * @param mixed $value value
 	 *
 	 * This function sets the value and writes the config.php.
 	 *
@@ -87,11 +65,10 @@ class OC_Config {
 	}
 
 	/**
-	 * @brief Removes a key from the config
+	 * Removes a key from the config
 	 * @param string $key key
 	 *
 	 * This function removes a key from the config.php.
-	 *
 	 */
 	public static function deleteKey($key) {
 		self::$object->deleteKey($key);

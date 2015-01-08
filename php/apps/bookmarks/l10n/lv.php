@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "No file provided for import" => "Neviena datne nav dota importēšanai",
 "Unsupported file type for import" => "Importēšanai neatbalstītie datņu tipi",
 "Bookmarks" => "Grāmatzīmes",
@@ -21,6 +22,7 @@
 "Edit" => "Rediģēt",
 "Cancel" => "Atcelt",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Ievelc šo savās pārlūka grāmatzīmēs un spied uz tā, kad vēlies ātri pievienot tīmekļa lapu grāmatzīmēm:",
+"Add to ownCloud" => "Pievienot ownCloud",
 "Address" => "Adrese",
 "Add" => "Pievienot",
 "Related Tags" => "Saistītās birkas",
@@ -32,3 +34,4 @@
 "Export" => "Eksportēt",
 "Import" => "Importēt"
 );
+$PLURAL_FORMS = "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);";

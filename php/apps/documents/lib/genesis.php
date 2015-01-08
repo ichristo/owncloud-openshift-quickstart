@@ -15,7 +15,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
  *  
- * You should have received a copy of the GNU Lesser General Public 
+ * You should have received a copy of the GNU Affero General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
@@ -35,11 +35,12 @@ class Genesis {
 	
 	/**
 	 * Create new genesis document
-	 * @param OCA\Documents\View $view Filesystem view with root '/user/files'
-	 * @param string $path relative path
-	 * @param string $owner file owner
+	 * @param OCA\Documents\File $file 
 	 * */	
-	public function __construct(\OCA\Documents\View $view, $path, $owner){
+	public function __construct(\OCA\Documents\File $file){
+		list($view, $path) = $file->getOwnerViewAndPath();
+		$owner = $file->getOwner();
+		
 		$this->view = new View('/' . $owner);
 		
 		if (!$this->view->file_exists(self::DOCUMENTS_DIRNAME)){

@@ -23,6 +23,7 @@
 namespace OC\AppFramework\routing;
 
 use OC\AppFramework\DependencyInjection\DIContainer;
+use OCP\Route\IRouter;
 
 /**
  * Class RouteConfig
@@ -36,11 +37,10 @@ class RouteConfig {
 
 	/**
 	 * @param \OC\AppFramework\DependencyInjection\DIContainer $container
-	 * @param \OC_Router $router
-	 * @param string $pathToYml
+	 * @param \OCP\Route\IRouter $router
 	 * @internal param $appName
 	 */
-	public function __construct(DIContainer $container, \OC_Router $router, $routes) {
+	public function __construct(DIContainer $container, IRouter $router, $routes) {
 		$this->routes = $routes;
 		$this->container = $container;
 		$this->router = $router;
@@ -48,7 +48,7 @@ class RouteConfig {
 	}
 
 	/**
-	 * The routes and resource will be registered to the \OC_Router
+	 * The routes and resource will be registered to the \OCP\Route\IRouter
 	 */
 	public function register() {
 
@@ -61,7 +61,7 @@ class RouteConfig {
 
 	/**
 	 * Creates one route base on the give configuration
-	 * @param $routes
+	 * @param array $routes
 	 * @throws \UnexpectedValueException
 	 */
 	private function processSimpleRoutes($routes)
@@ -84,7 +84,15 @@ class RouteConfig {
 
 			// register the route
 			$handler = new RouteActionHandler($this->container, $controllerName, $actionName);
-			$this->router->create($this->appName.'.'.$controller.'.'.$action, $url)->method($verb)->action($handler);
+			$router = $this->router->create($this->appName.'.'.$controller.'.'.$action, $url)
+							->method($verb)
+							->action($handler);
+
+			// optionally register requirements for route. This is used to
+			// tell the route parser how url parameters should be matched
+			if(array_key_exists('requirements', $simpleRoute)) {
+				$router->requirements($simpleRoute['requirements']);
+			}
 		}
 	}
 
@@ -97,7 +105,7 @@ class RouteConfig {
 	 *  - update
 	 *  - destroy
 	 *
-	 * @param $routes
+	 * @param array $routes
 	 */
 	private function processResources($routes)
 	{
@@ -114,14 +122,13 @@ class RouteConfig {
 		foreach ($resources as $resource => $config) {
 
 			// the url parameter used as id to the resource
-			$resourceId = $this->buildResourceId($resource);
 			foreach($actions as $action) {
 				$url = $config['url'];
 				$method = $action['name'];
 				$verb = isset($action['verb']) ? strtoupper($action['verb']) : 'GET';
 				$collectionAction = isset($action['on-collection']) ? $action['on-collection'] : false;
 				if (!$collectionAction) {
-					$url = $url . '/' . $resourceId;
+					$url = $url . '/{id}';
 				}
 				if (isset($action['url-postfix'])) {
 					$url = $url . '/' . $action['url-postfix'];
@@ -143,7 +150,7 @@ class RouteConfig {
 
 	/**
 	 * Based on a given route name the controller name is generated
-	 * @param $controller
+	 * @param string $controller
 	 * @return string
 	 */
 	private function buildControllerName($controller)
@@ -153,7 +160,7 @@ class RouteConfig {
 
 	/**
 	 * Based on the action part of the route name the controller method name is generated
-	 * @param $action
+	 * @param string $action
 	 * @return string
 	 */
 	private function buildActionName($action) {
@@ -161,17 +168,8 @@ class RouteConfig {
 	}
 
 	/**
-	 * Generates the id used in the url part o the route url
-	 * @param $resource
-	 * @return string
-	 */
-	private function buildResourceId($resource) {
-		return '{'.$this->underScoreToCamelCase(rtrim($resource, 's')).'Id}';
-	}
-
-	/**
 	 * Underscored strings are converted to camel case strings
-	 * @param $str string
+	 * @param string $str
 	 * @return string
 	 */
 	private function underScoreToCamelCase($str) {

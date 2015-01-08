@@ -3,14 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# André Koot <meneer@tken.net>, 2013
+# André Koot <meneer@tken.net>, 2013-2014
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: translations@owncloud.org\n"
-"POT-Creation-Date: 2013-11-27 09:16-0500\n"
-"PO-Revision-Date: 2013-11-27 14:16+0000\n"
-"Last-Translator: I Robot <owncloud-bot@tmit.eu>\n"
+"POT-Creation-Date: 2014-06-25 06:27-0400\n"
+"PO-Revision-Date: 2014-06-24 13:29+0000\n"
+"Last-Translator: André Koot <meneer@tken.net>\n"
 "Language-Team: Dutch (http://www.transifex.com/projects/p/owncloud/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,50 +18,85 @@ msgstr ""
 "Language: nl\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: appinfo/app.php:35 templates/personal.php:2 templates/settings.php:2
+#: ajax/admin.php:22
+msgid "Format filter server is down or misconfigured"
+msgstr "Formaatfilter server is down of onjuist geconfigureerd"
+
+#: ajax/documentController.php:43
+msgid "Can't create document"
+msgstr "Kan document niet creëren"
+
+#: ajax/documentController.php:82
+msgid "You don't have permission to rename this document"
+msgstr "U hebt niet de autorisatie om die document te hernoemen"
+
+#: ajax/personal.php:26
+msgid "An error occurred while changing directory."
+msgstr "Er trad een fout op bij het wijzigen van de directory"
+
+#: ajax/personal.php:34
+msgid "Directory saved successfully."
+msgstr "Directory succesvol bewaard."
+
+#: appinfo/app.php:34 templates/admin.php:3 templates/personal.php:2
+#: templates/settings.php:2
 msgid "Documents"
 msgstr "Documenten"
 
-#: js/3rdparty/webodf/webodf.js:831
-msgid "document-styles"
-msgstr ""
+#: js/documents.js:86
+msgid "Failed to load documents."
+msgstr "Kon documenten niet laden."
 
-#: js/3rdparty/webodf/webodf.js:832
-msgid "document-content"
-msgstr ""
+#: js/documents.js:121
+msgid "No documents are found. Please upload or create a document!"
+msgstr "Geen documenten gevonden. Upload of maak een document!"
 
-#: js/documents.js:23 js/locale.js:12 js/viewer/viewer.js:50
-msgid "Close"
-msgstr "Sluiten"
-
-#: js/documents.js:26
+#: js/documents.js:156
 msgid "Share"
 msgstr "Delen"
 
-#: js/documents.js:102
+#: js/documents.js:159 js/locale.js:12 js/viewer/viewer.js:80
+msgid "Close"
+msgstr "Sluiten"
+
+#: js/documents.js:275
 msgid "No connection to server. Trying to reconnect."
 msgstr "Geen verbinding met de server. Bezig te verbinden."
 
-#: js/documents.js:153
+#: js/documents.js:339
 msgid ""
 "Leaving this page in Editor mode might cause unsaved data. It is recommended"
 " to use 'Close' button instead."
 msgstr "Deze pagina open laten in de Editor kan resulteren in niet opslaan. Geadviseerd wordt om de 'Sluiten' knop te gebruiken."
 
-#: js/documents.js:166
+#: js/documents.js:360
 msgid ""
 "Failed to load this document. Please check if it can be opened with an "
 "external odt editor. This might also mean it has been unshared or deleted "
 "recently."
 msgstr "Kon dit document niet laden. Ga na of het met een externe odt editor wel kan worden geopend. Het kan zijn dat het niet meer is gedeeld of dat het recent is verwijderd."
 
-#: js/documents.js:332
-msgid "Failed to load documents."
-msgstr "Kon documenten niet laden."
+#: js/documents.js:382 js/locale.js:39
+msgid "Save"
+msgstr "Bewaren"
 
-#: js/documents.js:375
-msgid "No documents are found. Please upload or create a document!"
-msgstr "Geen documenten gevonden. Upload of maak een document!"
+#: js/documents.js:724 templates/documents.php:31
+msgid "Loading documents..."
+msgstr "Laden documenten..."
+
+#: js/documents.js:757
+msgid "'.' is an invalid file name."
+msgstr "'.' is een ongeldige bestandsnaam."
+
+#: js/documents.js:759
+msgid "File name cannot be empty."
+msgstr "Bestandsnaam kan niet leeg zijn."
+
+#: js/documents.js:766
+msgid ""
+"Invalid name, '\\', '/', '<', '>', ':', '\"', '|', '?' and '*' are not "
+"allowed."
+msgstr "Onjuiste naam; '\\', '/', '<', '>', ':', '\"', '|', '?' en '*' zijn niet toegestaan."
 
 #: js/locale.js:1
 msgid "Align Left"
@@ -211,10 +246,6 @@ msgstr "Opnieuw"
 msgid "Right"
 msgstr "Rechts"
 
-#: js/locale.js:39
-msgid "Save"
-msgstr "Bewaren"
-
 #: js/locale.js:40
 msgid "Size"
 msgstr "Grootte"
@@ -251,27 +282,60 @@ msgstr "Ongedaan maken"
 msgid "Unknown Author"
 msgstr "Onbekende auteur"
 
-#: lib/invite.php:64
-msgid "Sent"
-msgstr "Verzonden"
+#: js/viewer/viewer.js:31
+msgid "Edit"
+msgstr "Bewerk"
 
-#: lib/invite.php:65 lib/invite.php:75
-msgid "Declined"
-msgstr "Afgewezen"
+#: lib/db/member.php:39
+msgid "guest"
+msgstr "gast"
 
-#: lib/invite.php:66 lib/invite.php:76
-msgid "Accepted"
-msgstr "Geaccepteerd"
+#: templates/admin.php:4
+msgid "MS Word support (requires openOffice/libreOffice)"
+msgstr "MS Word ondersteuning (vereist openOffice/libreOffice)"
 
-#: lib/invite.php:74
-msgid "Incoming"
-msgstr "Inkomend"
+#: templates/admin.php:9
+msgid "Local"
+msgstr "Lokaal"
+
+#: templates/admin.php:10
+msgid ""
+"openOffice/libreOffice is installed on this server. Path to binary is "
+"provided via preview_libreoffice_path in config.php"
+msgstr "openOffice/libreOffice is geïnstalleerd op deze server. Pad naar executable is beschikbaar via preview_libreoffice_path in config.php"
+
+#: templates/admin.php:16
+msgid "External"
+msgstr "Extern"
+
+#: templates/admin.php:17
+msgid ""
+"openOffice/libreOffice is installed on external server running a format "
+"filter server"
+msgstr "openOffice/libreOffice is geïnstalleerd op een externe server die een format filter server draait"
+
+#: templates/admin.php:22
+msgid "scheme://domain.tld[:port]"
+msgstr "scheme://domain.tld[:port]"
+
+#: templates/admin.php:25
+msgid "Server URL"
+msgstr "Server URL"
+
+#: templates/admin.php:27
+msgid "Apply"
+msgstr "Toepassen"
 
 #: templates/documents.php:5
 msgid "New document"
-msgstr ""
+msgstr "Nieuw document"
 
-#: templates/documents.php:7 templates/documents.php:27
+#: templates/documents.php:7
+#, php-format
+msgid "Upload (max. %s)"
+msgstr "Upload (max. %s)"
+
+#: templates/documents.php:27
 msgid "Upload"
 msgstr "Uploaden"
 
@@ -288,14 +352,11 @@ msgid "Password"
 msgstr "Wachtwoord"
 
 #: templates/public.php:17
-msgid "Please enter your nickname"
-msgstr "Geef uw roepnaam op"
+#, php-format
+msgid "Guest %s"
+msgstr "Gast %s"
 
-#: templates/public.php:18
-msgid "Join"
-msgstr "Meedoen"
-
-#: templates/public.php:24
+#: templates/public.php:21
 msgid ""
 "This link has been expired or is never existed. Please contact the person "
 "who shared it with you for details."

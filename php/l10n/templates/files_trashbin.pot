@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud Core 6.0.0\n"
 "Report-Msgid-Bugs-To: translations@owncloud.org\n"
-"POT-Creation-Date: 2013-11-29 14:08-0500\n"
+"POT-Creation-Date: 2014-07-03 01:54-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,16 +22,24 @@ msgstr ""
 msgid "Couldn't delete %s permanently"
 msgstr ""
 
-#: ajax/undelete.php:42
+#: ajax/undelete.php:64
 #, php-format
 msgid "Couldn't restore %s"
 msgstr ""
 
-#: js/trash.js:18 js/trash.js:45 js/trash.js:123 js/trash.js:176
+#: appinfo/app.php:13 js/filelist.js:34
+msgid "Deleted files"
+msgstr ""
+
+#: js/app.js:52 templates/index.php:21 templates/index.php:23
+msgid "Restore"
+msgstr ""
+
+#: js/filelist.js:119 js/filelist.js:164 js/filelist.js:214
 msgid "Error"
 msgstr ""
 
-#: lib/trashbin.php:885 lib/trashbin.php:887
+#: lib/trashbin.php:891 lib/trashbin.php:893
 msgid "restored"
 msgstr ""
 
@@ -39,22 +47,14 @@ msgstr ""
 msgid "Nothing in here. Your trash bin is empty!"
 msgstr ""
 
-#: templates/index.php:20
+#: templates/index.php:18
 msgid "Name"
 msgstr ""
 
-#: templates/index.php:23 templates/index.php:25
-msgid "Restore"
-msgstr ""
-
-#: templates/index.php:31
+#: templates/index.php:29
 msgid "Deleted"
 msgstr ""
 
-#: templates/index.php:34 templates/index.php:35
+#: templates/index.php:32 templates/index.php:33
 msgid "Delete"
-msgstr ""
-
-#: templates/part.breadcrumb.php:9
-msgid "Deleted Files"
 msgstr ""

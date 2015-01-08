@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "No file provided for import" => "未提供导入文件",
 "Unsupported file type for import" => "不支持导入的文件类型",
 "Bookmarks" => "书签",
@@ -20,7 +21,8 @@
 "Delete" => "删除",
 "Edit" => "编辑",
 "Cancel" => "取消",
-"Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "拖曳此处到您的浏览器书签处，点击可以将网页快速添加到书签中。",
+"Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "拖曳此处到您的浏览器书签处，点击可以将网页快速增加到书签中。",
+"Add to ownCloud" => "增加到 ownCloud",
 "Address" => "地址",
 "Add" => "增加",
 "Related Tags" => "相关标签",
@@ -32,3 +34,4 @@
 "Export" => "导出",
 "Import" => "导入"
 );
+$PLURAL_FORMS = "nplurals=1; plural=0;";

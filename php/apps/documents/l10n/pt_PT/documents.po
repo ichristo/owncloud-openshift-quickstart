@@ -3,15 +3,18 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# Duarte Velez Grilo <duartegrilo@gmail.com>, 2013
-# Helder Meneses <helder.meneses@gmail.com>, 2013
+# Carlos Moreira <crolidge@gmail.com>, 2013-2014
+# zedascouves <duartegrilo@gmail.com>, 2013
+# Fernando Moura <moura232@gmail.com>, 2014
+# Helder Meneses <helder.meneses@gmail.com>, 2013-2014
+# sccosta <sonia.peres.costa@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: translations@owncloud.org\n"
-"POT-Creation-Date: 2013-11-27 09:16-0500\n"
-"PO-Revision-Date: 2013-11-27 14:16+0000\n"
-"Last-Translator: I Robot <owncloud-bot@tmit.eu>\n"
+"POT-Creation-Date: 2014-06-27 00:43-0400\n"
+"PO-Revision-Date: 2014-06-26 21:01+0000\n"
+"Last-Translator: Fernando Moura <moura232@gmail.com>\n"
 "Language-Team: Portuguese (Portugal) (http://www.transifex.com/projects/p/owncloud/language/pt_PT/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,78 +22,113 @@ msgstr ""
 "Language: pt_PT\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: appinfo/app.php:35 templates/personal.php:2 templates/settings.php:2
+#: ajax/admin.php:22
+msgid "Format filter server is down or misconfigured"
+msgstr "O servidor de formatação de filtros falhou ou está mal configurado"
+
+#: ajax/documentController.php:43
+msgid "Can't create document"
+msgstr "Não foi possível criar o documento"
+
+#: ajax/documentController.php:82
+msgid "You don't have permission to rename this document"
+msgstr "Não tem permissões para renomear este documento"
+
+#: ajax/personal.php:26
+msgid "An error occurred while changing directory."
+msgstr "Ocorreu um erro ao mudar de directório."
+
+#: ajax/personal.php:34
+msgid "Directory saved successfully."
+msgstr "Directório salvo com sucesso."
+
+#: appinfo/app.php:34 templates/admin.php:3 templates/personal.php:2
+#: templates/settings.php:2
 msgid "Documents"
 msgstr "Documentos"
 
-#: js/3rdparty/webodf/webodf.js:831
-msgid "document-styles"
-msgstr ""
+#: js/documents.js:86
+msgid "Failed to load documents."
+msgstr "O carregamento dos documentos falhou"
 
-#: js/3rdparty/webodf/webodf.js:832
-msgid "document-content"
-msgstr ""
+#: js/documents.js:121
+msgid "No documents are found. Please upload or create a document!"
+msgstr "Nenhum documento encontrado. Por favor carregue ou crie um documento!"
 
-#: js/documents.js:23 js/locale.js:12 js/viewer/viewer.js:50
-msgid "Close"
-msgstr "Fechar"
-
-#: js/documents.js:26
+#: js/documents.js:156
 msgid "Share"
 msgstr "Partilhar"
 
-#: js/documents.js:102
-msgid "No connection to server. Trying to reconnect."
-msgstr ""
+#: js/documents.js:159 js/locale.js:12 js/viewer/viewer.js:80
+msgid "Close"
+msgstr "Fechar"
 
-#: js/documents.js:153
+#: js/documents.js:275
+msgid "No connection to server. Trying to reconnect."
+msgstr "Não há ligação ao servidor. A tentar religar."
+
+#: js/documents.js:339
 msgid ""
 "Leaving this page in Editor mode might cause unsaved data. It is recommended"
 " to use 'Close' button instead."
-msgstr ""
+msgstr "Sair desta página em modo de Edição pode deixar dados não guardados. É recomendado usar o botão \"Fechar\" em vez disso."
 
-#: js/documents.js:166
+#: js/documents.js:360
 msgid ""
 "Failed to load this document. Please check if it can be opened with an "
 "external odt editor. This might also mean it has been unshared or deleted "
 "recently."
-msgstr ""
+msgstr "Falhou ao carregar o documento. Por favor verifique se ele pode ser aberto com um editor ODT externo. Isto poderá significar que foi apagado recentemente ou a partilha acabou."
 
-#: js/documents.js:332
-msgid "Failed to load documents."
-msgstr "O carregamento dos documentos falhou"
+#: js/documents.js:382 js/locale.js:39
+msgid "Save"
+msgstr "Guardar"
 
-#: js/documents.js:375
-msgid "No documents are found. Please upload or create a document!"
-msgstr "Nenhum documento encontrado. Por favor carregue ou crie um documento!"
+#: js/documents.js:720 templates/documents.php:31
+msgid "Loading documents..."
+msgstr "A carregar documentos..."
+
+#: js/documents.js:753
+msgid "'.' is an invalid file name."
+msgstr "'.' não é um nome de ficheiro válido!"
+
+#: js/documents.js:755
+msgid "File name cannot be empty."
+msgstr "O nome do ficheiro não pode estar vazio."
+
+#: js/documents.js:762
+msgid ""
+"Invalid name, '\\', '/', '<', '>', ':', '\"', '|', '?' and '*' are not "
+"allowed."
+msgstr "Nome Inválido, os caracteres '\\', '/', '<', '>', ':', '\"', '|', '?' e '*' não são permitidos."
 
 #: js/locale.js:1
 msgid "Align Left"
-msgstr ""
+msgstr "Alinhar á esquerda"
 
 #: js/locale.js:2
 msgid "Alignment"
-msgstr ""
+msgstr "Alinhamento"
 
 #: js/locale.js:3
 msgid "Align Right"
-msgstr ""
+msgstr "Alinhar á direita"
 
 #: js/locale.js:4
 msgid "Annotate"
-msgstr ""
+msgstr "Anotar"
 
 #: js/locale.js:5
 msgid "Background"
-msgstr ""
+msgstr "Fundo"
 
 #: js/locale.js:6
 msgid "Bold"
-msgstr ""
+msgstr "Negrito"
 
 #: js/locale.js:7
 msgid "Bottom"
-msgstr ""
+msgstr "Fundo"
 
 #: js/locale.js:8
 msgid "Cancel"
@@ -98,19 +136,19 @@ msgstr "Cancelar"
 
 #: js/locale.js:9
 msgid "Center"
-msgstr ""
+msgstr "Centro"
 
 #: js/locale.js:10
 msgid "Clone"
-msgstr ""
+msgstr "Clonar"
 
 #: js/locale.js:11
 msgid "Clone this Style"
-msgstr ""
+msgstr "Clonar este estilo"
 
 #: js/locale.js:13
 msgid "Color"
-msgstr ""
+msgstr "Côr"
 
 #: js/locale.js:14
 msgid "Create"
@@ -118,11 +156,11 @@ msgstr "Criar"
 
 #: js/locale.js:15
 msgid "Decrease Indent"
-msgstr ""
+msgstr "Diminuir Indentação"
 
 #: js/locale.js:16
 msgid "Default Style"
-msgstr ""
+msgstr "Estilo padrão"
 
 #: js/locale.js:17
 msgid "Delete"
@@ -134,43 +172,43 @@ msgstr "Familia"
 
 #: js/locale.js:19
 msgid "Font"
-msgstr ""
+msgstr "Tipo de letra"
 
 #: js/locale.js:20
 msgid "Font Effects"
-msgstr ""
+msgstr "Efeitos de Letra"
 
 #: js/locale.js:21
 msgid "Format"
-msgstr ""
+msgstr "Formatar"
 
 #: js/locale.js:22
 msgid "Increase Indent"
-msgstr ""
+msgstr "Aumentar Indentação"
 
 #: js/locale.js:23
 msgid "Insert Image"
-msgstr ""
+msgstr "Inserir imagem"
 
 #: js/locale.js:24
 msgid "Invite Members"
-msgstr ""
+msgstr "Convidar Membros"
 
 #: js/locale.js:25
 msgid "Italic"
-msgstr ""
+msgstr "Itálico"
 
 #: js/locale.js:26
 msgid "Justified"
-msgstr ""
+msgstr "Justificado"
 
 #: js/locale.js:27
 msgid "Justify"
-msgstr ""
+msgstr "Justificar"
 
 #: js/locale.js:28
 msgid "Left"
-msgstr ""
+msgstr "Esquerda"
 
 #: js/locale.js:29
 msgid "Loading"
@@ -178,11 +216,11 @@ msgstr "A carregar tarefas..."
 
 #: js/locale.js:30
 msgid "Members"
-msgstr ""
+msgstr "Membros"
 
 #: js/locale.js:31
 msgid "New Name:"
-msgstr ""
+msgstr "Novo Nome:"
 
 #: js/locale.js:32 templates/public.php:12
 msgid "OK"
@@ -198,23 +236,19 @@ msgstr "Opções"
 
 #: js/locale.js:35
 msgid "Paragraph..."
-msgstr ""
+msgstr "Parágrafo..."
 
 #: js/locale.js:36
 msgid "Paragraph Styles"
-msgstr ""
+msgstr "Estilos de Parágrafo"
 
 #: js/locale.js:37
 msgid "Redo"
-msgstr ""
+msgstr "Refazer"
 
 #: js/locale.js:38
 msgid "Right"
-msgstr ""
-
-#: js/locale.js:39
-msgid "Save"
-msgstr "Guardar"
+msgstr "Direita"
 
 #: js/locale.js:40
 msgid "Size"
@@ -222,15 +256,15 @@ msgstr "Tamanho"
 
 #: js/locale.js:41
 msgid "Spacing"
-msgstr ""
+msgstr "Espaçamento"
 
 #: js/locale.js:42
 msgid "Strikethrough"
-msgstr ""
+msgstr "Rasurado"
 
 #: js/locale.js:43
 msgid "Style"
-msgstr ""
+msgstr "Estilo"
 
 #: js/locale.js:44
 msgid "Text"
@@ -238,41 +272,74 @@ msgstr "Texto"
 
 #: js/locale.js:45
 msgid "Top"
-msgstr ""
+msgstr "Topo"
 
 #: js/locale.js:46
 msgid "Underline"
-msgstr ""
+msgstr "Sublinhado"
 
 #: js/locale.js:47
 msgid "Undo"
-msgstr ""
+msgstr "Desfazer"
 
 #: js/locale.js:48
 msgid "Unknown Author"
-msgstr ""
+msgstr "Autor desconhecido"
 
-#: lib/invite.php:64
-msgid "Sent"
-msgstr "Enviado"
+#: js/viewer/viewer.js:31
+msgid "Edit"
+msgstr "Editar"
 
-#: lib/invite.php:65 lib/invite.php:75
-msgid "Declined"
-msgstr "Negado"
+#: lib/db/member.php:39
+msgid "guest"
+msgstr "convidado"
 
-#: lib/invite.php:66 lib/invite.php:76
-msgid "Accepted"
-msgstr "Aceite"
+#: templates/admin.php:4
+msgid "MS Word support (requires openOffice/libreOffice)"
+msgstr "Suporte a MS Word (requer openOffice/libreOffice)"
 
-#: lib/invite.php:74
-msgid "Incoming"
-msgstr "Chegada"
+#: templates/admin.php:9
+msgid "Local"
+msgstr "Local"
+
+#: templates/admin.php:10
+msgid ""
+"openOffice/libreOffice is installed on this server. Path to binary is "
+"provided via preview_libreoffice_path in config.php"
+msgstr "openOffice/libreOffice está instalado no servidor. O caminho para o binário é disponibilizado via preview_libreoffice_path no config.php"
+
+#: templates/admin.php:16
+msgid "External"
+msgstr "Externo"
+
+#: templates/admin.php:17
+msgid ""
+"openOffice/libreOffice is installed on external server running a format "
+"filter server"
+msgstr "openOffice/libreOffice está instalado num servidor externo executando um servidor de filtro de formato"
+
+#: templates/admin.php:22
+msgid "scheme://domain.tld[:port]"
+msgstr "scheme://domain.tld[:port]"
+
+#: templates/admin.php:25
+msgid "Server URL"
+msgstr "Endereço do Servidor"
+
+#: templates/admin.php:27
+msgid "Apply"
+msgstr "Aplicar"
 
 #: templates/documents.php:5
 msgid "New document"
-msgstr ""
+msgstr "Novo documento"
 
-#: templates/documents.php:7 templates/documents.php:27
+#: templates/documents.php:7
+#, php-format
+msgid "Upload (max. %s)"
+msgstr "Enviar (max. %s)"
+
+#: templates/documents.php:27
 msgid "Upload"
 msgstr "Carregar"
 
@@ -282,21 +349,18 @@ msgstr "Guardar novos documentos para"
 
 #: templates/public.php:8
 msgid "Wrong password. Please retry."
-msgstr ""
+msgstr "Senha errada. Por favor tente novamente."
 
 #: templates/public.php:11
 msgid "Password"
 msgstr "Palavra-passe"
 
 #: templates/public.php:17
-msgid "Please enter your nickname"
-msgstr ""
+#, php-format
+msgid "Guest %s"
+msgstr "Convidado %s"
 
-#: templates/public.php:18
-msgid "Join"
-msgstr ""
-
-#: templates/public.php:24
+#: templates/public.php:21
 msgid ""
 "This link has been expired or is never existed. Please contact the person "
 "who shared it with you for details."

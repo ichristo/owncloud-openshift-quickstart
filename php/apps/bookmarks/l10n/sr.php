@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "Unsupported file type for import" => "Неподржана врста датотеке за увоз",
 "Bookmarks" => "Обележивачи",
 "Tags" => "Ознаке",
@@ -6,6 +7,7 @@
 "Edit bookmark" => "Уреди обележивач",
 "Are you sure you want to remove this tag from every entry?" => "Желите ли да уклоните ову ознаку из сваког уноса?",
 "Warning" => "Упозорење",
+"Import error" => "Грешка импортовања",
 "Import completed successfully." => "Увоз је успешно завршен.",
 "Uploading..." => "Отпремам…",
 "Bookm." => "Обележ.",
@@ -19,6 +21,7 @@
 "Edit" => "Уреди",
 "Cancel" => "Откажи",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Превуците ово у прегледач и кликните ако на брзину желите да обележите веб страницу:",
+"Add to ownCloud" => "Додај до ownCloud-у",
 "Address" => "Адреса",
 "Add" => "Додај",
 "Related Tags" => "Сродне ознаке",
@@ -30,3 +33,4 @@
 "Export" => "Извези",
 "Import" => "Увези"
 );
+$PLURAL_FORMS = "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);";

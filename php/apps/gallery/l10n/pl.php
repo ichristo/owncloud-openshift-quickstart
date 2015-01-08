@@ -1,7 +1,9 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Zdjęcia",
-"Shared by" => "Udostępniane przez",
+"Picture view" => "Widok zdjęć",
 "Error loading slideshow template" => "Błąd podczas ładowania szablonu pokazu slajdów",
 "Share" => "Udostępnij",
-"The \"Image Viewer\" application also need to be enabled to use this application." => "Aby korzystać z tej aplikacji, musisz włączyć również aplikację „Image Viewer”."
+"No pictures found! If you upload pictures in the files app, they will be displayed here." => "Nie znaleziono zdjęć! Gdy wgrasz zdjęcia do plików, wtedy zdjęcia się tu pojawią.",
+"shared by %s" => "udostępniony przez %s",
+"File list" => "Lista plików"
 );

@@ -9,7 +9,7 @@ function luceneIndexFiles() {
 	updateEventSource.listen('count', function (unIndexedCount) {
 		count = unIndexedCount;
 		if (count > 0) {
-			spinner = $('form.searchbox #spinner');
+			spinner = $('form.searchbox #spinner .icon-loading');
 			if (spinner.length == 0) {
 				$('#searchbox').addClass('indexing');
 				spinner = $('<div id="spinner"/>');

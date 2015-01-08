@@ -30,9 +30,10 @@ class OC_Template extends \OC\Template\Base {
 	private $renderas; // Create a full page?
 	private $path; // The path to the template
 	private $headers=array(); //custom headers
+	protected $app; // app id
 
 	/**
-	 * @brief Constructor
+	 * Constructor
 	 * @param string $app app providing the template
 	 * @param string $name of the template file (without suffix)
 	 * @param string $renderas = ""; produce a full page
@@ -62,31 +63,9 @@ class OC_Template extends \OC\Template\Base {
 		// Set the private data
 		$this->renderas = $renderas;
 		$this->path = $path;
+		$this->app = $app;
 
 		parent::__construct($template, $requesttoken, $l10n, $themeDefaults);
-
-		// Some headers to enhance security
-		header('X-XSS-Protection: 1; mode=block'); // Enforce browser based XSS filters
-		header('X-Content-Type-Options: nosniff'); // Disable sniffing the content type for IE
-
-		// iFrame Restriction Policy
-		$xFramePolicy = OC_Config::getValue('xframe_restriction', true);
-		if($xFramePolicy) {
-			header('X-Frame-Options: Sameorigin'); // Disallow iFraming from other domains
-		}
-		
-		// Content Security Policy
-		// If you change the standard policy, please also change it in config.sample.php
-		$policy = OC_Config::getValue('custom_csp_policy',
-			'default-src \'self\'; '
-			.'script-src \'self\' \'unsafe-eval\'; '
-			.'style-src \'self\' \'unsafe-inline\'; '
-			.'frame-src *; '
-			.'img-src *; '
-			.'font-src \'self\' data:; '
-			.'media-src *');
-		header('Content-Security-Policy:'.$policy); // Standard
-
 	}
 
 	/**
@@ -118,7 +97,7 @@ class OC_Template extends \OC\Template\Base {
 	}
 
 	/**
-	 * @brief Returns the formfactor extension for current formfactor
+	 * Returns the formfactor extension for current formfactor
 	 */
 	static public function getFormFactorExtension()
 	{
@@ -151,11 +130,15 @@ class OC_Template extends \OC\Template\Base {
 	}
 
 	/**
-	 * @brief find the template with the given name
+	 * find the template with the given name
 	 * @param string $name of the template file (without suffix)
 	 *
 	 * Will select the template file for the selected theme and formfactor.
 	 * Checking all the possible locations.
+	 * @param string $theme
+	 * @param string $app
+	 * @param string $fext
+	 * @return array
 	 */
 	protected function findTemplate($theme, $app, $name, $fext) {
 		// Check if it is a app template or not.
@@ -171,7 +154,7 @@ class OC_Template extends \OC\Template\Base {
 	}
 
 	/**
-	 * @brief Add a custom element to the header
+	 * Add a custom element to the header
 	 * @param string $tag tag name of the element
 	 * @param array $attributes array of attributes for the element
 	 * @param string $text the text content for the element
@@ -181,8 +164,8 @@ class OC_Template extends \OC\Template\Base {
 	}
 
 	/**
-	 * @brief Process the template
-	 * @return bool
+	 * Process the template
+	 * @return boolean|string
 	 *
 	 * This function process the template. If $this->renderas is set, it
 	 * will produce a full page.
@@ -191,7 +174,7 @@ class OC_Template extends \OC\Template\Base {
 		$data = parent::fetchPage();
 
 		if( $this->renderas ) {
-			$page = new OC_TemplateLayout($this->renderas);
+			$page = new OC_TemplateLayout($this->renderas, $this->app);
 
 			// Add custom headers
 			$page->assign('headers', $this->headers, false);
@@ -208,7 +191,7 @@ class OC_Template extends \OC\Template\Base {
 	}
 
 	/**
-	 * @brief Include template
+	 * Include template
 	 * @return string returns content of included template
 	 *
 	 * Includes another template. use <?php echo $this->inc('template'); ?> to
@@ -219,11 +202,11 @@ class OC_Template extends \OC\Template\Base {
 	}
 
 	/**
-	 * @brief Shortcut to print a simple page for users
+	 * Shortcut to print a simple page for users
 	 * @param string $application The application we render the template for
 	 * @param string $name Name of the template
 	 * @param array $parameters Parameters for the template
-	 * @return bool
+	 * @return boolean|null
 	 */
 	public static function printUserPage( $application, $name, $parameters = array() ) {
 		$content = new OC_Template( $application, $name, "user" );
@@ -234,7 +217,7 @@ class OC_Template extends \OC\Template\Base {
 	}
 
 	/**
-	 * @brief Shortcut to print a simple page for admins
+	 * Shortcut to print a simple page for admins
 	 * @param string $application The application we render the template for
 	 * @param string $name Name of the template
 	 * @param array $parameters Parameters for the template
@@ -249,10 +232,10 @@ class OC_Template extends \OC\Template\Base {
 	}
 
 	/**
-	 * @brief Shortcut to print a simple page for guests
+	 * Shortcut to print a simple page for guests
 	 * @param string $application The application we render the template for
 	 * @param string $name Name of the template
-	 * @param string $parameters Parameters for the template
+	 * @param array|string $parameters Parameters for the template
 	 * @return bool
 	 */
 	public static function printGuestPage( $application, $name, $parameters = array() ) {
@@ -264,7 +247,7 @@ class OC_Template extends \OC\Template\Base {
 	}
 
 	/**
-		* @brief Print a fatal error page and terminates the script
+		* Print a fatal error page and terminates the script
 		* @param string $error_msg The error message to show
 		* @param string $hint An optional hint message
 		* Warning: All data passed to $hint needs to get sanitized using OC_Util::sanitizeHTML
@@ -276,12 +259,11 @@ class OC_Template extends \OC\Template\Base {
 		$content->printPage();
 		die();
 	}
-	
+
 	/**
 	 * print error page using Exception details
 	 * @param Exception $exception
 	 */
-	
 	public static function printExceptionErrorPage(Exception $exception) {
 		$error_msg = $exception->getMessage();
 		if ($exception->getCode()) {
@@ -290,19 +272,19 @@ class OC_Template extends \OC\Template\Base {
 		if (defined('DEBUG') and DEBUG) {
 			$hint = $exception->getTraceAsString();
 			if (!empty($hint)) {
-				$hint = '<pre>'.$hint.'</pre>';
+				$hint = '<pre>'.OC_Util::sanitizeHTML($hint).'</pre>';
 			}
 			while (method_exists($exception, 'previous') && $exception = $exception->previous()) {
 				$error_msg .= '<br/>Caused by:' . ' ';
 				if ($exception->getCode()) {
-					$error_msg .= '['.$exception->getCode().'] ';
+					$error_msg .= '['.OC_Util::sanitizeHTML($exception->getCode()).'] ';
 				}
-				$error_msg .= $exception->getMessage();
+				$error_msg .= OC_Util::sanitizeHTML($exception->getMessage());
 			};
 		} else {
 			$hint = '';
 			if ($exception instanceof \OC\HintException) {
-				$hint = $exception->getHint();
+				$hint = OC_Util::sanitizeHTML($exception->getHint());
 			}
 		}
 		self::printErrorPage($error_msg, $hint);

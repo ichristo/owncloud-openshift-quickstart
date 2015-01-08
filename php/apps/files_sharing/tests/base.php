@@ -35,16 +35,26 @@ abstract class Test_Files_Sharing_Base extends \PHPUnit_Framework_TestCase {
 	const TEST_FILES_SHARING_API_USER2 = "test-share-user2";
 	const TEST_FILES_SHARING_API_USER3 = "test-share-user3";
 
-	public $stateFilesEncryption;
+	const TEST_FILES_SHARING_API_GROUP1 = "test-share-group1";
+
+	public static $stateFilesEncryption;
 	public $filename;
 	public $data;
 	/**
-	 * @var OC_FilesystemView
+	 * @var OC\Files\View
 	 */
 	public $view;
 	public $folder;
+	public $subfolder;
 
 	public static function setUpBeforeClass() {
+
+		// remember files_encryption state
+		self::$stateFilesEncryption = \OC_App::isEnabled('files_encryption');
+
+		//we don't want to tests with app files_encryption enabled
+		\OC_App::disable('files_encryption');
+
 		// reset backend
 		\OC_User::clearBackends();
 		\OC_User::useBackend('database');
@@ -59,32 +69,26 @@ abstract class Test_Files_Sharing_Base extends \PHPUnit_Framework_TestCase {
 		self::loginHelper(self::TEST_FILES_SHARING_API_USER2, true);
 		self::loginHelper(self::TEST_FILES_SHARING_API_USER3, true);
 
+		// create group
+		\OC_Group::createGroup(self::TEST_FILES_SHARING_API_GROUP1);
+		\OC_Group::addToGroup(self::TEST_FILES_SHARING_API_USER2, self::TEST_FILES_SHARING_API_GROUP1);
+
 	}
 
 	function setUp() {
+
+		$this->assertFalse(\OC_App::isEnabled('files_encryption'));
 
 		//login as user1
 		self::loginHelper(self::TEST_FILES_SHARING_API_USER1);
 
 		$this->data = 'foobar';
-		$this->view = new \OC_FilesystemView('/' . self::TEST_FILES_SHARING_API_USER1 . '/files');
-		// remember files_encryption state
-		$this->stateFilesEncryption = \OC_App::isEnabled('files_encryption');
-
-		 //we don't want to tests with app files_encryption enabled
-		\OC_App::disable('files_encryption');
-
-
-		$this->assertTrue(!\OC_App::isEnabled('files_encryption'));
+		$this->view = new \OC\Files\View('/' . self::TEST_FILES_SHARING_API_USER1 . '/files');
 	}
 
 	function tearDown() {
-		// reset app files_encryption
-		if ($this->stateFilesEncryption) {
-			\OC_App::enable('files_encryption');
-		} else {
-			\OC_App::disable('files_encryption');
-		}
+		$query = \OCP\DB::prepare('DELETE FROM `*PREFIX*share`');
+		$query->execute();
 	}
 
 	public static function tearDownAfterClass() {
@@ -93,34 +97,44 @@ abstract class Test_Files_Sharing_Base extends \PHPUnit_Framework_TestCase {
 		\OC_User::deleteUser(self::TEST_FILES_SHARING_API_USER1);
 		\OC_User::deleteUser(self::TEST_FILES_SHARING_API_USER2);
 		\OC_User::deleteUser(self::TEST_FILES_SHARING_API_USER3);
+
+		// delete group
+		\OC_Group::deleteGroup(self::TEST_FILES_SHARING_API_GROUP1);
+
+		// reset app files_encryption
+		if (self::$stateFilesEncryption) {
+			\OC_App::enable('files_encryption');
+		} else {
+			\OC_App::disable('files_encryption');
+		}
 	}
 
 	/**
-	 * @param $user
+	 * @param string $user
 	 * @param bool $create
 	 * @param bool $password
 	 */
 	protected static function loginHelper($user, $create = false, $password = false) {
-		if ($create) {
-			\OC_User::createUser($user, $user);
-		}
 
 		if ($password === false) {
 			$password = $user;
 		}
 
-		\OC_Util::tearDownFS();
-		\OC_User::setUserId('');
-		\OC\Files\Filesystem::tearDown();
-		\OC_Util::setupFS($user);
-		\OC_User::setUserId($user);
+		if ($create) {
+			\OC_User::createUser($user, $password);
+			\OC_Group::createGroup('group');
+			\OC_Group::addToGroup($user, 'group');
+		}
 
-		$params['uid'] = $user;
-		$params['password'] = $password;
+		\OC_Util::tearDownFS();
+		\OC::$server->getUserSession()->setUser(null);
+		\OC\Files\Filesystem::tearDown();
+		\OC::$server->getUserSession()->login($user, $password);
+		\OC_Util::setupFS($user);
 	}
 
 	/**
-	 * @brief get some information from a given share
+	 * get some information from a given share
 	 * @param int $shareID
 	 * @return array with: item_source, share_type, share_with, item_type, permissions
 	 */

@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "No file provided for import" => "Không có tập tin nào để nhập vào",
 "Unsupported file type for import" => "Loại tập tin không được hỗ trợ để nhập vào",
 "Bookmarks" => "Bookmarks",
@@ -20,7 +21,8 @@
 "Delete" => "Xóa",
 "Edit" => "Sửa",
 "Cancel" => "Hủy",
-"Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Kéo vào bookmark trình duyệt của bạn và nhấp vào nó, khi bạn muốn đánh dấu một trang web một cách nhanh chóng:",
+"Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Kéo vào trình duyệt làm bookmark ,khi bạn muốn đánh dấu một trang web một cách nhanh chóng:",
+"Add to ownCloud" => "Thêm vào ownCloud",
 "Address" => "Địa chỉ",
 "Add" => "Thêm",
 "Related Tags" => "Những Tag có liên quan",
@@ -32,3 +34,4 @@
 "Export" => "Xuất ra",
 "Import" => "Nhập vào"
 );
+$PLURAL_FORMS = "nplurals=1; plural=0;";

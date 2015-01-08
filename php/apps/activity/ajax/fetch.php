@@ -16,30 +16,35 @@
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
 *
-* You should have received a copy of the GNU Lesser General Public
+* You should have received a copy of the GNU Affero General Public
 * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 *
 */
 
 // some housekeeping
-OCP\JSON::checkLoggedIn();
-OCP\JSON::checkAppEnabled('activity');
+\OCP\JSON::checkLoggedIn();
+\OCP\JSON::checkAppEnabled('activity');
 
-// read the next 30 items for the endless scrolling
-// get the page that is requested. Needed for endless scrolling
+$l = \OCP\Util::getL10N('activity');
+$data = new \OCA\Activity\Data(\OC::$server->getActivityManager());
+$groupHelper = new \OCA\Activity\GroupHelper(
+	\OC::$server->getActivityManager(),
+	new \OCA\Activity\DataHelper(
+		\OC::$server->getActivityManager(),
+		new \OCA\Activity\ParameterHelper(new \OC\Files\View(''), $l),
+		$l
+	),
+	true
+);
+
+$page = $data->getPageFromParam() - 1;
+$filter = $data->getFilterFromParam();
+
+// Read the next 30 items for the endless scrolling
 $count = 30;
-if (isset($_GET['page'])) {
-	$page = intval($_GET['page']) - 1;
-} else {
-	$page = 0;
-}
-
-$activity=OCA\Activity\Data::read($page * $count, $count);
-$nextpage = \OCP\Util::linkToAbsolute('activity', 'index.php', array('page' => $page + 2));
+$activity = $data->read($groupHelper, $page * $count, $count, $filter);
 
 // show the next 30 entries
 $tmpl = new \OCP\Template('activity', 'activities.part', '');
 $tmpl->assign('activity', $activity);
-if ($page == 0) $tmpl->assign('nextpage', $nextpage);
 $tmpl->printPage();
-

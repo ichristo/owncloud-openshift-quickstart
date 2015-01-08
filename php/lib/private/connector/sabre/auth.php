@@ -21,7 +21,7 @@
  *
  */
 
-class OC_Connector_Sabre_Auth extends Sabre_DAV_Auth_Backend_AbstractBasic {
+class OC_Connector_Sabre_Auth extends \Sabre\DAV\Auth\Backend\AbstractBasic {
 	/**
 	 * Validates a username and password
 	 *
@@ -69,10 +69,26 @@ class OC_Connector_Sabre_Auth extends Sabre_DAV_Auth_Backend_AbstractBasic {
 	  * even if there are no HTTP Basic Auth headers.
 	  * In other case, just fallback to the parent implementation.
 	  *
+	  * @param \Sabre\DAV\Server $server
+	  * @param $realm
 	  * @return bool
 	  */
-	public function authenticate(Sabre_DAV_Server $server, $realm) {
+	public function authenticate(\Sabre\DAV\Server $server, $realm) {
 
+		$result = $this->auth($server, $realm);
+
+		// close the session - right after authentication there is not need to write to the session any more
+		\OC::$session->close();
+
+		return $result;
+    }
+
+	/**
+	 * @param \Sabre\DAV\Server $server
+	 * @param $realm
+	 * @return bool
+	 */
+	private function auth(\Sabre\DAV\Server $server, $realm) {
 		if (OC_User::handleApacheAuth() || OC_User::isLoggedIn()) {
 			$user = OC_User::getUser();
 			OC_Util::setupFS($user);
@@ -81,5 +97,5 @@ class OC_Connector_Sabre_Auth extends Sabre_DAV_Auth_Backend_AbstractBasic {
 		}
 
 		return parent::authenticate($server, $realm);
-    }
+	}
 }

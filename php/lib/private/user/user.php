@@ -10,8 +10,9 @@
 namespace OC\User;
 
 use OC\Hooks\Emitter;
+use OCP\IUser;
 
-class User {
+class User implements IUser {
 	/**
 	 * @var string $uid
 	 */
@@ -23,7 +24,7 @@ class User {
 	private $displayName;
 
 	/**
-	 * @var \OC_User_Backend $backend
+	 * @var \OC_User_Interface $backend
 	 */
 	private $backend;
 
@@ -33,7 +34,7 @@ class User {
 	private $enabled;
 
 	/**
-	 * @var Emitter | Manager $emitter
+	 * @var Emitter|Manager $emitter
 	 */
 	private $emitter;
 
@@ -43,23 +44,23 @@ class User {
 	private $home;
 
 	/**
+	 * @var int $lastLogin
+	 */
+	private $lastLogin;
+
+	/**
 	 * @var \OC\AllConfig $config
 	 */
 	private $config;
 
 	/**
 	 * @param string $uid
-	 * @param \OC_User_Backend $backend
+	 * @param \OC_User_Interface $backend
 	 * @param \OC\Hooks\Emitter $emitter
 	 * @param \OC\AllConfig $config
 	 */
 	public function __construct($uid, $backend, $emitter = null, $config = null) {
 		$this->uid = $uid;
-		if ($backend and $backend->implementsActions(OC_USER_BACKEND_GET_DISPLAYNAME)) {
-			$this->displayName = $backend->getDisplayName($uid);
-		} else {
-			$this->displayName = $uid;
-		}
 		$this->backend = $backend;
 		$this->emitter = $emitter;
 		$this->config = $config;
@@ -69,6 +70,7 @@ class User {
 		} else {
 			$this->enabled = true;
 		}
+		$this->lastLogin = \OC_Preferences::getValue($uid, 'login', 'lastLogin', 0);
 	}
 
 	/**
@@ -86,6 +88,22 @@ class User {
 	 * @return string
 	 */
 	public function getDisplayName() {
+		if (!isset($this->displayName)) {
+			$displayName = '';
+			if ($this->backend and $this->backend->implementsActions(OC_USER_BACKEND_GET_DISPLAYNAME)) {
+				// get display name and strip whitespace from the beginning and end of it
+				$backendDisplayName = $this->backend->getDisplayName($this->uid);
+				if (is_string($backendDisplayName)) {
+					$displayName = trim($backendDisplayName);
+				}
+			}
+
+			if (!empty($displayName)) {
+				$this->displayName = $displayName;
+			} else {
+				$this->displayName = $this->uid;
+			}
+		}
 		return $this->displayName;
 	}
 
@@ -96,13 +114,33 @@ class User {
 	 * @return bool
 	 */
 	public function setDisplayName($displayName) {
-		if ($this->canChangeDisplayName()) {
+		$displayName = trim($displayName);
+		if ($this->backend->implementsActions(\OC_USER_BACKEND_SET_DISPLAYNAME) && !empty($displayName)) {
 			$this->displayName = $displayName;
 			$result = $this->backend->setDisplayName($this->uid, $displayName);
 			return $result !== false;
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * returns the timestamp of the user's last login or 0 if the user did never
+	 * login
+	 *
+	 * @return int
+	 */
+	public function getLastLogin() {
+		return $this->lastLogin;
+	}
+
+	/**
+	 * updates the timestamp of the most recent login of this user
+	 */
+	public function updateLastLoginTimestamp() {
+		$this->lastLogin = time();
+		\OC_Preferences::setValue(
+			$this->uid, 'login', 'lastLogin', $this->lastLogin);
 	}
 
 	/**
@@ -128,7 +166,7 @@ class User {
 	 * @param string $recoveryPassword for the encryption app to reset encryption keys
 	 * @return bool
 	 */
-	public function setPassword($password, $recoveryPassword) {
+	public function setPassword($password, $recoveryPassword = null) {
 		if ($this->emitter) {
 			$this->emitter->emit('\OC\User', 'preSetPassword', array($this, $password, $recoveryPassword));
 		}

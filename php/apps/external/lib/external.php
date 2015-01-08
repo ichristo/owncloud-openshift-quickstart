@@ -16,15 +16,17 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
+ * You should have received a copy of the GNU Affero General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
-class OC_External {
+namespace OCA\External;
+
+class External {
 
 	public static function getSites() {
-		if (($sites = json_decode(OCP\Config::getAppValue("external", "sites", ''))) != null) {
+		if (($sites = json_decode(\OCP\Config::getAppValue("external", "sites", ''))) != null) {
 			return $sites;
 		}
 

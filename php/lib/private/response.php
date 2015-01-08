@@ -10,12 +10,14 @@ class OC_Response {
 	const STATUS_FOUND = 304;
 	const STATUS_NOT_MODIFIED = 304;
 	const STATUS_TEMPORARY_REDIRECT = 307;
+	const STATUS_BAD_REQUEST = 400;
 	const STATUS_NOT_FOUND = 404;
 	const STATUS_INTERNAL_SERVER_ERROR = 500;
+	const STATUS_SERVICE_UNAVAILABLE = 503;
 
 	/**
-	* @brief Enable response caching by sending correct HTTP headers
-	* @param $cache_time time to cache the response
+	* Enable response caching by sending correct HTTP headers
+	* @param integer $cache_time time to cache the response
 	*  >0		cache time in seconds
 	*  0 and <0	enable default browser caching
 	*  null		cache indefinitly
@@ -40,7 +42,7 @@ class OC_Response {
 	}
 
 	/**
-	* @brief disable browser caching
+	* disable browser caching
 	* @see enableCaching with cache_time = 0
 	*/
 	static public function disableCaching() {
@@ -48,8 +50,8 @@ class OC_Response {
 	}
 
 	/**
-	* @brief Set response status
-	* @param $status a HTTP status code, see also the STATUS constants
+	* Set response status
+	* @param int $status a HTTP status code, see also the STATUS constants
 	*/
 	static public function setStatus($status) {
 		$protocol = $_SERVER['SERVER_PROTOCOL'];
@@ -74,13 +76,16 @@ class OC_Response {
 			case self::STATUS_INTERNAL_SERVER_ERROR;
 				$status = $status . ' Internal Server Error';
 				break;
+			case self::STATUS_SERVICE_UNAVAILABLE;
+				$status = $status . ' Service Unavailable';
+				break;
 		}
 		header($protocol.' '.$status);
 	}
 
 	/**
-	* @brief Send redirect response
-	* @param $location to redirect to
+	* Send redirect response
+	* @param string $location to redirect to
 	*/
 	static public function redirect($location) {
 		self::setStatus(self::STATUS_TEMPORARY_REDIRECT);
@@ -88,8 +93,8 @@ class OC_Response {
 	}
 
 	/**
-	* @brief Set reponse expire time
-	* @param $expires date-time when the response expires
+	* Set reponse expire time
+	* @param string|DateTime $expires date-time when the response expires
 	*  string for DateInterval from now
 	*  DateTime object when to expire response
 	*/
@@ -109,7 +114,7 @@ class OC_Response {
 	/**
 	* Checks and set ETag header, when the request matches sends a
 	* 'not modified' response
-	* @param $etag token to use for modification check
+	* @param string $etag token to use for modification check
 	*/
 	static public function setETagHeader($etag) {
 		if (empty($etag)) {
@@ -127,7 +132,7 @@ class OC_Response {
 	/**
 	* Checks and set Last-Modified header, when the request matches sends a
 	* 'not modified' response
-	* @param $lastModified time when the reponse was last modified
+	* @param int|DateTime|string $lastModified time when the reponse was last modified
 	*/
 	static public function setLastModifiedHeader($lastModified) {
 		if (empty($lastModified)) {
@@ -153,7 +158,11 @@ class OC_Response {
 	 * @param string $type disposition type, either 'attachment' or 'inline'
 	 */
 	static public function setContentDispositionHeader( $filename, $type = 'attachment' ) {
-		if (OC_Request::isUserAgent(array(OC_Request::USER_AGENT_IE, OC_Request::USER_AGENT_ANDROID_MOBILE_CHROME))) {
+		if (OC_Request::isUserAgent(array(
+				OC_Request::USER_AGENT_IE,
+				OC_Request::USER_AGENT_ANDROID_MOBILE_CHROME,
+				OC_Request::USER_AGENT_FREEBOX
+			))) {
 			header( 'Content-Disposition: ' . rawurlencode($type) . '; filename="' . rawurlencode( $filename ) . '"' );
 		} else {
 			header( 'Content-Disposition: ' . rawurlencode($type) . '; filename*=UTF-8\'\'' . rawurlencode( $filename )
@@ -162,8 +171,8 @@ class OC_Response {
 	}
 
 	/**
-	* @brief Send file as response, checking and setting caching headers
-	* @param $filepath of file to send
+	* Send file as response, checking and setting caching headers
+	* @param string $filepath of file to send
 	*/
 	static public function sendFile($filepath) {
 		$fp = fopen($filepath, 'rb');
@@ -178,4 +187,36 @@ class OC_Response {
 			self::setStatus(self::STATUS_NOT_FOUND);
 		}
 	}
+
+	/*
+	 * This function adds some security related headers to all requests served via base.php
+	 * The implementation of this function has to happen here to ensure that all third-party
+	 * components (e.g. SabreDAV) also benefit from this headers.
+	 */
+	public static function addSecurityHeaders() {
+		header('X-XSS-Protection: 1; mode=block'); // Enforce browser based XSS filters
+		header('X-Content-Type-Options: nosniff'); // Disable sniffing the content type for IE
+
+		// iFrame Restriction Policy
+		$xFramePolicy = OC_Config::getValue('xframe_restriction', true);
+		if ($xFramePolicy) {
+			header('X-Frame-Options: Sameorigin'); // Disallow iFraming from other domains
+		}
+
+		// Content Security Policy
+		// If you change the standard policy, please also change it in config.sample.php
+		$policy = OC_Config::getValue('custom_csp_policy',
+			'default-src \'self\'; '
+			. 'script-src \'self\' \'unsafe-eval\'; '
+			. 'style-src \'self\' \'unsafe-inline\'; '
+			. 'frame-src *; '
+			. 'img-src *; '
+			. 'font-src \'self\' data:; '
+			. 'media-src *');
+		header('Content-Security-Policy:' . $policy);
+
+		// https://developers.google.com/webmasters/control-crawl-index/docs/robots_meta_tag
+		header('X-Robots-Tag: none');
+	}
+
 }

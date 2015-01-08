@@ -1,9 +1,10 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "The php-json module is needed by the many applications for inter communications" => "O módulo php-json precísase para a intercomunicación de varios aplicativos",
 "The php-curl module is needed to fetch the page title when adding a bookmark" => "O módulo php-curl precísase para a busca de títulos de páxina cando se engaden marcadores",
 "The php-gd module is needed to create thumbnails of your images" => "O módulo php-gd precísase para crear as miniaturas das súas imaxes",
 "The php-ldap module is needed connect to your ldap server" => "O módulo php-ldap precísase para conectar co seu servidor ldap",
-"The php-zip module is needed download multiple files at once" => "O módulo php-zip precísase para descargar varios ficheiros ao mesmo tempo",
+"The php-zip module is needed download multiple files at once" => "O módulo php-zip precísase para descargar varios ficheiros de vez",
 "The php-mb_multibyte module is needed to manage correctly the encoding." => "O módulo php-mb_multibyte precísase para xestionar correctamente a codificación.",
 "The php-ctype module is needed validate data." => "O módulo php-ctype precísase para validar datos.",
 "The php-xml module is needed to share files with webdav." => "O módulo php-xml precísase para compartir ficheiros con webdav.",
@@ -13,3 +14,4 @@
 "Dependencies status" => "Estado das dependencias",
 "Used by :" => "Empregado por:"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

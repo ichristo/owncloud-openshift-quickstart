@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "Checking your installation..." => "Overujem vašu inštaláciu...",
 "Upgrade is not possible. Make sure that your webserver has write access to the following files and directories:" => "Aktualizáciu nie je možné vykonať. Skontrolujte, či má váš webserver právo na zápis do nasledovných súborov a priečinkov:",
 "Version not found" => "Verzia nenájdená",
@@ -12,7 +13,9 @@
 "Moving files..." => "Presúvam súbory...",
 "All done. Click to the link below to start database upgrade." => "Hotovo. Kliknite na nasledovný odkaz pre začatie aktualizácie databázy.",
 "Update failed" => "Aktualizácia sa nepodarila.",
-"The update was unsuccessful. Please report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "Aktualizácia nebola úspešná. Nahláste prosím tento problém <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud komunite</a>.",
+"The update was unsuccessful. Please check logs at admin page and report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "Aktualizácia nebola úspešná. Skontrolujte logy v administračnom rozhraní a oznámte túto udalosť <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud komunite</a>.",
+"Proceed" => "Vykonať",
+"Updater" => "Aktualizátor",
 "Update Center" => "Centrum aktualizácií",
 "Backup Management" => "Správa zálohovania",
 "Update" => "Aktualizovať",
@@ -23,3 +26,4 @@
 "Delete" => "Zmazať",
 "No backups found" => "Zálohy nenájdené"
 );
+$PLURAL_FORMS = "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;";

@@ -1,7 +1,9 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Εικόνες",
-"Shared by" => "Διαμοιράστηκε από",
+"Picture view" => "Προβολή εικονιδίων",
 "Error loading slideshow template" => "Σφάλμα φόρτωσης προτύπου προβολής διαφανειών",
 "Share" => "Διαμοιρασμός",
-"The \"Image Viewer\" application also need to be enabled to use this application." => "Η εφαρμογή \"Προβολής Εικόνων\" πρέπει να είναι ενεργοποιημένη για την χρήση αυτής της εφαρμογής."
+"No pictures found! If you upload pictures in the files app, they will be displayed here." => "Δεν βρέθηκαν εικόνες! Εάν μεταφορτώσετε εικόνες στην εφαρμογή αρχείων, θα εμφανιστούν εδώ.",
+"shared by %s" => "διαμοιράστηκε από %s",
+"File list" => "Λίστα αρχείων"
 );

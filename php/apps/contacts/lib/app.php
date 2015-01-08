@@ -1,6 +1,8 @@
 <?php
 /**
- * Copyright (c) 2013 Thomas Tanghus (thomas@tanghus.net)
+ * @author Thomas Tanghus
+ * @copyright 2013-2014 Thomas Tanghus (thomas@tanghus.net)
+ *
  * This file is licensed under the Affero General Public License version 3 or
  * later.
  * See the COPYING-README file.
@@ -11,6 +13,7 @@ namespace OCA\Contacts;
 use Sabre\VObject,
 	OCP\AppFramework,
 	OCA\Contacts\Controller\AddressBookController,
+	OCA\Contacts\Controller\BackendController,
 	OCA\Contacts\Controller\GroupController,
 	OCA\Contacts\Controller\ContactController,
 	OCA\Contacts\Controller\ContactPhotoController,
@@ -51,9 +54,9 @@ class App {
 	* @var array
 	*/
 	public static $backendClasses = array(
-		//'ldap' => 'OCA\Contacts\Backend\Ldap',
 		'local' => 'OCA\Contacts\Backend\Database',
 		'shared' => 'OCA\Contacts\Backend\Shared',
+//		'localusers' => 'OC\Contacts\Backend\LocalUsers',
 	);
 
 	public function __construct(
@@ -68,6 +71,9 @@ class App {
 		$this->dbBackend = $dbBackend
 			? $dbBackend
 			: new Backend\Database($user);
+		if (\OCP\Config::getAppValue('contacts', 'backend_ldap', "false") === "true") {
+			self::$backendClasses['ldap'] = 'OCA\Contacts\Backend\Ldap';
+		}
 	}
 
 	/**
@@ -95,13 +101,13 @@ class App {
 	 * @return AddressBook[]
 	 */
 	public function getAddressBooksForUser() {
-		if(!self::$addressBooks) {
-			foreach(array_keys(self::$backendClasses) as $backendName) {
+		if (!self::$addressBooks) {
+			foreach (array_keys(self::$backendClasses) as $backendName) {
 				$backend = self::getBackend($backendName, $this->user);
 				$addressBooks = $backend->getAddressBooksForUser();
-				if($backendName === 'local' && count($addressBooks) === 0) {
+				if ($backendName === 'local' && count($addressBooks) === 0) {
 					$id = $backend->createAddressBook(array('displayname' => self::$l10n->t('Contacts')));
-					if($id !== false) {
+					if ($id !== false) {
 						$addressBook = $backend->getAddressBook($id);
 						$addressBooks = array($addressBook);
 					} else {
@@ -111,13 +117,18 @@ class App {
 							\OCP\Util::ERROR
 						);
 					}
+
 				}
-				foreach($addressBooks as $addressBook) {
+
+				foreach ($addressBooks as $addressBook) {
 					$addressBook['backend'] = $backendName;
 					self::$addressBooks[] = new AddressBook($backend, $addressBook);
 				}
+
 			}
+
 		}
+
 		return self::$addressBooks;
 	}
 
@@ -130,8 +141,8 @@ class App {
 	 */
 	public function getAddressBook($backendName, $addressbookid) {
 		//\OCP\Util::writeLog('contacts', __METHOD__ . ': '. $backendName . ', ' . $addressbookid, \OCP\Util::DEBUG);
-		foreach(self::$addressBooks as $addressBook) {
-			if($addressBook->getBackend()->name === $backendName
+		foreach (self::$addressBooks as $addressBook) {
+			if ($addressBook->getBackend()->name === $backendName
 				&& $addressBook->getId() === $addressbookid
 			) {
 				return $addressBook;
@@ -140,9 +151,11 @@ class App {
 
 		$backend = self::getBackend($backendName, $this->user);
 		$info = $backend->getAddressBook($addressbookid);
-		if(!$info) {
+
+		if (!$info) {
 			throw new \Exception(self::$l10n->t('Address book not found'), 404);
 		}
+		
 		$addressBook = new AddressBook($backend, $info);
 		self::$addressBooks[] = $addressBook;
 		return $addressBook;

@@ -9,7 +9,9 @@
 
 namespace OC\Group;
 
-class Group {
+use OCP\IGroup;
+
+class Group implements IGroup {
 	/**
 	 * @var string $id
 	 */
@@ -18,15 +20,20 @@ class Group {
 	/**
 	 * @var \OC\User\User[] $users
 	 */
-	private $users;
+	private $users = array();
 
 	/**
-	 * @var \OC_Group_Backend[] | \OC_Group_Database[] $backend
+	 * @var bool $usersLoaded
+	 */
+	private $usersLoaded;
+
+	/**
+	 * @var \OC_Group_Backend[]|\OC_Group_Database[] $backend
 	 */
 	private $backends;
 
 	/**
-	 * @var \OC\Hooks\PublicEmitter $emitter;
+	 * @var \OC\Hooks\PublicEmitter $emitter
 	 */
 	private $emitter;
 
@@ -58,7 +65,7 @@ class Group {
 	 * @return \OC\User\User[]
 	 */
 	public function getUsers() {
-		if ($this->users) {
+		if ($this->usersLoaded) {
 			return $this->users;
 		}
 
@@ -74,6 +81,7 @@ class Group {
 		}
 
 		$this->users = $this->getVerifiedUsers($userIds);
+		$this->usersLoaded = true;
 		return $this->users;
 	}
 
@@ -84,8 +92,12 @@ class Group {
 	 * @return bool
 	 */
 	public function inGroup($user) {
+		if (isset($this->users[$user->getUID()])) {
+			return true;
+		}
 		foreach ($this->backends as $backend) {
 			if ($backend->inGroup($user->getUID(), $this->gid)) {
+				$this->users[$user->getUID()] = $user;
 				return true;
 			}
 		}
@@ -162,18 +174,33 @@ class Group {
 		$users = array();
 		foreach ($this->backends as $backend) {
 			$userIds = $backend->usersInGroup($this->gid, $search, $limit, $offset);
-			if (!is_null($limit)) {
-				$limit -= count($userIds);
-			}
-			if (!is_null($offset)) {
-				$offset -= count($userIds);
-			}
 			$users += $this->getVerifiedUsers($userIds);
 			if (!is_null($limit) and $limit <= 0) {
 				return array_values($users);
 			}
 		}
 		return array_values($users);
+	}
+
+	/**
+	 * returns the number of users matching the search string
+	 *
+	 * @param string $search
+	 * @return int|bool
+	 */
+	public function count($search = '') {
+		$users = false;
+		foreach ($this->backends as $backend) {
+			if($backend->implementsActions(OC_GROUP_BACKEND_COUNT_USERS)) {
+				if($users === false) {
+					//we could directly add to a bool variable, but this would
+					//be ugly
+					$users = 0;
+				}
+				$users += $backend->countUsersInGroup($this->gid, $search);
+			}
+		}
+		return $users;
 	}
 
 	/**
@@ -185,18 +212,9 @@ class Group {
 	 * @return \OC\User\User[]
 	 */
 	public function searchDisplayName($search, $limit = null, $offset = null) {
+		$users = array();
 		foreach ($this->backends as $backend) {
-			if ($backend->implementsActions(OC_GROUP_BACKEND_GET_DISPLAYNAME)) {
-				$userIds = array_keys($backend->displayNamesInGroup($this->gid, $search, $limit, $offset));
-			} else {
-				$userIds = $backend->usersInGroup($this->gid, $search, $limit, $offset);
-			}
-			if (!is_null($limit)) {
-				$limit -= count($userIds);
-			}
-			if (!is_null($offset)) {
-				$offset -= count($userIds);
-			}
+			$userIds = $backend->usersInGroup($this->gid, $search, $limit, $offset);
 			$users = $this->getVerifiedUsers($userIds);
 			if (!is_null($limit) and $limit <= 0) {
 				return array_values($users);
@@ -228,18 +246,18 @@ class Group {
 	}
 
 	/**
-	 * @brief returns all the Users from an array that really exists
-	 * @param $userIds an array containing user IDs
-	 * @return an Array with the userId as Key and \OC\User\User as value
+	 * returns all the Users from an array that really exists
+	 * @param string[] $userIds an array containing user IDs
+	 * @return \OC\User\User[] an Array with the userId as Key and \OC\User\User as value
 	 */
 	private function getVerifiedUsers($userIds) {
-		if(!is_array($userIds)) {
+		if (!is_array($userIds)) {
 			return array();
 		}
 		$users = array();
 		foreach ($userIds as $userId) {
 			$user = $this->userManager->get($userId);
-			if(!is_null($user)) {
+			if (!is_null($user)) {
 				$users[$userId] = $user;
 			}
 		}

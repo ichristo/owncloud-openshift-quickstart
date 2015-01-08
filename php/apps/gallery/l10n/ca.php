@@ -1,7 +1,9 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Fotos",
-"Shared by" => "Compartit per",
+"Picture view" => "Mostra fotos",
 "Error loading slideshow template" => "Error en carregar la plantilla de presentació amb diapositives",
 "Share" => "Comparteix",
-"The \"Image Viewer\" application also need to be enabled to use this application." => "L'apliació \"Visualitzador d'Imatges\" també ha d'estar activada per a poder utilitzar aquesta aplicació."
+"No pictures found! If you upload pictures in the files app, they will be displayed here." => "No s'han trobat imatges! Si pugeu imatges a l'aplicació de fitxers, es mostraran aquí.",
+"shared by %s" => "compartit per %s",
+"File list" => "Llista de fitxers"
 );

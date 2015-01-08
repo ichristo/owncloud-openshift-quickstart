@@ -1,7 +1,7 @@
 <fieldset id="ldapWizard2">
 	<div>
 		<p>
-			<?php p($l->t('Limit the access to %s to users meeting this criteria:', $theme->getName()));?>
+			<?php p($l->t('Limit %s access to users meeting these criteria:', $theme->getName()));?>
 		</p>
 		<p>
 			<label for="ldap_userfilter_objectclass">
@@ -30,11 +30,14 @@
 			placeholder="<?php p($l->t('Raw LDAP filter'));?>"
 			title="<?php p($l->t('The filter specifies which LDAP users shall have access to the %s instance.', $theme->getName()));?>"
 			/>
+			<button class="ldapGetEntryCount hidden" name="ldapGetEntryCount" type="button">
+				<?php p($l->t('Test Filter'));?>
+			</button>
 		</p>
 		<p>
 			<div class="ldapWizardInfo invisible">&nbsp;</div>
 		</p>
-		<p>
+		<p class="ldap_count">
 			<span id="ldap_user_count">0 <?php p($l->t('users found'));?></span>
 		</p>
 		<?php print_unescaped($_['wizardControls']); ?>

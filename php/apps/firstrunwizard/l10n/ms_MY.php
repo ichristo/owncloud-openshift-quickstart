@@ -1,3 +1,5 @@
-<?php $TRANSLATIONS = array(
-"Welcome to ownCloud" => "Selamat datang ke ownCloud"
+<?php
+$TRANSLATIONS = array(
+"Documentation" => "Dokumentasi"
 );
+$PLURAL_FORMS = "nplurals=1; plural=0;";

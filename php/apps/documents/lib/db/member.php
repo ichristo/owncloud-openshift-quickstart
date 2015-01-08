@@ -10,23 +10,35 @@
  * later.
  */
 
-namespace OCA\Documents;
+namespace OCA\Documents\Db;
 
-class Db_Member extends Db{
+/**
+ * @method boolean getIsGuest()
+ * @method string getEsId()
+ * @method string getToken()
+ * @method int getStatus()
+ */
+
+class Member extends \OCA\Documents\Db{
 
 	const DB_TABLE = '`*PREFIX*documents_member`';
-	
-	const ACTIVITY_THRESHOLD = 60; // 1 Minute
+
+	const ACTIVITY_THRESHOLD = 90; // 1.5 Minutes
 	
 	const MEMBER_STATUS_ACTIVE = 1;
 	const MEMBER_STATUS_INACTIVE = 2;
 	
 	protected $tableName  = '`*PREFIX*documents_member`';
 
-	protected $insertStatement  = 'INSERT INTO `*PREFIX*documents_member` (`es_id`, `uid`, `color`, `last_activity`)
-			VALUES (?, ?, ?, ?)';
+	protected $insertStatement  = 'INSERT INTO `*PREFIX*documents_member` (`es_id`, `uid`, `color`, `last_activity`, `is_guest`, `token`)
+			VALUES (?, ?, ?, ?, ?, ?)';
 	
 	protected $loadStatement = 'SELECT * FROM `*PREFIX*documents_member` WHERE `member_id`= ?';
+
+	public static function getGuestPostfix(){
+		return '(' . \OCA\Documents\Config::getL10n()->t('guest') . ')';
+	}
+
 
 	public function updateActivity($memberId){
 		return $this->execute(

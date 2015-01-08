@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Admin Documentation &mdash; ownCloud Administrators Manual 6.0 documentation</title>
+    <title>Introduction &mdash; ownCloud Administrators Manual 7.0 documentation</title>
     
     <link rel="stylesheet" href="_static/style.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '6.0',
+        VERSION:     '7.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -27,8 +27,8 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/bootstrap.js"></script>
-    <link rel="top" title="ownCloud Administrators Manual 6.0 documentation" href="#" />
-    <link rel="next" title="Installation" href="installation/index.html" />
+    <link rel="top" title="ownCloud Administrators Manual 7.0 documentation" href="#" />
+    <link rel="next" title="What’s New for Admins in ownCloud 7" href="whats_new_admin.html" />
     <link rel="prev" title="ownCloud documentation contents" href="contents.html" />
 <script type="text/javascript">
 (function () {
@@ -112,19 +112,20 @@
 										<li><a href="contents.html">Overview</a></li>
 									</ul>
                   <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="">Admin Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#target-audience">Target audience</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#structure-of-this-document">Structure of this document</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#target-audience">Target Audience</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#document-structure">Document Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#maintenance">Maintenance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#issues">Issues</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#maintenance">Maintenance</a></li>
 </ul>
 </li>
 </ul>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="whats_new_admin.html">What&#8217;s New for Admins in ownCloud 7</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation/index.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration/index.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="maintenance/index.html">Maintenance</a></li>
@@ -141,77 +142,113 @@
 				<div class="span9">
 					<div class="page-content">
 						
-  <div class="section" id="admin-documentation">
-<h1>Admin Documentation<a class="headerlink" href="#admin-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>This is the administrators manual for ownCloud, a flexible, open source file
-sync and share solution. It comprises of the ownCloud server, as well as client
-applications for Microsoft Windows, Mac OS X and Linux (Desktop Client) and
-mobile clients for the Android and Apple iOS operating system.</p>
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>Welcome to the ownCloud Administrator Guide.  This guide describes
+administrator tasks for ownCloud; a flexible, open source, file synchronization
+and sharing solution. ownCloud is comprised of a server running on either a
+Linux or Microsoft Windows platform as well as client applications for Microsoft
+Windows, Mac OS X and Linux (Desktop Client) and mobile clients for both the
+Android and Apple iOS operating system.</p>
 <div class="section" id="target-audience">
-<h3>Target audience<a class="headerlink" href="#target-audience" title="Permalink to this headline">¶</a></h3>
-<p>This guide is targeted towards people who want to install, administer and
-optimize ownCloud Server. If you want to learn how to use the Web UI, or how to
-install clients on the server, please refer to the <a class="reference external" href="http://doc.owncloud.com/">User Manual</a> or the <a class="reference external" href="http://doc.owncloud.com/">Desktop
-Client Manual</a> respectively.</p>
-</div>
-<div class="section" id="structure-of-this-document">
-<h3>Structure of this document<a class="headerlink" href="#structure-of-this-document" title="Permalink to this headline">¶</a></h3>
-<p>The next chapters describes how to set up ownCloud Server on different platforms
-and operating systems, as well as how to update existing installations.</p>
-<p>Further chapters will then detail on integrating ownCloud into your existing
-environment, e.g. how to setup LDAP or how to mount your storage.</p>
-</div>
-</div>
-<div class="section" id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>This chapter will introduce you to the installation of ownCloud in different scenarios.</p>
-<p>If you want to just try ownCloud in a virtual machine without any configuration, check the section
-<a class="reference internal" href="installation/installation_appliance.html"><em>Appliances</em></a>, where you will find ready-to-use images.</p>
+<h2>Target Audience<a class="headerlink" href="#target-audience" title="Permalink to this headline">¶</a></h2>
+<p>This guide is targeted towards people who want to install, administer, and
+optimize the ownCloud server. If you want to learn more about the ownCloud Web
+user interface or how to install clients on the server, refer to the following:</p>
 <ul class="simple">
-<li><a class="reference internal" href="installation/installation_linux.html"><em>Linux Distributions</em></a> (recommended)</li>
-<li><a class="reference internal" href="installation/installation_windows.html"><em>Windows 7 and Windows Server 2008</em></a></li>
-<li><a class="reference internal" href="installation/installation_source.html"><em>Manual Installation</em></a></li>
-<li><a class="reference internal" href="installation/installation_others.html"><em>PageKite Configuration</em></a></li>
-<li><a class="reference internal" href="installation/installation_ucs.html"><em>Univention Corporate Server</em></a></li>
-<li><a class="reference internal" href="installation/installation_macos.html"><em>Mac OS X</em></a> (not supported)</li>
-<li><a class="reference internal" href="installation/installation_appliance.html"><em>Appliances</em></a></li>
+<li><a class="reference external" href="http://doc.owncloud.com/">User Manual</a></li>
+<li><a class="reference external" href="http://doc.owncloud.com/">Desktop Client Manual</a></li>
 </ul>
 </div>
-<div class="section" id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
-<p>This chapter covers ownCloud and web server configuration.</p>
+<div class="section" id="document-structure">
+<h2>Document Structure<a class="headerlink" href="#document-structure" title="Permalink to this headline">¶</a></h2>
+<p>This document is broken out into three major sections &#8211; Installation, Configuration, and
+Maintenance.  The Issues sections has instructions for reporting bugs. The following
+sections provide detailed information about various tasks associated with each of these
+sections.</p>
+<div class="section" id="installation">
+<h3>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h3>
+<p>This section provides detailed instructions on how to install ownCloud in
+different scenarios.  It contains the following topics:</p>
 <ul class="simple">
-<li><a class="reference internal" href="configuration/configuration_apps.html"><em>Apps Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_users.html"><em>User Management</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_database.html"><em>Database Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/auth_ldap.html"><em>User Authentication with LDAP</em></a></li>
-<li><a class="reference internal" href="configuration/custom_mount_config_gui.html"><em>Custom Mount Configuration Web-GUI</em></a></li>
-<li><a class="reference internal" href="configuration/custom_mount_config.html"><em>Custom Mount Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/background_jobs.html"><em>Background Jobs</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_mail.html"><em>Mail Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_automation.html"><em>Automatic Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_encryption.html"><em>Use Server-Side Encryption</em></a></li>
-<li><a class="reference internal" href="configuration/configuring_big_file_upload.html"><em>Uploading big files &gt; 512MB (as set by default)</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_reverseproxy.html"><em>Reverse Proxy Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/xsendfile.html"><em>Serving static files via web server</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_3rdparty.html"><em>3rd-Party Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/custom_user_backend.html"><em>Custom User Backend Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_custom_clients.html"><em>Custom Client Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_maintenance.html"><em>Maintenance Mode Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_knowledgebase.html"><em>Knowledge Base Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_logging.html"><em>Logging Configuration</em></a></li>
-<li><a class="reference internal" href="configuration/configuration_language.html"><em>Language Configuration</em></a></li>
+<li><a class="reference internal" href="installation/appliance_installation.html"><em>ownCloud Appliances</em></a></li>
+<li><a class="reference internal" href="installation/apps_management_installation.html"><em>Installing and Managing Apps</em></a></li>
+<li><a class="reference internal" href="installation/hiawatha_configuration.html"><em>Hiawatha Configuration</em></a></li>
+<li><a class="reference internal" href="installation/installation_wizard.html"><em>Installation Wizard</em></a></li>
+<li><a class="reference internal" href="installation/lighttpd_configuration.html"><em>Lighttpd Configuration</em></a></li>
+<li><a class="reference internal" href="installation/linux_installation.html"><em>Linux Distributions</em></a> (recommended)</li>
+<li><a class="reference internal" href="installation/macos_installation.html"><em>Mac OS X</em></a> (not supported)</li>
+<li><a class="reference internal" href="installation/nginx_configuration.html"><em>Nginx Configuration</em></a></li>
+<li><a class="reference internal" href="installation/others_installation.html"><em>Other Installation Methods</em></a></li>
+<li><a class="reference internal" href="installation/source_installation.html"><em>Manual Installation</em></a></li>
+<li><a class="reference internal" href="installation/ucs_installation.html"><em>Univention Corporate Server</em></a></li>
+<li><a class="reference internal" href="installation/windows_installation.html"><em>Windows 7 and Windows Server 2008</em></a></li>
+<li><a class="reference internal" href="installation/yaws_configuration.html"><em>Yaws Configuration</em></a></li>
+<li><a class="reference internal" href="installation/selinux_configuration.html"><em>SELinux Configuration</em></a></li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you just want to try out ownCloud in a virtual machine, without any
+configuration, refer to <a class="reference internal" href="installation/appliance_installation.html"><em>ownCloud Appliances</em></a>.  For your
+convenience, this topic contains ready-to-use images.</p>
+</div>
+</div>
+<div class="section" id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
+<p>This section describes how to configure ownCloud and your Web server.  It
+contains the following topics:</p>
+<ul class="simple">
+<li><a class="reference internal" href="configuration/antivirus_configuration.html"><em>Configuring the ClamAV Antivirus Scanner</em></a></li>
+<li><a class="reference internal" href="configuration/automatic_configuration.html"><em>Automatic Configuration Setup</em></a></li>
+<li><a class="reference internal" href="configuration/background_jobs_configuration.html"><em>Defining Background Jobs</em></a></li>
+<li><a class="reference internal" href="configuration/big_file_upload_configuration.html"><em>Uploading big files &gt; 512MB (as set by default)</em></a></li>
+<li><a class="reference internal" href="configuration/collaborative_documents_configuration.html"><em>Configuring the Collaborative Documents App</em></a></li>
+<li><a class="reference internal" href="configuration/config_sample_php_parameters.html"><em>Config.php Parameters</em></a></li>
+<li><a class="reference internal" href="configuration/custom_client_configuration.html"><em>Custom Client Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/database_configuration.html"><em>Database Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/email_configuration.html"><em>Email Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/external_storage_configuration_gui.html"><em>Configuring External Storage (GUI)</em></a></li>
+<li><a class="reference internal" href="configuration/external_storage_configuration.html"><em>Configuring External Storage (Configuration File)</em></a></li>
+<li><a class="reference internal" href="configuration/file_sharing_configuration.html"><em>File Sharing</em></a></li>
+<li><a class="reference internal" href="configuration/files_locking_enabling.html"><em>Files Locking App Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/js_css_asset_management_configuration.html"><em>JavaScript and CSS Asset Management</em></a></li>
+<li><a class="reference internal" href="configuration/knowledgebase_configuration.html"><em>Knowledge Base Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/language_configuration.html"><em>Language Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/logging_configuration.html"><em>Logging Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/previews_configuration.html"><em>Previews Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/reverse_proxy_configuration.html"><em>Reverse Proxy Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/search_configuration.html"><em>Enabling Full-Text Search</em></a></li>
+<li><a class="reference internal" href="configuration/encryption_configuration.html"><em>Encryption Configuration</em></a></li>
+<li><a class="reference internal" href="configuration/server_to_server_configuration.html"><em>Configuring Server-to-Server Sharing</em></a></li>
+<li><a class="reference internal" href="configuration/serving_static_files_configuration.html"><em>Serving Static Files for Better Performance</em></a></li>
+<li><a class="reference internal" href="configuration/thirdparty_php_configuration.html"><em>Using Third Party PHP Components</em></a></li>
+<li><a class="reference internal" href="configuration/user_auth_ftp_smb_imap.html"><em>User Authentication with IMAP, SMB, and FTP</em></a></li>
+<li><a class="reference internal" href="configuration/user_auth_ldap.html"><em>User Authentication with LDAP</em></a></li>
+<li><a class="reference internal" href="configuration/user_configuration.html"><em>User Management</em></a></li>
 </ul>
 </div>
 <div class="section" id="maintenance">
-<h2>Maintenance<a class="headerlink" href="#maintenance" title="Permalink to this headline">¶</a></h2>
-<p>This chapter covers maintenance tasks such as updating or migrating to a new version.</p>
+<h3>Maintenance<a class="headerlink" href="#maintenance" title="Permalink to this headline">¶</a></h3>
+<p>This sections describes the maintenance tasks associated with the ownCloud
+server (for example, updating or migrating to a new version of ownCloud).  It
+contains the following topics:</p>
 <ul class="simple">
+<li><a class="reference internal" href="maintenance/backup.html"><em>Backing up ownCloud</em></a></li>
+<li><a class="reference internal" href="maintenance/convert_db.html"><em>Converting Database Type</em></a></li>
+<li><a class="reference internal" href="maintenance/enable_maintenance.html"><em>Maintenance Mode Configuration</em></a></li>
 <li><a class="reference internal" href="maintenance/migrating.html"><em>Migrating ownCloud Installations</em></a></li>
-<li><a class="reference internal" href="maintenance/update.html"><em>Updating ownCloud</em></a></li>
+<li><a class="reference internal" href="maintenance/restore.html"><em>Restoring ownCloud</em></a></li>
+<li><a class="reference internal" href="maintenance/update.html"><em>Updating ownCloud with the Updater App</em></a></li>
+<li><a class="reference internal" href="maintenance/upgrade.html"><em>Upgrading Your ownCloud Server</em></a></li>
 </ul>
+</div>
+<div class="section" id="issues">
+<h3>Issues<a class="headerlink" href="#issues" title="Permalink to this headline">¶</a></h3>
+<p>What to do when you have problems, and where to report bugs.</p>
+<ul class="simple">
+<li><a class="reference internal" href="issues/index.html"><em>Issues</em></a></li>
+</ul>
+</div>
 </div>
 </div>
 

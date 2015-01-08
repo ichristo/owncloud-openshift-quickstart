@@ -81,9 +81,10 @@ interface IServerContainer {
 	/**
 	 * Returns a view to ownCloud's files folder
 	 *
+	 * @param string $userId user ID
 	 * @return \OCP\Files\Folder
 	 */
-	function getUserFolder();
+	function getUserFolder($userId = null);
 
 	/**
 	 * Returns an app-specific view in ownClouds data directory
@@ -91,6 +92,20 @@ interface IServerContainer {
 	 * @return \OCP\Files\Folder
 	 */
 	function getAppFolder();
+
+	/**
+	 * Returns a user manager
+	 *
+	 * @return \OCP\IUserManager
+	 */
+	function getUserManager();
+
+	/**
+	 * Returns a group manager
+	 *
+	 * @return \OCP\IGroupManager
+	 */
+	function getGroupManager();
 
 	/**
 	 * Returns the user session
@@ -113,9 +128,24 @@ interface IServerContainer {
 	 */
 	function getConfig();
 
+
+	/**
+	 * Returns an instance of the db facade
+	 * @return \OCP\IDb
+	 */
+	function getDb();
+
+
+	/**
+	 * Returns the app config manager
+	 *
+	 * @return \OCP\IAppConfig
+	 */
+	function getAppConfig();
+
 	/**
 	 * get an L10N instance
-	 * @param $app string appid
+	 * @param string $app appid
 	 * @return \OCP\IL10N
 	 */
 	function getL10N($app);
@@ -140,6 +170,13 @@ interface IServerContainer {
 	 * @return \OCP\ICache
 	 */
 	function getCache();
+
+	/**
+	 * Returns an \OCP\CacheFactory instance
+	 *
+	 * @return \OCP\ICacheFactory
+	 */
+	function getMemCacheFactory();
 
 	/**
 	 * Returns the current session
@@ -169,4 +206,30 @@ interface IServerContainer {
 	 */
 	function getAvatarManager();
 
+	/**
+	 * Returns an job list for controlling background jobs
+	 *
+	 * @return \OCP\BackgroundJob\IJobList
+	 */
+	function getJobList();
+
+	/**
+	 * Returns a router for generating and matching urls
+	 *
+	 * @return \OCP\Route\IRouter
+	 */
+	function getRouter();
+
+	/**
+	 * Returns a search instance
+	 *
+	 * @return \OCP\ISearch
+	 */
+	function getSearch();
+
+	/**
+	 * Returns an instance of the HTTP helper class
+	 * @return \OC\HTTPHelper
+	 */
+	function getHTTPHelper();
 }

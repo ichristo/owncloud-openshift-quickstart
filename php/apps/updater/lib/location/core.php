@@ -15,27 +15,12 @@ namespace OCA\Updater;
 class Location_Core extends Location {
 
 	protected $type = 'core';
-	
-	public function check() {
-		$errors = parent::check();
-		$specialCases = array(
-			$this->oldBase . '/' . 'config',
-			$this->oldBase . '/' . 'themes',
-		);
-
-		foreach ($specialCases as $item) {
-			if (!is_writable($item)) {
-				$errors[] = $item;
-			}
-		}
-
-		return $errors;
-	}
 
 	protected function filterOld($pathArray) {
 		$skip = array_values(Helper::getDirectories());
-		$skip[] = rtrim(App::getBackupBase(), '/');
-		$skip[] = \OCP\Config::getSystemValue("datadirectory", \OC::$SERVERROOT . "/data");
+		$skip[] = realpath(App::getBackupBase());
+		$skip[] = realpath(\OCP\Config::getSystemValue("datadirectory", \OC::$SERVERROOT . "/data"));
+		$skip[] = realpath(App::getTempBase());
 
 		// Skip 3rdparty | apps | backup | datadir | config | themes
 		foreach ($pathArray as $key => $path) {

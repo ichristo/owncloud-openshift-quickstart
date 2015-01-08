@@ -30,7 +30,29 @@ class Helper {
 	}
 	
 	/**
-	 * Copy recoursive 
+	 * Check permissions recursive
+	 * @param string $src  - path to check
+	 * @param string $src  - path to check
+	 */
+	public static function checkr($src, $collection) {
+		if (!is_writable($src)){
+			$collection->addNotWritable($src);
+		}
+		if (!is_readable($src)){
+			$collection->addNotReadable($src);
+		}
+		if(is_dir($src)) {
+			$files = scandir($src);
+			foreach ($files as $file) {
+				if ($file != "." && $file != "..") {
+					self::checkr("$src/$file", $collection);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Copy recursive
 	 * @param string $src  - source path
 	 * @param string $dest - destination path
 	 * @throws \Exception on error
@@ -62,11 +84,11 @@ class Helper {
 	/**
 	 * Wrapper for mkdir
 	 * @param string $path
-	 * @param bool $isRecoursive
+	 * @param bool $isRecursive
 	 * @throws \Exception on error
 	 */
-	public static function mkdir($path, $isRecoursive = false) {
-		if (!mkdir($path, 0755, $isRecoursive)) {
+	public static function mkdir($path, $isRecursive = false) {
+		if (!mkdir($path, 0755, $isRecursive)) {
 			throw new \Exception("Unable to create $path");
 		}
 	}
@@ -153,8 +175,13 @@ class Helper {
 	public static function filterLocations($locations, $basePath) {
 		$fullPath = array_values(self::getDirectories());
 		$fullPath[] = rtrim(App::getBackupBase(), '/');
+		$fullPath[] = rtrim(App::getTempBase(), '/');
 		$fullPath[] = \OCP\Config::getSystemValue( "datadirectory", \OC::$SERVERROOT."/data" );
 		$fullPath[] = \OC::$SERVERROOT."/themes";
+		
+		foreach($fullPath as $key=>$path){
+			$fullPath[] = realpath($path);
+		}
 		
 		$exclusions = array(
 			'full' => $fullPath,
@@ -163,10 +190,12 @@ class Helper {
 		
 		foreach ($locations as $key => $location) {
 			$fullPath = $basePath . '/' .$location;
-			if (!is_dir($fullPath)) {
+			$realPath = realpath($fullPath);
+			if (is_file($fullPath)) {
 				continue;
 			}
 			if (in_array($fullPath, $exclusions['full'])
+				|| in_array($realPath, $exclusions['full'])
 				|| in_array($location, $exclusions['relative'])
 			) {
 				unset($locations[$key]);

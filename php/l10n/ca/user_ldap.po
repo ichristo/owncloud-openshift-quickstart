@@ -3,16 +3,17 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# rogerc, 2013
+# rogerc, 2013-2014
+# Josep Torné <josep@substantiu.com>, 2014
 # rogerc, 2013
 # victek, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: translations@owncloud.org\n"
-"POT-Creation-Date: 2013-11-27 12:08-0500\n"
-"PO-Revision-Date: 2013-11-27 17:09+0000\n"
-"Last-Translator: I Robot <owncloud-bot@tmit.eu>\n"
+"POT-Creation-Date: 2014-06-19 01:54-0400\n"
+"PO-Revision-Date: 2014-06-18 15:50+0000\n"
+"Last-Translator: rogerc\n"
 "Language-Team: Catalan (http://www.transifex.com/projects/p/owncloud/language/ca/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -28,17 +29,17 @@ msgstr "Ha fallat en eliminar els mapatges"
 msgid "Failed to delete the server configuration"
 msgstr "Ha fallat en eliminar la configuració del servidor"
 
-#: ajax/testConfiguration.php:37
+#: ajax/testConfiguration.php:39
 msgid "The configuration is valid and the connection could be established!"
 msgstr "La configuració és vàlida i s'ha pogut establir la comunicació!"
 
-#: ajax/testConfiguration.php:40
+#: ajax/testConfiguration.php:42
 msgid ""
 "The configuration is valid, but the Bind failed. Please check the server "
 "settings and credentials."
 msgstr "La configuració és vàlida, però ha fallat el Bind. Comproveu les credencials i l'arranjament del servidor."
 
-#: ajax/testConfiguration.php:44
+#: ajax/testConfiguration.php:46
 msgid ""
 "The configuration is invalid. Please have a look at the logs for further "
 "details."
@@ -73,6 +74,10 @@ msgstr "Voleu prendre l'arranjament de la configuració actual del servidor?"
 msgid "Keep settings?"
 msgstr "Voleu mantenir la configuració?"
 
+#: js/settings.js:93
+msgid "{nthServer}. Server"
+msgstr "{nthServer}. Servidor"
+
 #: js/settings.js:99
 msgid "Cannot add server configuration"
 msgstr "No es pot afegir la configuració del servidor"
@@ -89,67 +94,95 @@ msgstr "Èxit"
 msgid "Error"
 msgstr "Error"
 
-#: js/settings.js:777
+#: js/settings.js:244
+msgid "Please specify a Base DN"
+msgstr "Especifiqueu una base DN"
+
+#: js/settings.js:245
+msgid "Could not determine Base DN"
+msgstr "No s'ha pogut determinar la base DN"
+
+#: js/settings.js:276
+msgid "Please specify the port"
+msgstr "Especifiqueu el port"
+
+#: js/settings.js:780
 msgid "Configuration OK"
 msgstr "Configuració correcte"
 
-#: js/settings.js:786
+#: js/settings.js:789
 msgid "Configuration incorrect"
 msgstr "Configuració incorrecte"
 
-#: js/settings.js:795
+#: js/settings.js:798
 msgid "Configuration incomplete"
 msgstr "Configuració incompleta"
 
-#: js/settings.js:812 js/settings.js:821
+#: js/settings.js:815 js/settings.js:824
 msgid "Select groups"
 msgstr "Selecciona els grups"
 
-#: js/settings.js:815 js/settings.js:824
+#: js/settings.js:818 js/settings.js:827
 msgid "Select object classes"
 msgstr "Seleccioneu les classes dels objectes"
 
-#: js/settings.js:818
+#: js/settings.js:821
 msgid "Select attributes"
 msgstr "Seleccioneu els atributs"
 
-#: js/settings.js:845
+#: js/settings.js:848
 msgid "Connection test succeeded"
 msgstr "La prova de connexió ha reeixit"
 
-#: js/settings.js:852
+#: js/settings.js:855
 msgid "Connection test failed"
 msgstr "La prova de connexió ha fallat"
 
-#: js/settings.js:861
+#: js/settings.js:864
 msgid "Do you really want to delete the current Server Configuration?"
 msgstr "Voleu eliminar la configuració actual del servidor?"
 
-#: js/settings.js:862
+#: js/settings.js:865
 msgid "Confirm Deletion"
 msgstr "Confirma l'eliminació"
 
-#: lib/wizard.php:79 lib/wizard.php:93
+#: lib/wizard.php:83 lib/wizard.php:97
 #, php-format
 msgid "%s group found"
 msgid_plural "%s groups found"
 msgstr[0] "S'ha trobat %s grup"
 msgstr[1] "S'han trobat %s grups"
 
-#: lib/wizard.php:122
+#: lib/wizard.php:130
 #, php-format
 msgid "%s user found"
 msgid_plural "%s users found"
 msgstr[0] "S'ha trobat %s usuari"
 msgstr[1] "S'han trobat %s usuaris"
 
-#: lib/wizard.php:779 lib/wizard.php:791
+#: lib/wizard.php:825 lib/wizard.php:837
 msgid "Invalid Host"
 msgstr "Ordinador central no vàlid"
 
-#: lib/wizard.php:952
+#: lib/wizard.php:1025
 msgid "Could not find the desired feature"
 msgstr "La característica desitjada no s'ha trobat"
+
+#: settings.php:52
+msgid "Server"
+msgstr "Servidor"
+
+#: settings.php:53
+msgid "User Filter"
+msgstr "Filtre d'usuari"
+
+#: settings.php:54
+msgid "Login Filter"
+msgstr "Filtre d'acreditació"
+
+#: settings.php:55
+msgid "Group Filter"
+msgstr "Filtre de grup"
 
 #: templates/part.settingcontrols.php:2
 msgid "Save"
@@ -165,8 +198,8 @@ msgstr "Ajuda"
 
 #: templates/part.wizard-groupfilter.php:4
 #, php-format
-msgid "Limit the access to %s to groups meeting this criteria:"
-msgstr "Limita l'accés a %s grups que compleixin amb el criteri:"
+msgid "Groups meeting these criteria are available in %s:"
+msgstr "Els grups que compleixen aquests criteris estan disponibles a %s:"
 
 #: templates/part.wizard-groupfilter.php:8
 #: templates/part.wizard-userfilter.php:8
@@ -201,8 +234,8 @@ msgid "groups found"
 msgstr "grups trobats"
 
 #: templates/part.wizard-loginfilter.php:4
-msgid "What attribute shall be used as login name:"
-msgstr "Quin atribut s'hauria d'utilitzar com a nom per a l'acreditació:"
+msgid "Users login with this attribute:"
+msgstr "Usuaris acreditats amb aquest atribut:"
 
 #: templates/part.wizard-loginfilter.php:8
 msgid "LDAP Username:"
@@ -223,9 +256,22 @@ msgid ""
 "username in the login action. Example: \"uid=%%uid\""
 msgstr "Defineix el filtre a aplicar quan s'intenta iniciar la sessió. %%uid reemplaça el nom d'usuari en l'acció d'inici de sessió. Per exemple: \"uid=%%uid\""
 
+#: templates/part.wizard-server.php:6
+msgid "1. Server"
+msgstr "1. Servidor"
+
+#: templates/part.wizard-server.php:13
+#, php-format
+msgid "%s. Server:"
+msgstr "%s. Servidor:"
+
 #: templates/part.wizard-server.php:18
 msgid "Add Server Configuration"
 msgstr "Afegeix la configuració del servidor"
+
+#: templates/part.wizard-server.php:21
+msgid "Delete Configuration"
+msgstr "Esborra la configuració"
 
 #: templates/part.wizard-server.php:30
 msgid "Host"
@@ -269,8 +315,8 @@ msgstr "Podeu especificar DN Base per usuaris i grups a la pestanya Avançat"
 
 #: templates/part.wizard-userfilter.php:4
 #, php-format
-msgid "Limit the access to %s to users meeting this criteria:"
-msgstr "Limita l'accés a %s usuaris que compleixin amb el criteri:"
+msgid "Limit %s access to users meeting these criteria:"
+msgstr "Limita l'accés a %s usuaris que compleixin amb aquest criteri:"
 
 #: templates/part.wizard-userfilter.php:31
 #, php-format
@@ -289,6 +335,14 @@ msgstr "Enrera"
 #: templates/part.wizardcontrols.php:8
 msgid "Continue"
 msgstr "Continua"
+
+#: templates/settings.php:7
+msgid "Expert"
+msgstr "Expert"
+
+#: templates/settings.php:8
+msgid "Advanced"
+msgstr "Avançat"
 
 #: templates/settings.php:11
 msgid ""
@@ -338,7 +392,7 @@ msgid "Only connect to the replica server."
 msgstr "Connecta només al servidor rèplica."
 
 #: templates/settings.php:26
-msgid "Case insensitve LDAP server (Windows)"
+msgid "Case insensitive LDAP server (Windows)"
 msgstr "Servidor LDAP sense distinció entre majúscules i minúscules (Windows)"
 
 #: templates/settings.php:27
@@ -354,11 +408,11 @@ msgstr "No es recomana, useu-ho només com a prova! Importeu el certificat SSL d
 
 #: templates/settings.php:28
 msgid "Cache Time-To-Live"
-msgstr "Memòria de cau Time-To-Live"
+msgstr "Memòria cau Time-To-Live"
 
 #: templates/settings.php:28
 msgid "in seconds. A change empties the cache."
-msgstr "en segons. Un canvi buidarà la memòria de cau."
+msgstr "en segons. Un canvi buidarà la memòria cau."
 
 #: templates/settings.php:30
 msgid "Directory Settings"
@@ -412,41 +466,62 @@ msgstr "Atributs de cerca de grup"
 msgid "Group-Member association"
 msgstr "Associació membres-grup"
 
+#: templates/settings.php:39
+msgid "Nested Groups"
+msgstr "Grups imbricats"
+
+#: templates/settings.php:39
+msgid ""
+"When switched on, groups that contain groups are supported. (Only works if "
+"the group member attribute contains DNs.)"
+msgstr "Quan està activat, els grups que contenen grups estan permesos. (Només funciona si l'atribut del grup membre conté DNs.)"
+
 #: templates/settings.php:40
+msgid "Paging chunksize"
+msgstr "Mida de la pàgina"
+
+#: templates/settings.php:40
+msgid ""
+"Chunksize used for paged LDAP searches that may return bulky results like "
+"user or group enumeration. (Setting it 0 disables paged LDAP searches in "
+"those situations.)"
+msgstr "Mida usada per cerques LDAP paginades que podrien retornar respostes de volcat com enumeració d'usuari o grup. (Establint-ho a 0 desactiva les cerques LDAP paginades en aquestes situacions.)"
+
+#: templates/settings.php:42
 msgid "Special Attributes"
 msgstr "Atributs especials"
 
-#: templates/settings.php:42
+#: templates/settings.php:44
 msgid "Quota Field"
 msgstr "Camp de quota"
 
-#: templates/settings.php:43
+#: templates/settings.php:45
 msgid "Quota Default"
 msgstr "Quota per defecte"
 
-#: templates/settings.php:43
+#: templates/settings.php:45
 msgid "in bytes"
 msgstr "en bytes"
 
-#: templates/settings.php:44
+#: templates/settings.php:46
 msgid "Email Field"
 msgstr "Camp de correu electrònic"
 
-#: templates/settings.php:45
+#: templates/settings.php:47
 msgid "User Home Folder Naming Rule"
 msgstr "Norma per anomenar la carpeta arrel d'usuari"
 
-#: templates/settings.php:45
+#: templates/settings.php:47
 msgid ""
 "Leave empty for user name (default). Otherwise, specify an LDAP/AD "
 "attribute."
 msgstr "Deixeu-ho buit pel nom d'usuari (per defecte). Altrament, especifiqueu un atribut LDAP/AD."
 
-#: templates/settings.php:51
+#: templates/settings.php:53
 msgid "Internal Username"
 msgstr "Nom d'usuari intern"
 
-#: templates/settings.php:52
+#: templates/settings.php:54
 msgid ""
 "By default the internal username will be created from the UUID attribute. It"
 " makes sure that the username is unique and characters do not need to be "
@@ -462,15 +537,15 @@ msgid ""
 "effect only on newly mapped (added) LDAP users."
 msgstr "Per defecte el nom d'usuari intern es crearà a partir de l'atribut UUID. Això assegura que el nom d'usuari és únic i que els caràcters no s'han de convertir. El nom d'usuari intern té la restricció que només estan permesos els caràcters: [ a-zA-Z0-9_.@- ]. Els altres caràcters es substitueixen pel seu corresponent ASCII o simplement s'ometen. En cas de col·lisió s'incrementa/decrementa en un. El nom d'usuari intern s'utilitza per identificar un usuari internament. També és el nom per defecte de la carpeta home d'usuari. És també un port de URLs remotes, per exemple tots els serveis *DAV. Amb aquest arranjament es pot variar el comportament per defecte. Per obtenir un comportament similar al d'abans de ownCloud 5, escriviu el nom d'usuari a mostrar en el camp següent. Deixei-lo en blanc si preferiu el comportament per defecte. Els canvis tindran efecte només en els nous usuaris LDAP mapats (afegits)."
 
-#: templates/settings.php:53
+#: templates/settings.php:55
 msgid "Internal Username Attribute:"
 msgstr "Atribut nom d'usuari intern:"
 
-#: templates/settings.php:54
+#: templates/settings.php:56
 msgid "Override UUID detection"
 msgstr "Sobrescriu la detecció UUID"
 
-#: templates/settings.php:55
+#: templates/settings.php:57
 msgid ""
 "By default, the UUID attribute is automatically detected. The UUID attribute"
 " is used to doubtlessly identify LDAP users and groups. Also, the internal "
@@ -481,19 +556,19 @@ msgid ""
 "Changes will have effect only on newly mapped (added) LDAP users and groups."
 msgstr "Per defecte, owncloud autodetecta l'atribut UUID. L'atribut UUID s'utilitza per identificar usuaris i grups de forma indubtable. També el nom d'usuari intern es crearà en base a la UUIS, si no heu especificat res diferent a dalt. Podeu sobreescriure l'arranjament i passar l'atribut que desitgeu. Heu d'assegurar-vos que l'atribut que escolliu pot ser recollit tant pels usuaris com pels grups i que és únic. Deixeu-ho en blanc si preferiu el comportament per defecte. els canvis s'aplicaran als usuaris i grups LDAP mapats de nou (afegits)."
 
-#: templates/settings.php:56
+#: templates/settings.php:58
 msgid "UUID Attribute for Users:"
 msgstr "Atribut UUID per Usuaris:"
 
-#: templates/settings.php:57
+#: templates/settings.php:59
 msgid "UUID Attribute for Groups:"
 msgstr "Atribut UUID per Grups:"
 
-#: templates/settings.php:58
+#: templates/settings.php:60
 msgid "Username-LDAP User Mapping"
 msgstr "Mapatge d'usuari Nom d'usuari-LDAP"
 
-#: templates/settings.php:59
+#: templates/settings.php:61
 msgid ""
 "Usernames are used to store and assign (meta) data. In order to precisely "
 "identify and recognize users, each LDAP user will have a internal username. "
@@ -505,12 +580,12 @@ msgid ""
 " is not configuration sensitive, it affects all LDAP configurations! Never "
 "clear the mappings in a production environment, only in a testing or "
 "experimental stage."
-msgstr "Els noms d'usuari s'usen per desar i assignar (meta)dades. Per tal d'identificar amb precisió i reconèixer els usuaris, cada usuari LDAP tindrà un nom d'usuari intern. Això requereix mapatge del nom d'usuari a l'usuari LDAP. El nom d'usuari creat es mapa a la UUID de l'usuari LDAP. A més, la DN es posa a la memòria de cau per reduir la interacció LDAP, però no s'usa per identificació. En cas que la DN canvïi, els canvis es trobaran. El nom d'usuari intern s'usa a tot arreu. Si esborreu els mapatges quedaran sobrants a tot arreu. Esborrar els mapatges no és sensible a la configuració, afecta a totes les configuracions LDAP! No esborreu mai els mapatges en un entorn de producció, només en un estadi de prova o experimental."
+msgstr "Els noms d'usuari s'usen per desar i assignar (meta)dades. Per tal d'identificar amb precisió i reconèixer els usuaris, cada usuari LDAP tindrà un nom d'usuari intern. Això requereix mapatge del nom d'usuari a l'usuari LDAP. El nom d'usuari creat es mapa a la UUID de l'usuari LDAP. A més, la DN es posa a la memòria cau per reduir la interacció LDAP, però no s'usa per identificació. En cas que la DN canvïi, els canvis es trobaran. El nom d'usuari intern s'usa a tot arreu. Si esborreu els mapatges quedaran sobrants a tot arreu. Esborrar els mapatges no és sensible a la configuració, afecta a totes les configuracions LDAP! No esborreu mai els mapatges en un entorn de producció, només en un estadi de prova o experimental."
 
-#: templates/settings.php:60
+#: templates/settings.php:62
 msgid "Clear Username-LDAP User Mapping"
 msgstr "Elimina el mapatge d'usuari Nom d'usuari-LDAP"
 
-#: templates/settings.php:60
+#: templates/settings.php:62
 msgid "Clear Groupname-LDAP Group Mapping"
 msgstr "Elimina el mapatge de grup Nom de grup-LDAP"

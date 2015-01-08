@@ -18,7 +18,15 @@ class OC {
 	static private $rootView;
 
 	private $path;
+
+	/**
+	 * @var resource
+	 */
 	private $dirSource;
+
+	/**
+	 * @var resource
+	 */
 	private $fileSource;
 	private $meta;
 
@@ -40,7 +48,7 @@ class OC {
 	}
 
 	public function stream_seek($offset, $whence = SEEK_SET) {
-		fseek($this->fileSource, $offset, $whence);
+		return fseek($this->fileSource, $offset, $whence) === 0;
 	}
 
 	public function stream_tell() {

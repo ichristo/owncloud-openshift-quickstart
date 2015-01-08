@@ -3,7 +3,7 @@
  * ownCloud - App Framework
  *
  * @author Bernhard Posselt
- * @copyright 2012 Bernhard Posselt nukeawhale@gmail.com
+ * @copyright 2012 Bernhard Posselt <dev@bernhard-posselt.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -61,12 +61,16 @@ class TemplateResponse extends Response {
 	 * constructor of TemplateResponse
 	 * @param string $appName the name of the app to load the template from
 	 * @param string $templateName the name of the template
+	 * @param array $params an array of parameters which should be passed to the
+	 * template
+	 * @param string $renderAs how the page should be rendered, defaults to user
 	 */
-	public function __construct($appName, $templateName) {
+	public function __construct($appName, $templateName, array $params=array(),
+	                            $renderAs='user') {
 		$this->templateName = $templateName;
 		$this->appName = $appName;
-		$this->params = array();
-		$this->renderAs = 'user';
+		$this->params = $params;
+		$this->renderAs = $renderAs;
 	}
 
 
@@ -74,9 +78,12 @@ class TemplateResponse extends Response {
 	 * Sets template parameters
 	 * @param array $params an array with key => value structure which sets template
 	 *                      variables
+	 * @return TemplateResponse Reference to this object
 	 */
 	public function setParams(array $params){
 		$this->params = $params;
+
+		return $this;
 	}
 
 
@@ -104,9 +111,12 @@ class TemplateResponse extends Response {
 	 *                         settings header and footer, user renders the normal
 	 *                         normal page including footer and header and blank
 	 *                         just renders the plain template
+	 * @return TemplateResponse Reference to this object
 	 */
 	public function renderAs($renderAs){
 		$this->renderAs = $renderAs;
+
+		return $this;
 	}
 
 
@@ -124,8 +134,10 @@ class TemplateResponse extends Response {
 	 * @return string the rendered html
 	 */
 	public function render(){
+		// \OCP\Template needs an empty string instead of 'blank' for an unwrapped response
+		$renderAs = $this->renderAs === 'blank' ? '' : $this->renderAs;
 
-		$template = new \OCP\Template($this->appName, $this->templateName, $this->renderAs);
+		$template = new \OCP\Template($this->appName, $this->templateName, $renderAs);
 
 		foreach($this->params as $key => $value){
 			$template->assign($key, $value);

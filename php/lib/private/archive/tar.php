@@ -22,6 +22,9 @@ class OC_Archive_TAR extends OC_Archive{
 	private $tar=null;
 	private $path;
 
+	/**
+	 * @param string $source
+	 */
 	function __construct($source) {
 		$types=array(null, 'gz', 'bz');
 		$this->path=$source;
@@ -30,19 +33,21 @@ class OC_Archive_TAR extends OC_Archive{
 
 	/**
 	 * try to detect the type of tar compression
-	 * @param string file
-	 * @return str
+	 * @param string $file
+	 * @return integer
 	 */
 	static public function getTarType($file) {
 		if(strpos($file, '.')) {
 			$extension=substr($file, strrpos($file, '.'));
 			switch($extension) {
-				case 'gz':
-				case 'tgz':
+				case '.gz':
+				case '.tgz':
 					return self::GZIP;
-				case 'bz':
-				case 'bz2':
+				case '.bz':
+				case '.bz2':
 					return self::BZIP;
+				case '.tar':
+					return self::PLAIN;
 				default:
 					return self::PLAIN;
 			}
@@ -53,7 +58,7 @@ class OC_Archive_TAR extends OC_Archive{
 
 	/**
 	 * add an empty folder to the archive
-	 * @param string path
+	 * @param string $path
 	 * @return bool
 	 */
 	function addFolder($path) {
@@ -80,8 +85,8 @@ class OC_Archive_TAR extends OC_Archive{
 	}
 	/**
 	 * add a file to the archive
-	 * @param string path
-	 * @param string source either a local file or string data
+	 * @param string $path
+	 * @param string $source either a local file or string data
 	 * @return bool
 	 */
 	function addFile($path, $source='') {
@@ -103,8 +108,8 @@ class OC_Archive_TAR extends OC_Archive{
 
 	/**
 	 * rename a file or folder in the archive
-	 * @param string source
-	 * @param string dest
+	 * @param string $source
+	 * @param string $dest
 	 * @return bool
 	 */
 	function rename($source, $dest) {
@@ -122,6 +127,9 @@ class OC_Archive_TAR extends OC_Archive{
 		return true;
 	}
 
+	/**
+	 * @param string $file
+	 */
 	private function getHeader($file) {
 		if ( ! $this->cachedHeaders ) {
 			$this->cachedHeaders = $this->tar->listContent();
@@ -139,7 +147,7 @@ class OC_Archive_TAR extends OC_Archive{
 
 	/**
 	 * get the uncompressed size of a file in the archive
-	 * @param string path
+	 * @param string $path
 	 * @return int
 	 */
 	function filesize($path) {
@@ -148,7 +156,7 @@ class OC_Archive_TAR extends OC_Archive{
 	}
 	/**
 	 * get the last modified time of a file in the archive
-	 * @param string path
+	 * @param string $path
 	 * @return int
 	 */
 	function mtime($path) {
@@ -158,7 +166,7 @@ class OC_Archive_TAR extends OC_Archive{
 
 	/**
 	 * get the files in a folder
-	 * @param path
+	 * @param string $path
 	 * @return array
 	 */
 	function getFolder($path) {
@@ -201,7 +209,7 @@ class OC_Archive_TAR extends OC_Archive{
 	}
 	/**
 	 * get the content of a file
-	 * @param string path
+	 * @param string $path
 	 * @return string
 	 */
 	function getFile($path) {
@@ -209,8 +217,8 @@ class OC_Archive_TAR extends OC_Archive{
 	}
 	/**
 	 * extract a single file from the archive
-	 * @param string path
-	 * @param string dest
+	 * @param string $path
+	 * @param string $dest
 	 * @return bool
 	 */
 	function extractFile($path, $dest) {
@@ -231,8 +239,7 @@ class OC_Archive_TAR extends OC_Archive{
 	}
 	/**
 	 * extract the archive
-	 * @param string path
-	 * @param string dest
+	 * @param string $dest
 	 * @return bool
 	 */
 	function extract($dest) {
@@ -240,7 +247,7 @@ class OC_Archive_TAR extends OC_Archive{
 	}
 	/**
 	 * check if a file or folder exists in the archive
-	 * @param string path
+	 * @param string $path
 	 * @return bool
 	 */
 	function fileExists($path) {
@@ -268,7 +275,7 @@ class OC_Archive_TAR extends OC_Archive{
 
 	/**
 	 * remove a file or folder from the archive
-	 * @param string path
+	 * @param string $path
 	 * @return bool
 	 */
 	function remove($path) {
@@ -289,8 +296,8 @@ class OC_Archive_TAR extends OC_Archive{
 	}
 	/**
 	 * get a file handler
-	 * @param string path
-	 * @param string mode
+	 * @param string $path
+	 * @param string $mode
 	 * @return resource
 	 */
 	function getStream($path, $mode) {

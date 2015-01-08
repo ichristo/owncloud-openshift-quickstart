@@ -65,13 +65,15 @@ class OC_API {
 		$name = strtolower($method).$url;
 		$name = str_replace(array('/', '{', '}'), '_', $name);
 		if(!isset(self::$actions[$name])) {
-			OC::getRouter()->useCollection('ocs');
-			OC::getRouter()->create($name, $url)
+			$oldCollection = OC::$server->getRouter()->getCurrentCollection();
+			OC::$server->getRouter()->useCollection('ocs');
+			OC::$server->getRouter()->create($name, $url)
 				->method($method)
 				->defaults($defaults)
 				->requirements($requirements)
 				->action('OC_API', 'call');
 			self::$actions[$name] = array();
+			OC::$server->getRouter()->useCollection($oldCollection);
 		}
 		self::$actions[$name][] = array('app' => $app, 'action' => $action, 'authlevel' => $authLevel);
 	}
@@ -116,9 +118,7 @@ class OC_API {
 				);
 		}
 		$response = self::mergeResponses($responses);
-		$formats = array('json', 'xml');
-
-		$format = !empty($_GET['format']) && in_array($_GET['format'], $formats) ? $_GET['format'] : 'xml';
+		$format = self::requestedFormat();
 		if (self::$logoutRequired) {
 			OC_User::logout();
 		}
@@ -129,9 +129,9 @@ class OC_API {
 	/**
 	 * merge the returned result objects into one response
 	 * @param array $responses
+	 * @return array|\OC_OCS_Result
 	 */
 	public static function mergeResponses($responses) {
-		$response = array();
 		// Sort into shipped and thirdparty
 		$shipped = array(
 			'succeeded' => array(),
@@ -193,7 +193,7 @@ class OC_API {
 		// Merge the successful responses
 		$data = array();
 
-		foreach($responses as $app => $response) {
+		foreach($responses as $response) {
 			if($response['shipped']) {
 				$data = array_merge_recursive($response['response']->getData(), $data);
 			} else {
@@ -270,6 +270,18 @@ class OC_API {
 	 * @return string|false (username, or false on failure)
 	 */
 	private static function loginUser(){
+
+		// reuse existing login
+		$loggedIn = OC_User::isLoggedIn();
+		$ocsApiRequest = isset($_SERVER['HTTP_OCS_APIREQUEST']) ? $_SERVER['HTTP_OCS_APIREQUEST'] === 'true' : false;
+		if ($loggedIn === true && $ocsApiRequest) {
+
+			// initialize the user's filesystem
+			\OC_Util::setUpFS(\OC_User::getUser());
+
+			return OC_User::getUser();
+		}
+
 		// basic auth
 		$authUser = isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : '';
 		$authPw = isset($_SERVER['PHP_AUTH_PW']) ? $_SERVER['PHP_AUTH_PW'] : '';
@@ -283,17 +295,6 @@ class OC_API {
 			return $authUser;
 		}
 
-		// reuse existing login
-		$loggedIn = OC_User::isLoggedIn();
-		$ocsApiRequest = isset($_SERVER['HTTP_OCS_APIREQUEST']) ? $_SERVER['HTTP_OCS_APIREQUEST'] === 'true' : false;
-		if ($loggedIn === true && $ocsApiRequest) {
-
-			// initialize the user's filesystem
-			\OC_Util::setUpFS(\OC_User::getUser());
-
-			return OC_User::getUser();
-		}
-
 		return false;
 	}
 
@@ -302,7 +303,7 @@ class OC_API {
 	 * @param OC_OCS_Result $result
 	 * @param string $format the format xml|json
 	 */
-	private static function respond($result, $format='xml') {
+	public static function respond($result, $format='xml') {
 		// Send 401 headers if unauthorised
 		if($result->getStatusCode() === self::RESPOND_UNAUTHORISED) {
 			header('WWW-Authenticate: Basic realm="Authorisation Required"');
@@ -328,6 +329,9 @@ class OC_API {
 		}
 	}
 
+	/**
+	 * @param XMLWriter $writer
+	 */
 	private static function toXML($array, $writer) {
 		foreach($array as $k => $v) {
 			if ($k[0] === '@') {
@@ -345,5 +349,34 @@ class OC_API {
 			}
 		}
 	}
+
+	/**
+	 * @return string
+	 */
+	public static function requestedFormat() {
+		$formats = array('json', 'xml');
+
+		$format = !empty($_GET['format']) && in_array($_GET['format'], $formats) ? $_GET['format'] : 'xml';
+		return $format;
+	}
+
+	/**
+	 * Based on the requested format the response content type is set
+	 */
+	public static function setContentType() {
+		$format = \OC_API::requestedFormat();
+		if ($format === 'xml') {
+			header('Content-type: text/xml; charset=UTF-8');
+			return;
+		}
+
+		if ($format === 'json') {
+			header('Content-Type: application/json; charset=utf-8');
+			return;
+		}
+
+		header('Content-Type: application/octet-stream; charset=utf-8');
+	}
+
 
 }

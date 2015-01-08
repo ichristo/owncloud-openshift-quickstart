@@ -153,18 +153,30 @@ class OC_Calendar_Object{
 	 * @return insertid
 	 */
 	public static function addFromDAVData($id,$uri,$data) {
+		$shared = false;
 		$calendar = OC_Calendar_Calendar::find($id);
 		if ($calendar['userid'] != OCP\User::getUser()) {
 			$sharedCalendar = OCP\Share::getItemSharedWithBySource('calendar', $id);
 			if (!$sharedCalendar || !($sharedCalendar['permissions'] & OCP\PERMISSION_CREATE)) {
-				throw new Sabre_DAV_Exception_Forbidden(
+				throw new \Sabre\DAV\Exception\Forbidden(
 					OC_Calendar_App::$l10n->t(
 						'You do not have the permissions to add events to this calendar.'
 					)
 				);
 			}
+			$shared = true;
 		}
 		$object = OC_VObject::parse($data);
+		$vevent = self::getElement($object);
+
+		if($shared && isset($vevent->CLASS) && (string)$vevent->CLASS !== 'PUBLIC') {
+			throw new \Sabre\DAV\Exception\PreconditionFailed(
+					OC_Calendar_App::$l10n->t(
+						'You cannot add non-public events to a shared calendar.'
+					)
+			);
+		}
+
 		list($type,$startdate,$enddate,$summary,$repeating,$uid) = self::extractData($object);
 
 		$stmt = OCP\DB::prepare( 'INSERT INTO `*PREFIX*clndr_objects` (`calendarid`,`objecttype`,`startdate`,`enddate`,`repeating`,`summary`,`calendardata`,`uri`,`lastmodified`) VALUES(?,?,?,?,?,?,?,?,?)' );
@@ -228,7 +240,7 @@ class OC_Calendar_Object{
 			$sharedCalendar = OCP\Share::getItemSharedWithBySource('calendar', $cid);
 			$sharedAccessClassPermissions = OC_Calendar_Object::getAccessClassPermissions($oldvobject);
 			if (!$sharedCalendar || !($sharedCalendar['permissions'] & OCP\PERMISSION_UPDATE) || !($sharedAccessClassPermissions & OCP\PERMISSION_UPDATE)) {
-				throw new Sabre_DAV_Exception_Forbidden(
+				throw new \Sabre\DAV\Exception\Forbidden(
 					OC_Calendar_App::$l10n->t(
 						'You do not have the permissions to edit this event.'
 					)
@@ -292,7 +304,7 @@ class OC_Calendar_Object{
 		if ($calendar['userid'] != OCP\User::getUser()) {
 			$sharedCalendar = OCP\Share::getItemSharedWithBySource('calendar', $cid);
 			if (!$sharedCalendar || !($sharedCalendar['permissions'] & OCP\PERMISSION_DELETE)) {
-				throw new Sabre_DAV_Exception_Forbidden(
+				throw new \Sabre\DAV\Exception\Forbidden(
 					OC_Calendar_App::$l10n->t(
 						'You do not have the permissions to delete this event.'
 					)
@@ -501,21 +513,31 @@ class OC_Calendar_Object{
 	}
 
 	/**
+	 * Get the contained element VEVENT, VJOURNAL, VTODO
+	 *
+	 * @param Sabre_VObject $vobject
+	 * @return Sabre_VObject|null
+	 */
+	public static function getElement($vobject) {
+		if(isset($vobject->VEVENT)) {
+			return $vobject->VEVENT;
+		}
+		elseif(isset($vobject->VJOURNAL)) {
+			return $vobject->VJOURNAL;
+		}
+		elseif(isset($vobject->VTODO)) {
+			return $vobject->VTODO;
+		}
+	}
+
+	/**
 	 * @brief Get the permissions determined by the access class of an event/todo/journal
 	 * @param Sabre_VObject $vobject Sabre VObject
 	 * @return (int) $permissions - CRUDS permissions
 	 * @see OCP\Share
 	 */
 	public static function getAccessClassPermissions($vobject) {
-		if(isset($vobject->VEVENT)) {
-			$velement = $vobject->VEVENT;
-		}
-		elseif(isset($vobject->VJOURNAL)) {
-			$velement = $vobject->VJOURNAL;
-		}
-		elseif(isset($vobject->VTODO)) {
-			$velement = $vobject->VTODO;
-		}
+		$velement = self::getElement($vobject);
 
 		$accessclass = $velement->getAsString('CLASS');
 
@@ -529,8 +551,8 @@ class OC_Calendar_Object{
 	public static function getAccessClassOptions($l10n) {
 		return array(
 			'PUBLIC'       => (string)$l10n->t('Show full event'),
-			'PRIVATE'      => (string)$l10n->t('Show only busy'),
-			'CONFIDENTIAL' => (string)$l10n->t('Hide event')
+			'CONFIDENTIAL' => (string)$l10n->t('Show only busy'),
+			'PRIVATE'      => (string)$l10n->t('Hide event')
 		);
 	}
 
@@ -705,7 +727,7 @@ class OC_Calendar_Object{
 			$errnum++;
 		}
 		if($request['repeat'] != 'doesnotrepeat') {
-			if(is_nan($request['interval']) && $request['interval'] != '') {
+			if(($request['interval'] !== strval(intval($request['interval']))) || intval($request['interval']) < 1) {
 				$errarr['interval'] = 'true';
 				$errnum++;
 			}
@@ -774,7 +796,7 @@ class OC_Calendar_Object{
 			}
 			if(array_key_exists('byweekno', $request)) {
 				foreach($request['byweekno'] as $option) {
-					if(!array_key_exists($option, self::getByWeekNoOptions())) {
+					if(!in_array($option, self::getByWeekNoOptions())) {
 						$errarr['byweekno'] = 'true';
 						$errnum++;
 					}
@@ -864,7 +886,7 @@ class OC_Calendar_Object{
 	 * @return object updated $vcalendar
 	 */
 	public static function updateVCalendarFromRequest($request, $vcalendar) {
-		$accessclass = $request["accessclass"];
+		$accessclass = isset($request["accessclass"]) ? $request["accessclass"] : null;
 		$title = $request["title"];
 		$location = $request["location"];
 		$categories = $request["categories"];
@@ -1040,7 +1062,9 @@ class OC_Calendar_Object{
 		}
 		unset($vevent->DURATION);
 
-		$vevent->setString('CLASS', $accessclass);
+		if ($accessclass !== null) {
+			$vevent->setString('CLASS', $accessclass);
+		}
 		$vevent->setString('LOCATION', $location);
 		$vevent->setString('DESCRIPTION', $description);
 		$vevent->setString('CATEGORIES', $categories);

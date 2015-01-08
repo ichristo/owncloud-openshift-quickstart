@@ -19,17 +19,19 @@ interface Storage extends \OCP\Files\Storage {
 	 * get a cache instance for the storage
 	 *
 	 * @param string $path
+	 * @param \OC\Files\Storage\Storage (optional) the storage to pass to the cache
 	 * @return \OC\Files\Cache\Cache
 	 */
-	public function getCache($path = '');
+	public function getCache($path = '', $storage = null);
 
 	/**
 	 * get a scanner instance for the storage
 	 *
 	 * @param string $path
+	 * @param \OC\Files\Storage\Storage (optional) the storage to pass to the scanner
 	 * @return \OC\Files\Cache\Scanner
 	 */
-	public function getScanner($path = '');
+	public function getScanner($path = '', $storage = null);
 
 
 	/**
@@ -41,20 +43,13 @@ interface Storage extends \OCP\Files\Storage {
 	public function getOwner($path);
 
 	/**
-	 * get a permissions cache instance for the cache
-	 *
-	 * @param string $path
-	 * @return \OC\Files\Cache\Permissions
-	 */
-	public function getPermissionsCache($path = '');
-
-	/**
 	 * get a watcher instance for the cache
 	 *
 	 * @param string $path
+	 * @param \OC\Files\Storage\Storage (optional) the storage to pass to the watcher
 	 * @return \OC\Files\Cache\Watcher
 	 */
-	public function getWatcher($path = '');
+	public function getWatcher($path = '', $storage = null);
 
 	/**
 	 * @return \OC\Files\Cache\Storage

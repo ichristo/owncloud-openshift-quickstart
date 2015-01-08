@@ -10,12 +10,19 @@
  * later.
  */
 
-namespace OCA\Documents;
+namespace OCA\Documents\Db;
 
 /**
- *  Session management 
+ *  Session management
+ * 
+ * @method string getEsId()
+ * @method int getFileId()
+ * @method string getGenesisUrl()
+ * @method string getOwner()
+ * @method string getGenesisHash()
+ * 
  */
-class Db_Session extends \OCA\Documents\Db {
+class Session extends \OCA\Documents\Db {
 
 	/**
 	 * DB table
@@ -35,19 +42,17 @@ class Db_Session extends \OCA\Documents\Db {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function start($uid, File $file){
-		list($ownerView, $path) = $file->getOwnerViewAndPath();
-		
+	public static function start($uid, $file){
 		// Create a directory to store genesis
+		$genesis = new \OCA\Documents\Genesis($file);
 		
-		$genesis = new Genesis($ownerView, $path, $file->getOwner());
-		
-		$oldSession = new Db_Session();
+		list($ownerView, $path) = $file->getOwnerViewAndPath();
+		$oldSession = new Session();
 		$oldSession->loadBy('file_id', $file->getFileId());
 		
 		//If there is no existing session we need to start a new one
 		if (!$oldSession->hasData()){
-			$newSession = new Db_Session(array(
+			$newSession = new Session(array(
 				$genesis->getPath(),
 				$genesis->getHash(),
 				$file->getOwner(),
@@ -59,54 +64,37 @@ class Db_Session extends \OCA\Documents\Db {
 			}
 		}
 		
-		$session = $oldSession
+		$sessionData = $oldSession
 					->loadBy('file_id', $file->getFileId())
 					->getData()
 		;
 		
-		$memberColor = Helper::getRandomColor();
-		
-		$member = new Db_Member(array(
-			$session['es_id'], 
+		$memberColor = \OCA\Documents\Helper::getMemberColor($uid);
+		$member = new \OCA\Documents\Db\Member(array(
+			$sessionData['es_id'], 
 			$uid,
 			$memberColor,
-			time()
+			time(),
+			intval($file->isPublicShare()),
+			$file->getToken()
 		));
 		
 		if ($member->insert()){
 			// Do we have OC_Avatar in out disposal?
 			if (!class_exists('\OC_Avatar') || \OC_Config::getValue('enable_avatars', true) !== true){
-				//$x['avatar_url'] = \OCP\Util::linkToRoute('documents_user_avatar');
 				$imageUrl = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==';
 			} else {
-				// https://github.com/owncloud/documents/issues/51
-				// Temporary stub
 				$imageUrl = $uid;
-							
-			/*
-				$avatar = new \OC_Avatar($uid);
-				$image = $avatar->get(64);
-					// User has an avatar 
-				if ($image instanceof \OC_Image) {
-					$imageUrl = \OC_Helper::linkToRoute(
-							'core_avatar_get',
-							array( 'user' => $uid, 'size' => 64)
-					) . '?requesttoken=' . \OC::$session->get('requesttoken');
-				} else {
-					//shortcircuit if it's not an image
-					$imageUrl = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==';
-				}
-							 
-			 */
 			}
+
+			$displayName = $file->isPublicShare() ? $uid . ' ' . \OCA\Documents\Db\Member::getGuestPostfix() : \OCP\User::getDisplayName($uid);
 			
-			
-			$session['member_id'] = (string) $member->getLastInsertId();
-			$op = new Db_Op();
+			$sessionData['member_id'] = (string) $member->getLastInsertId();
+			$op = new \OCA\Documents\Db\Op();
 			$op->addMember(
-					$session['es_id'],
-					$session['member_id'],
-					\OCP\User::getDisplayName($uid),
+					$sessionData['es_id'],
+					$sessionData['member_id'],
+					$displayName,
 					$memberColor,
 					$imageUrl
 			);
@@ -114,26 +102,27 @@ class Db_Session extends \OCA\Documents\Db {
 			throw new \Exception('Failed to add member into database');
 		}
 		
-		$session['permissions'] = $ownerView->getFilePermissions($path);
+		$sessionData['title'] = basename($path);
+		$sessionData['permissions'] = $ownerView->getFilePermissions($path);
 		
-		return $session;
+		return $sessionData;
 	}
 	
 	public static function cleanUp($esId){
-		$session = new Db_Session();
+		$session = new Session();
 		$session->deleteBy('es_id', $esId);
 		
-		$member = new Db_Member();
+		$member = new \OCA\Documents\Db\Member();
 		$member->deleteBy('es_id', $esId);
 		
-		$op= new Db_Op();
+		$op= new \OCA\Documents\Db\Op();
 		$op->deleteBy('es_id', $esId);
 	}
 	
 	public function insert(){
 		$esId = $this->getUniqueSessionId();
 		array_unshift($this->data, $esId);
-		return parent::insert($this->data);
+		return parent::insert();
 	}
 	
 	public function updateGenesisHash($esId, $genesisHash){
@@ -150,7 +139,7 @@ class Db_Session extends \OCA\Documents\Db {
 			SELECT `s`.*, COUNT(`m`.`member_id`) AS `users`
 			FROM ' . $this->tableName . ' AS `s`
 			LEFT JOIN `*PREFIX*documents_member` AS `m` ON `s`.`es_id`=`m`.`es_id`
-				AND `m`.`status`=' . Db_Member::MEMBER_STATUS_ACTIVE . '
+				AND `m`.`status`=' . Db\Member::MEMBER_STATUS_ACTIVE . '
 				AND `m`.`uid` != ?
 			WHERE `s`.`es_id` = ?
 			GROUP BY `m`.`es_id`
@@ -168,41 +157,11 @@ class Db_Session extends \OCA\Documents\Db {
 		return $info;
 	}
 
-	public function getInfoByFileId($fileIds){
-		if (!is_array($fileIds)){
-			return array();
-		}
-
-		$stmt = $this->buildInQuery('file_id', $fileIds);
-
-		$result = $this->execute('
-			SELECT `s`.*, COUNT(`m`.`member_id`) AS `users`
-			FROM ' . $this->tableName . ' AS `s`
-			LEFT JOIN `*PREFIX*documents_member` AS `m` ON `s`.`es_id`=`m`.`es_id`
-				AND `m`.`status`=' . Db_Member::MEMBER_STATUS_ACTIVE . '
-			WHERE `s`.`file_id` ' . $stmt .'
-			GROUP BY `m`.`es_id`',
-			$fileIds
-		);
-
-		$info = $result->fetchAll();
-		if (!is_array($info)){
-			$info = array();
-		}
-		return $info;
-	}
-
 	protected function getUniqueSessionId(){
-		$testSession = new Db_Session();
+		$testSession = new Session();
 		do{
-			// this prevents branching for stable5 for now:
-			// OC_Util::generate_random_bytes was camelCased
-			if (method_exists('\OC_Util', 'generate_random_bytes')){
-				$id = \OC_Util::generate_random_bytes(30);
-			} else {
-				$id = \OC_Util::generateRandomBytes(30);
-			}
-		}while ($testSession->load($id)->hasData());
+			$id = \OC_Util::generateRandomBytes(30);
+		} while ($testSession->load($id)->hasData());
 
 		return $id;
 	}

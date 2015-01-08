@@ -1,5 +1,6 @@
 <?php
 $TRANSLATIONS = array(
+"Encryption" => "மறைக்குறியீடு",
 "Unable to load list from App Store" => "செயலி சேமிப்பிலிருந்து பட்டியலை ஏற்றமுடியாதுள்ளது",
 "Authentication error" => "அத்தாட்சிப்படுத்தலில் வழு",
 "Group already exists" => "குழு ஏற்கனவே உள்ளது",
@@ -16,13 +17,18 @@ $TRANSLATIONS = array(
 "Enable" => "இயலுமைப்படுத்துக",
 "Error" => "வழு",
 "Update" => "இற்றைப்படுத்தல்",
-"Saving..." => "சேமிக்கப்படுகிறது...",
 "undo" => "முன் செயல் நீக்கம் ",
 "Groups" => "குழுக்கள்",
 "Group Admin" => "குழு நிர்வாகி",
 "Delete" => "நீக்குக",
+"never" => "ஒருபோதும்",
 "__language_name__" => "_மொழி_பெயர்_",
+"None" => "ஒன்றுமில்லை",
+"Login" => "புகுபதிகை",
 "Security Warning" => "பாதுகாப்பு எச்சரிக்கை",
+"Server address" => "சேவையக முகவரி",
+"Port" => "துறை ",
+"Credentials" => "சான்று ஆவணங்கள்",
 "More" => "மேலதிக",
 "Less" => "குறைவான",
 "Developed by the <a href=\"http://ownCloud.org/contact\" target=\"_blank\">ownCloud community</a>, the <a href=\"https://github.com/owncloud\" target=\"_blank\">source code</a> is licensed under the <a href=\"http://www.gnu.org/licenses/agpl-3.0.html\" target=\"_blank\"><abbr title=\"Affero General Public License\">AGPL</abbr></a>." => "Developed by the <a href=\"http://ownCloud.org/contact\" target=\"_blank\">ownCloud community</a>, the <a href=\"https://github.com/owncloud\" target=\"_blank\">source code</a> is licensed under the <a href=\"http://www.gnu.org/licenses/agpl-3.0.html\" target=\"_blank\"><abbr title=\"Affero General Public License\">AGPL</abbr></a>.",
@@ -31,6 +37,7 @@ $TRANSLATIONS = array(
 "Select an App" => "செயலி ஒன்றை தெரிவுசெய்க",
 "See application page at apps.owncloud.com" => "apps.owncloud.com இல் செயலி பக்கத்தை பார்க்க",
 "<span class=\"licence\"></span>-licensed by <span class=\"author\"></span>" => "<span class=\"அனுமதிப்பத்திரம்\"></span>-அனுமதி பெற்ற <span class=\"ஆசிரியர்\"></span>",
+"All" => "எல்லாம்",
 "You have used <strong>%s</strong> of the available <strong>%s</strong>" => "நீங்கள் <strong>%s</strong> இலுள்ள <strong>%s</strong>பயன்படுத்தியுள்ளீர்கள்",
 "Password" => "கடவுச்சொல்",
 "Your password was changed" => "உங்களுடைய கடவுச்சொல் மாற்றப்பட்டுள்ளது",
@@ -40,12 +47,14 @@ $TRANSLATIONS = array(
 "Change password" => "கடவுச்சொல்லை மாற்றுக",
 "Email" => "மின்னஞ்சல்",
 "Your email address" => "உங்களுடைய மின்னஞ்சல் முகவரி",
-"Fill in an email address to enable password recovery" => "கடவுச்சொல் மீள் பெறுவதை இயலுமைப்படுத்துவதற்கு மின்னஞ்சல் முகவரியை இயலுமைப்படுத்துக",
+"Cancel" => "இரத்து செய்க",
 "Language" => "மொழி",
 "Help translate" => "மொழிபெயர்க்க உதவி",
-"Encryption" => "மறைக்குறியீடு",
+"Login Name" => "புகுபதிகை",
 "Create" => "உருவாக்குக",
+"Default Quota" => "பொது இருப்பு பங்கு",
 "Other" => "மற்றவை",
-"Username" => "பயனாளர் பெயர்"
+"Username" => "பயனாளர் பெயர்",
+"Quota" => "பங்கு"
 );
 $PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

@@ -27,36 +27,58 @@ class Shared_Updater {
 	static private $toRemove = array();
 
 	/**
+	 * walk up the users file tree and update the etags
+	 * @param string $user
+	 * @param string $path
+	 */
+	static private function correctUsersFolder($user, $path) {
+		// $path points to the mount point which is a virtual folder, so we start with
+		// the parent
+		$path = '/files' . dirname($path);
+		\OC\Files\Filesystem::initMountPoints($user);
+		$view = new \OC\Files\View('/' . $user);
+		if ($view->file_exists($path)) {
+			while ($path !== dirname($path)) {
+				$etag = $view->getETag($path);
+				$view->putFileInfo($path, array('etag' => $etag));
+				$path = dirname($path);
+			}
+		} else {
+			\OCP\Util::writeLog('files_sharing', 'can not update etags on ' . $path . ' for user ' . $user . '. Path does not exists', \OCP\Util::DEBUG);
+		}
+	}
+
+	/**
 	* Correct the parent folders' ETags for all users shared the file at $target
 	*
 	* @param string $target
 	*/
 	static public function correctFolders($target) {
-		$uid = \OCP\User::getUser();
-		$uidOwner = \OC\Files\Filesystem::getOwner($target);
-		$info = \OC\Files\Filesystem::getFileInfo($target);
-		$checkedUser = array($uidOwner);
+
+		// ignore part files
+		if (pathinfo($target, PATHINFO_EXTENSION) === 'part') {
+			return false;
+		}
+
 		// Correct Shared folders of other users shared with
-		$users = \OCP\Share::getUsersItemShared('file', $info['fileid'], $uidOwner, true);
-		if (!empty($users)) {
-			while (!empty($users)) {
-				$reshareUsers = array();
+		$shares = \OCA\Files_Sharing\Helper::getSharesFromItem($target);
+
+		foreach ($shares as $share) {
+			if ((int)$share['share_type'] === \OCP\Share::SHARE_TYPE_USER) {
+				self::correctUsersFolder($share['share_with'], $share['file_target']);
+			} elseif ((int)$share['share_type'] === \OCP\Share::SHARE_TYPE_GROUP) {
+				$users = \OC_Group::usersInGroup($share['share_with']);
 				foreach ($users as $user) {
-					if ( !in_array($user, $checkedUser) ) {
-						$etag = \OC\Files\Filesystem::getETag('');
-						\OCP\Config::setUserValue($user, 'files_sharing', 'etag', $etag);
-						// Look for reshares
-						$reshareUsers = array_merge($reshareUsers, \OCP\Share::getUsersItemShared('file', $info['fileid'], $user, true));
-						$checkedUser[] = $user;
-					}
+					self::correctUsersFolder($user, $share['file_target']);
 				}
-				$users = $reshareUsers;
+			} else { //unique name for group share
+				self::correctUsersFolder($share['share_with'], $share['file_target']);
 			}
 		}
 	}
 
 	/**
-	 * @brief remove all shares for a given file if the file was deleted
+	 * remove all shares for a given file if the file was deleted
 	 *
 	 * @param string $path
 	 */
@@ -87,17 +109,21 @@ class Shared_Updater {
 	static public function renameHook($params) {
 		self::correctFolders($params['newpath']);
 		self::correctFolders(pathinfo($params['oldpath'], PATHINFO_DIRNAME));
+		self::renameChildren($params['oldpath'], $params['newpath']);
 	}
 
 	/**
 	 * @param array $params
 	 */
 	static public function deleteHook($params) {
-		self::correctFolders($params['path']);
-		$fileInfo = \OC\Files\Filesystem::getFileInfo($params['path']);
+		$path = $params['path'];
+		self::correctFolders($path);
+
+		$fileInfo = \OC\Files\Filesystem::getFileInfo($path);
+
 		// mark file as deleted so that we can clean up the share table if
 		// the file was deleted successfully
-		self::$toRemove[$params['path']] =  $fileInfo['fileid'];
+		self::$toRemove[$path] =  $fileInfo['fileid'];
 	}
 
 	/**
@@ -108,29 +134,100 @@ class Shared_Updater {
 	}
 
 	/**
+	 * update etags if a file was shared
 	 * @param array $params
 	 */
-	static public function shareHook($params) {
-		if ($params['itemType'] === 'file' || $params['itemType'] === 'folder') {
-			if (isset($params['uidOwner'])) {
-				$uidOwner = $params['uidOwner'];
-			} else {
-				$uidOwner = \OCP\User::getUser();
-			}
-			$users = \OCP\Share::getUsersItemShared($params['itemType'], $params['fileSource'], $uidOwner, true, false);
-			if (!empty($users)) {
-				while (!empty($users)) {
-					$reshareUsers = array();
-					foreach ($users as $user) {
-						if ($user !== $uidOwner) {
-							$etag = \OC\Files\Filesystem::getETag('');
-							\OCP\Config::setUserValue($user, 'files_sharing', 'etag', $etag);
-							// Look for reshares
-							$reshareUsers = array_merge($reshareUsers, \OCP\Share::getUsersItemShared('file', $params['fileSource'], $user, true));
-						}
-					}
-					$users = $reshareUsers;
+	static public function postShareHook($params) {
+
+		if ($params['itemType'] === 'folder' || $params['itemType'] === 'file') {
+
+			$shareWith = $params['shareWith'];
+			$shareType = $params['shareType'];
+
+			if ($shareType === \OCP\Share::SHARE_TYPE_USER) {
+				self::correctUsersFolder($shareWith, '/');
+			} elseif ($shareType === \OCP\Share::SHARE_TYPE_GROUP) {
+				foreach (\OC_Group::usersInGroup($shareWith) as $user) {
+					self::correctUsersFolder($user, '/');
 				}
+			}
+		}
+	}
+
+	/**
+	 * update etags if a file was unshared
+	 *
+	 * @param array $params
+	 */
+	static public function postUnshareHook($params) {
+
+		if ($params['itemType'] === 'file' || $params['itemType'] === 'folder') {
+
+			$deletedShares = isset($params['deletedShares']) ? $params['deletedShares'] : array();
+
+			foreach ($deletedShares as $share) {
+				if ($share['shareType'] === \OCP\Share::SHARE_TYPE_GROUP) {
+					foreach (\OC_Group::usersInGroup($share['shareWith']) as $user) {
+						self::correctUsersFolder($user, dirname($share['fileTarget']));
+					}
+				} else {
+					self::correctUsersFolder($share['shareWith'], dirname($share['fileTarget']));
+				}
+			}
+		}
+	}
+
+	/**
+	 * update etags if file was unshared from self
+	 * @param array $params
+	 */
+	static public function postUnshareFromSelfHook($params) {
+		if ($params['itemType'] === 'file' || $params['itemType'] === 'folder') {
+			foreach ($params['unsharedItems'] as $item) {
+				if ($item['shareType'] === \OCP\Share::SHARE_TYPE_GROUP) {
+					foreach (\OC_Group::usersInGroup($item['shareWith']) as $user) {
+						self::correctUsersFolder($user, dirname($item['fileTarget']));
+					}
+				} else {
+					self::correctUsersFolder($item['shareWith'], dirname($item['fileTarget']));
+				}
+			}
+		}
+	}
+
+	/**
+	 * clean up oc_share table from files which are no longer exists
+	 *
+	 * This fixes issues from updates from files_sharing < 0.3.5.6 (ownCloud 4.5)
+	 * It will just be called during the update of the app
+	 */
+	static public function fixBrokenSharesOnAppUpdate() {
+		// delete all shares where the original file no longer exists
+		$findAndRemoveShares = \OC_DB::prepare('DELETE FROM `*PREFIX*share` ' .
+			'WHERE `item_type` IN (\'file\', \'folder\') ' .
+			'AND `file_source` NOT IN (SELECT `fileid` FROM `*PREFIX*filecache`)'
+		);
+		$findAndRemoveShares->execute(array());
+	}
+
+	/**
+	 * rename mount point from the children if the parent was renamed
+	 * 
+	 * @param string $oldPath old path relative to data/user/files
+	 * @param string $newPath new path relative to data/user/files
+	 */
+	static private function renameChildren($oldPath, $newPath) {
+
+		$absNewPath =  \OC\Files\Filesystem::normalizePath('/' . \OCP\User::getUser() . '/files/' . $newPath);
+		$absOldPath =  \OC\Files\Filesystem::normalizePath('/' . \OCP\User::getUser() . '/files/' . $oldPath);
+
+		$mountManager = \OC\Files\Filesystem::getMountManager();
+		$mountedShares = $mountManager->findIn('/' . \OCP\User::getUser() . '/files/' . $oldPath);
+		foreach ($mountedShares as $mount) {
+			if ($mount->getStorage()->instanceOfStorage('OCA\Files_Sharing\ISharedStorage')) {
+				$mountPoint = $mount->getMountPoint();
+				$target = str_replace($absOldPath, $absNewPath, $mountPoint);
+				$mount->moveMount($target);
 			}
 		}
 	}

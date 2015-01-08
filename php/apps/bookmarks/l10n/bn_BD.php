@@ -1,4 +1,6 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
+"No file provided for import" => "কোনো ফাইল আমদানীর জন্য নেই",
 "Unsupported file type for import" => "আমদানি করার জন্য ফাইলের ফর্ম্যাটটি সঠিক নয়",
 "Bookmarks" => "ঠিকাসমূহ",
 "Tags" => "ট্যাগ",
@@ -6,6 +8,7 @@
 "Edit bookmark" => "ঠিকা সম্পাদনা",
 "Are you sure you want to remove this tag from every entry?" => "প্রত্যেক ভুক্তি থেকে এই ট্যাগটি অপসারণ করতে আপনি কি বদ্ধপরিকর?",
 "Warning" => "সতর্কবাণী",
+"Import error" => "আমদানী ভ্রান্তি",
 "Import completed successfully." => "আমদানি সুসম্পন্ন হয়েছে।",
 "Uploading..." => "আপলোড করা হচ্ছে..........",
 "Bookm." => "ঠিকা",
@@ -19,6 +22,7 @@
 "Edit" => "সম্পাদনা",
 "Cancel" => "বাতিল",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "দ্রুত কোন ওয়েবপেজ ঠিকাতে সংরক্ষণ করতে চাইলে এটিকে টেনে ব্রাউজারের ঠিকাতে নিয়ে যান এবং তাতে ক্লিক করুনঃ",
+"Add to ownCloud" => "ownCloud এ যুক্ত কর",
 "Address" => "ঠিকানা",
 "Add" => "যোগ কর",
 "Related Tags" => "সম্পর্কযুক্ত ট্যাগ",
@@ -30,3 +34,4 @@
 "Export" => "রপ্তানি",
 "Import" => "আমদানি"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

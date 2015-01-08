@@ -3,7 +3,7 @@
  * ownCloud - App Framework
  *
  * @author Bernhard Posselt
- * @copyright 2012 Bernhard Posselt nukeawhale@gmail.com
+ * @copyright 2012 Bernhard Posselt <dev@bernhard-posselt.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -45,6 +45,7 @@ interface IApi {
 	 * Adds a new javascript file
 	 * @param string $scriptName the name of the javascript in js/ without the suffix
 	 * @param string $appName the name of the app, defaults to the current one
+	 * @return void
 	 */
 	function addScript($scriptName, $appName = null);
 
@@ -53,6 +54,7 @@ interface IApi {
 	 * Adds a new css file
 	 * @param string $styleName the name of the css file in css/without the suffix
 	 * @param string $appName the name of the app, defaults to the current one
+	 * @return void
 	 */
 	function addStyle($styleName, $appName = null);
 
@@ -60,6 +62,7 @@ interface IApi {
 	/**
 	 * shorthand for addScript for files in the 3rdparty directory
 	 * @param string $name the name of the file without the suffix
+	 * @return void
 	 */
 	function add3rdPartyScript($name);
 
@@ -67,6 +70,7 @@ interface IApi {
 	/**
 	 * shorthand for addStyle for files in the 3rdparty directory
 	 * @param string $name the name of the file without the suffix
+	 * @return void
 	 */
 	function add3rdPartyStyle($name);
 

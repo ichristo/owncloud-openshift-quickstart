@@ -1,5 +1,11 @@
 <?php
 $TRANSLATIONS = array(
+"Location" => "Lokacija",
+"Username" => "Korisničko ime",
+"Password" => "Lozinka",
+"Share" => "Podeli",
+"Personal" => "Lično",
+"Name" => "Ime",
 "Groups" => "Grupe",
 "Users" => "Korisnici",
 "Delete" => "Obriši"

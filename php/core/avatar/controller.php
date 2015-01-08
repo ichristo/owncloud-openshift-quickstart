@@ -12,6 +12,7 @@ class Controller {
 	public static function getAvatar($args) {
 		\OC_JSON::checkLoggedIn();
 		\OC_JSON::callCheck();
+		\OC::$server->getSession()->close();
 
 		$user = stripslashes($args['user']);
 		$size = (int)$args['size'];
@@ -46,7 +47,12 @@ class Controller {
 		if (isset($_POST['path'])) {
 			$path = stripslashes($_POST['path']);
 			$view = new \OC\Files\View('/'.$user.'/files');
-			$newAvatar = $view->file_get_contents($path);
+			$fileInfo = $view->getFileInfo($path);
+                        if($fileInfo['encrypted'] === true) {
+				$fileName = $view->toTmpFile($path);
+			} else {
+				$fileName = $view->getLocalFile($path);
+			}
 		} elseif (!empty($_FILES)) {
 			$files = $_FILES['files'];
 			if (
@@ -54,7 +60,9 @@ class Controller {
 				is_uploaded_file($files['tmp_name'][0]) &&
 				!\OC\Files\Filesystem::isFileBlacklisted($files['tmp_name'][0])
 			) {
-				$newAvatar = file_get_contents($files['tmp_name'][0]);
+				\OC\Cache::set('avatar_upload', file_get_contents($files['tmp_name'][0]), 7200);
+				$view = new \OC\Files\View('/'.$user.'/cache');
+				$fileName = $view->getLocalFile('avatar_upload');
 				unlink($files['tmp_name'][0]);
 			}
 		} else {
@@ -64,14 +72,12 @@ class Controller {
 		}
 
 		try {
-			$avatar = new \OC_Avatar($user);
-			$avatar->set($newAvatar);
-			\OC_JSON::success();
-		} catch (\OC\NotSquareException $e) {
-			$image = new \OC_Image($newAvatar);
+			$image = new \OC_Image();
+			$image->loadFromFile($fileName);
+			$image->fixOrientation();
 
 			if ($image->valid()) {
-				\OC_Cache::set('tmpavatar', $image->data(), 7200);
+				\OC\Cache::set('tmpavatar', $image->data(), 7200);
 				\OC_JSON::error(array("data" => "notsquare"));
 			} else {
 				$l = new \OC_L10n('core');
@@ -109,7 +115,7 @@ class Controller {
 		\OC_JSON::checkLoggedIn();
 		\OC_JSON::callCheck();
 
-		$tmpavatar = \OC_Cache::get('tmpavatar');
+		$tmpavatar = \OC\Cache::get('tmpavatar');
 		if (is_null($tmpavatar)) {
 			$l = new \OC_L10n('core');
 			\OC_JSON::error(array("data" => array("message" => $l->t("No temporary profile picture available, try again")) ));
@@ -136,7 +142,7 @@ class Controller {
 			return;
 		}
 
-		$tmpavatar = \OC_Cache::get('tmpavatar');
+		$tmpavatar = \OC\Cache::get('tmpavatar');
 		if (is_null($tmpavatar)) {
 			$l = new \OC_L10n('core');
 			\OC_JSON::error(array("data" => array("message" => $l->t("No temporary profile picture available, try again")) ));
@@ -149,7 +155,7 @@ class Controller {
 			$avatar = new \OC_Avatar($user);
 			$avatar->set($image->data());
 			// Clean up
-			\OC_Cache::remove('tmpavatar');
+			\OC\Cache::remove('tmpavatar');
 			\OC_JSON::success();
 		} catch (\Exception $e) {
 			\OC_JSON::error(array("data" => array("message" => $e->getMessage()) ));

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ownCloud - Activity Appn
+ * ownCloud - Activity App
  *
  * @author Frank Karlitschek
  * @copyright 2013 Frank Karlitschek frank@owncloud.org
@@ -16,46 +16,35 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
+ * You should have received a copy of the GNU Affero General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 
 // check if the user has the right permissions to access the activities
-OCP\User::checkLoggedIn();
-OCP\App::checkAppEnabled('activity');
+\OCP\User::checkLoggedIn();
+\OCP\App::checkAppEnabled('activity');
 
 // activate the right navigation entry
-OCP\App::setActiveNavigationEntry('activity');
-
+\OCP\App::setActiveNavigationEntry('activity');
 
 // load the needed js scripts and css
-OCP\Util::addScript('activity', 'jquery.masonry.min');
-OCP\Util::addScript('activity', 'jquery.infinitescroll.min');
-OCP\Util::addScript('activity', 'script');
-OCP\Util::addStyle('activity', 'style');
+\OCP\Util::addScript('activity', 'script');
+\OCP\Util::addStyle('activity', 'style');
+
+$navigation = new \OCA\Activity\Navigation(\OCP\Util::getL10N('activity'), \OC::$server->getActivityManager(), \OC::$server->getURLGenerator());
+$navigation->setRSSToken(\OCP\Config::getUserValue(\OCP\User::getUser(), 'activity', 'rsstoken'));
 
 // get the page that is requested. Needed for endless scrolling
-if (isset($_GET['page'])) {
-	$page = intval($_GET['page']) - 1;
-} else {
-	$page = 0;
-}
-
-// get rss url
-$rsslink = \OCP\Util::linkToAbsolute('activity', 'rss.php');
-$nextpage = \OCP\Util::linkToAbsolute('activity', 'index.php', array('page' => $page + 2));
-
-// read activities data
-$count = 30;
-$activity = OCA\Activity\Data::read(($page) * $count, 30);
-
+$data = new \OCA\Activity\Data(
+	\OC::$server->getActivityManager()
+);
+$page = $data->getPageFromParam() - 1;
+$filter = $data->getFilterFromParam();
 
 // show activity template
 $tmpl = new \OCP\Template('activity', 'list', 'user');
-$tmpl->assign('rsslink', $rsslink);
-$tmpl->assign('activity', $activity);
-if ($page == 0) $tmpl->assign('nextpage', $nextpage);
+$tmpl->assign('filter', $filter);
+$tmpl->assign('appNavigation', $navigation->getTemplate($filter));
 $tmpl->printPage();
-

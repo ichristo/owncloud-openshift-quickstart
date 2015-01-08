@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "No file provided for import" => "Niciun fișier furnizat pentru import",
 "Unsupported file type for import" => "Tipul de fișier nu este suportat pentru importări",
 "Bookmarks" => "Semne de carte",
@@ -21,6 +22,7 @@
 "Edit" => "Editează",
 "Cancel" => "Anulare",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Trage acest semn în semnele de carte din navigatorul tău web când dorești să salvezi rapid un semn către o pagină web:",
+"Add to ownCloud" => "Adaugă la ownCloud",
 "Address" => "Adresă",
 "Add" => "Adaugă",
 "Related Tags" => "Marcaje asemănătoare",
@@ -32,3 +34,4 @@
 "Export" => "Exportă",
 "Import" => "Importă"
 );
+$PLURAL_FORMS = "nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));";

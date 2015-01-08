@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "No file provided for import" => "Neniu dosiero aldonita por enporti",
 "Unsupported file type for import" => "Dosiertipo nekongrua kun enporto",
 "Bookmarks" => "Legosignoj",
@@ -21,6 +22,7 @@
 "Edit" => "Redakti",
 "Cancel" => "Nuligi",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Ŝovu tion ĉi al la legosignoj de via TTT-legilo kaj klaku ĝin, se vi volas rapide legosignigi TTT-paĝon:",
+"Add to ownCloud" => "Aldoni al ownCloud",
 "Address" => "Adreso",
 "Add" => "Aldoni",
 "Related Tags" => "Rilataj etikedoj",
@@ -32,3 +34,4 @@
 "Export" => "Elporti",
 "Import" => "Enporti"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

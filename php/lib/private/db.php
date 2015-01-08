@@ -44,14 +44,11 @@ class OC_DB {
 	/**
 	 * @var \OC\DB\Connection $connection
 	 */
-	static private $connection; //the prefered connection to use, only Doctrine
-
-	static private $prefix=null;
-	static private $type=null;
+	static private $connection; //the preferred connection to use, only Doctrine
 
 	/**
-	 * @brief connects to the database
-	 * @return bool true if connection can be established or false on error
+	 * connects to the database
+	 * @return boolean|null true if connection can be established or false on error
 	 *
 	 * Connects to the database as specified in config.php
 	 */
@@ -60,115 +57,68 @@ class OC_DB {
 			return true;
 		}
 
-		// The global data we need
-		$name = OC_Config::getValue( "dbname", "owncloud" );
-		$host = OC_Config::getValue( "dbhost", "" );
-		$user = OC_Config::getValue( "dbuser", "" );
-		$pass = OC_Config::getValue( "dbpassword", "" );
-		$type = OC_Config::getValue( "dbtype", "sqlite" );
-		if(strpos($host, ':')) {
-			list($host, $port)=explode(':', $host, 2);
+		$type = OC_Config::getValue('dbtype', 'sqlite');
+		$factory = new \OC\DB\ConnectionFactory();
+		if (!$factory->isValidType($type)) {
+			return false;
+		}
+
+		$connectionParams = array(
+			'user' => OC_Config::getValue('dbuser', ''),
+			'password' => OC_Config::getValue('dbpassword', ''),
+		);
+		$name = OC_Config::getValue('dbname', 'owncloud');
+
+		if ($factory->normalizeType($type) === 'sqlite3') {
+			$datadir = OC_Config::getValue("datadirectory", OC::$SERVERROOT.'/data');
+			$connectionParams['path'] = $datadir.'/'.$name.'.db';
 		} else {
-			$port=false;
-		}
-
-		// do nothing if the connection already has been established
-		if (!self::$connection) {
-			$config = new \Doctrine\DBAL\Configuration();
-			$eventManager = new \Doctrine\Common\EventManager();
-			switch($type) {
-				case 'sqlite':
-				case 'sqlite3':
-					$datadir=OC_Config::getValue( "datadirectory", OC::$SERVERROOT.'/data' );
-					$connectionParams = array(
-							'user' => $user,
-							'password' => $pass,
-							'path' => $datadir.'/'.$name.'.db',
-							'driver' => 'pdo_sqlite',
-					);
-					$connectionParams['adapter'] = '\OC\DB\AdapterSqlite';
-					$connectionParams['wrapperClass'] = 'OC\DB\Connection';
-					break;
-				case 'mysql':
-					$connectionParams = array(
-							'user' => $user,
-							'password' => $pass,
-							'host' => $host,
-							'port' => $port,
-							'dbname' => $name,
-							'charset' => 'UTF8',
-							'driver' => 'pdo_mysql',
-					);
-					$connectionParams['adapter'] = '\OC\DB\Adapter';
-					$connectionParams['wrapperClass'] = 'OC\DB\Connection';
-					// Send "SET NAMES utf8". Only required on PHP 5.3 below 5.3.6.
-					// See http://stackoverflow.com/questions/4361459/php-pdo-charset-set-names#4361485
-					$eventManager->addEventSubscriber(new \Doctrine\DBAL\Event\Listeners\MysqlSessionInit);
-					break;
-				case 'pgsql':
-					$connectionParams = array(
-							'user' => $user,
-							'password' => $pass,
-							'host' => $host,
-							'port' => $port,
-							'dbname' => $name,
-							'driver' => 'pdo_pgsql',
-					);
-					$connectionParams['adapter'] = '\OC\DB\AdapterPgSql';
-					$connectionParams['wrapperClass'] = 'OC\DB\Connection';
-					break;
-				case 'oci':
-					$connectionParams = array(
-							'user' => $user,
-							'password' => $pass,
-							'host' => $host,
-							'dbname' => $name,
-							'charset' => 'AL32UTF8',
-							'driver' => 'oci8',
-					);
-					if (!empty($port)) {
-						$connectionParams['port'] = $port;
-					}
-					$connectionParams['adapter'] = '\OC\DB\AdapterOCI8';
-					$connectionParams['wrapperClass'] = 'OC\DB\OracleConnection';
-					$eventManager->addEventSubscriber(new \Doctrine\DBAL\Event\Listeners\OracleSessionInit);
-					break;
-				case 'mssql':
-					$connectionParams = array(
-							'user' => $user,
-							'password' => $pass,
-							'host' => $host,
-							'port' => $port,
-							'dbname' => $name,
-							'charset' => 'UTF8',
-							'driver' => 'pdo_sqlsrv',
-					);
-					$connectionParams['adapter'] = '\OC\DB\AdapterSQLSrv';
-					$connectionParams['wrapperClass'] = 'OC\DB\Connection';
-					break;
-				default:
-					return false;
-			}
-			$connectionParams['tablePrefix'] = OC_Config::getValue('dbtableprefix', 'oc_' );
-			try {
-				self::$connection = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config, $eventManager);
-				if ($type === 'sqlite' || $type === 'sqlite3') {
-					// Sqlite doesn't handle query caching and schema changes
-					// TODO: find a better way to handle this
-					self::$connection->disableQueryStatementCaching();
+			$host = OC_Config::getValue('dbhost', '');
+			if (strpos($host, ':')) {
+				// Host variable may carry a port or socket.
+				list($host, $portOrSocket) = explode(':', $host, 2);
+				if (ctype_digit($portOrSocket)) {
+					$connectionParams['port'] = $portOrSocket;
+				} else {
+					$connectionParams['unix_socket'] = $portOrSocket;
 				}
-			} catch(\Doctrine\DBAL\DBALException $e) {
-				OC_Log::write('core', $e->getMessage(), OC_Log::FATAL);
-				OC_User::setUserId(null);
-
-				// send http status 503
-				header('HTTP/1.1 503 Service Temporarily Unavailable');
-				header('Status: 503 Service Temporarily Unavailable');
-				OC_Template::printErrorPage('Failed to connect to database');
-				die();
 			}
+			$connectionParams['host'] = $host;
+			$connectionParams['dbname'] = $name;
 		}
+
+		$connectionParams['tablePrefix'] = OC_Config::getValue('dbtableprefix', 'oc_');
+
+		//additional driver options, eg. for mysql ssl
+		$driverOptions = OC_Config::getValue('dbdriveroptions', null);
+		if ($driverOptions) {
+			$connectionParams['driverOptions'] = $driverOptions;
+		}
+
+		try {
+			self::$connection = $factory->getConnection($type, $connectionParams);
+		} catch(\Doctrine\DBAL\DBALException $e) {
+			OC_Log::write('core', $e->getMessage(), OC_Log::FATAL);
+			OC_User::setUserId(null);
+
+			// send http status 503
+			header('HTTP/1.1 503 Service Temporarily Unavailable');
+			header('Status: 503 Service Temporarily Unavailable');
+			OC_Template::printErrorPage('Failed to connect to database');
+			die();
+		}
+
 		return true;
+	}
+
+	/**
+	 * The existing database connection is closed and connected again
+	 */
+	public static function reconnect() {
+		if(self::$connection) {
+			self::$connection->close();
+			self::$connection->connect();
+		}
 	}
 
 	/**
@@ -190,24 +140,24 @@ class OC_DB {
 	}
 
 	/**
-	 * @brief Prepare a SQL query
+	 * Prepare a SQL query
 	 * @param string $query Query string
 	 * @param int $limit
 	 * @param int $offset
 	 * @param bool $isManipulation
 	 * @throws DatabaseException
-	 * @return \Doctrine\DBAL\Statement prepared SQL query
+	 * @return OC_DB_StatementWrapper prepared SQL query
 	 *
 	 * SQL query via Doctrine prepare(), needs to be execute()'d!
 	 */
 	static public function prepare( $query , $limit = null, $offset = null, $isManipulation = null) {
 		self::connect();
-		
+
 		if ($isManipulation === null) {
 			//try to guess, so we return the number of rows on manipulations
 			$isManipulation = self::isManipulation($query);
 		}
-		
+
 		// return the result
 		try {
 			$result = self::$connection->prepare($query, $limit, $offset);
@@ -222,7 +172,7 @@ class OC_DB {
 	/**
 	 * tries to guess the type of statement based on the first 10 characters
 	 * the current check allows some whitespace but does not work with IF EXISTS or other more complex statements
-	 * 
+	 *
 	 * @param string $sql
 	 * @return bool
 	 */
@@ -245,14 +195,14 @@ class OC_DB {
 		}
 		return false;
 	}
-	
+
 	/**
-	 * @brief execute a prepared statement, on error write log and throw exception
+	 * execute a prepared statement, on error write log and throw exception
 	 * @param mixed $stmt OC_DB_StatementWrapper,
 	 *					  an array with 'sql' and optionally 'limit' and 'offset' keys
 	 *					.. or a simple sql query string
 	 * @param array $parameters
-	 * @return result
+	 * @return OC_DB_StatementWrapper
 	 * @throws DatabaseException
 	 */
 	static public function executeAudited( $stmt, array $parameters = null) {
@@ -296,9 +246,9 @@ class OC_DB {
 	}
 
 	/**
-	 * @brief gets last value of autoincrement
+	 * gets last value of autoincrement
 	 * @param string $table The optional table name (will replace *PREFIX*) and add sequence suffix
-	 * @return int id
+	 * @return string id
 	 * @throws DatabaseException
 	 *
 	 * \Doctrine\DBAL\Connection lastInsertId
@@ -312,10 +262,10 @@ class OC_DB {
 	}
 
 	/**
-	 * @brief Insert a row if a matching row doesn't exists.
-	 * @param string $table. The table to insert into in the form '*PREFIX*tableName'
-	 * @param array $input. An array of fieldname/value pairs
-	 * @return int number of updated rows
+	 * Insert a row if a matching row doesn't exists.
+	 * @param string $table The table to insert into in the form '*PREFIX*tableName'
+	 * @param array $input An array of fieldname/value pairs
+	 * @return boolean number of updated rows
 	 */
 	public static function insertIfNotExist($table, $input) {
 		self::connect();
@@ -339,7 +289,7 @@ class OC_DB {
 	}
 
 	/**
-	 * @brief saves database schema to xml file
+	 * saves database schema to xml file
 	 * @param string $file name of file
 	 * @param int $mode
 	 * @return bool
@@ -352,7 +302,7 @@ class OC_DB {
 	}
 
 	/**
-	 * @brief Creates tables from XML file
+	 * Creates tables from XML file
 	 * @param string $file file to read structure from
 	 * @return bool
 	 *
@@ -365,10 +315,10 @@ class OC_DB {
 	}
 
 	/**
-	 * @brief update the database schema
+	 * update the database schema
 	 * @param string $file file to read structure from
 	 * @throws Exception
-	 * @return bool
+	 * @return string|boolean
 	 */
 	public static function updateDbFromStructure($file) {
 		$schemaManager = self::getMDB2SchemaManager();
@@ -382,12 +332,38 @@ class OC_DB {
 	}
 
 	/**
-	 * @brief drop a table
+	 * simulate the database schema update
+	 * @param string $file file to read structure from
+	 * @throws Exception
+	 * @return string|boolean
+	 */
+	public static function simulateUpdateDbFromStructure($file) {
+		$schemaManager = self::getMDB2SchemaManager();
+		try {
+			$result = $schemaManager->simulateUpdateDbFromStructure($file);
+		} catch (Exception $e) {
+			OC_Log::write('core', 'Simulated database structure update failed ('.$e.')', OC_Log::FATAL);
+			throw $e;
+		}
+		return $result;
+	}
+
+	/**
+	 * drop a table - the database prefix will be prepended
 	 * @param string $tableName the table to drop
 	 */
 	public static function dropTable($tableName) {
-		$schemaManager = self::getMDB2SchemaManager();
-		$schemaManager->dropTable($tableName);
+
+		$tableName = OC_Config::getValue('dbtableprefix', 'oc_' ) . trim($tableName);
+
+		self::$connection->beginTransaction();
+
+		$platform = self::$connection->getDatabasePlatform();
+		$sql = $platform->getDropTableSQL($platform->quoteIdentifier($tableName));
+
+		self::$connection->query($sql);
+
+		self::$connection->commit();
 	}
 
 	/**
@@ -397,15 +373,6 @@ class OC_DB {
 	public static function removeDBStructure($file) {
 		$schemaManager = self::getMDB2SchemaManager();
 		$schemaManager->removeDBStructure($file);
-	}
-
-	/**
-	 * @brief replaces the ownCloud tables with a new set
-	 * @param $file string path to the MDB2 xml db export file
-	 */
-	public static function replaceDB( $file ) {
-		$schemaManager = self::getMDB2SchemaManager();
-		$schemaManager->replaceDB($file);
 	}
 
 	/**
@@ -456,10 +423,58 @@ class OC_DB {
 	 * @param bool $enabled
 	 */
 	static public function enableCaching($enabled) {
+		$connection = self::getConnection();
 		if ($enabled) {
-			self::$connection->enableQueryStatementCaching();
+			$connection->enableQueryStatementCaching();
 		} else {
-			self::$connection->disableQueryStatementCaching();
+			$connection->disableQueryStatementCaching();
 		}
+	}
+
+	/**
+	 * Checks if a table exists in the database - the database prefix will be prepended
+	 *
+	 * @param string $table
+	 * @return bool
+	 * @throws DatabaseException
+	 */
+	public static function tableExists($table) {
+
+		$table = OC_Config::getValue('dbtableprefix', 'oc_' ) . trim($table);
+
+		$dbType = OC_Config::getValue( 'dbtype', 'sqlite' );
+		switch ($dbType) {
+			case 'sqlite':
+			case 'sqlite3':
+				$sql = "SELECT name FROM sqlite_master "
+					.  "WHERE type = 'table' AND name = ? "
+					.  "UNION ALL SELECT name FROM sqlite_temp_master "
+					.  "WHERE type = 'table' AND name = ?";
+				$result = \OC_DB::executeAudited($sql, array($table, $table));
+				break;
+			case 'mysql':
+				$sql = 'SHOW TABLES LIKE ?';
+				$result = \OC_DB::executeAudited($sql, array($table));
+				break;
+			case 'pgsql':
+				$sql = 'SELECT tablename AS table_name, schemaname AS schema_name '
+					.  'FROM pg_tables WHERE schemaname NOT LIKE \'pg_%\' '
+					.  'AND schemaname != \'information_schema\' '
+					.  'AND tablename = ?';
+				$result = \OC_DB::executeAudited($sql, array($table));
+				break;
+			case 'oci':
+				$sql = 'SELECT TABLE_NAME FROM USER_TABLES WHERE TABLE_NAME = ?';
+				$result = \OC_DB::executeAudited($sql, array($table));
+				break;
+			case 'mssql':
+				$sql = 'SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?';
+				$result = \OC_DB::executeAudited($sql, array($table));
+				break;
+			default:
+				throw new DatabaseException("Unknown database type: $dbType");
+		}
+
+		return $result->fetchOne() === $table;
 	}
 }

@@ -21,14 +21,21 @@ class Loader {
 	 *
 	 * @param callable $callback
 	 */
-	public function addStorageWrapper($callback) {
-		$this->storageWrappers[] = $callback;
+	public function addStorageWrapper($wrapperName, $callback) {
+		$this->storageWrappers[$wrapperName] = $callback;
 	}
 
+	/**
+	 * @param string|boolean $mountPoint
+	 * @param string $class
+	 */
 	public function load($mountPoint, $class, $arguments) {
 		return $this->wrap($mountPoint, new $class($arguments));
 	}
 
+	/**
+	 * @param string|boolean $mountPoint
+	 */
 	public function wrap($mountPoint, $storage) {
 		foreach ($this->storageWrappers as $wrapper) {
 			$storage = $wrapper($mountPoint, $storage);

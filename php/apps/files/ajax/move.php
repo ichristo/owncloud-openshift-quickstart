@@ -1,10 +1,8 @@
 <?php
 
-// Init owncloud
-
-
 OCP\JSON::checkLoggedIn();
 OCP\JSON::callCheck();
+\OC::$session->close();
 
 // Get data
 $dir = stripslashes($_POST["dir"]);
@@ -18,13 +16,19 @@ if(\OC\Files\Filesystem::file_exists($target . '/' . $file)) {
 	exit;
 }
 
-if ($dir != '' || $file != 'Shared') {
+if ($target != '' || strtolower($file) != 'shared') {
 	$targetFile = \OC\Files\Filesystem::normalizePath($target . '/' . $file);
 	$sourceFile = \OC\Files\Filesystem::normalizePath($dir . '/' . $file);
-	if(\OC\Files\Filesystem::rename($sourceFile, $targetFile)) {
-		OCP\JSON::success(array("data" => array( "dir" => $dir, "files" => $file )));
-	} else {
-		OCP\JSON::error(array("data" => array( "message" => $l->t("Could not move %s", array($file)) )));
+	try {
+		if(\OC\Files\Filesystem::rename($sourceFile, $targetFile)) {
+			OCP\JSON::success(array("data" => array( "dir" => $dir, "files" => $file )));
+		} else {
+			OCP\JSON::error(array("data" => array( "message" => $l->t("Could not move %s", array($file)) )));
+		}
+	} catch (\OCP\Files\NotPermittedException $e) {
+		OCP\JSON::error(array("data" => array( "message" => $l->t("Permission denied") )));
+	} catch (\Exception $e) {
+		OCP\JSON::error(array("data" => array( "message" => $e->getMessage())));
 	}
 }else{
 	OCP\JSON::error(array("data" => array( "message" => $l->t("Could not move %s", array($file)) )));

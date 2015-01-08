@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "No file provided for import" => "Nincs megadva az importálandó fájl",
 "Unsupported file type for import" => "Az importálandó fájltípus nem támogatott",
 "Bookmarks" => "Könyvjelzők",
@@ -21,6 +22,7 @@
 "Edit" => "Szerkesztés",
 "Cancel" => "Mégsem",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Húzza át ezt a gombot a böngészőprogram \"Könyvjelzők\" sávjába! Ha ezután rákattint, akkor az aktuális weboldal címét ide fogja menteni.",
+"Add to ownCloud" => "Hozzáadni az ownCloud-hoz",
 "Address" => "Cím",
 "Add" => "Hozzáad",
 "Related Tags" => "Kapcsolódó címkék",
@@ -32,3 +34,4 @@
 "Export" => "Exportálás",
 "Import" => "Importálás"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

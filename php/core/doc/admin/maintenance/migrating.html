@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Migrating ownCloud Installations &mdash; ownCloud Administrators Manual 6.0 documentation</title>
+    <title>Migrating ownCloud Installations &mdash; ownCloud Administrators Manual 7.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '6.0',
+        VERSION:     '7.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -27,9 +27,9 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/bootstrap.js"></script>
-    <link rel="top" title="ownCloud Administrators Manual 6.0 documentation" href="../index.html" />
+    <link rel="top" title="ownCloud Administrators Manual 7.0 documentation" href="../index.html" />
     <link rel="up" title="Maintenance" href="index.html" />
-    <link rel="next" title="Issues" href="../issues/index.html" />
+    <link rel="next" title="Converting Database Type" href="convert_db.html" />
     <link rel="prev" title="Restoring ownCloud" href="restore.html" />
 <script type="text/javascript">
 (function () {
@@ -113,16 +113,20 @@
 										<li><a href="../contents.html">Overview</a></li>
 									</ul>
                   <ul>
-<li class="toctree-l1"><a class="reference internal" href="../index.html">Admin Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Introduction</a></li>
 </ul>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whats_new_admin.html">What&#8217;s New for Admins in ownCloud 7</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Maintenance</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="enable_maintenance.html">Maintenance Mode Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="backup.html">Backing up ownCloud</a></li>
-<li class="toctree-l2"><a class="reference internal" href="update.html">Updating ownCloud</a></li>
+<li class="toctree-l2"><a class="reference internal" href="update.html">Updating ownCloud with the Updater App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrade.html">Upgrading Your ownCloud Server</a></li>
 <li class="toctree-l2"><a class="reference internal" href="restore.html">Restoring ownCloud</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Migrating ownCloud Installations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="convert_db.html">Converting Database Type</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../issues/index.html">Issues</a></li>
@@ -142,9 +146,9 @@
 <h1>Migrating ownCloud Installations<a class="headerlink" href="#migrating-owncloud-installations" title="Permalink to this headline">¶</a></h1>
 <p>To migrate an ownCloud install, follow those steps:</p>
 <ol class="arabic simple">
-<li>Backup data/config folders and your database (look at &#8220;Backing Up ownCloud&#8221;)</li>
+<li>Backup data/config folders and your database (see <a class="reference internal" href="backup.html"><em>Backing up ownCloud</em></a>)</li>
 <li>Move your data</li>
-<li>Restore your data/config folders and your database (look at &#8220;Restore ownCloud&#8221;)</li>
+<li>Restore your data/config folders and your database (see <a class="reference internal" href="restore.html"><em>Restoring ownCloud</em></a>)</li>
 <li>Update config.php of any changes to your database connection</li>
 </ol>
 </div>

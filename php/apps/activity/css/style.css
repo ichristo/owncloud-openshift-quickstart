@@ -1,48 +1,66 @@
+#container h2 {
+	margin-left: 24px;
+	margin-bottom: 16px;
+}
+
 .activitysubject {
-	font-size:1.0em;
-	color: #333;
+	display: inline-block;
+	vertical-align: text-bottom;
+	width: 85%;
+	margin-bottom: 5px;
+	margin-left: 5px;
 	text-overflow: ellipsis;
-	overflow-x: hidden;
+	overflow: hidden;
 }
 .activitymessage {
 	font-size:0.8em;
 	color:#666;
 	text-overflow: ellipsis;
-	overflow-x: hidden;
+	overflow: hidden;
 }
 
-.noactivities{
+#no_activities {
 	position: absolute;
 	text-align: center;
 	top: 40%;
 	width: 100%;
 	padding: 20px;
-	box-sizing: border-box;
-	-moz-box-sizing: border-box;
 }
-.noactivities .head{
+
+#no_activities .head, #no_more_activities .head {
 	font-size: 1.5em;
 	color: #333;
 	font-weight: bold;
-	text-shadow: #fff 0 1px 0;
+	text-shadow: #aaa 0 1px 0;
 }
-.noactivities .body{
+
+#no_activities .body {
 	color: #666;
 	margin-top: 10px;
 	font-size: 1em;
 }
 
-.rssbutton {
-	font-size: 0.8em;
-	position: absolute;
-	top: 0;
-	right: 0;
-	margin: 10px 5px;
+#no_more_activities {
+	position: relative;
+	top: 50px;
+	width: 100%;
+	text-align: center;
+	padding: 50px 0;
+
+	z-index: 100;
+	margin: 40px auto;
+	bottom: 20px;
+	color: #555;
+}
+
+#loading_activities {
+	height: 50px;
+	margin: 0 auto;
+	padding: 20px;
 }
 
 #container {
   background: #FFF;
-  padding: 10px 5px;
   margin-bottom: 20px;
   border-radius: 5px;
   clear: both;
@@ -56,31 +74,10 @@
 	padding-bottom: 10px;
 }
 
-.groupheader{
-	font-weight: bold;
-	font-size:2.2em;
-	color: #666;
-	border-top: 1px solid #DDD;
-	padding: 20px 20px 10px 20px;
-	clear: both;
-	display: block;
-}
-
-.group:first-child .groupheader{
-	border-top: none;
-}
-
 .box {
-	width: 240px;
-	float: left;
-	padding: 15px;
-	margin: 10px;
-	background: #EEE;
-	font-weight: 300;
-	border: 1px solid #DDD;
-	-webkit-border-radius: 5px;
-	 -moz-border-radius: 5px;
-		  border-radius: 5px;
+	width: 100%;
+	display: block;
+	margin-bottom: 10px;
 }
 
 .box.loaded{
@@ -96,30 +93,27 @@
 	opacity: 0;
 }
 
-.box .avatar{
-	float: left;
-	margin-right: 20px;
-}
-
 .box .header{
 	height: 32px;
-	border-bottom: 1px solid #DDD;
-	padding-bottom: 20px;
 	margin-bottom: 10px;
 }
 
 .box .messagecontainer{
 	width: 100%;
 	display: block;
+	margin-bottom: 20px;
 }
 
 .box .preview{
-	margin-top: 10px;
-	margin-left: auto;
-	margin-right: auto;
 	display: block;
-	width: 150px;
-	height: 150px;
+	width: 50px;
+	height: 50px;
+	margin-left: 24px;
+}
+
+.box .preview-dir-icon{
+	width: 32px;
+	height: 32px;
 }
 
 .box .user{
@@ -136,7 +130,7 @@
 }
 
 .box .activitytime {
-	float: left;
+	float: right;
 	color:#666;
 	font-size: 0.8em;
 }
@@ -154,23 +148,41 @@
 .box .grouped .more{
 	cursor: default;
 	color: #666;
-	text-align: right;
 }
 
-/* Infinite Scroll loader */
-#infscr-loading {
-  text-align: center;
-  z-index: 100;
-  position: fixed;
-  left: 45%;
-  bottom: 40px;
-  width: 200px;
-  padding: 10px;
-  background: #000;
-  opacity: 0.8;
-  color: #FFF;
-  -webkit-border-radius: 10px;
-	 -moz-border-radius: 10px;
-		  border-radius: 10px;
+/* Style for in event parameters */
+.activity-section a.filename {
+	font-weight: bold;
 }
 
+.activity-section .avatar {
+	vertical-align: middle;
+	display: inline-block;
+	margin-right: 5px;
+}
+
+/* colored icons, in addition to core ones */
+.activity-icon {
+	min-width: 16px;
+	min-height: 16px;
+	display: inline-block;
+	vertical-align: top;
+	margin-top: 2px;
+}
+.icon-add-color {
+	background-image: url('../img/add-color.svg');
+}
+.icon-change {
+	background-image: url('../img/change.svg');
+}
+.icon-delete-color {
+	background-image: url('../img/delete-color.svg');
+}
+/* grey the changed and shared icons so they are less intense */
+.icon-change,
+.icon-share,
+.icon-public {
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	filter: alpha(opacity=50);
+	opacity: .5;
+}

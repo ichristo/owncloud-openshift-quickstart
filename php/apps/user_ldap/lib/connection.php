@@ -23,6 +23,13 @@
 
 namespace OCA\user_ldap\lib;
 
+//magic properties (incomplete)
+/**
+ * responsible for LDAP connections in context with the provided configuration
+ * @property string ldapUserFilter
+ * @property string ldapUserDisplayName
+ * @property boolean hasPagedResultSupport
+*/
 class Connection extends LDAPUtility {
 	private $ldapConnectionRes = null;
 	private $configPrefix;
@@ -41,10 +48,13 @@ class Connection extends LDAPUtility {
 
 	protected $doNotValidate = false;
 
+	protected $ignoreValidation = false;
+
 	/**
-	 * @brief Constructor
-	 * @param $configPrefix a string with the prefix for the configkey column (appconfig table)
-	 * @param $configID a string with the value for the appid column (appconfig table) or null for on-the-fly connections
+	 * Constructor
+	 * @param ILDAPWrapper $ldap
+	 * @param string $configPrefix a string with the prefix for the configkey column (appconfig table)
+	 * @param string|null $configID a string with the value for the appid column (appconfig table) or null for on-the-fly connections
 	 */
 	public function __construct(ILDAPWrapper $ldap, $configPrefix = '', $configID = 'user_ldap') {
 		parent::__construct($ldap);
@@ -52,11 +62,11 @@ class Connection extends LDAPUtility {
 		$this->configID = $configID;
 		$this->configuration = new Configuration($configPrefix,
 												 !is_null($configID));
-		$memcache = new \OC\Memcache\Factory();
+		$memcache = \OC::$server->getMemCacheFactory();
 		if($memcache->isAvailable()) {
 			$this->cache = $memcache->create();
 		} else {
-			$this->cache = \OC_Cache::getGlobalCache();
+			$this->cache = \OC\Cache::getGlobalCache();
 		}
 		$this->hasPagedResultSupport =
 			$this->ldap->hasPagedResultSupport();
@@ -72,14 +82,20 @@ class Connection extends LDAPUtility {
 	}
 
 	/**
-	 * @brief defines behaviour when the instance is cloned
+	 * defines behaviour when the instance is cloned
 	 */
 	public function __clone() {
 		//a cloned instance inherits the connection resource. It may use it,
 		//but it may not disconnect it
 		$this->dontDestruct = true;
+		$this->configuration = new Configuration($this->configPrefix,
+												 !is_null($this->configID));
 	}
 
+	/**
+	 * @param string $name
+	 * @return bool|mixed|void
+	 */
 	public function __get($name) {
 		if(!$this->configured) {
 			$this->readConfiguration();
@@ -92,6 +108,10 @@ class Connection extends LDAPUtility {
 		return $this->configuration->$name;
 	}
 
+	/**
+	 * @param string $name
+	 * @param mixed $value
+	 */
 	public function __set($name, $value) {
 		$this->doNotValidate = false;
 		$before = $this->configuration->$name;
@@ -106,10 +126,18 @@ class Connection extends LDAPUtility {
 	}
 
 	/**
-	 * @brief initializes the LDAP backend
-	 * @param $force read the config settings no matter what
-	 *
+	 * sets whether the result of the configuration validation shall
+	 * be ignored when establishing the connection. Used by the Wizard
+	 * in early configuration state.
+	 * @param bool $state
+	 */
+	public function setIgnoreValidation($state) {
+		$this->ignoreValidation = (bool)$state;
+	}
+
+	/**
 	 * initializes the LDAP backend
+	 * @param bool $force read the config settings no matter what
 	 */
 	public function init($force = false) {
 		$this->readConfiguration($force);
@@ -132,6 +160,10 @@ class Connection extends LDAPUtility {
 		return $this->ldapConnectionRes;
 	}
 
+	/**
+	 * @param string|null $key
+	 * @return string
+	 */
 	private function getCacheKey($key) {
 		$prefix = 'LDAP-'.$this->configID.'-'.$this->configPrefix.'-';
 		if(is_null($key)) {
@@ -140,6 +172,10 @@ class Connection extends LDAPUtility {
 		return $prefix.md5($key);
 	}
 
+	/**
+	 * @param string $key
+	 * @return mixed|null
+	 */
 	public function getFromCache($key) {
 		if(!$this->configured) {
 			$this->readConfiguration();
@@ -156,6 +192,10 @@ class Connection extends LDAPUtility {
 		return unserialize(base64_decode($this->cache->get($key)));
 	}
 
+	/**
+	 * @param string $key
+	 * @return bool
+	 */
 	public function isCached($key) {
 		if(!$this->configured) {
 			$this->readConfiguration();
@@ -167,6 +207,10 @@ class Connection extends LDAPUtility {
 		return $this->cache->hasKey($key);
 	}
 
+	/**
+	 * @param string $key
+	 * @param mixed $value
+	 */
 	public function writeToCache($key, $value) {
 		if(!$this->configured) {
 			$this->readConfiguration();
@@ -185,8 +229,8 @@ class Connection extends LDAPUtility {
 	}
 
 	/**
-	 * @brief Caches the general LDAP configuration.
-	 * @param $force optional. true, if the re-read should be forced. defaults
+	 * Caches the general LDAP configuration.
+	 * @param bool $force optional. true, if the re-read should be forced. defaults
 	 * to false.
 	 * @return null
 	 */
@@ -198,10 +242,10 @@ class Connection extends LDAPUtility {
 	}
 
 	/**
-	 * @brief set LDAP configuration with values delivered by an array, not read from configuration
-	 * @param $config array that holds the config parameters in an associated array
-	 * @param &$setParameters optional; array where the set fields will be given to
-	 * @return true if config validates, false otherwise. Check with $setParameters for detailed success on single parameters
+	 * set LDAP configuration with values delivered by an array, not read from configuration
+	 * @param array $config array that holds the config parameters in an associated array
+	 * @param array &$setParameters optional; array where the set fields will be given to
+	 * @return boolean true if config validates, false otherwise. Check with $setParameters for detailed success on single parameters
 	 */
 	public function setConfiguration($config, &$setParameters = null) {
 		if(is_null($setParameters)) {
@@ -218,7 +262,7 @@ class Connection extends LDAPUtility {
 	}
 
 	/**
-	 * @brief saves the current Configuration in the database and empties the
+	 * saves the current Configuration in the database and empties the
 	 * cache
 	 * @return null
 	 */
@@ -228,7 +272,7 @@ class Connection extends LDAPUtility {
 	}
 
 	/**
-	 * @brief get the current LDAP configuration
+	 * get the current LDAP configuration
 	 * @return array
 	 */
 	public function getConfiguration() {
@@ -264,7 +308,7 @@ class Connection extends LDAPUtility {
 	private function doSoftValidation() {
 		//if User or Group Base are not set, take over Base DN setting
 		foreach(array('ldapBaseUsers', 'ldapBaseGroups') as $keyBase) {
-		    $val = $this->configuration->$keyBase;
+			$val = $this->configuration->$keyBase;
 			if(empty($val)) {
 				$obj = strpos('Users', $keyBase) !== false ? 'Users' : 'Groups';
 				\OCP\Util::writeLog('user_ldap',
@@ -312,9 +356,9 @@ class Connection extends LDAPUtility {
 		}
 
 		//make sure empty search attributes are saved as simple, empty array
-		$sakeys = array('ldapAttributesForUserSearch',
+		$saKeys = array('ldapAttributesForUserSearch',
 						'ldapAttributesForGroupSearch');
-		foreach($sakeys as $key) {
+		foreach($saKeys as $key) {
 			$val = $this->configuration->$key;
 			if(is_array($val) && count($val) === 1 && empty($val[0])) {
 				$this->configuration->$key = array();
@@ -331,6 +375,9 @@ class Connection extends LDAPUtility {
 		}
 	}
 
+	/**
+	 * @return bool
+	 */
 	private function doCriticalValidation() {
 		$configurationOK = true;
 		$errorStr = 'Configuration Error (prefix '.
@@ -405,8 +452,8 @@ class Connection extends LDAPUtility {
 	}
 
 	/**
-	 * @brief Validates the user specified configuration
-	 * @returns true if configuration seems OK, false otherwise
+	 * Validates the user specified configuration
+	 * @return bool true if configuration seems OK, false otherwise
 	 */
 	private function validateConfiguration() {
 
@@ -421,8 +468,8 @@ class Connection extends LDAPUtility {
 		// necessary, but advisable. If left empty, give an info message
 		$this->doSoftValidation();
 
-		//second step: critical checks. If left empty or filled wrong, set as
-		//unconfigured and give a warning.
+		//second step: critical checks. If left empty or filled wrong, mark as
+		//not configured and give a warning.
 		return $this->doCriticalValidation();
 	}
 
@@ -438,7 +485,7 @@ class Connection extends LDAPUtility {
 		if(!$phpLDAPinstalled) {
 			return false;
 		}
-		if(!$this->configured) {
+		if(!$this->ignoreValidation && !$this->configured) {
 			\OCP\Util::writeLog('user_ldap',
 								'Configuration is invalid, cannot connect',
 								\OCP\Util::WARN);
@@ -494,12 +541,17 @@ class Connection extends LDAPUtility {
 		}
 	}
 
+	/**
+	 * @param string $host
+	 * @param string $port
+	 * @return false|void
+	 */
 	private function doConnect($host, $port) {
 		if(empty($host)) {
 			return false;
 		}
 		if(strpos($host, '://') !== false) {
-			//ldap_connect ignores port paramater when URLs are passed
+			//ldap_connect ignores port parameter when URLs are passed
 			$host .= ':' . $port;
 		}
 		$this->ldapConnectionRes = $this->ldap->connect($host, $port);

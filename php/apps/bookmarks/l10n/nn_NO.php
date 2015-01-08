@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "No file provided for import" => "Inga fil gjeve for importering",
 "Unsupported file type for import" => "Ustøtta filtype for importering",
 "Bookmarks" => "Bokmerkje",
@@ -21,6 +22,7 @@
 "Edit" => "Endra",
 "Cancel" => "Avbryt",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Dra denne knappen til bokmerkjelinja i nettlesaren din og klikk han når du vil laga eit bokmerkje raskt:",
+"Add to ownCloud" => "Legg til i ownCloud",
 "Address" => "Adresse",
 "Add" => "Legg til",
 "Related Tags" => "Liknande emneord",
@@ -32,3 +34,4 @@
 "Export" => "Eksporter",
 "Import" => "Importer"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

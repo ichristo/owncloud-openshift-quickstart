@@ -4,7 +4,7 @@
  * ownCloud - App Framework
  *
  * @author Bernhard Posselt
- * @copyright 2012 Bernhard Posselt nukeawhale@gmail.com
+ * @copyright 2012 Bernhard Posselt <dev@bernhard-posselt.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -25,13 +25,16 @@
 namespace OC\AppFramework\Middleware\Security;
 
 use OC\AppFramework\Http;
-use OC\AppFramework\Http\RedirectResponse;
-use OC\AppFramework\Utility\MethodAnnotationReader;
+use OC\AppFramework\Utility\ControllerMethodReflector;
+use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Middleware;
 use OCP\AppFramework\Http\Response;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\IAppContainer;
+use OCP\INavigationManager;
+use OCP\IURLGenerator;
 use OCP\IRequest;
+use OCP\ILogger;
+use OCP\AppFramework\Controller;
 
 
 /**
@@ -42,23 +45,41 @@ use OCP\IRequest;
  */
 class SecurityMiddleware extends Middleware {
 
-	/**
-	 * @var \OCP\AppFramework\IAppContainer
-	 */
-	private $app;
-
-	/**
-	 * @var \OCP\IRequest
-	 */
+	private $navigationManager;
 	private $request;
+	private $reflector;
+	private $appName;
+	private $urlGenerator;
+	private $logger;
+	private $isLoggedIn;
+	private $isAdminUser;
 
 	/**
-	 * @param IAppContainer $app
 	 * @param IRequest $request
+	 * @param ControllerMethodReflector $reflector
+	 * @param INavigationManager $navigationManager
+	 * @param IURLGenerator $urlGenerator
+	 * @param ILogger $logger
+	 * @param string $appName
+	 * @param bool $isLoggedIn
+	 * @param bool $isAdminUser
 	 */
-	public function __construct(IAppContainer $app, IRequest $request){
-		$this->app = $app;
+	public function __construct(IRequest $request,
+	                            ControllerMethodReflector $reflector,
+	                            INavigationManager $navigationManager,
+	                            IURLGenerator $urlGenerator,
+	                            ILogger $logger,
+	                            $appName,
+	                            $isLoggedIn,
+	                            $isAdminUser){
+		$this->navigationManager = $navigationManager;
 		$this->request = $request;
+		$this->reflector = $reflector;
+		$this->appName = $appName;
+		$this->urlGenerator = $urlGenerator;
+		$this->logger = $logger;
+		$this->isLoggedIn = $isLoggedIn;
+		$this->isAdminUser = $isAdminUser;
 	}
 
 
@@ -66,37 +87,44 @@ class SecurityMiddleware extends Middleware {
 	 * This runs all the security checks before a method call. The
 	 * security checks are determined by inspecting the controller method
 	 * annotations
-	 * @param string/Controller $controller the controllername or string
+	 * @param string $controller the controllername or string
 	 * @param string $methodName the name of the method
 	 * @throws SecurityException when a security check fails
 	 */
 	public function beforeController($controller, $methodName){
 
-		// get annotations from comments
-		$annotationReader = new MethodAnnotationReader($controller, $methodName);
-
 		// this will set the current navigation entry of the app, use this only
 		// for normal HTML requests and not for AJAX requests
-		$this->app->getServer()->getNavigationManager()->setActiveEntry($this->app->getAppName());
+		$this->navigationManager->setActiveEntry($this->appName);
 
 		// security checks
-		$isPublicPage = $annotationReader->hasAnnotation('PublicPage');
+		$isPublicPage = $this->reflector->hasAnnotation('PublicPage');
 		if(!$isPublicPage) {
-			if(!$this->app->isLoggedIn()) {
+			if(!$this->isLoggedIn) {
 				throw new SecurityException('Current user is not logged in', Http::STATUS_UNAUTHORIZED);
 			}
 
-			if(!$annotationReader->hasAnnotation('NoAdminRequired')) {
-				if(!$this->app->isAdminUser()) {
+			if(!$this->reflector->hasAnnotation('NoAdminRequired')) {
+				if(!$this->isAdminUser) {
 					throw new SecurityException('Logged in user must be an admin', Http::STATUS_FORBIDDEN);
 				}
 			}
 		}
 
-		if(!$annotationReader->hasAnnotation('NoCSRFRequired')) {
+		if(!$this->reflector->hasAnnotation('NoCSRFRequired')) {
 			if(!$this->request->passesCSRFCheck()) {
 				throw new SecurityException('CSRF check failed', Http::STATUS_PRECONDITION_FAILED);
 			}
+		}
+
+		/**
+		 * FIXME: Use DI once available
+		 * Checks if app is enabled (also inclues a check whether user is allowed to access the resource)
+		 * The getAppPath() check is here since components such as settings also use the AppFramework and
+		 * therefore won't pass this check.
+		 */
+		if(\OC_App::getAppPath($this->appName) !== false && !\OC_App::isEnabled($this->appName)) {
+			throw new SecurityException('App is not enabled', Http::STATUS_PRECONDITION_FAILED);
 		}
 
 	}
@@ -121,13 +149,15 @@ class SecurityMiddleware extends Middleware {
 					array('message' => $exception->getMessage()),
 					$exception->getCode()
 				);
-				$this->app->log($exception->getMessage(), 'debug');
+				$this->logger->debug($exception->getMessage());
 			} else {
 
 				// TODO: replace with link to route
-				$url = $this->app->getServer()->getURLGenerator()->getAbsoluteURL('index.php');
+				$url = $this->urlGenerator->getAbsoluteURL('index.php');
+				// add redirect URL to redirect to the previous page after login
+				$url .= '?redirect_url=' . urlencode($this->request->server['REQUEST_URI']);
 				$response = new RedirectResponse($url);
-				$this->app->log($exception->getMessage(), 'debug');
+				$this->logger->debug($exception->getMessage());
 			}
 
 			return $response;

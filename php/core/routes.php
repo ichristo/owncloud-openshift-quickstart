@@ -6,10 +6,19 @@
  * See the COPYING-README file.
  */
 
-// Post installation check
-$this->create('post_setup_check', '/post-setup-check')
-	->action('OC_Setup', 'postSetupCheck');
+use OC\Core\LostPassword\Application;
 
+$application = new Application();
+$application->registerRoutes($this, array('routes' => array(
+		array('name' => 'lost#email', 'url' => '/lostpassword/email', 'verb' => 'POST'),
+		array('name' => 'lost#resetform', 'url' => '/lostpassword/reset/form/{token}/{userId}', 'verb' => 'GET'),
+		array('name' => 'lost#setPassword', 'url' => '/lostpassword/set/{token}/{userId}', 'verb' => 'POST'),
+	)
+));
+
+// Post installation check
+
+/** @var $this OCP\Route\IRouter */
 // Core ajax actions
 // Search
 $this->create('search_ajax_search', '/search/ajax/search.php')
@@ -61,25 +70,13 @@ $this->create('core_tags_delete', '/tags/{type}/delete')
 	->action('OC\Core\Tags\Controller', 'deleteTags')
 	->requirements(array('type'));
 // oC JS config
-$this->create('js_config', '/core/js/config.js')
+$this->create('js_config', '/core/js/oc.js')
 	->actionInclude('core/js/config.php');
 // Routing
-$this->create('core_ajax_routes', '/core/routes.json')
-	->action('OC_Router', 'JSRoutes');
+$this->create('core_ajax_preview', '/core/preview')
+	->actionInclude('core/ajax/preview.php');
 $this->create('core_ajax_preview', '/core/preview.png')
 	->actionInclude('core/ajax/preview.php');
-$this->create('core_lostpassword_index', '/lostpassword/')
-	->get()
-	->action('OC\Core\LostPassword\Controller', 'index');
-$this->create('core_lostpassword_send_email', '/lostpassword/')
-	->post()
-	->action('OC\Core\LostPassword\Controller', 'sendEmail');
-$this->create('core_lostpassword_reset', '/lostpassword/reset/{token}/{user}')
-	->get()
-	->action('OC\Core\LostPassword\Controller', 'reset');
-$this->create('core_lostpassword_reset_password', '/lostpassword/reset/{token}/{user}')
-	->post()
-	->action('OC\Core\LostPassword\Controller', 'resetPassword');
 
 // Avatar routes
 $this->create('core_avatar_get_tmp', '/avatar/tmp')
@@ -99,9 +96,6 @@ $this->create('core_avatar_post_cropped', '/avatar/cropped')
 	->action('OC\Core\Avatar\Controller', 'postCroppedAvatar');
 
 // Not specifically routed
-$this->create('app_css', '/apps/{app}/{file}')
-	->requirements(array('file' => '.*.css'))
-	->action('OC', 'loadCSSFile');
 $this->create('app_index_script', '/apps/{app}/')
 	->defaults(array('file' => 'index.php'))
 	//->requirements(array('file' => '.*.php'))

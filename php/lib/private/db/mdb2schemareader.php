@@ -41,7 +41,9 @@ class MDB2SchemaReader {
 	 */
 	public function loadSchemaFromFile($file) {
 		$schema = new \Doctrine\DBAL\Schema\Schema();
+		$loadEntities = libxml_disable_entity_loader(false);
 		$xml = simplexml_load_file($file);
+		libxml_disable_entity_loader($loadEntities);
 		foreach ($xml->children() as $child) {
 			/**
 			 * @var \SimpleXMLElement $child
@@ -64,7 +66,7 @@ class MDB2SchemaReader {
 	}
 
 	/**
-	 * @param\Doctrine\DBAL\Schema\Schema $schema
+	 * @param \Doctrine\DBAL\Schema\Schema $schema
 	 * @param \SimpleXMLElement $xml
 	 * @throws \DomainException
 	 */
@@ -80,6 +82,7 @@ class MDB2SchemaReader {
 					$name = str_replace('*dbprefix*', $this->DBTABLEPREFIX, $name);
 					$name = $this->platform->quoteIdentifier($name);
 					$table = $schema->createTable($name);
+					$table->addOption('collate', 'utf8_bin');
 					break;
 				case 'create':
 				case 'overwrite':
@@ -128,7 +131,7 @@ class MDB2SchemaReader {
 	 * @throws \DomainException
 	 */
 	private function loadField($table, $xml) {
-		$options = array();
+		$options = array( 'notnull' => false );
 		foreach ($xml->children() as $child) {
 			/**
 			 * @var \SimpleXMLElement $child
@@ -176,9 +179,8 @@ class MDB2SchemaReader {
 					$options['default'] = $default;
 					break;
 				case 'comments':
-					//FIXME for now we ignore comments https://github.com/doctrine/dbal/pull/407
-					//$comment = (string)$child;
-					//$options['comment'] = $comment;
+					$comment = (string)$child;
+					$options['comment'] = $comment;
 					break;
 				case 'primary':
 					$primary = $this->asBool($child);
@@ -289,19 +291,20 @@ class MDB2SchemaReader {
 		if (!empty($fields)) {
 			if (isset($primary) && $primary) {
 				$table->setPrimaryKey($fields, $name);
-			} else
+			} else {
 				if (isset($unique) && $unique) {
 					$table->addUniqueIndex($fields, $name);
 				} else {
 					$table->addIndex($fields, $name);
 				}
+			}
 		} else {
 			throw new \DomainException('Empty index definition: ' . $name . ' options:' . print_r($fields, true));
 		}
 	}
 
 	/**
-	 * @param \SimpleXMLElement | string $xml
+	 * @param \SimpleXMLElement|string $xml
 	 * @return bool
 	 */
 	private function asBool($xml) {

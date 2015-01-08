@@ -35,11 +35,18 @@
 			});
 
 			$(document).on('keydown keyup', function(event) {
-				if(event.target !== self.$dialog.get(0) && self.$dialog.find($(event.target)).length === 0) {
+				if (
+					event.target !== self.$dialog.get(0) &&
+					self.$dialog.find($(event.target)).length === 0
+				) {
 					return;
 				}
 				// Escape
-				if(event.keyCode === 27 && event.type === 'keydown' && self.options.closeOnEscape) {
+				if (
+					event.keyCode === 27 &&
+					event.type === 'keydown' &&
+					self.options.closeOnEscape
+				) {
 					event.stopImmediatePropagation();
 					self.close();
 					return false;
@@ -52,7 +59,10 @@
 						return false;
 					}
 					// If no button is selected we trigger the primary
-					if(self.$buttonrow && self.$buttonrow.find($(event.target)).length === 0) {
+					if (
+						self.$buttonrow &&
+						self.$buttonrow.find($(event.target)).length === 0
+					) {
 						var $button = self.$buttonrow.find('button.primary');
 						if($button) {
 							$button.trigger('click');
@@ -67,8 +77,8 @@
 				self.parent = self.$dialog.parent().length > 0 ? self.$dialog.parent() : $('body');
 				var pos = self.parent.position();
 				self.$dialog.css({
-					left: pos.left + (self.parent.width() - self.$dialog.outerWidth())/2,
-					top: pos.top + (self.parent.height() - self.$dialog.outerHeight())/2
+					left: pos.left + ($(window).innerWidth() - self.$dialog.outerWidth())/2,
+					top: pos.top + ($(window).innerHeight() - self.$dialog.outerHeight())/2
 				});
 			});
 
@@ -100,6 +110,13 @@
 					} else {
 						var $buttonrow = $('<div class="oc-dialog-buttonrow" />');
 						this.$buttonrow = $buttonrow.appendTo(this.$dialog);
+					}
+					if (value.length === 1) {
+						this.$buttonrow.addClass('onebutton');
+					} else if (value.length === 2) {
+						this.$buttonrow.addClass('twobuttons');
+					} else if (value.length === 3) {
+						this.$buttonrow.addClass('threebuttons');
 					}
 					$.each(value, function(idx, val) {
 						var $button = $('<button>').text(val.text);
@@ -160,10 +177,16 @@
 			}
 			this.parent = this.$dialog.parent().length > 0 ? this.$dialog.parent() : $('body');
 			content_height = Math.min(content_height, this.parent.height()-20);
-			this.element.css({
-				height: content_height + 'px',
-				width: this.$dialog.innerWidth()-20 + 'px'
-			});
+			if (content_height> 0) {
+				this.element.css({
+					height: content_height + 'px',
+					width: this.$dialog.innerWidth()-20 + 'px'
+				});
+			} else {
+				this.element.css({
+					width : this.$dialog.innerWidth() - 20 + 'px'
+				});
+			}
 		},
 		_createOverlay: function() {
 			if(!this.options.modal) {

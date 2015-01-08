@@ -11,11 +11,14 @@ class OC_Request {
 	const USER_AGENT_IE = '/MSIE/';
 	// Android Chrome user agent: https://developers.google.com/chrome/mobile/docs/user-agent
 	const USER_AGENT_ANDROID_MOBILE_CHROME = '#Android.*Chrome/[.0-9]*#';
+	const USER_AGENT_FREEBOX = '#^Mozilla/5\.0$#';
+
+	const REGEX_LOCALHOST = '/^(127\.0\.0\.1|localhost)$/';
 
 	/**
-	 * @brief Check overwrite condition
+	 * Check overwrite condition
 	 * @param string $type
-	 * @returns bool
+	 * @return bool
 	 */
 	private static function isOverwriteCondition($type = '') {
 		$regex = '/' . OC_Config::getValue('overwritecondaddr', '')  . '/';
@@ -24,43 +27,129 @@ class OC_Request {
 	}
 
 	/**
-	 * @brief Returns the server host
-	 * @returns string the server host
+	 * Strips a potential port from a domain (in format domain:port)
+	 * @param $host
+	 * @return string $host without appended port
+	 */
+	public static function getDomainWithoutPort($host) {
+		$pos = strrpos($host, ':');
+		if ($pos !== false) {
+			$port = substr($host, $pos + 1);
+			if (is_numeric($port)) {
+				$host = substr($host, 0, $pos);
+			}
+		}
+		return $host;
+	}
+
+	/**
+	 * Checks whether a domain is considered as trusted from the list
+	 * of trusted domains. If no trusted domains have been configured, returns
+	 * true.
+	 * This is used to prevent Host Header Poisoning.
+	 * @param string $domainWithPort
+	 * @return bool true if the given domain is trusted or if no trusted domains
+	 * have been configured
+	 */
+	public static function isTrustedDomain($domainWithPort) {
+		// Extract port from domain if needed
+		$domain = self::getDomainWithoutPort($domainWithPort);
+
+		// FIXME: Empty config array defaults to true for now. - Deprecate this behaviour with ownCloud 8.
+		$trustedList = \OC::$server->getConfig()->getSystemValue('trusted_domains', array());
+		if (empty($trustedList)) {
+			return true;
+		}
+
+		// FIXME: Workaround for older instances still with port applied. Remove for ownCloud 9.
+		if(in_array($domainWithPort, $trustedList)) {
+			return true;
+		}
+
+		// Always allow access from localhost
+		if (preg_match(self::REGEX_LOCALHOST, $domain) === 1) {
+			return true;
+		}
+
+		return in_array($domain, $trustedList);
+	}
+
+	/**
+	 * Returns the unverified server host from the headers without checking
+	 * whether it is a trusted domain
+	 * @return string the server host
+	 *
+	 * Returns the server host, even if the website uses one or more
+	 * reverse proxies
+	 */
+	public static function insecureServerHost() {
+		$host = null;
+		if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
+			if (strpos($_SERVER['HTTP_X_FORWARDED_HOST'], ",") !== false) {
+				$parts = explode(',', $_SERVER['HTTP_X_FORWARDED_HOST']);
+				$host = trim(current($parts));
+			} else {
+				$host = $_SERVER['HTTP_X_FORWARDED_HOST'];
+			}
+		} else {
+			if (isset($_SERVER['HTTP_HOST'])) {
+				$host = $_SERVER['HTTP_HOST'];
+			} else if (isset($_SERVER['SERVER_NAME'])) {
+				$host = $_SERVER['SERVER_NAME'];
+			}
+		}
+		return $host;
+	}
+
+	/**
+	 * Returns the overwritehost setting from the config if set and
+	 * if the overwrite condition is met
+	 * @return string|null overwritehost value or null if not defined or the defined condition
+	 * isn't met
+	 */
+	public static function getOverwriteHost() {
+		if(OC_Config::getValue('overwritehost', '') !== '' and self::isOverwriteCondition()) {
+			return OC_Config::getValue('overwritehost');
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the server host from the headers, or the first configured
+	 * trusted domain if the host isn't in the trusted list
+	 * @return string the server host
 	 *
 	 * Returns the server host, even if the website uses one or more
 	 * reverse proxies
 	 */
 	public static function serverHost() {
-		if(OC::$CLI) {
+		if (OC::$CLI && defined('PHPUNIT_RUN')) {
 			return 'localhost';
 		}
-		if(OC_Config::getValue('overwritehost', '') !== '' and self::isOverwriteCondition()) {
-			return OC_Config::getValue('overwritehost');
+
+		// overwritehost is always trusted
+		$host = self::getOverwriteHost();
+		if ($host !== null) {
+			return $host;
 		}
-		if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
-			if (strpos($_SERVER['HTTP_X_FORWARDED_HOST'], ",") !== false) {
-				$host = trim(array_pop(explode(",", $_SERVER['HTTP_X_FORWARDED_HOST'])));
-			}
-			else{
-				$host=$_SERVER['HTTP_X_FORWARDED_HOST'];
-			}
+
+		// get the host from the headers
+		$host = self::insecureServerHost();
+
+		// Verify that the host is a trusted domain if the trusted domains
+		// are defined
+		// If no trusted domain is provided the first trusted domain is returned
+		if (self::isTrustedDomain($host)) {
+			return $host;
+		} else {
+			$trustedList = \OC_Config::getValue('trusted_domains', array(''));
+			return $trustedList[0];
 		}
-		else{
-			if (isset($_SERVER['HTTP_HOST'])) {
-				return $_SERVER['HTTP_HOST'];
-			}
-			if (isset($_SERVER['SERVER_NAME'])) {
-				return $_SERVER['SERVER_NAME'];
-			}
-			return 'localhost';
-		}
-		return $host;
 	}
 
-
 	/**
-	* @brief Returns the server protocol
-	* @returns string the server protocol
+	* Returns the server protocol
+	* @return string the server protocol
 	*
 	* Returns the server protocol. It respects reverse proxy servers and load balancers
 	*/
@@ -70,22 +159,23 @@ class OC_Request {
 		}
 		if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
 			$proto = strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']);
-		}else{
-			if(isset($_SERVER['HTTPS']) and !empty($_SERVER['HTTPS']) and ($_SERVER['HTTPS']!='off')) {
-				$proto = 'https';
-			}else{
-				$proto = 'http';
-			}
+			// Verify that the protocol is always HTTP or HTTPS
+			// default to http if an invalid value is provided
+			return $proto === 'https' ? 'https' : 'http';
 		}
-		return $proto;
+		if (isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+			return 'https';
+		}
+		return 'http';
 	}
 
 	/**
-	 * @brief Returns the request uri
-	 * @returns string the request uri
+	 * Returns the request uri
+	 * @return string the request uri
 	 *
 	 * Returns the request uri, even if the website uses one or more
 	 * reverse proxies
+	 * @return string
 	 */
 	public static function requestUri() {
 		$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
@@ -96,32 +186,33 @@ class OC_Request {
 	}
 
 	/**
-	 * @brief Returns the script name
-	 * @returns string the script name
+	 * Returns the script name
+	 * @return string the script name
 	 *
 	 * Returns the script name, even if the website uses one or more
 	 * reverse proxies
 	 */
 	public static function scriptName() {
 		$name = $_SERVER['SCRIPT_NAME'];
-		if (OC_Config::getValue('overwritewebroot', '') !== '' and self::isOverwriteCondition()) {
+		$overwriteWebRoot = OC_Config::getValue('overwritewebroot', '');
+		if ($overwriteWebRoot !== '' and self::isOverwriteCondition()) {
 			$serverroot = str_replace("\\", '/', substr(__DIR__, 0, -strlen('lib/private/')));
 			$suburi = str_replace("\\", "/", substr(realpath($_SERVER["SCRIPT_FILENAME"]), strlen($serverroot)));
-			$name = OC_Config::getValue('overwritewebroot', '') . $suburi;
+			$name = '/' . ltrim($overwriteWebRoot . $suburi, '/');
 		}
 		return $name;
 	}
 
 	/**
-	 * @brief get Path info from request
-	 * @returns string Path info or false when not found
+	 * get Path info from request
+	 * @return string Path info or false when not found
 	 */
 	public static function getPathInfo() {
 		if (array_key_exists('PATH_INFO', $_SERVER)) {
 			$path_info = $_SERVER['PATH_INFO'];
 		}else{
 			$path_info = self::getRawPathInfo();
-			// following is taken from Sabre_DAV_URLUtil::decodePathSegment
+			// following is taken from \Sabre\DAV\URLUtil::decodePathSegment
 			$path_info = rawurldecode($path_info);
 			$encoding = mb_detect_encoding($path_info, array('UTF-8', 'ISO-8859-1'));
 
@@ -137,11 +228,12 @@ class OC_Request {
 	}
 
 	/**
-	 * @brief get Path info from request, not urldecoded
-	 * @returns string Path info or false when not found
+	 * get Path info from request, not urldecoded
+	 * @throws Exception
+	 * @return string Path info or false when not found
 	 */
 	public static function getRawPathInfo() {
-		$requestUri = $_SERVER['REQUEST_URI'];
+		$requestUri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 		// remove too many leading slashes - can be caused by reverse proxy configuration
 		if (strpos($requestUri, '/') === 0) {
 			$requestUri = '/' . ltrim($requestUri, '/');
@@ -156,7 +248,7 @@ class OC_Request {
 		$path_info = $requestUri;
 
 		// strip off the script name's dir and file name
-		list($path, $name) = \Sabre_DAV_URLUtil::splitPath($scriptName);
+		list($path, $name) = \Sabre\DAV\URLUtil::splitPath($scriptName);
 		if (!empty($path)) {
 			if( $path === $path_info || strpos($path_info, $path.'/') === 0) {
 				$path_info = substr($path_info, strlen($path));
@@ -178,35 +270,8 @@ class OC_Request {
 	}
 
 	/**
-	 * @brief Check if this is a no-cache request
-	 * @returns boolean true for no-cache
-	 */
-	static public function isNoCache() {
-		if (!isset($_SERVER['HTTP_CACHE_CONTROL'])) {
-			return false;
-		}
-		return $_SERVER['HTTP_CACHE_CONTROL'] == 'no-cache';
-	}
-
-	/**
-	 * @brief Check if the requestor understands gzip
-	 * @returns boolean true for gzip encoding supported
-	 */
-	static public function acceptGZip() {
-		if (!isset($_SERVER['HTTP_ACCEPT_ENCODING'])) {
-			return false;
-		}
-		$HTTP_ACCEPT_ENCODING = $_SERVER["HTTP_ACCEPT_ENCODING"];
-		if( strpos($HTTP_ACCEPT_ENCODING, 'x-gzip') !== false )
-			return 'x-gzip';
-		else if( strpos($HTTP_ACCEPT_ENCODING, 'gzip') !== false )
-			return 'gzip';
-		return false;
-	}
-
-	/**
-	 * @brief Check if the requester sent along an mtime
-	 * @returns false or an mtime
+	 * Check if the requester sent along an mtime
+	 * @return false or an mtime
 	 */
 	static public function hasModificationTime () {
 		if (isset($_SERVER['HTTP_X_OC_MTIME'])) {

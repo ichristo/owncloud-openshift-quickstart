@@ -93,6 +93,8 @@ class OC_Calendar_Import{
 			$ical .= "\n" . 'END:VCALENDAR';
 			$this->ical = $ical;
 		}
+		//fix for malformed timestamp in some google calendar events
+		$this->ical = str_replace('CREATED:00001231T000000Z', 'CREATED:19700101T000000Z', $this->ical);
 		try{
 			$this->calobject = OC_VObject::parse($this->ical);
 		}catch(Exception $e) {
@@ -137,7 +139,7 @@ class OC_Calendar_Import{
 			}
 			$this->updateProgress(intval(($this->abscount / $numofcomponents)*100));
 		}
-		OC_Cache::remove($this->progresskey);
+		\OC\Cache::remove($this->progresskey);
 		return true;
 	}
 
@@ -322,7 +324,7 @@ class OC_Calendar_Import{
 	private function updateProgress($percentage) {
 		$this->progress = $percentage;
 		if($this->cacheprogress) {
-			OC_Cache::set($this->progresskey, $this->progress, 300);
+			\OC\Cache::set($this->progresskey, $this->progress, 300);
 		}
 		return true;
 	}

@@ -25,7 +25,7 @@
  */
 class OC_BackgroundJob{
 	/**
-	 * @brief get the execution type of background jobs
+	 * get the execution type of background jobs
 	 * @return string
 	 *
 	 * This method returns the type how background jobs are executed. If the user
@@ -36,9 +36,9 @@ class OC_BackgroundJob{
 	}
 
 	/**
-	 * @brief sets the background jobs execution type
-	 * @param $type execution type
-	 * @return boolean
+	 * sets the background jobs execution type
+	 * @param string $type execution type
+	 * @return false|null
 	 *
 	 * This method sets the execution type of the background jobs. Possible types
 	 * are "none", "ajax", "webcron", "cron"

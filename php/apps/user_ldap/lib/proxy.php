@@ -29,16 +29,39 @@ abstract class Proxy {
 	static private $accesses = array();
 	private $ldap = null;
 
+	/**
+	 * @param ILDAPWrapper $ldap
+	 */
 	public function __construct(ILDAPWrapper $ldap) {
 		$this->ldap = $ldap;
-		$this->cache = \OC_Cache::getGlobalCache();
+		$this->cache = \OC\Cache::getGlobalCache();
 	}
 
+	/**
+	 * @param string $configPrefix
+	 */
 	private function addAccess($configPrefix) {
+		static $ocConfig;
+		static $fs;
+		static $log;
+		static $avatarM;
+		if(is_null($fs)) {
+			$ocConfig = \OC::$server->getConfig();
+			$fs       = new FilesystemHelper();
+			$log      = new LogWrapper();
+			$avatarM  = \OC::$server->getAvatarManager();
+		}
+		$userManager =
+			new user\Manager($ocConfig, $fs, $log, $avatarM, new \OCP\Image());
 		$connector = new Connection($this->ldap, $configPrefix);
-		self::$accesses[$configPrefix] = new Access($connector, $this->ldap);
+		self::$accesses[$configPrefix] =
+			new Access($connector, $this->ldap, $userManager);
 	}
 
+	/**
+	 * @param string $configPrefix
+	 * @return mixed
+	 */
 	protected function getAccess($configPrefix) {
 		if(!isset(self::$accesses[$configPrefix])) {
 			$this->addAccess($configPrefix);
@@ -46,22 +69,45 @@ abstract class Proxy {
 		return self::$accesses[$configPrefix];
 	}
 
+	/**
+	 * @param string $uid
+	 * @return string
+	 */
 	protected function getUserCacheKey($uid) {
 		return 'user-'.$uid.'-lastSeenOn';
 	}
 
+	/**
+	 * @param string $gid
+	 * @return string
+	 */
 	protected function getGroupCacheKey($gid) {
 		return 'group-'.$gid.'-lastSeenOn';
 	}
 
+	/**
+	 * @param string $id
+	 * @param string $method
+	 * @param array $parameters
+	 * @param bool $passOnWhen
+	 * @return mixed
+	 */
 	abstract protected function callOnLastSeenOn($id, $method, $parameters, $passOnWhen);
+
+	/**
+	 * @param string $id
+	 * @param string $method
+	 * @param array $parameters
+	 * @return mixed
+	 */
 	abstract protected function walkBackends($id, $method, $parameters);
 
 	/**
-	 * @brief Takes care of the request to the User backend
-	 * @param $uid string, the uid connected to the request
-	 * @param $method string, the method of the user backend that shall be called
-	 * @param $parameters an array of parameters to be passed
+	 * Takes care of the request to the User backend
+	 * @param string $id
+	 * @param string $method string, the method of the user backend that shall be called
+	 * @param array $parameters an array of parameters to be passed
+	 * @param bool $passOnWhen
 	 * @return mixed, the result of the specified method
 	 */
 	protected function handleRequest($id, $method, $parameters, $passOnWhen = false) {
@@ -72,6 +118,10 @@ abstract class Proxy {
 		return $result;
 	}
 
+	/**
+	 * @param string|null $key
+	 * @return string
+	 */
 	private function getCacheKey($key) {
 		$prefix = 'LDAP-Proxy-';
 		if(is_null($key)) {
@@ -80,6 +130,10 @@ abstract class Proxy {
 		return $prefix.md5($key);
 	}
 
+	/**
+	 * @param string $key
+	 * @return mixed|null
+	 */
 	public function getFromCache($key) {
 		if(!$this->isCached($key)) {
 			return null;
@@ -89,11 +143,19 @@ abstract class Proxy {
 		return unserialize(base64_decode($this->cache->get($key)));
 	}
 
+	/**
+	 * @param string $key
+	 * @return bool
+	 */
 	public function isCached($key) {
 		$key = $this->getCacheKey($key);
 		return $this->cache->hasKey($key);
 	}
 
+	/**
+	 * @param string $key
+	 * @param mixed $value
+	 */
 	public function writeToCache($key, $value) {
 		$key   = $this->getCacheKey($key);
 		$value = base64_encode(serialize($value));

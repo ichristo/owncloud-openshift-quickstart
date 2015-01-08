@@ -28,8 +28,8 @@ class OC_Bookmarks_Bookmarks{
 	/**
 	* @brief Finds all tags for bookmarks
 	* @param filterTags array of tag to look for if empty then every tag
-	* @param offset result offset
-	* @param limit number of item to return
+	* @param offset integer offset
+	* @param limit integer of item to return
 	*/
 	public static function findTags($filterTags = array(), $offset = 0, $limit = 10){
 		$params = array_merge($filterTags, $filterTags);
@@ -71,11 +71,11 @@ class OC_Bookmarks_Bookmarks{
 
 	/**
 	 * @brief Finds all bookmarks, matching the filter
-	 * @param offset result offset
-	 * @param sqlSortColumn sort result with this column
+	 * @param offset integer offset
+	 * @param sqlSortColumn string result with this column
 	 * @param filters can be: empty -> no filter, a string -> filter this, a string array -> filter for all strings
-	 * @param filterTagOnly if true, filter affects only tags, else filter affects url, title and tags
-	 * @param limit number of item to return (default 10) if -1 or false then all item are returned
+	 * @param filterTagOnly boolean true, filter affects only tags, else filter affects url, title and tags
+	 * @param limit integer of item to return (default 10) if -1 or false then all item are returned
 	 * @return void
 	 */
 	public static function findBookmarks($offset, $sqlSortColumn, $filters, $filterTagOnly, $limit = 10) {
@@ -88,9 +88,9 @@ class OC_Bookmarks_Bookmarks{
 		$params=array(OCP\USER::getUser());
 
 		if($CONFIG_DBTYPE == 'pgsql') {
-			$sql = "SELECT * FROM (SELECT *, (select array_to_string(array_agg(`tag`),'') from `*PREFIX*bookmarks_tags` where `bookmark_id` = `b`.`id`) as `tags`
-				FROM `*PREFIX*bookmarks` `b`
-				WHERE `user_id` = ? ) as `x` WHERE true ";
+			$sql = "SELECT * FROM (SELECT *, (select array_to_string(array_agg(`tag`),',') from `*PREFIX*bookmarks_tags` where `bookmark_id` = `b2`.`id`) as `tags`
+				FROM `*PREFIX*bookmarks` `b2`
+				WHERE `user_id` = ? ) as `b` WHERE true ";
 		}
 		else {
 			$sql = "SELECT *, (SELECT GROUP_CONCAT(`tag`) from `*PREFIX*bookmarks_tags` WHERE `bookmark_id` = `b`.`id`) as `tags`
@@ -371,22 +371,28 @@ class OC_Bookmarks_Bookmarks{
 
 	/**
 	 * Add a set of tags for a bookmark
-	 * @param int $bookmark_id The bookmark reference
+	 *
+	 * @param int $bookmarkId The bookmark reference
 	 * @param array $tags Set of tags to add to the bookmark
 	 * @return null
 	 **/
-	private static function addTags($bookmark_id, $tags) {
-		$query = OCP\DB::prepare("
-			INSERT INTO `*PREFIX*bookmarks_tags`
-			(`bookmark_id`, `tag`)
-			VALUES (?, ?)");
+	private static function addTags($bookmarkId, $tags) {
+		$sql = 'INSERT INTO `*PREFIX*bookmarks_tags` (`bookmark_id`, `tag`) select ?, ? ';
+		$dbtype = OCP\Config::getSystemValue( 'dbtype', 'sqlite' );
 
+		if ($dbtype === 'mysql') {
+			$sql .= 'from dual ';
+		}
+		$sql .= 'where not exists(select * from oc_bookmarks_tags where bookmark_id = ? and tag = ?)';
+
+		$query = OCP\DB::prepare($sql);
 		foreach ($tags as $tag) {
+			$tag = trim($tag);
 			if(empty($tag)) {
-				//avoid saving blankspaces
+				//avoid saving white spaces
 				continue;
 			}
-			$params = array($bookmark_id, trim($tag));
+			$params = array($bookmarkId, $tag, $bookmarkId, $tag);
 			$query->execute($params);
 		}
 	}

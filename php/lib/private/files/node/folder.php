@@ -9,7 +9,6 @@
 namespace OC\Files\Node;
 
 use OC\Files\Cache\Cache;
-use OC\Files\Cache\Scanner;
 use OCP\Files\NotFoundException;
 use OCP\Files\NotPermittedException;
 
@@ -28,22 +27,19 @@ class Folder extends Node implements \OCP\Files\Folder {
 
 	/**
 	 * @param string $path
-	 * @throws \OCP\Files\NotFoundException
 	 * @return string
 	 */
 	public function getRelativePath($path) {
 		if ($this->path === '' or $this->path === '/') {
 			return $this->normalizePath($path);
 		}
-		if (strpos($path, $this->path) !== 0) {
-			throw new NotFoundException();
+		if ($path === $this->path) {
+			return '/';
+		} else if (strpos($path, $this->path . '/') !== 0) {
+			return null;
 		} else {
 			$path = substr($path, strlen($this->path));
-			if (strlen($path) === 0) {
-				return '/';
-			} else {
-				return $this->normalizePath($path);
-			}
+			return $this->normalizePath($path);
 		}
 	}
 
@@ -72,13 +68,11 @@ class Folder extends Node implements \OCP\Files\Folder {
 		list($storage, $internalPath) = $this->view->resolvePath($this->path);
 		if ($storage) {
 			$cache = $storage->getCache($internalPath);
-			$permissionsCache = $storage->getPermissionsCache($internalPath);
 
 			//trigger cache update check
 			$this->view->getFileInfo($this->path);
 
 			$files = $cache->getFolderContents($internalPath);
-			$permissions = $permissionsCache->getDirectoryPermissions($this->getId(), $this->root->getUser()->getUID());
 		} else {
 			$files = array();
 		}
@@ -130,9 +124,6 @@ class Folder extends Node implements \OCP\Files\Folder {
 
 		foreach ($files as $file) {
 			if ($file) {
-				if (isset($permissions[$file['fileid']])) {
-					$file['permissions'] = $permissions[$file['fileid']];
-				}
 				$node = $this->createNode($this->path . '/' . $file['name'], $file);
 				$result[] = $node;
 			}
@@ -297,19 +288,33 @@ class Folder extends Node implements \OCP\Files\Folder {
 	}
 
 	/**
-	 * @param $id
+	 * @param int $id
 	 * @return \OC\Files\Node\Node[]
 	 */
 	public function getById($id) {
-		$nodes = $this->root->getById($id);
-		$result = array();
-		foreach ($nodes as $node) {
-			$pathPart = substr($node->getPath(), 0, strlen($this->getPath()) + 1);
-			if ($this->path === '/' or $pathPart === $this->getPath() . '/') {
-				$result[] = $node;
+		$mounts = $this->root->getMountsIn($this->path);
+		$mounts[] = $this->root->getMount($this->path);
+		// reverse the array so we start with the storage this view is in
+		// which is the most likely to contain the file we're looking for
+		$mounts = array_reverse($mounts);
+
+		$nodes = array();
+		foreach ($mounts as $mount) {
+			/**
+			 * @var \OC\Files\Mount\Mount $mount
+			 */
+			if ($mount->getStorage()) {
+				$cache = $mount->getStorage()->getCache();
+				$internalPath = $cache->getPathById($id);
+				if (is_string($internalPath)) {
+					$fullPath = $mount->getMountPoint() . $internalPath;
+					if (!is_null($path = $this->getRelativePath($fullPath))) {
+						$nodes[] = $this->get($path);
+					}
+				}
 			}
 		}
-		return $result;
+		return $nodes;
 	}
 
 	public function getFreeSpace() {

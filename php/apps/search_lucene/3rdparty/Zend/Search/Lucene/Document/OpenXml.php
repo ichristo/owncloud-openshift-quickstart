@@ -83,7 +83,9 @@ abstract class Zend_Search_Lucene_Document_OpenXml extends Zend_Search_Lucene_Do
         $coreProperties = array();
 
         // Read relations and search for core properties
+        $loadEntities = libxml_disable_entity_loader(true);
         $relations = simplexml_load_string($package->getFromName("_rels/.rels"));
+        libxml_disable_entity_loader($loadEntities);
         foreach ($relations->Relationship as $rel) {
             if ($rel["Type"] == Zend_Search_Lucene_Document_OpenXml::SCHEMA_COREPROPERTIES) {
                 // Found core properties! Read in contents...

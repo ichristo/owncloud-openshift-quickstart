@@ -2,9 +2,8 @@
 /**
  * ownCloud - JSONSerializer
  *
- * @author Thomas Tanghus, Jakob Sack
- * @copyright 2011 Jakob Sack mail@jakobsack.de
- * @copyright 2013 Thomas Tanghus (thomas@tanghus.net)
+ * @author Thomas Tanghus
+ * @copyright 2013-2014 Thomas Tanghus (thomas@tanghus.net)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -64,7 +63,7 @@ class JSONSerializer {
 		} else {
 			if($input instanceof VObject\VCard) {
 				return self::serializeContact($input);
-			} elseif($input instanceof Sabre\VObject\Property) {
+			} elseif($input instanceof \Sabre\VObject\Property) {
 				return self::serializeProperty($input);
 			} else {
 				throw new \Exception(
@@ -91,6 +90,7 @@ class JSONSerializer {
 		$details = array();
 
 		if(isset($contact->PHOTO) || isset($contact->LOGO)) {
+			$details['photo'] = true;
 			$details['thumbnail'] = Properties::cacheThumbnail(
 				$contact->getBackend()->name,
 				$contact->getParent()->getId(),
@@ -139,7 +139,7 @@ class JSONSerializer {
 	 * but we should look out for any problems.
 	 */
 	public static function serializeProperty(\Sabre\VObject\Property $property) {
-		if(!in_array($property->name, Properties::$index_properties)) {
+		if(!in_array($property->name, Properties::$indexProperties)) {
 			return;
 		}
 		$value = $property->value;
@@ -148,13 +148,23 @@ class JSONSerializer {
 			$value = array_map('trim', $value);
 		}
 		elseif($property->name == 'BDAY') {
-			if(strpos($value, '-') === false) {
-				if(strlen($value) >= 8) {
-					$value = substr($value, 0, 4).'-'.substr($value, 4, 2).'-'.substr($value, 6, 2);
-				} else {
-					return null; // Badly malformed :-(
+			// If the BDAY has a format of e.g. 19960401
+			if(strlen($value) >= 8
+				&& is_int(substr($value, 0, 4))
+				&& is_int(substr($value, 4, 2))
+				&& is_int(substr($value, 6, 2))) {
+				$value = substr($value, 0, 4).'-'.substr($value, 4, 2).'-'.substr($value, 6, 2);
+			} else if($value[5] !== '-' || $value[7] !== '-') {
+				try {
+					// Skype exports as e.g. Jan 14, 1996
+					$date = new \DateTime($value);
+					$value = $date->format('Y-m-d');
+				} catch(\Exception $e) {
+					\OCP\Util::writeLog('contacts', __METHOD__.' Error parsing date: ' . $value, \OCP\Util::DEBUG);
+					return;
 				}
 			}
+			// Otherwise we assume it's OK.
 		} elseif($property->name == 'PHOTO') {
 			$value = true;
 		}
@@ -178,7 +188,7 @@ class JSONSerializer {
 		);
 
 		// This cuts around a 3rd off of the json response size.
-		if(in_array($property->name, Properties::$multi_properties)) {
+		if(in_array($property->name, Properties::$multiProperties)) {
 			$temp['checksum'] = substr(md5($property->serialize()), 0, 8);
 		}
 		foreach($property->parameters as $parameter) {
@@ -189,7 +199,7 @@ class JSONSerializer {
 				$parameter->name = 'PREF';
 				$parameter->value = '1';
 			}
-			// NOTE: Apparently Sabre_VObject_Reader can't always deal with value list parameters
+			// NOTE: Apparently \Sabre\VObject\Reader can't always deal with value list parameters
 			// like TYPE=HOME,CELL,VOICE. Tanghus.
 			// TODO: Check if parameter is has commas and split + merge if so.
 			if ($parameter->name == 'TYPE') {

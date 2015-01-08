@@ -1,11 +1,10 @@
 <?php
 $TRANSLATIONS = array(
 "Password" => "รหัสผ่าน",
-"%s shared the folder %s with you" => "%s ได้แชร์โฟลเดอร์ %s ให้กับคุณ",
-"%s shared the file %s with you" => "%s ได้แชร์ไฟล์ %s ให้กับคุณ",
-"Download" => "ดาวน์โหลด",
-"Upload" => "อัพโหลด",
-"Cancel upload" => "ยกเลิกการอัพโหลด",
-"No preview available for" => "ไม่สามารถดูตัวอย่างได้สำหรับ"
+"Shared by {owner}" => "ถูกแชร์โดย {owner}",
+"Shared by" => "ถูกแชร์โดย",
+"Name" => "ชื่อ",
+"Save" => "บันทึก",
+"Download" => "ดาวน์โหลด"
 );
 $PLURAL_FORMS = "nplurals=1; plural=0;";

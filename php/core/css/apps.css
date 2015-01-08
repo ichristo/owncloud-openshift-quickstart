@@ -1,4 +1,5 @@
-/* ---- APP STYLING ---- */
+/* APP STYLING -------------------------------------------------------------- */
+
 
 #app {
 	height: 100%;
@@ -8,17 +9,28 @@
 	-moz-box-sizing: border-box; box-sizing: border-box;
 }
 
+
+
+
+
+/* APP-NAVIGATION ------------------------------------------------------------*/
+
+
 /* Navigation: folder like structure */
 #app-navigation {
-	width: 300px;
+	width: 250px;
 	height: 100%;
 	float: left;
 	-moz-box-sizing: border-box; box-sizing: border-box;
-	background-color: #f8f8f8;
-	border-right: 1px solid #ccc;
+	background-color: #f5f5f5;
 	padding-bottom: 44px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 #app-navigation > ul {
+	position: relative;
 	height: 100%;
 	overflow: auto;
 	-moz-box-sizing: border-box; box-sizing: border-box;
@@ -29,14 +41,13 @@
 	-moz-box-sizing: border-box; box-sizing: border-box;
 }
 #app-navigation .active,
-#app-navigation .active a,
-#app-navigation li:hover > a {
+#app-navigation .active a {
 	background-color: #ddd;
 }
-
-/* special rules for first-level entries and folders */
-#app-navigation > ul > li {
-	background-color: #f8f8f8;
+#app-navigation li:hover > a,
+#app-navigation .selected,
+#app-navigation .selected a {
+	background-color: #ccc;
 }
 
 #app-navigation .with-icon a {
@@ -151,9 +162,6 @@
 	transition: padding-bottom 500ms ease 0s;
 	padding-bottom: 40px;
 }
-#app-navigation .personalblock > legend { /* TODO @Raydiation: still needed? */
-	padding: 10px 0; margin: 0;
-}
 #app-navigation .error {
 	color: #dd1144;
 }
@@ -164,18 +172,30 @@
 
 
 
+
+
+/* APP-CONTENT ---------------------------------------------------------------*/
+
+
 /* Part where the content will be loaded into */
 #app-content {
+	position: relative;
 	height: 100%;
 	overflow-y: auto;
 }
 
+
+
+/* APP-SETTINGS ---------------------------------------------------------------*/
+
 /* settings area */
 #app-settings {
 	position: fixed;
-	width: 299px;
+	width: 250px; /* change to 100% when layout positions are absolute */
 	bottom: 0;
-	border-top: 1px solid #ccc;
+}
+#app-settings.opened #app-settings-content {
+	display: block;
 }
 #app-settings-header {
 	background-color: #eee;
@@ -187,6 +207,14 @@
 }
 #app-settings.open #app-settings-content {
 	display: block;
+	/* restrict height of settings and make scrollable */
+	max-height: 300px;
+	overflow-y: auto;
+}
+
+/* display input fields at full width */
+#app-settings-content input[type='text'] {
+	width: 93%;
 }
 
 .settings-button {
@@ -239,3 +267,43 @@ button.loading {
 	padding-right: 30px;
 }
 
+/* general styles for the content area */
+.section {
+	display: block;
+	padding: 30px;
+	color: #555;
+	border-top: 1px solid #ddd;
+}
+.section h2 {
+	font-size: 20px;
+	margin-bottom: 7px;
+}
+.section h3 {
+	font-size: 16px;
+}
+/* slight position correction of checkboxes and radio buttons */
+.section input[type="checkbox"],
+.section input[type="radio"] {
+	vertical-align: -2px;
+	margin-right: 4px;
+}
+.appear {
+	opacity: 1;
+	transition: opacity 500ms ease 0s;
+	-moz-transition: opacity 500ms ease 0s;
+	-ms-transition: opacity 500ms ease 0s;
+	-o-transition: opacity 500ms ease 0s;
+	-webkit-transition: opacity 500ms ease 0s;
+}
+.appear.transparent {
+	opacity: 0;
+}
+
+
+/* do not use italic typeface style, instead lighter color */
+em {
+	font-style: normal;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	filter: alpha(opacity=50);
+	opacity: .5;
+}

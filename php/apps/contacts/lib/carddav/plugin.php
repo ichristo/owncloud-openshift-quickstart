@@ -5,7 +5,7 @@
  * The CardDAV plugin adds CardDAV functionality to the WebDAV server
  *
  * @author Thomas Tanghus
- * @copyright 2013 Thomas Tanghus (thomas@tanghus.net)
+ * @copyright 2013-2014 Thomas Tanghus (thomas@tanghus.net)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -28,11 +28,11 @@ use Sabre\VObject;
 use OCA\Contacts\VObject\VCard;
 
 /**
- * This class overrides Sabre_CardDAV_Plugin::validateVCard() to be able
+ * This class overrides \Sabre\CardDAV\Plugin::validateVCard() to be able
  * to import partially invalid vCards by ignoring invalid lines and to
  * validate and upgrade using \OCA\Contacts\VCard.
 */
-class Plugin extends \Sabre_CardDAV_Plugin {
+class Plugin extends \Sabre\CardDAV\Plugin {
 
 	/**
 	* Checks if the submitted vCard data is in fact, valid.
@@ -47,20 +47,18 @@ class Plugin extends \Sabre_CardDAV_Plugin {
 		// If it's a stream, we convert it to a string first.
 		if (is_resource($data)) {
 			$data = stream_get_contents($data);
+		} elseif (!is_string($data)) {
+			throw new \Exception(__METHOD__ . ' argument 1 only supports string or stream resource.');
 		}
-
-		// Converting the data to unicode, if needed.
-		$data = \Sabre_DAV_StringUtil::ensureUTF8($data);
-		//\OCP\Util::writeLog('contacts', __METHOD__ . "\n".$data, \OCP\Util::DEBUG);
 
 		try {
 			$vobj = VObject\Reader::read($data, VObject\Reader::OPTION_IGNORE_INVALID_LINES);
 		} catch (VObject\ParseException $e) {
-			throw new \Sabre_DAV_Exception_UnsupportedMediaType('This resource only supports valid vcard data. Parse error: ' . $e->getMessage());
+			throw new \Sabre\DAV\Exception\UnsupportedMediaType('This resource only supports valid vcard data. Parse error: ' . $e->getMessage());
 		}
 
 		if ($vobj->name !== 'VCARD') {
-			throw new \Sabre_DAV_Exception_UnsupportedMediaType('This collection can only support vcard objects.');
+			throw new \Sabre\DAV\Exception\UnsupportedMediaType('This collection can only support vcard objects.');
 		}
 
 		$vobj->validate(VCard::REPAIR|VCard::UPGRADE);

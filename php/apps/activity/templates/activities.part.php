@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ownCloud - Activity Application
+ * ownCloud - Activity App
  *
  * @author Frank Karlitschek
  * @copyright 2013 Frank Karlitschek frank@owncloud.org
@@ -16,89 +16,45 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
+ * You should have received a copy of the GNU Affero General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 /** @var $l OC_L10N */
 /** @var $theme OC_Defaults */
-
-/**
- * @brief Makes a single event that aggregates the info
- * from the given events into a group
- * @param array $events array of events to aggregate
- * @return array single event containing the aggregated info from
- * the given events
- */
-function makeEventGroup($events){
-	if (count($events) === 1){
-		return $events[0];
-	}
-	$event = array_shift($events);
-	// populate with first event
-	$groupedEvent = array(
-		'isGrouped' => true,
-		'user' => $event['user'],
-		'affecteduser' => $event['affecteduser'],
-		'app' => $event['app'],
-		'type' => $event['type'],
-		'timestamp' => $event['timestamp'],
-		'file' => $event['file'],
-		'link' => $event['link'],
-		'events' => $events
-	);
-	return $groupedEvent;
-}
-
-function makeGroupKey($event){
-	return $event['user'] . '|' .
-		$event['affecteduser'] . '|' .
-		$event['app'] . '|' .
-		$event['type'];
-}
+/** @var $_ array */
 
 $lastDate = null;
-$eventsInGroup = array();
-$lastGroup = null;
 foreach ($_['activity'] as $event) {
 	// group by date
 	// TODO: use more efficient way to group by date (don't group by localized string...)
 	$currentDate = (string)(\OCP\relative_modified_date($event['timestamp'], true));
+
 	// new date group
-	if ($currentDate !== $lastDate){
+	if ($currentDate !== $lastDate) {
 		// not first date group ?
-		if ($lastDate !== null){
-			// output box group
-			if (count($eventsInGroup) > 0){
-				\OCA\Activity\Data::show(makeEventGroup($eventsInGroup));
-			}
-			$eventsInGroup = array();
-			$lastGroup = null;
-			// close previous date group
-			echo('</div>'); // boxcontainer
-			echo('</div>'); // date group
+		if ($lastDate !== null) {
+?>
+	</div>
+</div>
+
+<?php
 		}
 		$lastDate = $currentDate;
-		echo('<div class="group" data-date="' . $currentDate . '">');
-		echo('<div class="groupheader"><span class="tooltip" title="' . \OCP\Util::formatDate(strip_time($event['timestamp']), true) .'">' . ucfirst($currentDate) . '</span></div>');
-		echo('<div class="boxcontainer">');
+?>
+<div class="section activity-section group" data-date="<?php p($currentDate) ?>">
+	<h2>
+		<span class="tooltip" title="<?php p(\OCP\Util::formatDate(strip_time($event['timestamp']), true)) ?>">
+			<?php p(ucfirst($currentDate)) ?>
+		</span>
+	</h2>
+	<div class="boxcontainer">
+<?php
 	}
-	$currentGroup = makeGroupKey($event);
-	// new box group
-	if ($lastGroup !== $currentGroup){
-		if ($lastGroup !== null){
-			// create meta event and add it to the list
-			\OCA\Activity\Data::show(makeEventGroup($eventsInGroup));
-			$eventsInGroup = array();
-		}
-		$lastGroup = $currentGroup;
-	}
-	$eventsInGroup[] = $event;
+	echo \OCA\Activity\Display::show($event);
 }
-// show last group
-if (count($eventsInGroup) > 0){
-	\OCA\Activity\Data::show(makeEventGroup($eventsInGroup));
-}
-echo('</div>'); // boxcontainer
-echo('</div>'); // group
+if (!empty($_['activity'])): ?>
+	</div>
+</div>
+<?php endif;

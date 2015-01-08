@@ -38,6 +38,20 @@ if (isset($_GET['t'])) {
 			\OCP\Util::addStyle( 'documents', '3rdparty/webodf/dojo-app');
 			\OCP\Util::addStyle( 'documents', '3rdparty/webodf/editor' );
 			\OCP\Util::addScript('documents', 'documents');
+			if ($file->getFileId()){
+				$session = new Db\Session();
+				$session->loadBy('file_id', $file->getFileId());
+				
+				if ($session->getEsId()){
+					$member = new Db\Member();
+					$members = $member->getCollectionBy('es_id', $session->getEsId());
+				} else {
+					$members = 0;
+				}
+				$tmpl->assign('total', count($members)+1);
+			} else {
+				$tmpl->assign('total', 1);
+			}
 			$tmpl->assign('document', $token);
 		}
 	} catch (\Exception $e){
@@ -45,4 +59,3 @@ if (isset($_GET['t'])) {
 	}
 	$tmpl->printPage();
 }
-

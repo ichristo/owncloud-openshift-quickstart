@@ -1,7 +1,8 @@
 <?php
 /**
  * @author Thomas Tanghus
- * Copyright (c) 2013 Thomas Tanghus (thomas@tanghus.net)
+ * @copyright 2013-2014 Thomas Tanghus (thomas@tanghus.net)
+ *
  * This file is licensed under the Affero General Public License version 3 or
  * later.
  * See the COPYING-README file.
@@ -11,7 +12,7 @@ namespace OCA\Contacts\Controller;
 
 use OCA\Contacts\App,
 	OCA\Contacts\JSONResponse,
-	OCA\Contacts\Controller,
+	OCP\AppFramework\Controller,
 	OCA\AppFramework\Core\API;
 
 
@@ -39,7 +40,7 @@ class SettingsController extends Controller {
 			$response->bailOut(App::$l10n->t('No value is given.'));
 		}
 
-		if(\OCP\Config::setUserValue($this->api->getUserId(), 'contacts', $key, $value)) {
+		if(\OCP\Config::setUserValue(\OCP\User::getUser(), 'contacts', $key, $value)) {
 			$response->setParams(array(
 				'key' => $key,
 				'value' => $value)

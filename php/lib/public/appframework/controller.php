@@ -3,7 +3,7 @@
  * ownCloud - App Framework
  *
  * @author Bernhard Posselt
- * @copyright 2012 Bernhard Posselt nukeawhale@gmail.com
+ * @copyright 2012, 2014 Bernhard Posselt <dev@bernhard-posselt.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -28,7 +28,7 @@
 namespace OCP\AppFramework;
 
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\AppFramework\IAppContainer;
+use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 
 
@@ -38,10 +38,10 @@ use OCP\IRequest;
 abstract class Controller {
 
 	/**
-	 * app container for dependency injection
-	 * @var \OCP\AppFramework\IAppContainer
+	 * app name
+	 * @var string
 	 */
-	protected $app;
+	protected $appName;
 
 	/**
 	 * current request
@@ -49,26 +49,93 @@ abstract class Controller {
 	 */
 	protected $request;
 
+	private $responders;
+
 	/**
 	 * constructor of the controller
-	 * @param IAppContainer $app interface to the app
+	 * @param string $appName the name of the app
 	 * @param IRequest $request an instance of the request
 	 */
-	public function __construct(IAppContainer $app, IRequest $request){
-		$this->app = $app;
+	public function __construct($appName,
+	                            IRequest $request){
+		$this->appName = $appName;
 		$this->request = $request;
+
+		// default responders
+		$this->responders = array(
+			'json' => function ($response) {
+				return new JSONResponse($response);
+			}
+		);
+	}
+
+
+	/**
+	 * Parses an HTTP accept header and returns the supported responder type
+	 * @param string $acceptHeader
+	 * @return string the responder type
+	 */
+	public function getResponderByHTTPHeader($acceptHeader) {
+		$headers = explode(',', $acceptHeader);
+
+		// return the first matching responder
+		foreach ($headers as $header) {
+			$header = strtolower(trim($header));
+
+			$responder = str_replace('application/', '', $header);
+
+			if (array_key_exists($responder, $this->responders)) {
+				return $responder;
+			}
+		}
+
+		// no matching header defaults to json
+		return 'json';
+	}
+
+
+	/**
+	 * Registers a formatter for a type
+	 * @param string $format
+	 * @param \Closure $responder
+	 */
+	protected function registerResponder($format, \Closure $responder) {
+		$this->responders[$format] = $responder;
+	}
+
+
+	/**
+	 * Serializes and formats a response
+	 * @param mixed $response the value that was returned from a controller and
+	 * is not a Response instance
+	 * @param string $format the format for which a formatter has been registered
+	 * @throws \DomainException if format does not match a registered formatter
+	 * @return Response
+	 */
+	public function buildResponse($response, $format='json') {
+		if(array_key_exists($format, $this->responders)) {
+
+			$responder = $this->responders[$format];
+
+			return $responder($response);
+
+		} else {
+			throw new \DomainException('No responder registered for format ' .
+				$format . '!');
+		}
 	}
 
 
 	/**
 	 * Lets you access post and get parameters by the index
+	 * @deprecated write your parameters as method arguments instead
 	 * @param string $key the key which you want to access in the URL Parameter
 	 *                     placeholder, $_POST or $_GET array.
 	 *                     The priority how they're returned is the following:
 	 *                     1. URL parameters
 	 *                     2. POST parameters
 	 *                     3. GET parameters
-	 * @param mixed $default If the key is not found, this value will be returned
+	 * @param string $default If the key is not found, this value will be returned
 	 * @return mixed the content of the array
 	 */
 	public function params($key, $default=null){
@@ -78,7 +145,8 @@ abstract class Controller {
 
 	/**
 	 * Returns all params that were received, be it from the request
-	 * (as GET or POST) or throuh the URL by the route
+	 * (as GET or POST) or through the URL by the route
+	 * @deprecated use $this->request instead
 	 * @return array the array with all parameters
 	 */
 	public function getParams() {
@@ -88,6 +156,7 @@ abstract class Controller {
 
 	/**
 	 * Returns the method of the request
+	 * @deprecated use $this->request instead
 	 * @return string the method of the request (POST, GET, etc)
 	 */
 	public function method() {
@@ -97,6 +166,7 @@ abstract class Controller {
 
 	/**
 	 * Shortcut for accessing an uploaded file through the $_FILES array
+	 * @deprecated use $this->request instead
 	 * @param string $key the key that will be taken from the $_FILES array
 	 * @return array the file in the $_FILES element
 	 */
@@ -107,6 +177,7 @@ abstract class Controller {
 
 	/**
 	 * Shortcut for getting env variables
+	 * @deprecated use $this->request instead
 	 * @param string $key the key that will be taken from the $_ENV array
 	 * @return array the value in the $_ENV element
 	 */
@@ -117,6 +188,7 @@ abstract class Controller {
 
 	/**
 	 * Shortcut for getting cookie variables
+	 * @deprecated use $this->request instead
 	 * @param string $key the key that will be taken from the $_COOKIE array
 	 * @return array the value in the $_COOKIE element
 	 */
@@ -127,16 +199,17 @@ abstract class Controller {
 
 	/**
 	 * Shortcut for rendering a template
+	 * @deprecated return a template response instead
 	 * @param string $templateName the name of the template
 	 * @param array $params the template parameters in key => value structure
 	 * @param string $renderAs user renders a full page, blank only your template
 	 *                          admin an entry in the admin settings
-	 * @param array $headers set additional headers in name/value pairs
+	 * @param string[] $headers set additional headers in name/value pairs
 	 * @return \OCP\AppFramework\Http\TemplateResponse containing the page
 	 */
 	public function render($templateName, array $params=array(),
 							$renderAs='user', array $headers=array()){
-		$response = new TemplateResponse($this->app->getAppName(), $templateName);
+		$response = new TemplateResponse($this->appName, $templateName);
 		$response->setParams($params);
 		$response->renderAs($renderAs);
 

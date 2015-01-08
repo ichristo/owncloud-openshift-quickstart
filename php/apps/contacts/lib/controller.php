@@ -1,7 +1,9 @@
 <?php
 /**
  * @author Thomas Tanghus
- * Copyright (c) 2013 Thomas Tanghus (thomas@tanghus.net)
+ * @author Thomas Tanghus
+ * @copyright 2013-2014 Thomas Tanghus (thomas@tanghus.net)
+ *
  * This file is licensed under the Affero General Public License version 3 or
  * later.
  * See the COPYING-README file.
@@ -34,10 +36,8 @@ class Controller extends BaseController {
 	*/
 	protected $app;
 
-	public function __construct(IAppContainer $container, App $app) {
-		$this->api = $container->query('API');
-		$this->request = $container->query('Request');
-		$this->server = $container->getServer();
+	public function __construct($appName, IRequest $request, App $app) {
+		parent::__construct($appName, $request);
 		$this->app = $app;
 	}
 

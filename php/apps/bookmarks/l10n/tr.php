@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "No file provided for import" => "İçe aktarılacak dosya yok",
 "Unsupported file type for import" => "İçe aktarmak için desteklenmeyen dosya türü",
 "Bookmarks" => "Yer İmleri",
@@ -11,25 +12,26 @@
 "Import completed successfully." => "İçe aktarım başarıyla tamamlandı.",
 "Uploading..." => "Yükleniyor...",
 "Bookm." => "Yer imi",
-"Add a bookmark" => "Yer imi ekle",
+"Add a bookmark" => "Bir yer imi ekle",
 "Close" => "Kapat",
 "The title of the page" => "Sayfanın başlığı",
 "The address of the page" => "Sayfanın adresi",
-"Description of the page" => "Sayfanın tanımlaması",
+"Description of the page" => "Sayfa açıklaması",
 "Save" => "Kaydet",
 "Delete" => "Sil",
 "Edit" => "Düzenle",
 "Cancel" => "İptal",
-"Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Bir web sayfasını hızlıca yer imlerine eklemek istediğinizde onu tarayıcınızın yer imlerine sürükleyin ve tıklayın.",
+"Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Bir web sayfasını hızlıca yer imlerine eklemek istediğinizde bunu tarayıcınızın yer imlerine sürükleyin ve tıklayın:",
 "Add to ownCloud" => "ownCloud'a Ekle",
 "Address" => "Adres",
 "Add" => "Ekle",
-"Related Tags" => "İlgili etiketler",
+"Related Tags" => "İlgili Etiketler",
 "Settings" => "Ayarlar",
 "You have no bookmarks" => "Hiç yer iminiz yok",
-"You can also try to import a bookmark file" => "Bir yer imi dosyasını içe aktarmayı deneyebilirsiniz",
-"Bookmarklet" => "Yer imleri",
-"Export & Import" => "Dışa Aktar & İçe Aktar",
+"You can also try to import a bookmark file" => "Bir yer imi dosyasını içe aktarmayı da deneyebilirsiniz",
+"Bookmarklet" => "Yer İmi Ekleyici",
+"Export & Import" => "Dışa ve İçe Aktarma",
 "Export" => "Dışa aktar",
 "Import" => "İçe aktar"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n > 1);";

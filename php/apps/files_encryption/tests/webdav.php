@@ -27,28 +27,32 @@ require_once __DIR__ . '/../lib/proxy.php';
 require_once __DIR__ . '/../lib/stream.php';
 require_once __DIR__ . '/../lib/util.php';
 require_once __DIR__ . '/../appinfo/app.php';
-require_once __DIR__ . '/util.php';
 
 use OCA\Encryption;
 
 /**
  * Class Test_Encryption_Webdav
- * @brief this class provide basic webdav tests for PUT,GET and DELETE
+ *
+ * this class provide basic webdav tests for PUT,GET and DELETE
  */
-class Test_Encryption_Webdav extends \PHPUnit_Framework_TestCase {
+class Test_Encryption_Webdav extends \OCA\Files_Encryption\Tests\TestCase {
 
 	const TEST_ENCRYPTION_WEBDAV_USER1 = "test-webdav-user1";
 
 	public $userId;
 	public $pass;
 	/**
-	 * @var \OC_FilesystemView
+	 * @var \OC\Files\View
 	 */
 	public $view;
 	public $dataShort;
 	public $stateFilesTrashbin;
 
+	private $storage;
+
 	public static function setUpBeforeClass() {
+		parent::setUpBeforeClass();
+
 		// reset backend
 		\OC_User::clearBackends();
 		\OC_User::useBackend('database');
@@ -64,10 +68,13 @@ class Test_Encryption_Webdav extends \PHPUnit_Framework_TestCase {
 		\OC_FileProxy::register(new OCA\Encryption\Proxy());
 
 		// create test user
-		\Test_Encryption_Util::loginHelper(\Test_Encryption_Webdav::TEST_ENCRYPTION_WEBDAV_USER1, true);
+		self::loginHelper(\Test_Encryption_Webdav::TEST_ENCRYPTION_WEBDAV_USER1, true);
+
 	}
 
-	function setUp() {
+	protected function setUp() {
+		parent::setUp();
+
 		// reset backend
 		\OC_User::useBackend('database');
 
@@ -77,8 +84,8 @@ class Test_Encryption_Webdav extends \PHPUnit_Framework_TestCase {
 		$this->pass = \Test_Encryption_Webdav::TEST_ENCRYPTION_WEBDAV_USER1;
 
 		// init filesystem view
-		$this->view = new \OC_FilesystemView('/');
-
+		$this->view = new \OC\Files\View('/');
+		list($this->storage, ) = $this->view->resolvePath('/');
 		// init short data
 		$this->dataShort = 'hats';
 
@@ -89,31 +96,42 @@ class Test_Encryption_Webdav extends \PHPUnit_Framework_TestCase {
 		\OC_App::disable('files_trashbin');
 
 		// create test user
-		\Test_Encryption_Util::loginHelper(\Test_Encryption_Webdav::TEST_ENCRYPTION_WEBDAV_USER1);
+		self::loginHelper(\Test_Encryption_Webdav::TEST_ENCRYPTION_WEBDAV_USER1);
 	}
 
-	function tearDown() {
+	protected function tearDown() {
 		// reset app files_trashbin
 		if ($this->stateFilesTrashbin) {
 			OC_App::enable('files_trashbin');
-		}
-		else {
+		} else {
 			OC_App::disable('files_trashbin');
 		}
+
+		parent::tearDown();
 	}
 
 	public static function tearDownAfterClass() {
 		// cleanup test user
 		\OC_User::deleteUser(\Test_Encryption_Webdav::TEST_ENCRYPTION_WEBDAV_USER1);
+
+		\OC_Hook::clear();
+		\OC_FileProxy::clearProxies();
+
+		// Delete keys in /data/
+		$view = new \OC\Files\View('/');
+		$view->rmdir('public-keys');
+		$view->rmdir('owncloud_private_key');
+
+		parent::tearDownAfterClass();
 	}
 
 	/**
-	 * @brief test webdav put random file
+	 * test webdav put random file
 	 */
 	function testWebdavPUT() {
 
 		// generate filename
-		$filename = '/tmp-' . uniqid() . '.txt';
+		$filename = '/tmp-' . $this->getUniqueID() . '.txt';
 
 		// set server vars
 		$_SERVER['REQUEST_METHOD'] = 'OPTIONS';
@@ -153,7 +171,7 @@ class Test_Encryption_Webdav extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue(Encryption\Crypt::isCatfileContent($encryptedContent));
 
 		// get decrypted file contents
-		$decrypt = file_get_contents('crypt:///' . $this->userId . '/files'. $filename);
+		$decrypt = file_get_contents('crypt:///' . $this->userId . '/files' . $filename);
 
 		// check if file content match with the written content
 		$this->assertEquals($this->dataShort, $decrypt);
@@ -163,7 +181,7 @@ class Test_Encryption_Webdav extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @brief test webdav get random file
+	 * test webdav get random file
 	 *
 	 * @depends testWebdavPUT
 	 */
@@ -186,7 +204,7 @@ class Test_Encryption_Webdav extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @brief test webdav delete random file
+	 * test webdav delete random file
 	 * @depends testWebdavGET
 	 */
 	function testWebdavDELETE($filename) {
@@ -195,6 +213,9 @@ class Test_Encryption_Webdav extends \PHPUnit_Framework_TestCase {
 		$_SERVER['REQUEST_URI'] = '/remote.php/webdav' . $filename;
 		$_SERVER['HTTP_AUTHORIZATION'] = 'Basic dGVzdC13ZWJkYXYtdXNlcjE6dGVzdC13ZWJkYXYtdXNlcjE=';
 		$_SERVER['PATH_INFO'] = '/webdav' . $filename;
+
+		// at the beginning the file should exist
+		$this->assertTrue($this->view->file_exists('/' . $this->userId . '/files' . $filename));
 
 		// handle webdav request
 		$content = $this->handleWebdavRequest();
@@ -212,7 +233,7 @@ class Test_Encryption_Webdav extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @brief handle webdav request
+	 * handle webdav request
 	 *
 	 * @param bool $body
 	 *
@@ -225,19 +246,25 @@ class Test_Encryption_Webdav extends \PHPUnit_Framework_TestCase {
 		$requestBackend = new OC_Connector_Sabre_Request();
 
 		// Create ownCloud Dir
-		$publicDir = new OC_Connector_Sabre_Directory('');
+		$root = '/' . $this->userId . '/files';
+		$view = new \OC\Files\View($root);
+		$publicDir = new OC_Connector_Sabre_Directory($view, $view->getFileInfo(''));
+		$objectTree = new \OC\Connector\Sabre\ObjectTree();
+		$mountManager = \OC\Files\Filesystem::getMountManager();
+		$objectTree->init($publicDir, $view, $mountManager);
 
 		// Fire up server
-		$server = new Sabre_DAV_Server($publicDir);
+		$server = new \Sabre\DAV\Server($publicDir);
 		$server->httpRequest = $requestBackend;
 		$server->setBaseUri('/remote.php/webdav/');
 
 		// Load plugins
-		$server->addPlugin(new Sabre_DAV_Auth_Plugin($authBackend, 'ownCloud'));
-		$server->addPlugin(new Sabre_DAV_Locks_Plugin($lockBackend));
-		$server->addPlugin(new Sabre_DAV_Browser_Plugin(false)); // Show something in the Browser, but no upload
-		$server->addPlugin(new OC_Connector_Sabre_QuotaPlugin());
+		$server->addPlugin(new \Sabre\DAV\Auth\Plugin($authBackend, 'ownCloud'));
+		$server->addPlugin(new \Sabre\DAV\Locks\Plugin($lockBackend));
+		$server->addPlugin(new \Sabre\DAV\Browser\Plugin(false)); // Show something in the Browser, but no upload
+		$server->addPlugin(new OC_Connector_Sabre_QuotaPlugin($view));
 		$server->addPlugin(new OC_Connector_Sabre_MaintenancePlugin());
+		$server->debugExceptions = true;
 
 		// And off we go!
 		if ($body) {

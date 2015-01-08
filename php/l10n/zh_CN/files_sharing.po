@@ -3,14 +3,16 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Martin Liu <liuzh66@gmail.com>, 2014
 # waterone <suiy02@gmail.com>, 2013
+# csslayer <wengxt@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: translations@owncloud.org\n"
-"POT-Creation-Date: 2013-11-15 22:54-0500\n"
-"PO-Revision-Date: 2013-11-13 16:11+0000\n"
-"Last-Translator: I Robot <owncloud-bot@tmit.eu>\n"
+"POT-Creation-Date: 2014-07-03 01:54-0400\n"
+"PO-Revision-Date: 2014-07-03 05:54+0000\n"
+"Last-Translator: I Robot\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/owncloud/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,17 +20,82 @@ msgstr ""
 "Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
+#: ajax/external.php:17
+msgid "Server to server sharing is not enabled on this server"
+msgstr ""
+
+#: ajax/external.php:47
+msgid "Couldn't add remote share"
+msgstr ""
+
+#: appinfo/app.php:33 js/app.js:34
+msgid "Shared with you"
+msgstr ""
+
+#: appinfo/app.php:42 js/app.js:53
+msgid "Shared with others"
+msgstr ""
+
+#: appinfo/app.php:51 js/app.js:72
+msgid "Shared by link"
+msgstr ""
+
+#: js/app.js:35
+msgid "No files have been shared with you yet."
+msgstr ""
+
+#: js/app.js:54
+msgid "You haven't shared any files yet."
+msgstr ""
+
+#: js/app.js:73
+msgid "You haven't shared any files by link yet."
+msgstr ""
+
+#: js/external.js:45 js/external.js:48
+msgid "Add {name} from {owner}@{remote}"
+msgstr ""
+
+#: js/external.js:46 js/external.js:49
+msgid "Add Share"
+msgstr ""
+
+#: js/external.js:49 templates/authenticate.php:10
+#: templates/authenticate.php:12
+msgid "Password"
+msgstr "密码"
+
+#: js/public.js:203
+msgid "No ownCloud installation found at {remote}"
+msgstr ""
+
+#: js/public.js:204
+msgid "Invalid ownCloud url"
+msgstr ""
+
+#: js/share.js:146
+msgid "Shared by {owner}"
+msgstr "由{owner}共享"
+
+#: js/sharedfilelist.js:128
+msgid "Shared by"
+msgstr "共享人"
+
 #: templates/authenticate.php:4
 msgid "This share is password-protected"
-msgstr ""
+msgstr "这是一个密码保护的共享"
 
 #: templates/authenticate.php:7
 msgid "The password is wrong. Try again."
 msgstr "用户名或密码错误！请重试"
 
-#: templates/authenticate.php:10
-msgid "Password"
-msgstr "密码"
+#: templates/list.php:16
+msgid "Name"
+msgstr "名称"
+
+#: templates/list.php:20
+msgid "Share time"
+msgstr ""
 
 #: templates/part.404.php:3
 msgid "Sorry, this link doesn’t seem to work anymore."
@@ -54,32 +121,35 @@ msgstr "共享已禁用"
 msgid "For more info, please ask the person who sent this link."
 msgstr "欲知详情，请联系发给你链接的人。"
 
-#: templates/public.php:18
-#, php-format
-msgid "%s shared the folder %s with you"
-msgstr "%s与您共享了%s文件夹"
+#: templates/public.php:20
+msgid "Add to your ownCloud"
+msgstr ""
 
-#: templates/public.php:21
-#, php-format
-msgid "%s shared the file %s with you"
-msgstr "%s与您共享了%s文件"
+#: templates/public.php:23
+msgid "Save"
+msgstr "保存"
 
-#: templates/public.php:29 templates/public.php:95
+#: templates/public.php:28
 msgid "Download"
 msgstr "下载"
 
-#: templates/public.php:46 templates/public.php:49
-msgid "Upload"
-msgstr "上传"
-
 #: templates/public.php:59
-msgid "Cancel upload"
-msgstr "取消上传"
+#, php-format
+msgid "Download %s"
+msgstr "下载 %s"
 
-#: templates/public.php:92
-msgid "No preview available for"
-msgstr "没有预览"
-
-#: templates/public.php:99
+#: templates/public.php:63
 msgid "Direct link"
+msgstr "直接链接"
+
+#: templates/settings-admin.php:3
+msgid "Remote Shares"
+msgstr ""
+
+#: templates/settings-admin.php:7
+msgid "Allow other instances to mount public links shared from this server"
+msgstr ""
+
+#: templates/settings-admin.php:11
+msgid "Allow users to mount public link shares"
 msgstr ""

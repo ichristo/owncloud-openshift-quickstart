@@ -37,7 +37,7 @@ class SMB extends \OC\Files\Storage\StreamWrapper{
 				$this->share = substr($this->share, 0, -1);
 			}
 		} else {
-			throw new \Exception();
+			throw new \Exception('Invalid configuration');
 		}
 	}
 
@@ -83,7 +83,7 @@ class SMB extends \OC\Files\Storage\StreamWrapper{
 
 	/**
 	 * Unlinks file or directory
-	 * @param string @path
+	 * @param string $path
 	 */
 	public function unlink($path) {
 		if ($this->is_dir($path)) {
@@ -134,4 +134,18 @@ class SMB extends \OC\Files\Storage\StreamWrapper{
 		}
 		return $lastCtime;
 	}
+
+	/**
+	 * check if smbclient is installed
+	 */
+	public static function checkDependencies() {
+		if (function_exists('shell_exec')) {
+			$output=shell_exec('command -v smbclient 2> /dev/null');
+			if (!empty($output)) {
+				return true;
+			}
+		}
+		return array('smbclient');
+	}
+
 }

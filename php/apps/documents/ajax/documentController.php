@@ -21,6 +21,9 @@ class DocumentController extends Controller{
 		$view = new \OC\Files\View('/' . $uid . '/files');
 		
 		$dir = \OCP\Config::getUserValue(\OCP\User::getUser(), 'documents', 'save_path', '/');
+		if (!$view->is_dir($dir)){
+			$dir = '/';
+		}
 		$path = Helper::getNewFileName($view, $dir . '/New Document.odt');
 		
 		$content = base64_decode(self::ODT_TEMPLATE);
@@ -32,46 +35,51 @@ class DocumentController extends Controller{
 			}
 		}
 		
-		$view->file_put_contents($path, $content);
+		if ($view->file_put_contents($path, $content)){
+			$info = $view->getFileInfo($path);
+			\OCP\JSON::success(array ('fileid' => $info['fileid']) );
+		} else {
+			\OCP\JSON::error(
+					array ('message' => Config::getL10n()->t('Can\'t create document'))
+			);
+		}
 	}
 
 
-/**
+	/**
 	 * Process partial/complete file download
 	 * @param array $args - array containing session id as an element with a key es_id 
 	 */
 	public static function serve($args){
-		$session = new Db_Session();
-		$sessionData = $session->load(@$args['es_id'])->getData();
+		$session = new Db\Session();
+		$session->load(@$args['es_id']);
 			
-		$file = new File(@$sessionData['file_id']);
-		if (!$file->isPublicShare()){
-			self::preDispatch(false);
-		} else {
-			self::preDispatchGuest(false);
-		}
+		self::preDispatchGuest();
 		
-		$filename = isset($sessionData['genesis_url']) ? $sessionData['genesis_url'] : '';
-		$download = new Download($sessionData['owner'], $filename);
+		$filename = $session->getGenesisUrl() ? $session->getGenesisUrl() : '';
+		$download = new Download($session->getOwner(), $filename);
 		$download->sendResponse();
 	}
 	
 
 	public static function rename($args){
-		$fileId = intval(@$args['file_id']);
-		$name = @$_POST['name'];
-		$file = new File($fileId);
-		$l = new \OC_L10n('documents');
+		self::preDispatch();
+		
+		$fileId = intval(Helper::getArrayValueByKey($args, 'file_id', 0));
+		$name = Helper::getArrayValueByKey($_POST, 'name');
 
-		if (isset($name) && $file->getPermissions() & \OCP\PERMISSION_UPDATE) {
-			if ($file->renameTo($name)) {
-				// TODO: propagate to other clients
+		$view = \OC\Files\Filesystem::getView();
+		$path = $view->getPath($fileId);
+
+		if (isset($name) && $view->is_file($path) && $view->isUpdatable($path)) {
+			$newPath = dirname($path) . '/' . $name;
+			if ($view->rename($path, $newPath)) {
 				\OCP\JSON::success();
 				return;
 			}
 		}
 		\OCP\JSON::error(array(
-			'message' => $l->t('You don\'t have permission to rename this document')
+			'message' => Config::getL10n()->t('You don\'t have permission to rename this document')
 		));
 	}
 
@@ -82,13 +90,16 @@ class DocumentController extends Controller{
 	public static function listAll(){
 		self::preDispatch();
 		
-		$documents = Storage::getDocuments();
+		$found = Storage::getDocuments();
 
 		$fileIds = array();
-		
-		//$previewAvailable = \OCP\Preview::show($file);
-		foreach ($documents as $key=>$document) {
-			//\OCP\Preview::show($document['path']);
+		$documents = array();
+		foreach ($found as $key=>$document) {
+			if (is_object($document)){
+				$documents[] = $document->getData();
+			} else {
+				$documents[$key] = $document;
+			}
 			$documents[$key]['icon'] = preg_replace('/\.png$/', '.svg', \OC_Helper::mimetypeIcon($document['mimetype']));
 			$fileIds[] = $document['fileid'];
 		}
@@ -97,11 +108,11 @@ class DocumentController extends Controller{
 			return @$b['mtime']-@$a['mtime'];
 		});
 		
-		$session = new Db_Session();
+		$session = new Db\Session();
 		$sessions = $session->getCollectionBy('file_id', $fileIds);
 
 		$members = array();
-		$member = new Db_Member();
+		$member = new Db\Member();
 		foreach ($sessions as $session) {			
 			$members[$session['es_id']] = $member->getActiveCollection($session['es_id']);
 		}

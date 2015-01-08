@@ -1,10 +1,11 @@
-<?php $TRANSLATIONS = array(
-"Welcome to ownCloud" => "Bun venit în propriul tău ownCloud",
-"Your personal web services. All your files, contacts, calendar and more, in one place." => "Serviciile tale web personale. Toate fisierele, contactele, calendarele si multe altele intr-un singur loc.",
-"Get the apps to sync your files" => "Ia acum aplicatia pentru sincronizarea fisierelor ",
-"Connect your desktop apps to ownCloud" => "Conecteaza-ti aplicatiile de pe Desktop cu ownCloud",
-"Connect your Calendar" => "Conecteaza-te la Calendar",
-"Connect your Contacts" => "Conecteaza-te la Contacte",
-"Access files via WebDAV" => "Acceseaza fisierele prin WebDAV",
-"If you like ownCloud, <a href=\"mailto:?subject=ownCloud&body=ownCloud is a great open software to sync and share your files. You can freely get it from http://owncloud.org\">recommend it to your friends</a>!" => "Daca iti place ownCloud, <a href=\"mailto:?subject=ownCloud&body=ownCloud is a great open software to sync and share your files. You can freely get it from http://owncloud.org\">recomanda-l prietenilor tai</a>!"
+<?php
+$TRANSLATIONS = array(
+"Your personal web services. All your files, contacts, calendar and more, in one place." => "Serviciile tale web personale. Toate fișierele, contactele, calendarele și multe altele într-un singur loc.",
+"Get the apps to sync your files" => "Obține aplicația pentru sincronizarea fișierelor",
+"Connect your Calendar" => "Conectează-ți calendarul",
+"Connect your Contacts" => "Conectează-ți contactele",
+"Access files via WebDAV" => "Accesează fișierele prin WebDAV",
+"Documentation" => "Documentație",
+"There’s more information in the <a target=\"_blank\" href=\"%s\">documentation</a> and on our <a target=\"_blank\" href=\"http://owncloud.org\">website</a>." => "Găsești mai multe informații în <a target=\"_blank\" href=\"%s\">documentație</a> și pe <a target=\"_blank\" href=\"http://owncloud.org\">saitul nostru</a>."
 );
+$PLURAL_FORMS = "nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));";

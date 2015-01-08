@@ -1,5 +1,12 @@
 <?php
 $TRANSLATIONS = array(
+"Location" => "Lleoliad",
+"Username" => "Enw defnyddiwr",
+"Password" => "Cyfrinair",
+"Share" => "Rhannu",
+"URL" => "URL",
+"Personal" => "Personol",
+"Name" => "Enw",
 "Groups" => "Grwpiau",
 "Users" => "Defnyddwyr",
 "Delete" => "Dileu"

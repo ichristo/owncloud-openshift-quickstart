@@ -1,12 +1,14 @@
 <?php $TRANSLATIONS = array(
-"Close" => "Zatvori",
 "Share" => "Podijeli",
+"Close" => "Zatvori",
+"Save" => "Snimi",
 "Cancel" => "Odustani",
 "Create" => "Izradi",
 "Delete" => "Obriši",
-"Save" => "Snimi",
+"OK" => "U redu",
 "Size" => "Veličina",
 "Text" => "Tekst",
+"Edit" => "Uredi",
 "Upload" => "Učitaj",
 "Password" => "Lozinka"
 );

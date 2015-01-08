@@ -3,7 +3,7 @@
  * ownCloud - Addressbook
  *
  * @author Thomas Tanghus
- * @copyright 2012 Thomas Tanghus (thomas@tanghus.net)
+ * @copyright 2012-2014 Thomas Tanghus (thomas@tanghus.net)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -23,10 +23,10 @@
 namespace OCA\Contacts\CardDAV;
 
 /**
- * This class overrides Sabre_CardDAV_UserAddressBooks::getChildren()
+ * This class overrides \Sabre\CardDAV\UserAddressBooks::getChildren()
  * to instantiate \OCA\Contacts\CardDAV\AddressBooks.
 */
-class UserAddressBooks extends \Sabre_CardDAV_UserAddressBooks {
+class UserAddressBooks extends \Sabre\CardDAV\UserAddressBooks {
 
 	/**
 	* Returns a list of addressbooks

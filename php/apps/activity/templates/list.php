@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ownCloud - Activity Application
+ * ownCloud - Activity App
  *
  * @author Frank Karlitschek
  * @copyright 2013 Frank Karlitschek frank@owncloud.org
@@ -16,37 +16,28 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
+ * You should have received a copy of the GNU Affero General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 /** @var $l OC_L10N */
 /** @var $theme OC_Defaults */
+/** @var $_ array */
+?>
+<?php $_['appNavigation']->printPage(); ?>
 
-// The rss activity button
-echo('<a href="' . $_['rsslink'] . '" class="button rssbutton">' . $l->t('RSS feed') . '</a>');
+<div id="app-content">
+	<div id="no_activities" class="hidden">
+		<div class="body"><?php p($l->t('You will see a list of events here when you start to use your %s.', $theme->getTitle())) ?></div>
+	</div>
 
-if (count($_['activity']) == 0) {
-	echo('<div class="noactivities">' .
-		'<div class="head">' . $l->t('No activities yet.') . '</div>' .
-		'<div class="body">' . $l->t('You will see a list of events here when you start to use your %s.', $theme->getTitle()) . '</div>' .
-		'</div>');
-} else {
+	<div id="container" data-activity-filter="<?php p($_['filter']) ?>">
+	</div>
 
-	// Show the activities. The container is needed for the endless scrolling
-	echo('<div id="container">');
-	$tmpl = new \OCP\Template('activity', 'activities.part', '');
-	$tmpl->assign('activity', $_['activity']);
-	$tmpl->printPage();
-	echo('</div>');
+	<div id="loading_activities" class="icon-loading"></div>
 
-	// Dummy navigation. Needed for endless scrolling
-	if (isset($_['nextpage'])) echo('
-	<nav id="page-nav">
-	  <a href="' . $_['nextpage'] . '"></a>
-	</nav>
-
-	');
-
-}
+	<div id="no_more_activities" class="hidden">
+		<?php p($l->t('No more events to load')) ?>
+	</div>
+</div>

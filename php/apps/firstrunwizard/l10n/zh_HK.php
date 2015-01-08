@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
-"Welcome to ownCloud" => "歡迎來到ownCloud",
+<?php
+$TRANSLATIONS = array(
 "Connect your Calendar" => "連接您的日曆"
 );
+$PLURAL_FORMS = "nplurals=1; plural=0;";

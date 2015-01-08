@@ -3,8 +3,13 @@
  * ownCloud
  *
  * @author Frank Karlitschek
+ * @copyright 2012 Frank Karlitschek <frank@owncloud.org>
+ *
  * @author Jakob Sack
- * @copyright 2012 Frank Karlitschek frank@owncloud.org
+ * @copyright 2012 Jakob Sack <mail@jakobsack.de>
+ *
+ * @author Georg Ehrke
+ * @copyright 2014 Georg Ehrke <georg@ownCloud.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -23,10 +28,10 @@
 
 /**
  * This class manages the apps. It allows them to register and integrate in the
- * owncloud ecosystem. Furthermore, this class is responsible for installing,
+ * ownCloud ecosystem. Furthermore, this class is responsible for installing,
  * upgrading and removing apps.
  */
-class OC_App{
+class OC_App {
 	static private $settingsForms = array();
 	static private $adminForms = array();
 	static private $personalForms = array();
@@ -37,8 +42,8 @@ class OC_App{
 	static private $altLogin = array();
 
 	/**
-	 * @brief clean the appid
-	 * @param $app Appid that needs to be cleaned
+	 * clean the appId
+	 * @param string|boolean $app AppId that needs to be cleaned
 	 * @return string
 	 */
 	public static function cleanAppId($app) {
@@ -46,67 +51,82 @@ class OC_App{
 	}
 
 	/**
-	 * @brief loads all apps
+	 * loads all apps
 	 * @param array $types
 	 * @return bool
 	 *
-	 * This function walks through the owncloud directory and loads all apps
+	 * This function walks through the ownCloud directory and loads all apps
 	 * it can find. A directory contains an app if the file /appinfo/app.php
 	 * exists.
 	 *
 	 * if $types is set, only apps of those types will be loaded
 	 */
-	public static function loadApps($types=null) {
+	public static function loadApps($types = null) {
+		if (OC_Config::getValue('maintenance', false)) {
+			return false;
+		}
 		// Load the enabled apps here
 		$apps = self::getEnabledApps();
 		// prevent app.php from printing output
 		ob_start();
-		foreach( $apps as $app ) {
-			if((is_null($types) or self::isType($app, $types)) && !in_array($app, self::$loadedApps)) {
-				self::loadApp($app);
+		foreach ($apps as $app) {
+			if ((is_null($types) or self::isType($app, $types)) && !in_array($app, self::$loadedApps)) {
 				self::$loadedApps[] = $app;
+				self::loadApp($app);
 			}
 		}
 		ob_end_clean();
 
-		if (!defined('DEBUG') || !DEBUG) {
-			if (is_null($types)
-				&& empty(OC_Util::$coreScripts)
-				&& empty(OC_Util::$coreStyles)) {
-				OC_Util::$coreScripts = OC_Util::$scripts;
-				OC_Util::$scripts = array();
-				OC_Util::$coreStyles = OC_Util::$styles;
-				OC_Util::$styles = array();
-			}
-		}
-		// return
 		return true;
 	}
 
 	/**
 	 * load a single app
+	 *
 	 * @param string $app
+	 * @param bool $checkUpgrade whether an upgrade check should be done
+	 * @throws \OC\NeedsUpdateException
 	 */
-	public static function loadApp($app) {
-		if(is_file(self::getAppPath($app).'/appinfo/app.php')) {
-			self::checkUpgrade($app);
-			require_once $app.'/appinfo/app.php';
+	public static function loadApp($app, $checkUpgrade = true) {
+		if (is_file(self::getAppPath($app) . '/appinfo/app.php')) {
+			if ($checkUpgrade and self::shouldUpgrade($app)) {
+				throw new \OC\NeedsUpdateException();
+			}
+			self::requireAppFile($app);
+			if (self::isType($app, array('authentication'))) {
+				// since authentication apps affect the "is app enabled for group" check,
+				// the enabled apps cache needs to be cleared to make sure that the
+				// next time getEnableApps() is called it will also include apps that were
+				// enabled for groups
+				self::$enabledAppsCache = array();
+			}
 		}
 	}
 
 	/**
+	 * Load app.php from the given app
+	 *
+	 * @param string $app app name
+	 */
+	private static function requireAppFile($app) {
+		// encapsulated here to avoid variable scope conflicts
+		require_once $app . '/appinfo/app.php';
+	}
+
+	/**
 	 * check if an app is of a specific type
+	 *
 	 * @param string $app
-	 * @param string/array $types
+	 * @param string|array $types
 	 * @return bool
 	 */
 	public static function isType($app, $types) {
-		if(is_string($types)) {
-			$types=array($types);
+		if (is_string($types)) {
+			$types = array($types);
 		}
-		$appTypes=self::getAppTypes($app);
-		foreach($types as $type) {
-			if(array_search($type, $appTypes)!==false) {
+		$appTypes = self::getAppTypes($app);
+		foreach ($types as $type) {
+			if (array_search($type, $appTypes) !== false) {
 				return true;
 			}
 		}
@@ -115,18 +135,19 @@ class OC_App{
 
 	/**
 	 * get the types of an app
+	 *
 	 * @param string $app
 	 * @return array
 	 */
 	private static function getAppTypes($app) {
 		//load the cache
-		if(count(self::$appTypes)==0) {
-			self::$appTypes=OC_Appconfig::getValues(false, 'types');
+		if (count(self::$appTypes) == 0) {
+			self::$appTypes = OC_Appconfig::getValues(false, 'types');
 		}
 
-		if(isset(self::$appTypes[$app])) {
+		if (isset(self::$appTypes[$app])) {
 			return explode(',', self::$appTypes[$app]);
-		}else{
+		} else {
 			return array();
 		}
 	}
@@ -135,12 +156,12 @@ class OC_App{
 	 * read app types from info.xml and cache them in the database
 	 */
 	public static function setAppTypes($app) {
-		$appData=self::getAppInfo($app);
+		$appData = self::getAppInfo($app);
 
-		if(isset($appData['types'])) {
-			$appTypes=implode(',', $appData['types']);
-		}else{
-			$appTypes='';
+		if (isset($appData['types'])) {
+			$appTypes = implode(',', $appData['types']);
+		} else {
+			$appTypes = '';
 		}
 
 		OC_Appconfig::setValue($app, 'types', $appTypes);
@@ -148,14 +169,15 @@ class OC_App{
 
 	/**
 	 * check if app is shipped
-	 * @param string $appid the id of the app to check
+	 *
+	 * @param string $appId the id of the app to check
 	 * @return bool
 	 *
 	 * Check if an app that is installed is a shipped app or installed from the appstore.
 	 */
-	public static function isShipped($appid){
-		$info = self::getAppInfo($appid);
-		if(isset($info['shipped']) && $info['shipped']=='true') {
+	public static function isShipped($appId) {
+		$info = self::getAppInfo($appId);
+		if (isset($info['shipped']) && $info['shipped'] == 'true') {
 			return true;
 		} else {
 			return false;
@@ -165,45 +187,74 @@ class OC_App{
 	/**
 	 * get all enabled apps
 	 */
-	private static $enabledAppsCache = array();
-	public static function getEnabledApps() {
-		if(!OC_Config::getValue('installed', false)) {
+	protected static $enabledAppsCache = array();
+
+	/**
+	 * Returns apps enabled for the current user.
+	 *
+	 * @param bool $forceRefresh whether to refresh the cache
+	 * @param bool $all whether to return apps for all users, not only the
+	 * currently logged in one
+	 */
+	public static function getEnabledApps($forceRefresh = false, $all = false) {
+		if (!OC_Config::getValue('installed', false)) {
 			return array();
 		}
-		if(!empty(self::$enabledAppsCache)) {
+		// in incognito mode or when logged out, $user will be false,
+		// which is also the case during an upgrade
+		$user = null;
+		if (!$all) {
+			$user = \OC_User::getUser();
+		}
+		if (is_string($user) && !$forceRefresh && !empty(self::$enabledAppsCache)) {
 			return self::$enabledAppsCache;
 		}
-		$apps=array('files');
-		$sql = 'SELECT `appid` FROM `*PREFIX*appconfig`'
-			.' WHERE `configkey` = \'enabled\' AND `configvalue`=\'yes\'';
-		if (OC_Config::getValue( 'dbtype', 'sqlite' ) === 'oci') {
-			//FIXME oracle hack: need to explicitly cast CLOB to CHAR for comparison
-			$sql = 'SELECT `appid` FROM `*PREFIX*appconfig`'
-			.' WHERE `configkey` = \'enabled\' AND to_char(`configvalue`)=\'yes\'';
-		}
-		$query = OC_DB::prepare( $sql );
-		$result=$query->execute();
-		if( \OC_DB::isError($result)) {
-			throw new DatabaseException($result->getMessage(), $query);
-		}
-		while($row=$result->fetchRow()) {
-			if(array_search($row['appid'], $apps)===false) {
-				$apps[]=$row['appid'];
+		$apps = array();
+		$appConfig = \OC::$server->getAppConfig();
+		$appStatus = $appConfig->getValues(false, 'enabled');
+		foreach ($appStatus as $app => $enabled) {
+			if ($app === 'files') {
+				continue;
+			}
+			if ($enabled === 'yes') {
+				$apps[] = $app;
+			} else if ($enabled !== 'no') {
+				$groups = json_decode($enabled);
+				if (is_array($groups)) {
+					if (is_string($user)) {
+						foreach ($groups as $group) {
+							if (\OC_Group::inGroup($user, $group)) {
+								$apps[] = $app;
+								break;
+							}
+						}
+					} else {
+						// global, consider app as enabled
+						$apps[] = $app;
+					}
+				}
 			}
 		}
-		self::$enabledAppsCache = $apps;
+		sort($apps);
+		array_unshift($apps, 'files');
+		// Only cache the app list, when the user is logged in.
+		// Otherwise we cache the list with disabled apps, although
+		// the apps are enabled for the user after he logged in.
+		if ($user) {
+			self::$enabledAppsCache = $apps;
+		}
 		return $apps;
 	}
 
 	/**
-	 * @brief checks whether or not an app is enabled
+	 * checks whether or not an app is enabled
 	 * @param string $app app
 	 * @return bool
 	 *
 	 * This function checks whether or not an app is enabled.
 	 */
-	public static function isEnabled( $app ) {
-		if('files' == $app) {
+	public static function isEnabled($app) {
+		if ('files' == $app) {
 			return true;
 		}
 		$enabledApps = self::getEnabledApps();
@@ -211,72 +262,68 @@ class OC_App{
 	}
 
 	/**
-	 * @brief enables an app
+	 * enables an app
 	 * @param mixed $app app
+	 * @param array $groups (optional) when set, only these groups will have access to the app
 	 * @throws \Exception
 	 * @return void
 	 *
 	 * This function set an app as enabled in appconfig.
 	 */
-	public static function enable( $app ) {
+	public static function enable($app, $groups = null) {
 		self::$enabledAppsCache = array(); // flush
-		if(!OC_Installer::isInstalled($app)) {
-			// check if app is a shipped app or not. OCS apps have an integer as id, shipped apps use a string
-			if(!is_numeric($app)) {
-				$app = OC_Installer::installShippedApp($app);
-			}else{
-				$appdata=OC_OCSClient::getApplication($app);
-				$download=OC_OCSClient::getApplicationDownload($app, 1);
-				if(isset($download['downloadlink']) and $download['downloadlink']!='') {
-					$info = array('source'=>'http', 'href'=>$download['downloadlink'], 'appdata'=>$appdata);
-					$app=OC_Installer::installApp($info);
-				}
-			}
+		if (!OC_Installer::isInstalled($app)) {
+			$app = self::installApp($app);
 		}
-		$l = OC_L10N::get('core');
-		if($app!==false) {
-			// check if the app is compatible with this version of ownCloud
-			$info=OC_App::getAppInfo($app);
-			$version=OC_Util::getVersion();
-			if(!isset($info['require']) or !self::isAppVersionCompatible($version, $info['require'])) {
-				throw new \Exception(
-					$l->t("App \"%s\" can't be installed because it is not compatible with this version of ownCloud.",
-						array($info['name'])
-					)
-				);
-			}else{
-				OC_Appconfig::setValue( $app, 'enabled', 'yes' );
-				if(isset($appdata['id'])) {
-					OC_Appconfig::setValue( $app, 'ocsid', $appdata['id'] );
-				}
-				\OC_Hook::emit('OC_App', 'post_enable', array('app' => $app));
-			}
+
+		if (!is_null($groups)) {
+			OC_Appconfig::setValue($app, 'enabled', json_encode($groups));
 		}else{
-			throw new \Exception($l->t("No app name specified"));
+			OC_Appconfig::setValue($app, 'enabled', 'yes');
 		}
 	}
 
 	/**
-	 * @brief disables an app
-	 * @param string $app app
-	 * @return bool
-	 *
-	 * This function set an app as disabled in appconfig.
+	 * @param string $app
+	 * @return int
 	 */
-	public static function disable( $app ) {
+	public static function downloadApp($app) {
+		$appData=OC_OCSClient::getApplication($app);
+		$download=OC_OCSClient::getApplicationDownload($app, 1);
+		if(isset($download['downloadlink']) and $download['downloadlink']!='') {
+			// Replace spaces in download link without encoding entire URL
+			$download['downloadlink'] = str_replace(' ', '%20', $download['downloadlink']);
+			$info = array('source'=>'http', 'href'=>$download['downloadlink'], 'appdata'=>$appData);
+			$app=OC_Installer::installApp($info);
+		}
+		return $app;
+	}
+
+	/**
+	 * @param string $app
+	 * @return bool
+	 */
+	public static function removeApp($app) {
+		if (self::isShipped($app)) {
+			return false;
+		}
+
+		return OC_Installer::removeApp($app);
+	}
+
+	/**
+	 * This function set an app as disabled in appconfig.
+	 * @param string $app app
+	 */
+	public static function disable($app) {
 		self::$enabledAppsCache = array(); // flush
 		// check if app is a shipped app or not. if not delete
 		\OC_Hook::emit('OC_App', 'pre_disable', array('app' => $app));
-		OC_Appconfig::setValue( $app, 'enabled', 'no' );
-
-		// check if app is a shipped app or not. if not delete
-		if(!OC_App::isShipped( $app )) {
-			OC_Installer::removeApp( $app );
-		}
+		OC_Appconfig::setValue($app, 'enabled', 'no' );
 	}
 
 	/**
-	 * @brief adds an entry to the navigation
+	 * adds an entry to the navigation
 	 * @param array $data array containing the data
 	 * @return bool
 	 *
@@ -292,13 +339,13 @@ class OC_App{
 	 *   - order: integer, that influences the position of your application in
 	 *     the navigation. Lower values come first.
 	 */
-	public static function addNavigationEntry( $data ) {
+	public static function addNavigationEntry($data) {
 		OC::$server->getNavigationManager()->add($data);
 		return true;
 	}
 
 	/**
-	 * @brief marks a navigation entry as active
+	 * marks a navigation entry as active
 	 * @param string $id id of the entry
 	 * @return bool
 	 *
@@ -306,29 +353,29 @@ class OC_App{
 	 * property from all other entries. The templates can use this for
 	 * highlighting the current position of the user.
 	 */
-	public static function setActiveNavigationEntry( $id ) {
+	public static function setActiveNavigationEntry($id) {
 		OC::$server->getNavigationManager()->setActiveEntry($id);
 		return true;
 	}
 
 	/**
-	 * @brief Get the navigation entries for the $app
+	 * Get the navigation entries for the $app
 	 * @param string $app app
-	 * @return array of the $data added with addNavigationEntry
+	 * @return array an array of the $data added with addNavigationEntry
 	 *
 	 * Warning: destroys the existing entries
 	 */
 	public static function getAppNavigationEntries($app) {
-		if(is_file(self::getAppPath($app).'/appinfo/app.php')) {
+		if (is_file(self::getAppPath($app) . '/appinfo/app.php')) {
 			OC::$server->getNavigationManager()->clear();
-			require $app.'/appinfo/app.php';
+			require $app . '/appinfo/app.php';
 			return OC::$server->getNavigationManager()->getAll();
 		}
 		return array();
 	}
 
 	/**
-	 * @brief gets the active Menu entry
+	 * gets the active Menu entry
 	 * @return string id or empty string
 	 *
 	 * This function returns the id of the active navigation entry (set by
@@ -339,26 +386,27 @@ class OC_App{
 	}
 
 	/**
-	 * @brief Returns the Settings Navigation
-	 * @return array
+	 * Returns the Settings Navigation
+	 * @return string
 	 *
 	 * This function returns an array containing all settings pages added. The
 	 * entries are sorted by the key 'order' ascending.
 	 */
 	public static function getSettingsNavigation() {
-		$l=OC_L10N::get('lib');
+		$l = OC_L10N::get('lib');
 
 		$settings = array();
 		// by default, settings only contain the help menu
-		if(OC_Util::getEditionString() === '' &&
-			OC_Config::getValue('knowledgebaseenabled', true)==true) {
+		if (OC_Util::getEditionString() === '' &&
+			OC_Config::getValue('knowledgebaseenabled', true) == true
+		) {
 			$settings = array(
 				array(
 					"id" => "help",
 					"order" => 1000,
-					"href" => OC_Helper::linkToRoute( "settings_help" ),
+					"href" => OC_Helper::linkToRoute("settings_help"),
 					"name" => $l->t("Help"),
-					"icon" => OC_Helper::imagePath( "settings", "help.svg" )
+					"icon" => OC_Helper::imagePath("settings", "help.svg")
 				)
 			);
 		}
@@ -369,45 +417,45 @@ class OC_App{
 			$settings[] = array(
 				"id" => "personal",
 				"order" => 1,
-				"href" => OC_Helper::linkToRoute( "settings_personal" ),
+				"href" => OC_Helper::linkToRoute("settings_personal"),
 				"name" => $l->t("Personal"),
-				"icon" => OC_Helper::imagePath( "settings", "personal.svg" )
+				"icon" => OC_Helper::imagePath("settings", "personal.svg")
 			);
 
 			// if there are some settings forms
-			if(!empty(self::$settingsForms)) {
+			if (!empty(self::$settingsForms)) {
 				// settings menu
-				$settings[]=array(
+				$settings[] = array(
 					"id" => "settings",
 					"order" => 1000,
-					"href" => OC_Helper::linkToRoute( "settings_settings" ),
+					"href" => OC_Helper::linkToRoute("settings_settings"),
 					"name" => $l->t("Settings"),
-					"icon" => OC_Helper::imagePath( "settings", "settings.svg" )
+					"icon" => OC_Helper::imagePath("settings", "settings.svg")
 				);
 			}
 
 			//SubAdmins are also allowed to access user management
-			if(OC_SubAdmin::isSubAdmin(OC_User::getUser())) {
+			if (OC_SubAdmin::isSubAdmin(OC_User::getUser())) {
 				// admin users menu
 				$settings[] = array(
 					"id" => "core_users",
 					"order" => 2,
-					"href" => OC_Helper::linkToRoute( "settings_users" ),
+					"href" => OC_Helper::linkToRoute("settings_users"),
 					"name" => $l->t("Users"),
-					"icon" => OC_Helper::imagePath( "settings", "users.svg" )
+					"icon" => OC_Helper::imagePath("settings", "users.svg")
 				);
 			}
 
 
 			// if the user is an admin
-			if(OC_User::isAdminUser(OC_User::getUser())) {
+			if (OC_User::isAdminUser(OC_User::getUser())) {
 				// admin settings
-				$settings[]=array(
+				$settings[] = array(
 					"id" => "admin",
 					"order" => 1000,
-					"href" => OC_Helper::linkToRoute( "settings_admin" ),
+					"href" => OC_Helper::linkToRoute("settings_admin"),
 					"name" => $l->t("Admin"),
-					"icon" => OC_Helper::imagePath( "settings", "admin.svg" )
+					"icon" => OC_Helper::imagePath("settings", "admin.svg")
 				);
 			}
 		}
@@ -417,32 +465,34 @@ class OC_App{
 	}
 
 	// This is private as well. It simply works, so don't ask for more details
-	private static function proceedNavigation( $list ) {
-		$activeapp = OC::$server->getNavigationManager()->getActiveEntry();
-		foreach( $list as &$naventry ) {
-			if( $naventry['id'] == $activeapp ) {
-				$naventry['active'] = true;
+	private static function proceedNavigation($list) {
+		$activeApp = OC::$server->getNavigationManager()->getActiveEntry();
+		foreach ($list as &$navEntry) {
+			if ($navEntry['id'] == $activeApp) {
+				$navEntry['active'] = true;
+			} else {
+				$navEntry['active'] = false;
 			}
-			else{
-				$naventry['active'] = false;
-			}
-		} unset( $naventry );
+		}
+		unset($navEntry);
 
-		usort( $list, create_function( '$a, $b', 'if( $a["order"] == $b["order"] ) {return 0;}elseif( $a["order"] < $b["order"] ) {return -1;}else{return 1;}' ));
+		usort($list, create_function('$a, $b', 'if( $a["order"] == $b["order"] ) {return 0;}elseif( $a["order"] < $b["order"] ) {return -1;}else{return 1;}'));
 
 		return $list;
 	}
 
 	/**
 	 * Get the path where to install apps
+	 *
+	 * @return string
 	 */
 	public static function getInstallPath() {
-		if(OC_Config::getValue('appstoreenabled', true)==false) {
+		if (OC_Config::getValue('appstoreenabled', true) == false) {
 			return false;
 		}
 
-		foreach(OC::$APPSROOTS as $dir) {
-			if(isset($dir['writable']) && $dir['writable']===true) {
+		foreach (OC::$APPSROOTS as $dir) {
+			if (isset($dir['writable']) && $dir['writable'] === true) {
 				return $dir['path'];
 			}
 		}
@@ -452,118 +502,201 @@ class OC_App{
 	}
 
 
-	protected static function findAppInDirectories($appid) {
+	/**
+	 * search for an app in all app-directories
+	 * @param $appId
+	 * @return mixed (bool|string)
+	 */
+	protected static function findAppInDirectories($appId) {
 		static $app_dir = array();
-		if (isset($app_dir[$appid])) {
-			return $app_dir[$appid];
+
+		if (isset($app_dir[$appId])) {
+			return $app_dir[$appId];
 		}
+
+		$possibleApps = array();
 		foreach(OC::$APPSROOTS as $dir) {
-			if(file_exists($dir['path'].'/'.$appid)) {
-				return $app_dir[$appid]=$dir;
+			if(file_exists($dir['path'] . '/' . $appId)) {
+				$possibleApps[] = $dir;
 			}
 		}
-		return false;
+
+		if (empty($possibleApps)) {
+			return false;
+		} elseif(count($possibleApps) === 1) {
+			$dir = array_shift($possibleApps);
+			$app_dir[$appId] = $dir;
+			return $dir;
+		} else {
+			$versionToLoad = array();
+			foreach($possibleApps as $possibleApp) {
+				$version = self::getAppVersionByPath($possibleApp['path']);
+				if (empty($versionToLoad) || version_compare($version, $versionToLoad['version'], '>')) {
+					$versionToLoad = array(
+						'dir' => $possibleApp,
+						'version' => $version,
+					);
+				}
+			}
+			$app_dir[$appId] = $versionToLoad['dir'];
+			return $versionToLoad['dir'];
+			//TODO - write test
+		}
 	}
+
 	/**
-	* Get the directory for the given app.
-	* If the app is defined in multiple directories, the first one is taken. (false if not found)
-	*/
-	public static function getAppPath($appid) {
-		if( ($dir = self::findAppInDirectories($appid)) != false) {
-			return $dir['path'].'/'.$appid;
+	 * Get the directory for the given app.
+	 * If the app is defined in multiple directories, the first one is taken. (false if not found)
+	 *
+	 * @param string $appId
+	 * @return string|false
+	 */
+	public static function getAppPath($appId) {
+		if ($appId === null || trim($appId) === '') {
+			return false;
+		}
+
+		if (($dir = self::findAppInDirectories($appId)) != false) {
+			return $dir['path'] . '/' . $appId;
 		}
 		return false;
 	}
 
+
 	/**
-	* Get the path for the given app on the access
-	* If the app is defined in multiple directories, the first one is taken. (false if not found)
-	*/
-	public static function getAppWebPath($appid) {
-		if( ($dir = self::findAppInDirectories($appid)) != false) {
-			return OC::$WEBROOT.$dir['url'].'/'.$appid;
+	 * check if an app's directory is writable
+	 *
+	 * @param string $appId
+	 * @return bool
+	 */
+	public static function isAppDirWritable($appId) {
+		$path = self::getAppPath($appId);
+		return ($path !== false) ? is_writable($path) : false;
+	}
+
+	/**
+	 * Get the path for the given app on the access
+	 * If the app is defined in multiple directories, the first one is taken. (false if not found)
+	 *
+	 * @param string $appId
+	 * @return string|false
+	 */
+	public static function getAppWebPath($appId) {
+		if (($dir = self::findAppInDirectories($appId)) != false) {
+			return OC::$WEBROOT . $dir['url'] . '/' . $appId;
 		}
 		return false;
 	}
 
 	/**
 	 * get the last version of the app, either from appinfo/version or from appinfo/info.xml
+	 *
+	 * @param string $appId
+	 * @return string
 	 */
-	public static function getAppVersion($appid) {
-		$file= self::getAppPath($appid).'/appinfo/version';
-		if(is_file($file) && $version = trim(file_get_contents($file))) {
-			return $version;
-		}else{
-			$appData=self::getAppInfo($appid);
-			return isset($appData['version'])? $appData['version'] : '';
-		}
+	public static function getAppVersion($appId) {
+		$file = self::getAppPath($appId);
+		return ($file !== false) ? self::getAppVersionByPath($file) : '0';
 	}
 
 	/**
-	 * @brief Read all app metadata from the info.xml file
-	 * @param string $appid id of the app or the path of the info.xml file
-	 * @param boolean $path (optional)
-	 * @return array
-	 * @note all data is read from info.xml, not just pre-defined fields
-	*/
-	public static function getAppInfo($appid, $path=false) {
-		if($path) {
-			$file=$appid;
+	 * get app's version based on it's path
+	 * @param string $path
+	 * @return string
+	 */
+	public static function getAppVersionByPath($path) {
+		$versionFile = $path . '/appinfo/version';
+		$infoFile = $path . '/appinfo/info.xml';
+		if(is_file($versionFile)) {
+			return trim(file_get_contents($versionFile));
 		}else{
-			if(isset(self::$appInfo[$appid])) {
-				return self::$appInfo[$appid];
-			}
-			$file= self::getAppPath($appid).'/appinfo/info.xml';
+			$appData = self::getAppInfo($infoFile, true);
+			return isset($appData['version']) ? $appData['version'] : '';
 		}
-		$data=array();
-		$content=@file_get_contents($file);
-		if(!$content) {
+	}
+
+
+	/**
+	 * Read all app metadata from the info.xml file
+	 *
+	 * @param string $appId id of the app or the path of the info.xml file
+	 * @param boolean $path (optional)
+	 * @return array|null
+	 * @note all data is read from info.xml, not just pre-defined fields
+	 */
+	public static function getAppInfo($appId, $path = false) {
+		if ($path) {
+			$file = $appId;
+		} else {
+			if (isset(self::$appInfo[$appId])) {
+				return self::$appInfo[$appId];
+			}
+			$file = self::getAppPath($appId) . '/appinfo/info.xml';
+		}
+		$data = array();
+		if (!file_exists($file)) {
+			return null;
+		}
+		$content = @file_get_contents($file);
+		if (!$content) {
 			return null;
 		}
 		$xml = new SimpleXMLElement($content);
-		$data['info']=array();
-		$data['remote']=array();
-		$data['public']=array();
-		foreach($xml->children() as $child) {
+		$data['info'] = array();
+		$data['remote'] = array();
+		$data['public'] = array();
+		foreach ($xml->children() as $child) {
 			/**
 			 * @var $child SimpleXMLElement
 			 */
-			if($child->getName()=='remote') {
-				foreach($child->children() as $remote) {
+			if ($child->getName() == 'remote') {
+				foreach ($child->children() as $remote) {
 					/**
 					 * @var $remote SimpleXMLElement
 					 */
-					$data['remote'][$remote->getName()]=(string)$remote;
+					$data['remote'][$remote->getName()] = (string)$remote;
 				}
-			}elseif($child->getName()=='public') {
-				foreach($child->children() as $public) {
+			} elseif ($child->getName() == 'public') {
+				foreach ($child->children() as $public) {
 					/**
 					 * @var $public SimpleXMLElement
 					 */
-					$data['public'][$public->getName()]=(string)$public;
+					$data['public'][$public->getName()] = (string)$public;
 				}
-			}elseif($child->getName()=='types') {
-				$data['types']=array();
-				foreach($child->children() as $type) {
+			} elseif ($child->getName() == 'types') {
+				$data['types'] = array();
+				foreach ($child->children() as $type) {
 					/**
 					 * @var $type SimpleXMLElement
 					 */
-					$data['types'][]=$type->getName();
+					$data['types'][] = $type->getName();
 				}
-			}elseif($child->getName()=='description') {
-				$xml=(string)$child->asXML();
-				$data[$child->getName()]=substr($xml, 13, -14);//script <description> tags
-			}else{
-				$data[$child->getName()]=(string)$child;
+			} elseif ($child->getName() == 'description') {
+				$xml = (string)$child->asXML();
+				$data[$child->getName()] = substr($xml, 13, -14); //script <description> tags
+			} elseif ($child->getName() == 'documentation') {
+				foreach ($child as $subChild) {
+					$url = (string) $subChild;
+
+					// If it is not an absolute URL we assume it is a key
+					// i.e. admin-ldap will get converted to go.php?to=admin-ldap
+					if(!\OC::$server->getHTTPHelper()->isHTTPURL($url)) {
+						$url = OC_Helper::linkToDocs($url);
+					}
+
+					$data["documentation"][$subChild->getName()] = $url;
+				}
+			} else {
+				$data[$child->getName()] = (string)$child;
 			}
 		}
-		self::$appInfo[$appid]=$data;
+		self::$appInfo[$appId] = $data;
 
 		return $data;
 	}
 
 	/**
-	 * @brief Returns the navigation
+	 * Returns the navigation
 	 * @return array
 	 *
 	 * This function returns an array containing all entries added. The
@@ -573,52 +706,52 @@ class OC_App{
 	 */
 	public static function getNavigation() {
 		$entries = OC::$server->getNavigationManager()->getAll();
-		$navigation = self::proceedNavigation( $entries );
+		$navigation = self::proceedNavigation($entries);
 		return $navigation;
 	}
 
 	/**
 	 * get the id of loaded app
+	 *
 	 * @return string
 	 */
 	public static function getCurrentApp() {
-		$script=substr(OC_Request::scriptName(), strlen(OC::$WEBROOT)+1);
-		$topFolder=substr($script, 0, strpos($script, '/'));
+		$script = substr(OC_Request::scriptName(), strlen(OC::$WEBROOT) + 1);
+		$topFolder = substr($script, 0, strpos($script, '/'));
 		if (empty($topFolder)) {
 			$path_info = OC_Request::getPathInfo();
 			if ($path_info) {
-				$topFolder=substr($path_info, 1, strpos($path_info, '/', 1)-1);
+				$topFolder = substr($path_info, 1, strpos($path_info, '/', 1) - 1);
 			}
 		}
-		if($topFolder=='apps') {
-			$length=strlen($topFolder);
-			return substr($script, $length+1, strpos($script, '/', $length+1)-$length-1);
-		}else{
+		if ($topFolder == 'apps') {
+			$length = strlen($topFolder);
+			return substr($script, $length + 1, strpos($script, '/', $length + 1) - $length - 1);
+		} else {
 			return $topFolder;
 		}
 	}
-
 
 	/**
 	 * get the forms for either settings, admin or personal
 	 */
 	public static function getForms($type) {
-		$forms=array();
-		switch($type) {
+		$forms = array();
+		switch ($type) {
 			case 'settings':
-				$source=self::$settingsForms;
+				$source = self::$settingsForms;
 				break;
 			case 'admin':
-				$source=self::$adminForms;
+				$source = self::$adminForms;
 				break;
 			case 'personal':
-				$source=self::$personalForms;
+				$source = self::$personalForms;
 				break;
 			default:
 				return array();
 		}
-		foreach($source as $form) {
-			$forms[]=include $form;
+		foreach ($source as $form) {
+			$forms[] = include $form;
 		}
 		return $forms;
 	}
@@ -627,21 +760,24 @@ class OC_App{
 	 * register a settings form to be shown
 	 */
 	public static function registerSettings($app, $page) {
-		self::$settingsForms[]= $app.'/'.$page.'.php';
+		self::$settingsForms[] = $app . '/' . $page . '.php';
 	}
 
 	/**
 	 * register an admin form to be shown
+	 *
+	 * @param string $app
+	 * @param string $page
 	 */
 	public static function registerAdmin($app, $page) {
-		self::$adminForms[]= $app.'/'.$page.'.php';
+		self::$adminForms[] = $app . '/' . $page . '.php';
 	}
 
 	/**
 	 * register a personal form to be shown
 	 */
 	public static function registerPersonal($app, $page) {
-		self::$personalForms[]= $app.'/'.$page.'.php';
+		self::$personalForms[] = $app . '/' . $page . '.php';
 	}
 
 	public static function registerLogIn($entry) {
@@ -653,25 +789,25 @@ class OC_App{
 	}
 
 	/**
-	 * @brief: get a list of all apps in the apps folder
-	 * @return array or app names (string IDs)
+	 * get a list of all apps in the apps folder
+	 * @return array an array of app names (string IDs)
 	 * @todo: change the name of this method to getInstalledApps, which is more accurate
 	 */
 	public static function getAllApps() {
 
-		$apps=array();
+		$apps = array();
 
-		foreach ( OC::$APPSROOTS as $apps_dir ) {
-			if(! is_readable($apps_dir['path'])) {
-				OC_Log::write('core', 'unable to read app folder : ' .$apps_dir['path'], OC_Log::WARN);
+		foreach (OC::$APPSROOTS as $apps_dir) {
+			if (!is_readable($apps_dir['path'])) {
+				OC_Log::write('core', 'unable to read app folder : ' . $apps_dir['path'], OC_Log::WARN);
 				continue;
 			}
-			$dh = opendir( $apps_dir['path'] );
+			$dh = opendir($apps_dir['path']);
 
-			if(is_resource($dh)) {
+			if (is_resource($dh)) {
 				while (($file = readdir($dh)) !== false) {
 
-					if ($file[0] != '.' and is_file($apps_dir['path'].'/'.$file.'/appinfo/app.php')) {
+					if ($file[0] != '.' and is_file($apps_dir['path'] . '/' . $file . '/appinfo/app.php')) {
 
 						$apps[] = $file;
 
@@ -686,7 +822,7 @@ class OC_App{
 	}
 
 	/**
-	 * @brief: Lists all apps, this is used in apps.php
+	 * Lists all apps, this is used in apps.php
 	 * @return array
 	 */
 	public static function listAllApps() {
@@ -695,38 +831,45 @@ class OC_App{
 		//TODO which apps do we want to blacklist and how do we integrate
 		// blacklisting with the multi apps folder feature?
 
-		$blacklist = array('files');//we dont want to show configuration for these
+		$blacklist = array('files'); //we don't want to show configuration for these
 		$appList = array();
 
-		foreach ( $installedApps as $app ) {
-			if ( array_search( $app, $blacklist ) === false ) {
+		foreach ($installedApps as $app) {
+			if (array_search($app, $blacklist) === false) {
 
-				$info=OC_App::getAppInfo($app);
+				$info = OC_App::getAppInfo($app);
 
 				if (!isset($info['name'])) {
-					OC_Log::write('core', 'App id "'.$app.'" has no name in appinfo', OC_Log::ERROR);
+					OC_Log::write('core', 'App id "' . $app . '" has no name in appinfo', OC_Log::ERROR);
 					continue;
 				}
 
-				if ( OC_Appconfig::getValue( $app, 'enabled', 'no') == 'yes' ) {
+				$enabled = OC_Appconfig::getValue($app, 'enabled', 'no');
+				$info['groups'] = null;
+				if ($enabled === 'yes') {
 					$active = true;
-				} else {
+				} else if($enabled === 'no') {
 					$active = false;
+				} else {
+					$active = true;
+					$info['groups'] = $enabled;
 				}
 
 				$info['active'] = $active;
 
-				if(isset($info['shipped']) and ($info['shipped']=='true')) {
-					$info['internal']=true;
-					$info['internallabel']='Internal App';
-					$info['internalclass']='';
-					$info['update']=false;
+				if(isset($info['shipped']) and ($info['shipped'] == 'true')) {
+					$info['internal'] = true;
+					$info['internallabel'] = 'Internal App';
+					$info['internalclass'] = '';
+					$info['removable'] = false;
 				} else {
-					$info['internal']=false;
-					$info['internallabel']='3rd Party';
-					$info['internalclass']='externalapp';
-					$info['update']=OC_Installer::isUpdateAvailable($app);
+					$info['internal'] = false;
+					$info['internallabel'] = '3rd Party';
+					$info['internalclass'] = 'externalapp';
+					$info['removable'] = true;
 				}
+
+				$info['update'] = OC_Installer::isUpdateAvailable($app);
 
 				$info['preview'] = OC_Helper::imagePath('settings', 'trans.png');
 				$info['version'] = OC_App::getAppVersion($app);
@@ -734,147 +877,132 @@ class OC_App{
 			}
 		}
 		$remoteApps = OC_App::getAppstoreApps();
-		if ( $remoteApps ) {
+		if ($remoteApps) {
 			// Remove duplicates
-			foreach ( $appList as $app ) {
-				foreach ( $remoteApps AS $key => $remote ) {
-					if (
-						$app['name'] == $remote['name']
-						// To set duplicate detection to use OCS ID instead of string name,
-						// enable this code, remove the line of code above,
-						// and add <ocs_id>[ID]</ocs_id> to info.xml of each 3rd party app:
-						// OR $app['ocs_id'] == $remote['ocs_id']
-						) {
-						unset( $remoteApps[$key]);
+			foreach ($appList as $app) {
+				foreach ($remoteApps AS $key => $remote) {
+					if ($app['name'] === $remote['name'] ||
+						(isset($app['ocsid']) &&
+						$app['ocsid'] ===  $remote['id'])) {
+						unset($remoteApps[$key]);
 					}
 				}
 			}
-			$combinedApps = array_merge( $appList, $remoteApps );
+			$combinedApps = array_merge($appList, $remoteApps);
 		} else {
 			$combinedApps = $appList;
 		}
-		// bring the apps into the right order with a custom sort funtion
-		usort( $combinedApps, '\OC_App::customSort' );
+		// bring the apps into the right order with a custom sort function
+		usort($combinedApps, function ($a, $b) {
+
+			// priority 1: active
+			if ($a['active'] != $b['active']) {
+				return $b['active'] - $a['active'];
+			}
+
+			// priority 2: shipped
+			$aShipped = (array_key_exists('shipped', $a) && $a['shipped'] === 'true') ? 1 : 0;
+			$bShipped = (array_key_exists('shipped', $b) && $b['shipped'] === 'true') ? 1 : 0;
+			if ($aShipped !== $bShipped) {
+				return ($bShipped - $aShipped);
+			}
+
+			// priority 3: recommended
+			if ($a['internalclass'] != $b['internalclass']) {
+				$aTemp = ($a['internalclass'] == 'recommendedapp' ? 1 : 0);
+				$bTemp = ($b['internalclass'] == 'recommendedapp' ? 1 : 0);
+				return ($bTemp - $aTemp);
+			}
+
+			// priority 4: alphabetical
+			return strcasecmp($a['name'], $b['name']);
+
+		});
 
 		return $combinedApps;
 	}
 
 	/**
-	 * @brief: Internal custom sort funtion to bring the app into the right order. Should only be called by listAllApps
-	 * @return array
-	 */
-	private static function customSort($a, $b) {
-
-		// prio 1: active
-		if ($a['active'] != $b['active']) {
-			return $b['active'] - $a['active'];
-		}
-
-		// prio 2: shipped
-		$ashipped = (array_key_exists('shipped', $a) && $a['shipped'] === 'true') ? 1 : 0;
-		$bshipped = (array_key_exists('shipped', $b) && $b['shipped'] === 'true') ? 1 : 0;
-		if ($ashipped !== $bshipped) {
-			return ($bshipped - $ashipped);
-		}
-
-		// prio 3: recommended
-		if ($a['internalclass'] != $b['internalclass']) {
-			$atemp = ($a['internalclass'] == 'recommendedapp' ? 1 : 0);
-			$btemp = ($b['internalclass'] == 'recommendedapp' ? 1 : 0);
-			return ($btemp - $atemp);
-		}
-
-		// prio 4: alphabetical
-		return strcasecmp($a['name'], $b['name']);
-
-	}
-
-	/**
-	 * @brief: get a list of all apps on apps.owncloud.com
+	 * get a list of all apps on apps.owncloud.com
 	 * @return array, multi-dimensional array of apps.
 	 *     Keys: id, name, type, typename, personid, license, detailpage, preview, changed, description
 	 */
-	public static function getAppstoreApps( $filter = 'approved' ) {
+	public static function getAppstoreApps($filter = 'approved') {
 		$categoryNames = OC_OCSClient::getCategories();
-		if ( is_array( $categoryNames ) ) {
+		if (is_array($categoryNames)) {
 			// Check that categories of apps were retrieved correctly
-			if ( ! $categories = array_keys( $categoryNames ) ) {
+			if (!$categories = array_keys($categoryNames)) {
 				return false;
 			}
 
 			$page = 0;
-			$remoteApps = OC_OCSClient::getApplications( $categories, $page, $filter );
+			$remoteApps = OC_OCSClient::getApplications($categories, $page, $filter);
 			$app1 = array();
 			$i = 0;
-			foreach ( $remoteApps as $app ) {
+			foreach ($remoteApps as $app) {
 				$app1[$i] = $app;
 				$app1[$i]['author'] = $app['personid'];
 				$app1[$i]['ocs_id'] = $app['id'];
 				$app1[$i]['internal'] = $app1[$i]['active'] = 0;
 				$app1[$i]['update'] = false;
-				if($app['label']=='recommended') {
+				$app1[$i]['groups'] = false;
+				$app1[$i]['removable'] = false;
+				if ($app['label'] == 'recommended') {
 					$app1[$i]['internallabel'] = 'Recommended';
 					$app1[$i]['internalclass'] = 'recommendedapp';
-				}else{
+				} else {
 					$app1[$i]['internallabel'] = '3rd Party';
 					$app1[$i]['internalclass'] = 'externalapp';
 				}
 
 
 				// rating img
-				if($app['score']>=0     and $app['score']<5)	$img=OC_Helper::imagePath( "core", "rating/s1.png" );
-				elseif($app['score']>=5 and $app['score']<15)	$img=OC_Helper::imagePath( "core", "rating/s2.png" );
-				elseif($app['score']>=15 and $app['score']<25)	$img=OC_Helper::imagePath( "core", "rating/s3.png" );
-				elseif($app['score']>=25 and $app['score']<35)	$img=OC_Helper::imagePath( "core", "rating/s4.png" );
-				elseif($app['score']>=35 and $app['score']<45)	$img=OC_Helper::imagePath( "core", "rating/s5.png" );
-				elseif($app['score']>=45 and $app['score']<55)	$img=OC_Helper::imagePath( "core", "rating/s6.png" );
-				elseif($app['score']>=55 and $app['score']<65)	$img=OC_Helper::imagePath( "core", "rating/s7.png" );
-				elseif($app['score']>=65 and $app['score']<75)	$img=OC_Helper::imagePath( "core", "rating/s8.png" );
-				elseif($app['score']>=75 and $app['score']<85)	$img=OC_Helper::imagePath( "core", "rating/s9.png" );
-				elseif($app['score']>=85 and $app['score']<95)	$img=OC_Helper::imagePath( "core", "rating/s10.png" );
-				elseif($app['score']>=95 and $app['score']<100)	$img=OC_Helper::imagePath( "core", "rating/s11.png" );
+				if ($app['score'] < 5) {
+					$img = OC_Helper::imagePath( "core", "rating/s1.png" );
+				} elseif ($app['score'] < 15) {
+					$img = OC_Helper::imagePath( "core", "rating/s2.png" );
+				} elseif($app['score'] < 25) {
+					$img = OC_Helper::imagePath( "core", "rating/s3.png" );
+				} elseif($app['score'] < 35) {
+					$img = OC_Helper::imagePath( "core", "rating/s4.png" );
+				} elseif($app['score'] < 45) {
+					$img = OC_Helper::imagePath( "core", "rating/s5.png" );
+				} elseif($app['score'] < 55) {
+					$img = OC_Helper::imagePath( "core", "rating/s6.png" );
+				} elseif($app['score'] < 65) {
+					$img = OC_Helper::imagePath( "core", "rating/s7.png" );
+				} elseif($app['score'] < 75) {
+					$img = OC_Helper::imagePath( "core", "rating/s8.png" );
+				} elseif($app['score'] < 85) {
+					$img = OC_Helper::imagePath( "core", "rating/s9.png" );
+				} elseif($app['score'] < 95) {
+					$img = OC_Helper::imagePath( "core", "rating/s10.png" );
+				} elseif($app['score'] < 100) {
+					$img = OC_Helper::imagePath( "core", "rating/s11.png" );
+				}
 
-				$app1[$i]['score'] = '<img src="'.$img.'"> Score: '.$app['score'].'%';
+				$app1[$i]['score'] = '<img src="' . $img . '"> Score: ' . $app['score'] . '%';
 				$i++;
 			}
 		}
 
-		if ( empty( $app1 ) ) {
+		if (empty($app1)) {
 			return false;
 		} else {
 			return $app1;
 		}
 	}
 
-	/**
-	 * check if the app needs updating and update when needed
-	 */
-	public static function checkUpgrade($app) {
-		if (in_array($app, self::$checkedApps)) {
-			return;
-		}
-		self::$checkedApps[] = $app;
+	public static function shouldUpgrade($app) {
 		$versions = self::getAppVersions();
-		$currentVersion=OC_App::getAppVersion($app);
+		$currentVersion = OC_App::getAppVersion($app);
 		if ($currentVersion) {
 			$installedVersion = $versions[$app];
 			if (version_compare($currentVersion, $installedVersion, '>')) {
-				$info = self::getAppInfo($app);
-				OC_Log::write($app,
-					'starting app upgrade from '.$installedVersion.' to '.$currentVersion,
-					OC_Log::DEBUG);
-				try {
-					OC_App::updateApp($app);
-					OC_Hook::emit('update', 'success', 'Updated '.$info['name'].' app');
-				}
-				catch (Exception $e) {
-					OC_Hook::emit('update', 'failure', 'Failed to update '.$info['name'].' app: '.$e->getMessage());
-					$l = OC_L10N::get('lib');
-					throw new RuntimeException($l->t('Failed to upgrade "%s".', array($app)), 0, $e);
-				}
-				OC_Appconfig::setValue($app, 'installed_version', OC_App::getAppVersion($app));
+				return true;
 			}
 		}
+		return false;
 	}
 
 	/**
@@ -882,126 +1010,231 @@ class OC_App{
 	 * ownCloud version. disable them if not.
 	 * This is important if you upgrade ownCloud and have non ported 3rd
 	 * party apps installed.
+	 *
+	 * @param array $apps optional app id list to check, uses all enabled apps
+	 * when not specified
+	 *
+	 * @return array containing the list of ids of the disabled apps
 	 */
 	public static function checkAppsRequirements($apps = array()) {
+		$disabledApps = array();
 		if (empty($apps)) {
 			$apps = OC_App::getEnabledApps();
 		}
 		$version = OC_Util::getVersion();
-		foreach($apps as $app) {
+		foreach ($apps as $app) {
 			// check if the app is compatible with this version of ownCloud
 			$info = OC_App::getAppInfo($app);
-			if(!isset($info['require']) or !self::isAppVersionCompatible($version, $info['require'])) {
+			if(!self::isAppCompatible($version, $info)) {
 				OC_Log::write('core',
-					'App "'.$info['name'].'" ('.$app.') can\'t be used because it is'
-					.' not compatible with this version of ownCloud',
+					'App "' . $info['name'] . '" (' . $app . ') can\'t be used because it is'
+					. ' not compatible with this version of ownCloud',
 					OC_Log::ERROR);
-				OC_App::disable( $app );
-				OC_Hook::emit('update', 'success', 'Disabled '.$info['name'].' app because it is not compatible');
+				OC_App::disable($app);
+				OC_Hook::emit('update', 'success', 'Disabled ' . $info['name'] . ' app because it is not compatible');
+				$disabledApps[] = $app;
 			}
 		}
+		return $disabledApps;
 	}
 
+	/**
+	 * Adjust the number of version parts of $version1 to match
+	 * the number of version parts of $version2.
+	 *
+	 * @param string $version1 version to adjust
+	 * @param string $version2 version to take the number of parts from
+	 * @return string shortened $version1
+	 */
+	private static function adjustVersionParts($version1, $version2) {
+		$version1 = explode('.', $version1);
+		$version2 = explode('.', $version2);
+		// reduce $version1 to match the number of parts in $version2
+		while (count($version1) > count($version2)) {
+			array_pop($version1);
+		}
+		// if $version1 does not have enough parts, add some
+		while (count($version1) < count($version2)) {
+			$version1[] = '0';
+		}
+		return implode('.', $version1);
+	}
 
 	/**
-	 * Compares the app version with the owncloud version to see if the app
-	 * requires a newer version than the currently active one
-	 * @param array $owncloudVersions array with 3 entries: major minor bugfix
-	 * @param string $appRequired the required version from the xml
-	 * major.minor.bugfix
+	 * Check whether the current ownCloud version matches the given
+	 * application's version requirements.
+	 *
+	 * The comparison is made based on the number of parts that the
+	 * app info version has. For example for ownCloud 6.0.3 if the
+	 * app info version is expecting version 6.0, the comparison is
+	 * made on the first two parts of the ownCloud version.
+	 * This means that it's possible to specify "requiremin" => 6
+	 * and "requiremax" => 6 and it will still match ownCloud 6.0.3.
+	 *
+	 * @param string $ocVersion ownCloud version to check against
+	 * @param array  $appInfo app info (from xml)
+	 *
 	 * @return boolean true if compatible, otherwise false
 	 */
-	public static function isAppVersionCompatible($owncloudVersions, $appRequired){
-		$appVersions = explode('.', $appRequired);
+	public static function isAppCompatible($ocVersion, $appInfo){
+		$requireMin = '';
+		$requireMax = '';
+		if (isset($appInfo['requiremin'])) {
+			$requireMin = $appInfo['requiremin'];
+		} else if (isset($appInfo['require'])) {
+			$requireMin = $appInfo['require'];
+		}
 
-		for($i=0; $i<count($appVersions); $i++){
-			$appVersion = (int) $appVersions[$i];
+		if (isset($appInfo['requiremax'])) {
+			$requireMax = $appInfo['requiremax'];
+		}
 
-			if(isset($owncloudVersions[$i])){
-				$owncloudVersion = $owncloudVersions[$i];
-			} else {
-				$owncloudVersion = 0;
-			}
+		if (is_array($ocVersion)) {
+			$ocVersion = implode('.', $ocVersion);
+		}
 
-			if($owncloudVersion < $appVersion){
-				return false;
-			} elseif ($owncloudVersion > $appVersion) {
-				return true;
-			}
+		if (!empty($requireMin)
+			&& version_compare(self::adjustVersionParts($ocVersion, $requireMin), $requireMin, '<')
+		) {
+
+			return false;
+		}
+
+		if (!empty($requireMax)
+			&& version_compare(self::adjustVersionParts($ocVersion, $requireMax), $requireMax, '>')
+		) {
+
+			return false;
 		}
 
 		return true;
 	}
-
 
 	/**
 	 * get the installed version of all apps
 	 */
 	public static function getAppVersions() {
 		static $versions;
-		if (isset($versions)) {   // simple cache, needs to be fixed
+		if (isset($versions)) { // simple cache, needs to be fixed
 			return $versions; // when function is used besides in checkUpgrade
 		}
-		$versions=array();
-		$query = OC_DB::prepare( 'SELECT `appid`, `configvalue` FROM `*PREFIX*appconfig`'
-			.' WHERE `configkey` = \'installed_version\'' );
-		$result = $query->execute();
-		while($row = $result->fetchRow()) {
-			$versions[$row['appid']]=$row['configvalue'];
+		$versions = array();
+		try {
+			$query = OC_DB::prepare('SELECT `appid`, `configvalue` FROM `*PREFIX*appconfig`'
+				. ' WHERE `configkey` = \'installed_version\'');
+			$result = $query->execute();
+			while ($row = $result->fetchRow()) {
+				$versions[$row['appid']] = $row['configvalue'];
+			}
+			return $versions;
+		} catch (\Exception $e) {
+			return array();
 		}
-		return $versions;
+	}
+
+
+	/**
+	 * @param mixed $app
+	 * @return bool
+	 * @throws Exception if app is not compatible with this version of ownCloud
+	 * @throws Exception if no app-name was specified
+	 */
+	public static function installApp($app) {
+		$l = OC_L10N::get('core');
+		$appData=OC_OCSClient::getApplication($app);
+
+		// check if app is a shipped app or not. OCS apps have an integer as id, shipped apps use a string
+		if(!is_numeric($app)) {
+			$shippedVersion=self::getAppVersion($app);
+			if($appData && version_compare($shippedVersion, $appData['version'], '<')) {
+				$app = self::downloadApp($app);
+			} else {
+				$app = OC_Installer::installShippedApp($app);
+			}
+		}else{
+			$app = self::downloadApp($app);
+		}
+
+		if($app!==false) {
+			// check if the app is compatible with this version of ownCloud
+			$info = self::getAppInfo($app);
+			$version=OC_Util::getVersion();
+			if(!self::isAppCompatible($version, $info)) {
+				throw new \Exception(
+					$l->t('App \"%s\" can\'t be installed because it is not compatible with this version of ownCloud.',
+						array($info['name'])
+					)
+				);
+			}else{
+				OC_Appconfig::setValue( $app, 'enabled', 'yes' );
+				if(isset($appData['id'])) {
+					OC_Appconfig::setValue( $app, 'ocsid', $appData['id'] );
+				}
+				\OC_Hook::emit('OC_App', 'post_enable', array('app' => $app));
+			}
+		}else{
+			throw new \Exception($l->t("No app name specified"));
+		}
+
+		return $app;
 	}
 
 	/**
 	 * update the database for the app and call the update script
-	 * @param string $appid
+	 *
+	 * @param string $appId
+	 * @return bool
 	 */
-	public static function updateApp($appid) {
-		if(file_exists(self::getAppPath($appid).'/appinfo/preupdate.php')) {
-			self::loadApp($appid);
-			include self::getAppPath($appid).'/appinfo/preupdate.php';
+	public static function updateApp($appId) {
+		if (file_exists(self::getAppPath($appId) . '/appinfo/database.xml')) {
+			OC_DB::updateDbFromStructure(self::getAppPath($appId) . '/appinfo/database.xml');
 		}
-		if(file_exists(self::getAppPath($appid).'/appinfo/database.xml')) {
-			OC_DB::updateDbFromStructure(self::getAppPath($appid).'/appinfo/database.xml');
+		if (!self::isEnabled($appId)) {
+			return false;
 		}
-		if(!self::isEnabled($appid)) {
-			return;
-		}
-		if(file_exists(self::getAppPath($appid).'/appinfo/update.php')) {
-			self::loadApp($appid);
-			include self::getAppPath($appid).'/appinfo/update.php';
+		if (file_exists(self::getAppPath($appId) . '/appinfo/update.php')) {
+			self::loadApp($appId, false);
+			include self::getAppPath($appId) . '/appinfo/update.php';
 		}
 
 		//set remote/public handlers
-		$appData=self::getAppInfo($appid);
-		foreach($appData['remote'] as $name=>$path) {
-			OCP\CONFIG::setAppValue('core', 'remote_'.$name, $appid.'/'.$path);
+		$appData = self::getAppInfo($appId);
+		if (array_key_exists('ocsid', $appData)) {
+			OC_Appconfig::setValue($appId, 'ocsid', $appData['ocsid']);
 		}
-		foreach($appData['public'] as $name=>$path) {
-			OCP\CONFIG::setAppValue('core', 'public_'.$name, $appid.'/'.$path);
+		foreach ($appData['remote'] as $name => $path) {
+			OCP\CONFIG::setAppValue('core', 'remote_' . $name, $appId . '/' . $path);
+		}
+		foreach ($appData['public'] as $name => $path) {
+			OCP\CONFIG::setAppValue('core', 'public_' . $name, $appId . '/' . $path);
 		}
 
-		self::setAppTypes($appid);
+		self::setAppTypes($appId);
+
+		$version = \OC_App::getAppVersion($appId);
+		\OC_Appconfig::setValue($appId, 'installed_version', $version);
+
+		return true;
 	}
 
 	/**
-	 * @param string $appid
+	 * @param string $appId
 	 * @return \OC\Files\View
 	 */
-	public static function getStorage($appid) {
-		if(OC_App::isEnabled($appid)) {//sanity check
-			if(OC_User::isLoggedIn()) {
-				$view = new \OC\Files\View('/'.OC_User::getUser());
-				if(!$view->file_exists($appid)) {
-					$view->mkdir($appid);
+	public static function getStorage($appId) {
+		if (OC_App::isEnabled($appId)) { //sanity check
+			if (OC_User::isLoggedIn()) {
+				$view = new \OC\Files\View('/' . OC_User::getUser());
+				if (!$view->file_exists($appId)) {
+					$view->mkdir($appId);
 				}
-				return new \OC\Files\View('/'.OC_User::getUser().'/'.$appid);
-			}else{
-				OC_Log::write('core', 'Can\'t get app storage, app '.$appid.', user not logged in', OC_Log::ERROR);
+				return new \OC\Files\View('/' . OC_User::getUser() . '/' . $appId);
+			} else {
+				OC_Log::write('core', 'Can\'t get app storage, app ' . $appId . ', user not logged in', OC_Log::ERROR);
 				return false;
 			}
-		}else{
-			OC_Log::write('core', 'Can\'t get app storage, app '.$appid.' not enabled', OC_Log::ERROR);
+		} else {
+			OC_Log::write('core', 'Can\'t get app storage, app ' . $appId . ' not enabled', OC_Log::ERROR);
 			return false;
 		}
 	}

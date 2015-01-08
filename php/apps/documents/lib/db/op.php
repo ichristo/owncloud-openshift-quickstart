@@ -9,9 +9,9 @@
  * later.
  */
 
-namespace OCA\Documents;
+namespace OCA\Documents\Db;
 
-class Db_Op extends Db {
+class Op extends \OCA\Documents\Db {
 
 	const DB_TABLE = '`*PREFIX*documents_op`';
 	
@@ -21,7 +21,7 @@ class Db_Op extends Db {
 
 	public static function addOpsArray($esId, $memberId, $ops){
 		$lastSeq = "";
-		$opObj = new Db_Op();
+		$opObj = new Op();
 		foreach ($ops as $op) {
 			$opObj->setData(array(
 				$esId, 
@@ -82,23 +82,23 @@ class Db_Op extends Db {
 		$result = $query->execute(array($esId, $seq));
 		return $result->fetchAll();
 	}
-
-	public function removeCursor($esId, $memberId){
-		if ($this->hasAddCursor($esId, $memberId)){
-			$op = '{"optype":"RemoveCursor","memberid":"'. $memberId .'","reason":"server-idle","timestamp":'. time() .'}';
-			$this->insertOp($esId, $op);
-		}
-	}
 	
 	public function addMember($esId, $memberId, $fullName, $color, $imageUrl){
 		$op = '{"optype":"AddMember","memberid":"'. $memberId .'","timestamp":"'. time() .'", "setProperties":{"fullName":"'. $fullName .'","color":"'. $color .'","imageUrl":"'. $imageUrl .'"}}';
-		$this->insertOp($esId, $op);
+		$this->insertOp($esId, $memberId, $op);
+	}
+	
+	public function removeCursor($esId, $memberId){
+		if ($this->hasOp($esId, $memberId, 'AddCursor') && !$this->hasLastOp($esId, $memberId, 'RemoveCursor')){
+			$op = '{"optype":"RemoveCursor","memberid":"'. $memberId .'","reason":"server-idle","timestamp":'. time() .'}';
+			$this->insertOp($esId, $memberId, $op);
+		}
 	}
 	
 	public function removeMember($esId, $memberId){
-		if ($this->hasAddMember($esId, $memberId)){
+		if ($this->hasOp($esId, $memberId, 'AddMember') && !$this->hasLastOp($esId, $memberId, 'RemoveMember')){
 			$op ='{"optype":"RemoveMember","memberid":"'. $memberId .'","timestamp":'. time() .'}';
-			$this->insertOp($esId, $op);
+			$this->insertOp($esId, $memberId, $op);
 		}
 	}
 	
@@ -106,30 +106,50 @@ class Db_Op extends Db {
 		//TODO: Follow the spec https://github.com/kogmbh/WebODF/blob/master/webodf/lib/ops/OpUpdateMember.js#L95
 		$op = '{"optype":"UpdateMember","memberid":"'. $memberId .'","fullName":"'. $fullName .'","color":"'. $color .'","imageUrl":"'. $imageUrl .'","timestamp":'. time() .'}'
 		;
-		$this->insertOp($esId, $op);
+		$this->insertOp($esId, $memberId, $op);
 	}
 	
-	protected function insertOp($esId, $op){
-		$op = new Db_Op(array(
+	public function changeNick($esId, $memberId, $fullName){
+		$op = '{"optype":"UpdateMember","memberid":"'. $memberId .'", "setProperties":{"fullName":"'. $fullName .'"},"timestamp":'. time() .'}'
+		;
+		$this->insertOp($esId, $memberId, $op);
+	}
+	
+	protected function insertOp($esId, $memberId, $op){
+		$op = new Op(array(
 			$esId, 
-			0,
+			$memberId,
 			$op
 		));
 		$op->insert();
 	}
 	
-	protected function hasAddMember($esId, $memberId){
-		$ops = $this->execute(
-			'SELECT * FROM ' . $this->tableName . ' WHERE `es_id`=? AND `opspec` LIKE \'%"AddMember","memberid":"' . $memberId .'"%\'',
-			array($esId)
+	protected function hasLastOp($esId, $memberId, $opType){
+		$query = \OCP\DB::prepare('
+			SELECT `opspec`
+			FROM ' . self::DB_TABLE . '
+			WHERE `es_id`=?
+				AND `member`=?
+				
+			ORDER BY `seq` DESC
+			', 
+			2,0
 		);
-		$result = $ops->fetchAll();
-		return is_array($result) && count($result)>0;
+		
+		$result = $query->execute(array($esId, $memberId));
+		$ops = $result->fetchAll();
+		foreach ($ops as $op){
+			$decoded = json_decode($op['opspec'], true);
+			if ($decoded['optype']==$opType){
+				return true;
+			}
+		}
+		return false;
 	}
 	
-	protected function hasAddCursor($esId, $memberId){
+	protected function hasOp($esId, $memberId, $opType){
 		$ops = $this->execute(
-			'SELECT * FROM ' . $this->tableName . ' WHERE `es_id`=? AND `opspec` LIKE \'%"AddCursor","memberid":"' . $memberId .'"%\'',
+			'SELECT * FROM ' . $this->tableName . ' WHERE `es_id`=? AND `opspec` LIKE \'%"' . $opType . '","memberid":"' . $memberId .'"%\'',
 			array($esId)
 		);
 		$result = $ops->fetchAll();

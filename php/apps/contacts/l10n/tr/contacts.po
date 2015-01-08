@@ -4,23 +4,23 @@
 # 
 # Translators:
 # Aranel Surion <aranel@aranelsurion.org>, 2011, 2012
-# Caner BAŞARAN <basaran.caner@gmail.com>, 2012
-# otefenli <otefenli@gmail.com>, 2013
-# alpere <info@beyboo.de>, 2012
-# ismail yenigül <ismail.yenigul@surgate.com>, 2013
-# mesutgungor <mesutgungor@iyte.edu.tr>, 2012
-# Murat Bişkin <mbiskin@gmail.com>, 2012
-# tridinebandim, 2013
+# Caner Başaran <basaran.caner@gmail.com>, 2012-2013
+# H.Oktay Tefenli <otefenli@gmail.com>, 2013
+# Alper <info@beyboo.de>, 2012
+# ismail yenigul <ismail.yenigul@surgate.com>, 2013
+# Mesut Güngör <mesutgungor@iyte.edu.tr>, 2012
+# Murat Bişkin <murat@muratbiskin.com.tr>, 2012
+# Mustafa Tat, 2013
 # Necdet Yücel <necdetyucel@gmail.com>, 2012
-# volkangezer <volkangezer@gmail.com>, 2013
-# KAT.RAT12 <spanish.katerina@gmail.com>, 2013
+# Volkan Gezer <volkangezer@gmail.com>, 2013-2014
+# Αικατερίνη Χ. Καταπόδη <spanish.katerina@gmail.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: translations@owncloud.org\n"
-"POT-Creation-Date: 2013-11-21 18:16-0500\n"
-"PO-Revision-Date: 2013-11-16 07:41+0000\n"
-"Last-Translator: volkangezer <volkangezer@gmail.com>\n"
+"POT-Creation-Date: 2014-07-03 00:48-0400\n"
+"PO-Revision-Date: 2014-07-03 04:48+0000\n"
+"Last-Translator: I Robot\n"
 "Language-Team: Turkish (http://www.transifex.com/projects/p/owncloud/language/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -28,180 +28,197 @@ msgstr ""
 "Language: tr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: appinfo/app.php:28 lib/app.php:103
+#: appinfo/app.php:38 lib/app.php:109 templates/admin.php:16
 msgid "Contacts"
-msgstr "Kontaklar"
+msgstr "Kişiler"
 
-#: js/addressbooks.js:83 js/groups.js:518 templates/settings.php:61
-msgid "Save"
-msgstr "Kaydet"
+#: js/addressbooks.js:85
+msgid "Add new LDAP Addressbook"
+msgstr "Yeni LDAP Adres Defteri Ekle"
 
-#: js/addressbooks.js:298
-msgid "Uploading..."
-msgstr "Yükleniyor..."
+#: js/addressbooks.js:90 js/addressbooks.js:166
+msgid "Ok"
+msgstr "Tamam"
 
-#: js/addressbooks.js:301 js/loader.js:68
-msgid "Importing..."
-msgstr "İçeri aktarılıyor..."
-
-#: js/addressbooks.js:324
-msgid "Preparing..."
-msgstr "Hazırlanıyor..."
-
-#: js/addressbooks.js:372
-msgid "Imported {count} of {total} contacts"
-msgstr "{total} kişinin {count} tanesi içeri aktarıldı"
-
-#: js/addressbooks.js:394
-msgid "Imported {imported} contacts. {failed} failed."
-msgstr "{imported} kişi içeri aktarıldı.  {failed} başarısız oldu."
-
-#: js/addressbooks.js:550
-msgid "An address book called {name} already exists"
-msgstr "{name} isimli adres defteri zaten var."
-
-#: js/addressbooks.js:584
-msgid "Failed adding address book: {error}"
-msgstr "Adres defteri eklenemedi: {error}"
-
-#: js/addressbooks.js:626
-msgid "Failed loading address books: {error}"
-msgstr "Adres defterleri yüklenirken başarısız olundu: : {error}"
-
-#: js/app.js:215
-msgid "Indexing contacts"
-msgstr "Bağlantılar listeleniyor"
-
-#: js/app.js:225
-msgid "Unrecoverable error loading address books: {msg}"
-msgstr "Adres defterleri yüklenirken düzeltilemeyen hata oluştu: {msg}"
-
-#: js/app.js:226
-msgid "Error."
-msgstr "Hata."
-
-#: js/app.js:317 js/app.js:331
-msgid "Add to..."
-msgstr "Ekle..."
-
-#: js/app.js:321 js/app.js:333
-msgid "Remove from..."
-msgstr "Sil..."
-
-#: js/app.js:338
-msgid "Add group..."
-msgstr "Grup ekle..."
-
-#: js/app.js:468
-msgid "Invalid URL: \"{url}\""
-msgstr "Geçersiz URL: \"{url}\""
-
-#: js/app.js:479
-msgid "There was an error opening a mail composer."
-msgstr "Bir posta düzenleyicisi açarken hata oluştu."
-
-#: js/app.js:484
-msgid "Invalid email: \"{url}\""
-msgstr "Geçersiz eposta: \"{url}\""
-
-#: js/app.js:562
-msgid "Merge failed. Cannot find contact: {id}"
-msgstr "Birleştirme başarısız. Kişi bulunamadı: {id}"
-
-#: js/app.js:575
-msgid "Merge failed."
-msgstr "Birleştirme başarısız."
-
-#: js/app.js:582
-msgid "Merge failed. Error saving contact."
-msgstr "Birleştirme başarısız. Kişi kaydedilirken hata oluştu."
-
-#: js/app.js:602
-msgid "Select photo"
-msgstr "Fotograf seç"
-
-#: js/app.js:678 js/app.js:1570
-msgid "Network or server error. Please inform administrator."
-msgstr "Ağ veya sunucu hatası. Lütfen sistem yöneticisini bilgilendirin."
-
-#: js/app.js:894
-msgid "Error adding to group."
-msgstr "Gruba eklerken hata."
-
-#: js/app.js:917
-msgid "Error removing from group."
-msgstr "Gruptan çıkarırken hata."
-
-#: js/app.js:1104
-msgid "Error setting {name} as favorite."
-msgstr "{name} favori olarak ayarlanırken hata oluştu."
-
-#: js/app.js:1243 js/app.js:1247 templates/contacts.php:182
-msgid "Merge contacts"
-msgstr "Kişileri birleştir"
-
-#: js/app.js:1269 js/app.js:1322 js/settings.js:120 templates/contacts.php:321
-#: templates/settings.php:62
+#: js/addressbooks.js:97 js/addressbooks.js:174 js/app.js:1390 js/app.js:1443
+#: templates/contacts.php:372 templates/contacts.php:373
 msgid "Cancel"
 msgstr "İptal"
 
-#: js/app.js:1296 templates/contacts.php:163
+#: js/addressbooks.js:132 js/groups.js:519
+msgid "Save"
+msgstr "Kaydet"
+
+#: js/addressbooks.js:162
+msgid "Edit Addressbook"
+msgstr "Adres Defterini Düzenle"
+
+#: js/addressbooks.js:400
+msgid "Starting file import"
+msgstr "Dosya içe aktarımı başlıyor"
+
+#: js/addressbooks.js:404 js/addressbooks.js:432
+msgid "Format selected: {format}"
+msgstr "Seçilen biçim: {format}"
+
+#: js/addressbooks.js:407 js/addressbooks.js:435
+msgid "Automatic format detection"
+msgstr "Otomatik biçim tespiti"
+
+#: js/addressbooks.js:485
+msgid "Processing {count}/{total} cards"
+msgstr "İşlenen {count}/{total} kart"
+
+#: js/addressbooks.js:509
+msgid "Total:{total}, Success:{imported}, Errors:{failed}"
+msgstr "Toplam:{total}, Başarılı:{imported}, Hata:{failed}"
+
+#: js/addressbooks.js:663
+msgid "An address book called {name} already exists"
+msgstr "{name} isimli adres defteri zaten mevcut"
+
+#: js/addressbooks.js:697 js/otherbackendconfig.js:141
+#: js/otherbackendconfig.js:200
+msgid "Failed adding address book: {error}"
+msgstr "Adres defteri eklenemedi: {error}"
+
+#: js/addressbooks.js:738
+msgid "Failed loading address books: {error}"
+msgstr "Adres defterlerini yükleme başarısız: {error}"
+
+#: js/admin.js:92 js/storage.js:27
+msgid "Server error! Please inform system administator"
+msgstr "Sunucu hatası! Lütfen sistem yöneticisini bilgilendirin"
+
+#: js/app.js:223
+msgid "Indexing contacts"
+msgstr "Bağlantılar dizinleniyor"
+
+#: js/app.js:233
+msgid "Unrecoverable error loading address books: {msg}"
+msgstr "Adres defterleri yüklenirken düzeltilemeyen hata oluştu: {msg}"
+
+#: js/app.js:234
+msgid "Error."
+msgstr "Hata."
+
+#: js/app.js:329 js/app.js:343
+msgid "Add to..."
+msgstr "Şuraya ekle..."
+
+#: js/app.js:333 js/app.js:345
+msgid "Remove from..."
+msgstr "Şuradan kaldır..."
+
+#: js/app.js:350
+msgid "Add group..."
+msgstr "Grup ekle..."
+
+#: js/app.js:478
+msgid "Invalid URL: \"{url}\""
+msgstr "Geçersiz URL: \"{url}\""
+
+#: js/app.js:504
+msgid "Invalid email: \"{url}\""
+msgstr "Geçersiz e-posta: \"{url}\""
+
+#: js/app.js:587
+msgid "Merge failed. Cannot find contact: {id}"
+msgstr "Birleştirme başarısız. Kişi bulunamadı: {id}"
+
+#: js/app.js:600
+msgid "Merge failed."
+msgstr "Birleştirme başarısız."
+
+#: js/app.js:607
+msgid "Merge failed. Error saving contact."
+msgstr "Birleştirme başarısız. Kişi kaydedilirken hata oluştu."
+
+#: js/app.js:627
+msgid "Select photo"
+msgstr "Fotoğraf seç"
+
+#: js/app.js:710 js/app.js:1686
+msgid "Network or server error. Please inform administrator."
+msgstr "Ağ veya sunucu hatası. Lütfen sistem yöneticisini bilgilendirin."
+
+#: js/app.js:794
+msgid "Only images can be used as contact photos"
+msgstr "Kişi fotoğrafları olarak sadece resimler kullanılabilir"
+
+#: js/app.js:803
+msgid "The size of \"{filename}\" exceeds the maximum allowed {size}"
+msgstr "\"{filename}\" dosyasının boyutu izin verilen miktar olan {size} boyutunu aşıyor"
+
+#: js/app.js:972
+msgid "Error adding to group."
+msgstr "Gruba eklerken hata."
+
+#: js/app.js:995
+msgid "Error removing from group."
+msgstr "Gruptan kaldırırken hata."
+
+#: js/app.js:1188
+msgid ""
+"You have selected over 300 contacts.\n"
+"This will most likely fail! Click here to try anyway."
+msgstr "300'den fazla kişi seçtiniz.\nBüyük olasılıkla başarısız olacak! Yine de denemek için buraya tıklayın."
+
+#: js/app.js:1226
+msgid "Error setting {name} as favorite."
+msgstr "{name} sık kullanılan olarak ayarlanırken hata oluştu."
+
+#: js/app.js:1364 js/app.js:1368 templates/contacts.php:186
+msgid "Merge contacts"
+msgstr "Kişileri birleştir"
+
+#: js/app.js:1417 templates/contacts.php:167
 msgid "Add group"
 msgstr "Grup ekle"
 
-#: js/app.js:1300
+#: js/app.js:1421
 msgid "OK"
-msgstr "OK"
+msgstr "Tamam"
 
-#: js/app.js:1394
+#: js/app.js:1528
 msgid "Could not find contact: {id}"
 msgstr "Kişi bulunamadı: {id}"
 
-#: js/app.js:1417
-msgid "No files selected for upload."
-msgstr "Yükleme için dosya seçilmedi."
-
-#: js/app.js:1427
-msgid ""
-"The file you are trying to upload exceed the maximum size for file uploads "
-"on this server."
-msgstr "Yüklemeye çalıştığınız dosya sunucudaki dosya yükleme maksimum boyutunu aşmaktadır. "
-
-#: js/app.js:1528
+#: js/app.js:1641
 msgid "Edit profile picture"
-msgstr "Profil fotografını düzenle"
+msgstr "Profil fotoğrafını düzenle"
 
-#: js/app.js:1532
+#: js/app.js:1645
 msgid "Crop photo"
 msgstr "Fotoğrafı kırp"
 
-#: js/contacts.js:589
-msgid "Is this correct?"
-msgstr "Doğru mu?"
-
-#: js/contacts.js:856
+#: js/contacts.js:904
 msgid "Error parsing date: {date}"
 msgstr "Tarih ayıklanırken hata: {date}"
 
-#: js/contacts.js:1053
+#: js/contacts.js:1102
 msgid "# groups"
 msgstr "# gruplar"
 
-#: js/contacts.js:1125
-msgid "Error parsing birthday {bday}: {error}"
-msgstr "{bday} doğum günü ayıklanırken hata: {error}"
+#: js/contacts.js:1182
+msgid "Error parsing birthday {bday}"
+msgstr "{bday} doğum günü ayıklanırken hata"
 
-#: js/contacts.js:2162
+#: js/contacts.js:1320
+msgid "The backend does not support multi-byte characters."
+msgstr "Arka uç, çok baytlı karakterleri desteklemiyor."
+
+#: js/contacts.js:2234
 msgid ""
 "Some contacts are marked for deletion, but not deleted yet. Please wait for "
 "them to be deleted."
-msgstr "Bazı kişiler silinmek için işaretlendi, hala silinmedi. Silinmesi için bekleyin."
+msgstr "Bazı kişiler silinmek için işaretlendi, ancak hala silinmedi. Lütfen silinmeleri için bekleyin."
 
-#: js/contacts.js:2173
+#: js/contacts.js:2245
 msgid "Click to undo deletion of {num} contacts"
 msgstr "{num} kişinin silinmesini geri almak için tıklayın"
 
-#: js/contacts.js:2182
+#: js/contacts.js:2254
 msgid "Cancelled deletion of {num} contacts"
 msgstr "{num} kişinin silinmesi iptal edildi"
 
@@ -209,71 +226,71 @@ msgstr "{num} kişinin silinmesi iptal edildi"
 msgid "Add"
 msgstr "Ekle"
 
-#: js/groups.js:263
+#: js/groups.js:264
 msgid "Contact is already in this group."
 msgstr "Kişi zaten bu grupta."
 
-#: js/groups.js:276
+#: js/groups.js:277
 msgid "Contacts are already in this group."
 msgstr "Kişiler zaten bu gruptalar."
 
-#: js/groups.js:342
+#: js/groups.js:343
 msgid "Couldn't get contact list."
 msgstr "Kişi listesi alınamadı."
 
-#: js/groups.js:353
+#: js/groups.js:354
 msgid "Contact is not in this group."
 msgstr "Kişi bu grupta değil."
 
-#: js/groups.js:367
+#: js/groups.js:368
 msgid "Contacts are not in this group."
 msgstr "Kişiler bu grupta değiller."
 
-#: js/groups.js:566
+#: js/groups.js:525 js/groups.js:605
+msgid "A group named \"{group}\" already exists"
+msgstr "\"{group}\" isimli bir grup zaten mevcut"
+
+#: js/groups.js:574
 msgid "Failed renaming group: {error}"
 msgstr "Grup adını değiştirme başarısız: {error}"
 
-#: js/groups.js:597
-msgid "A group named {group} already exists"
-msgstr "{group} isimli bir grup zaten var"
-
-#: js/groups.js:632
+#: js/groups.js:646
 msgid ""
 "You can drag groups to\n"
 "arrange them as you like."
-msgstr "Groupları sürükleyerek\nistediğiniz gibi düzenleyebilirsiniz"
+msgstr "Grupları sürükleyerek\nistediğiniz gibi düzenleyebilirsiniz."
 
-#: js/groups.js:645
+#: js/groups.js:659
 msgid "Failed adding group: {error}"
 msgstr "Grup ekleme başarısız: {error}"
 
-#: js/groups.js:657
+#: js/groups.js:672
 msgid "All"
 msgstr "Tümü"
 
-#: js/groups.js:672 js/groups.js:675
+#: js/groups.js:687 js/groups.js:690
 msgid "Favorites"
-msgstr "Favoriler"
+msgstr "Sık Kullanılanlar"
 
-#: js/groups.js:736
+#: js/groups.js:751
 msgid "Shared by {owner}"
 msgstr "{owner} tarafından paylaşılmış"
 
-#: js/groups.js:751
+#: js/groups.js:766
 msgid "Not grouped"
-msgstr "Gruplanmadı"
+msgstr "Gruplanmamış"
 
-#: js/groups.js:777
+#: js/groups.js:795
 msgid "Failed loading groups: {error}"
-msgstr "Grup yüklemesi başarısız: {error}"
+msgstr "Grupları yükleme başarısız: {error}"
 
 #: js/loader.js:21
 msgid "Please choose the addressbook"
-msgstr "Yeni adres defterini seç"
+msgstr "Lütfen adres defterini seçin"
 
-#: js/loader.js:22 templates/contacts.php:29
+#: js/loader.js:22 templates/contacts.php:41
 msgid "Import into..."
-msgstr "İçe aktar:"
+msgstr "Şuraya aktar..."
 
 #: js/loader.js:31
 msgid "Error loading import template"
@@ -283,403 +300,329 @@ msgstr "İçe aktarım şablonu yüklenirken hata"
 msgid "Import contacts"
 msgstr "Kişileri içe aktar"
 
-#: js/loader.js:61 templates/contacts.php:25
+#: js/loader.js:61 templates/contacts.php:37
 msgid "Import"
 msgstr "İçe aktar"
+
+#: js/loader.js:68
+msgid "Importing..."
+msgstr "İçeri aktarılıyor..."
 
 #: js/loader.js:92
 msgid "Import done"
 msgstr "İçe aktarma tamamlandı"
 
-#: js/loader.js:95 templates/contacts.php:91 templates/contacts.php:322
+#: js/loader.js:95 templates/contacts.php:102 templates/contacts.php:376
+#: templates/contacts.php:377
 msgid "Close"
 msgstr "Kapat"
 
-#: js/settings.js:25 js/settings.js:45 js/settings.js:75 js/settings.js:112
-msgid "Error"
-msgstr "Hata"
+#: js/otherbackendconfig.js:149 js/otherbackendconfig.js:207
+msgid "Error, missing parameters: "
+msgstr "Hata, eksik parametreler:"
 
-#: js/settings.js:75
-msgid "Displayname cannot be empty."
-msgstr "GörünenAd boş olamaz."
-
-#: js/settings.js:97 templates/settings.php:26
-msgid "Show CardDav link"
-msgstr "CardDav bağlantısı göster"
-
-#: js/settings.js:98 templates/settings.php:29
-msgid "Show read-only VCF link"
-msgstr "Salt-okur VCF bağlantısı göster"
-
-#: js/settings.js:99 templates/contacts.php:57 templates/contacts.php:78
-#: templates/contacts.php:323 templates/settings.php:40
-msgid "Download"
-msgstr "İndir"
-
-#: js/settings.js:101 templates/contacts.php:467 templates/settings.php:45
-msgid "Edit"
-msgstr "Düzenle"
-
-#: js/settings.js:102 templates/contacts.php:58 templates/contacts.php:77
-#: templates/contacts.php:268 templates/contacts.php:275
-#: templates/contacts.php:282 templates/contacts.php:289
-#: templates/contacts.php:337 templates/contacts.php:468
-#: templates/settings.php:50
-msgid "Delete"
-msgstr "Sil"
-
-#: js/settings.js:159 templates/settings.php:66
-msgid "More..."
-msgstr "Devamı..."
-
-#: js/settings.js:162
-msgid "Less..."
-msgstr "daha küçük"
-
-#: js/storage.js:30
-msgid "Server error! Please inform system administator"
-msgstr "Sunucu hatası! Lütfen sistem yöneticisini bilgilendirin"
-
-#: js/storage.js:335 js/storage.js:374
+#: js/storage.js:431 js/storage.js:470
 msgid "Failed loading photo: {error}"
-msgstr "Foto yüklemesi başarısız: {error}"
+msgstr "Fotoğrafı yükleme başarısız: {error}"
 
-#: lib/addressbook.php:152
-msgid "You do not have permissions to see this contacts"
-msgstr "Bu kişileri görmek için izniniz yok"
+#: lib/addressbook.php:169 lib/contact.php:116 lib/contact.php:165
+msgid "You do not have permissions to see this contact"
+msgstr "Bu kişiyi görme izniniz yok"
 
-#: lib/addressbook.php:159
+#: lib/addressbook.php:180
 msgid "Contact not found"
-msgstr "Bağlantı bulunamadı."
+msgstr "Kişi bulunamadı"
 
-#: lib/addressbook.php:186
+#: lib/addressbook.php:217
 msgid "You do not have permissions to see these contacts"
-msgstr "Bu kişileri görmek için izniniz yok"
+msgstr "Bu kişileri görme izniniz yok"
 
-#: lib/addressbook.php:213
+#: lib/addressbook.php:250
 msgid "You do not have permissions add contacts to the address book"
 msgstr "Adres defterine kişi eklemek için izniniz yok"
 
-#: lib/addressbook.php:216
+#: lib/addressbook.php:257
 msgid "The backend for this address book does not support adding contacts"
-msgstr "Bu adres defterinin geri plandaki mekanizması kişi eklemeyi desteklemiyor."
+msgstr "Arka uç, bu adres defteri için kişi eklemeyi desteklemiyor"
 
-#: lib/addressbook.php:240 lib/addressbook.php:266 lib/contact.php:246
+#: lib/addressbook.php:302 lib/addressbook.php:342 lib/contact.php:254
 msgid "You do not have permissions to delete this contact"
 msgstr "Bu kişiyi silmek için izniniz yok."
 
-#: lib/addressbook.php:243 lib/addressbook.php:269
+#: lib/addressbook.php:309 lib/addressbook.php:349
 msgid "The backend for this address book does not support deleting contacts"
-msgstr "Bu adres defterinin arka plandaki mekanizması kişi silmeyi desteklemiyor"
+msgstr "Arka uç, bu adres defteri için kişi silmeyi desteklemiyor"
 
-#: lib/addressbook.php:290
+#: lib/addressbook.php:372
 msgid "Unknown error"
 msgstr "Bilinmeyen hata"
 
-#: lib/addressbook.php:332
+#: lib/addressbook.php:413
+msgid "Access denied"
+msgstr "Erişim reddedildi"
+
+#: lib/addressbook.php:420
 msgid "The backend for this address book does not support updating"
-msgstr "Bu adres defterinin geri plandaki mekanizması güncellemeyi desteklemiyor."
+msgstr "Arka uç, bu adres defteri için güncellemeyi desteklemiyor"
 
-#: lib/addressbook.php:358
-msgid "You don't have permissions to update the address book."
-msgstr "Bu adres defterini güncellemek için yetkiniz yok."
-
-#: lib/addressbook.php:369
+#: lib/addressbook.php:451
 msgid "You don't have permissions to delete the address book."
-msgstr "Bu adres defterini silmek için izniniz yok."
+msgstr "Bu adres defterini silme izniniz yok."
 
-#: lib/app.php:144
+#: lib/app.php:156
 msgid "Address book not found"
 msgstr "Adres defteri bulunamadı."
 
-#: lib/contact.php:112 lib/contact.php:159
-msgid "You do not have permissions to see this contact"
-msgstr "Bu kişileri görmek için izniniz yok"
-
-#: lib/contact.php:261
+#: lib/contact.php:269
 msgid "You do not have permissions to update this contact"
-msgstr "Bu kişi bilgilerini güncellemek için izniniz yok."
+msgstr "Bu kişi bilgilerini güncelleme izniniz yok"
 
-#: lib/contact.php:272
+#: lib/contact.php:282
 msgid "The backend for this contact does not support updating it"
-msgstr "Bu kişinin geri plandaki mekanizması güncellemeyi desteklemiyor."
+msgstr "Arka uç, bu kişi için güncellemeyi desteklemiyor"
 
-#: lib/contact.php:290
-msgid "This backend not support adding contacts"
+#: lib/contact.php:299
+msgid "This backend does not support adding contacts"
 msgstr "Bu geri plan mekanizması kişi eklemeyi desteklemiyor."
 
-#: lib/contact.php:400 lib/contact.php:417
+#: lib/contact.php:465 lib/contact.php:482
 msgid "Property not found"
 msgstr "Özellik bulunamadı"
 
-#: lib/contact.php:465
+#: lib/contact.php:530
 msgid " Missing IM parameter for: "
-msgstr "Şunun için eksik IM parametresi:"
+msgstr "Şu kişi için eksik IM parametresi:"
 
-#: lib/contact.php:473
+#: lib/contact.php:538
 msgid "Unknown IM: "
 msgstr "Bilinmeyen IM:"
 
-#: lib/contact.php:750
+#: lib/contact.php:815
 msgid "{name}'s Birthday"
-msgstr "{name}'nin Doğumgünü"
+msgstr "{name} Kişisinin Doğum Günü"
 
-#: lib/controller/addressbookcontroller.php:112
+#: lib/controller/addressbookcontroller.php:174
 msgid "Error creating address book"
 msgstr "Adres defteri oluşturma hatası"
 
-#: lib/controller/addressbookcontroller.php:129
-msgid "Error updating address book"
-msgstr "Adres defteri güncelleme hatası"
+#: lib/controller/addressbookcontroller.php:206
+#, php-format
+msgid "The \"%s\" backend does not support deleting address books"
+msgstr "\"%s\" arka ucu adres defteri silmeyi desteklemiyor"
 
-#: lib/controller/addressbookcontroller.php:157
+#: lib/controller/addressbookcontroller.php:214
 #, php-format
 msgid "You do not have permissions to delete the \"%s\" address book"
 msgstr "\"%s\" adres defterini silmek için izniniz yok"
 
-#: lib/controller/addressbookcontroller.php:163
+#: lib/controller/addressbookcontroller.php:221
 msgid "Error deleting address book"
 msgstr "Adres defteri silme hatası"
 
-#: lib/controller/addressbookcontroller.php:201
+#: lib/controller/addressbookcontroller.php:261
 msgid "Error creating contact."
 msgstr "Kişi oluşturmada hata."
 
-#: lib/controller/addressbookcontroller.php:237
-msgid "Error deleting contact."
-msgstr "Kişi silmede hata."
+#: lib/controller/addressbookcontroller.php:270
+msgid "Error creating contact"
+msgstr "Kişi oluşturulurken hata"
 
-#: lib/controller/addressbookcontroller.php:277
-msgid "Error retrieving contact."
-msgstr "Kişi bilgilerini çekmede hata."
+#: lib/controller/addressbookcontroller.php:302
+msgid "Error deleting contact"
+msgstr "Kişi silinirken hata"
 
-#: lib/controller/addressbookcontroller.php:287
-#: lib/controller/contactphotocontroller.php:332
-msgid "Error saving contact."
-msgstr "Bağlantıyı kaydederken hata"
+#: lib/controller/addressbookcontroller.php:342
+msgid "Error retrieving contact"
+msgstr "Kişi alınırken hata"
 
-#: lib/controller/addressbookcontroller.php:291
+#: lib/controller/addressbookcontroller.php:353
+msgid "Error saving contact"
+msgstr "Kişi kaydedilirken hata"
+
+#: lib/controller/addressbookcontroller.php:359
 msgid "Error removing contact from other address book."
 msgstr "Kişiyi diğer adres defterinden silmede hata"
 
+#: lib/controller/addressbookcontroller.php:366
+msgid "Error getting moved contact"
+msgstr "Kişi taşınmaya hazırlanırken hata"
+
 #: lib/controller/contactcontroller.php:37
-#: lib/controller/contactcontroller.php:64
+#: lib/controller/contactcontroller.php:63
 #: lib/controller/contactcontroller.php:97
-#: lib/controller/contactphotocontroller.php:38
-#: lib/controller/contactphotocontroller.php:274
-#: lib/controller/exportcontroller.php:66
+#: lib/controller/exportcontroller.php:67
 msgid "Couldn't find contact."
 msgstr "Kişi bulunamadı."
 
-#: lib/controller/contactcontroller.php:60
+#: lib/controller/contactcontroller.php:59
 msgid "No contact data in request."
 msgstr "Kişi veri alım isteği yok."
 
-#: lib/controller/contactcontroller.php:68
+#: lib/controller/contactcontroller.php:67
 msgid "Error merging into contact."
 msgstr "Kişileri birleştirmede hata."
 
 #: lib/controller/contactcontroller.php:71
 msgid "Error saving contact to backend."
-msgstr "Kişiyi  geri plan mekanizmasına kaydetmede hata"
+msgstr "Kişi arka uca kaydedilirken hata."
 
-#: lib/controller/contactcontroller.php:102
+#: lib/controller/contactcontroller.php:103
 msgid "Property name is not set."
 msgstr "Özellik adı atanmadı."
 
-#: lib/controller/contactcontroller.php:107
+#: lib/controller/contactcontroller.php:109
 msgid "Property checksum is not set."
-msgstr "Özellik için checksum atanmadı."
+msgstr "Özelliğin toplama sağlamı ayarlanmamış."
 
-#: lib/controller/contactcontroller.php:126
+#: lib/controller/contactcontroller.php:131
 msgid "Information about vCard is incorrect. Please reload the page."
 msgstr "vCard bilgileri doğru değil. Lütfen sayfayı yenileyin."
 
-#: lib/controller/contactcontroller.php:135
+#: lib/controller/contactcontroller.php:142
 msgid "Error updating contact"
 msgstr "Kişi güncellenirken hata"
 
-#: lib/controller/contactcontroller.php:140
+#: lib/controller/contactcontroller.php:149
 msgid "Error saving contact to backend"
 msgstr "Kişi arka uca kaydedilirken hata"
 
-#: lib/controller/contactphotocontroller.php:69
-msgid "Error getting user photo"
-msgstr "Kullanıcı fotoğrafı alınırken hata"
-
-#: lib/controller/contactphotocontroller.php:87
-#: lib/controller/importcontroller.php:36
-msgid "No file was uploaded. Unknown error"
-msgstr "Dosya yüklenmedi. Bilinmeyen hata"
-
-#: lib/controller/contactphotocontroller.php:95
-#: lib/controller/importcontroller.php:44
-msgid "There is no error, the file uploaded with success"
-msgstr "Dosya başarıyla yüklendi, hata oluşmadı"
-
-#: lib/controller/contactphotocontroller.php:96
-#: lib/controller/importcontroller.php:45
-msgid "The uploaded file exceeds the upload_max_filesize directive in php.ini"
-msgstr "Dosyanın boyutu php.ini dosyasındaki upload_max_filesize limitini aşıyor"
-
-#: lib/controller/contactphotocontroller.php:97
-#: lib/controller/importcontroller.php:47
-msgid ""
-"The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in "
-"the HTML form"
-msgstr "Yüklenecek dosyanın boyutu HTML formunda belirtilen MAX_FILE_SIZE limitini aşıyor"
-
-#: lib/controller/contactphotocontroller.php:98
-#: lib/controller/importcontroller.php:48
-msgid "The uploaded file was only partially uploaded"
-msgstr "Dosya kısmen karşıya yüklenebildi"
-
-#: lib/controller/contactphotocontroller.php:99
-#: lib/controller/importcontroller.php:49
-msgid "No file was uploaded"
-msgstr "Hiç dosya gönderilmedi"
-
-#: lib/controller/contactphotocontroller.php:100
-#: lib/controller/importcontroller.php:50
-msgid "Missing a temporary folder"
-msgstr "Geçici dizin eksik"
-
-#: lib/controller/contactphotocontroller.php:115
-msgid "Couldn't load temporary image: "
-msgstr "Geçici resmi yükleyemedi :"
-
-#: lib/controller/contactphotocontroller.php:124
-#: lib/controller/contactphotocontroller.php:162
-msgid "Couldn't save temporary image: "
-msgstr "Geçici resmi saklayamadı : "
-
-#: lib/controller/contactphotocontroller.php:191
+#: lib/controller/contactphotocontroller.php:142
 msgid "No photo path was submitted."
-msgstr "Fotoğraf girilmedi."
-
-#: lib/controller/contactphotocontroller.php:198
-msgid "File doesn't exist:"
-msgstr "Dosya mevcut değil:"
+msgstr "Fotoğraf yolu gönderilmedi."
 
 #: lib/controller/contactphotocontroller.php:203
-#: lib/controller/contactphotocontroller.php:206
-msgid "Error loading image."
-msgstr "İmaj yükleme hatası."
+msgid "Error loading image from cache"
+msgstr "Resim önbellekten yüklenirken hata"
 
-#: lib/controller/contactphotocontroller.php:279
-msgid "Image has been removed from cache"
-msgstr "Resim önbellekten silindi"
-
-#: lib/controller/contactphotocontroller.php:285
-msgid "Error creating temporary image"
-msgstr "Geçici resim oluştururken hata oluştu"
-
-#: lib/controller/contactphotocontroller.php:292
-msgid "Error cropping image"
-msgstr "Görüntü kırpılamadı."
-
-#: lib/controller/contactphotocontroller.php:297
-msgid "Error resizing image"
-msgstr "Görüntü yeniden boyutlandırılamadı."
-
-#: lib/controller/contactphotocontroller.php:315
+#: lib/controller/contactphotocontroller.php:213
 msgid "Error getting PHOTO property."
-msgstr "Resim özelleğini alırken hata oluştu."
+msgstr "PHOTO özelliği alınırken hata oluştu."
 
-#: lib/controller/groupcontroller.php:57 lib/controller/groupcontroller.php:79
+#: lib/controller/contactphotocontroller.php:217
+msgid "Error saving contact."
+msgstr "Kişi kaydedilirken hata."
+
+#: lib/controller/groupcontroller.php:68 lib/controller/groupcontroller.php:90
 msgid "No group name given."
-msgstr "Grup adı belirtilmedi"
+msgstr "Grup adı belirtilmedi."
 
-#: lib/controller/groupcontroller.php:64
+#: lib/controller/groupcontroller.php:74
 msgid "Error adding group."
 msgstr "Grup ekleme hatası."
 
-#: lib/controller/groupcontroller.php:127
+#: lib/controller/groupcontroller.php:150
 msgid "No group name to rename from given."
 msgstr "Değiştirmek için bir grup adı belirtilmedi."
 
-#: lib/controller/groupcontroller.php:131
+#: lib/controller/groupcontroller.php:155
 msgid "No group name to rename to given."
-msgstr "Değiştimek için bir grup adı verilmedi"
+msgstr "Değiştirmek için bir grup adı belirtilmedi."
 
-#: lib/controller/groupcontroller.php:137
+#: lib/controller/groupcontroller.php:160
 msgid "Error renaming group."
 msgstr "Grup adını değiştirirken hata oluştu."
 
-#: lib/controller/groupcontroller.php:175
-#: lib/controller/groupcontroller.php:223
+#: lib/controller/groupcontroller.php:210
+#: lib/controller/groupcontroller.php:267
 msgid "Group ID missing from request."
-msgstr "İstekde grup IS eksik."
+msgstr "İstekte grup kimliği yok."
 
-#: lib/controller/groupcontroller.php:180
+#: lib/controller/groupcontroller.php:217
+#: lib/controller/groupcontroller.php:274
 msgid "Group name missing from request."
-msgstr "İstekde grup adı belirtilmedi."
+msgstr "İstekte grup adı yok."
 
-#: lib/controller/groupcontroller.php:185
-#: lib/controller/groupcontroller.php:228
+#: lib/controller/groupcontroller.php:224
+#: lib/controller/groupcontroller.php:281
 msgid "Contact ID missing from request."
-msgstr "İstekde Contact ID yok."
+msgstr "İstekte kişi kimliği yok."
 
-#: lib/controller/importcontroller.php:51
+#: lib/controller/importcontroller.php:48
+msgid "No file was uploaded. Unknown error"
+msgstr "Dosya yüklenmedi. Bilinmeyen hata"
+
+#: lib/controller/importcontroller.php:57
+msgid "There is no error, the file uploaded with success"
+msgstr "Dosya başarıyla yüklendi, hata oluşmadı"
+
+#: lib/controller/importcontroller.php:58
+msgid "The uploaded file exceeds the upload_max_filesize directive in php.ini"
+msgstr "Dosyanın boyutu php.ini dosyasındaki upload_max_filesize yönergesini aşıyor"
+
+#: lib/controller/importcontroller.php:60
+msgid ""
+"The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in "
+"the HTML form"
+msgstr "Yüklenecek dosyanın boyutu HTML formunda belirtilen MAX_FILE_SIZE yönergesini aşıyor"
+
+#: lib/controller/importcontroller.php:61
+msgid "The uploaded file was only partially uploaded"
+msgstr "Dosya kısmen karşıya yüklenebildi"
+
+#: lib/controller/importcontroller.php:62
+msgid "No file was uploaded"
+msgstr "Hiç dosya yüklenmedi"
+
+#: lib/controller/importcontroller.php:63
+msgid "Missing a temporary folder"
+msgstr "Geçici klasör eksik"
+
+#: lib/controller/importcontroller.php:64
 msgid "Failed to write to disk"
 msgstr "Diske yazılamadı"
 
-#: lib/controller/importcontroller.php:62
+#: lib/controller/importcontroller.php:75
 msgid "Not enough storage available"
 msgstr "Yeterli disk alanı yok"
 
-#: lib/controller/importcontroller.php:70
+#: lib/controller/importcontroller.php:83
 msgid "Attempt to upload blacklisted file:"
-msgstr "Karalistede bulunan dosya yükleme girişimi:"
+msgstr "Kara listede bulunan dosya yükleme girişimi:"
 
-#: lib/controller/importcontroller.php:92
+#: lib/controller/importcontroller.php:103
 msgid "Error uploading contacts to storage."
-msgstr "Bağlantıları depoya yükleme hatası"
+msgstr "Kişiler depoya yüklenirken hata."
 
-#: lib/controller/importcontroller.php:137
+#: lib/controller/importcontroller.php:148
 msgid "Error moving file to imports folder."
 msgstr "Dosyalar içe aktarım klasörüne taşınırken hata oluştu."
 
-#: lib/controller/importcontroller.php:154
+#: lib/controller/importcontroller.php:167
 msgid "You do not have permissions to import into this address book."
-msgstr "Bu adres defterine ekleme yetkiniz yok."
+msgstr "Bu adres defterine içe aktarma yetkiniz yok."
 
-#: lib/controller/importcontroller.php:162
+#: lib/controller/importcontroller.php:175
 msgid "File name missing from request."
 msgstr "İstekte dosya adı eksik."
 
-#: lib/controller/importcontroller.php:167
-#: lib/controller/importcontroller.php:283
+#: lib/controller/importcontroller.php:180
+#: lib/controller/importcontroller.php:307
 msgid "Progress key missing from request."
-msgstr "İstekte süreç anahtarı eksik"
+msgstr "İstekte süreç anahtarı eksik."
 
-#: lib/controller/importcontroller.php:173
+#: lib/controller/importcontroller.php:186
 msgid "Attempt to access blacklisted file:"
-msgstr "Karaliste dosyasına erişim girişimi:"
+msgstr "Kara liste dosyasına erişim girişimi:"
 
-#: lib/controller/importcontroller.php:215
-msgid "No contacts found in: "
-msgstr "Şurada hiçbir kişi bulunamadı:"
-
-#: lib/controller/settingscontroller.php:35
+#: lib/controller/settingscontroller.php:36
 msgid "No key is given."
 msgstr "Hiçbir anahtar belirtilmedi."
 
-#: lib/controller/settingscontroller.php:39
+#: lib/controller/settingscontroller.php:40
 msgid "No value is given."
 msgstr "Hiçbir değer belirtilmedi."
 
-#: lib/controller/settingscontroller.php:50
+#: lib/controller/settingscontroller.php:51
 msgid "Could not set preference: "
 msgstr "Özellik atanamadı:"
 
-#: lib/searchprovider.php:24
+#: lib/searchprovider.php:37
 msgid "Contact"
 msgstr "Kişi"
 
-#: lib/utils/jsonserializer.php:111 lib/utils/properties.php:160
-#: lib/utils/properties.php:173 lib/utils/properties.php:180
-#: lib/utils/properties.php:195
+#: lib/utils/jsonserializer.php:111 lib/utils/properties.php:165
+#: lib/utils/properties.php:178 lib/utils/properties.php:185
+#: lib/utils/properties.php:200
 msgid "Other"
 msgstr "Diğer"
 
@@ -739,434 +682,466 @@ msgstr "QQ"
 msgid "GaduGadu"
 msgstr "GaduGadu"
 
-#: lib/utils/properties.php:158 lib/utils/properties.php:166
-#: lib/utils/properties.php:177 lib/utils/properties.php:194
+#: lib/utils/properties.php:136
+msgid "ownCloud"
+msgstr "ownCloud"
+
+#: lib/utils/properties.php:163 lib/utils/properties.php:171
+#: lib/utils/properties.php:182 lib/utils/properties.php:199
 msgid "Work"
 msgstr "İş"
 
-#: lib/utils/properties.php:159 lib/utils/properties.php:164
-#: lib/utils/properties.php:178
+#: lib/utils/properties.php:164 lib/utils/properties.php:169
+#: lib/utils/properties.php:183
 msgid "Home"
 msgstr "Ev"
 
-#: lib/utils/properties.php:165
+#: lib/utils/properties.php:170
 msgid "Mobile"
 msgstr "Mobil"
 
-#: lib/utils/properties.php:167
+#: lib/utils/properties.php:172
 msgid "Text"
 msgstr "Metin"
 
-#: lib/utils/properties.php:168
+#: lib/utils/properties.php:173
 msgid "Voice"
 msgstr "Ses"
 
-#: lib/utils/properties.php:169
+#: lib/utils/properties.php:174
 msgid "Message"
-msgstr "mesaj"
+msgstr "Mesaj"
 
-#: lib/utils/properties.php:170
+#: lib/utils/properties.php:175
 msgid "Fax"
 msgstr "Faks"
 
-#: lib/utils/properties.php:171
+#: lib/utils/properties.php:176
 msgid "Video"
 msgstr "Video"
 
-#: lib/utils/properties.php:172
+#: lib/utils/properties.php:177
 msgid "Pager"
-msgstr "Sayfalayıcı"
+msgstr "Çağrı Cihazı"
 
-#: lib/utils/properties.php:179
+#: lib/utils/properties.php:184
 msgid "Internet"
 msgstr "İnternet"
 
-#: lib/utils/properties.php:192
+#: lib/utils/properties.php:197
 msgid "Friends"
 msgstr "Arkadaşlar"
 
-#: lib/utils/properties.php:193
+#: lib/utils/properties.php:198
 msgid "Family"
 msgstr "Aile"
 
-#: templates/contacts.php:6
-msgid "New Contact"
-msgstr "Yeni Kişi"
+#: templates/admin.php:18
+msgid "Enable LDAP Backend"
+msgstr "LDAP Arka Ucunu Etkinleştir"
 
-#: templates/contacts.php:10
+#: templates/admin.php:19
+msgid "Enable LDAP backend for the contacts application"
+msgstr "Kişiler uygulaması için LDAP arka ucunu etkinleştir"
+
+#: templates/admin.php:20
+msgid "Warning: LDAP Backend is in beta mode, use with precautions"
+msgstr "Uyarı: LDAP Arka Ucu beta kipindedir, dikkatli kullanın"
+
+#: templates/contacts.php:9 templates/contacts.php:138
+msgid "New contact"
+msgstr "Yeni kişi"
+
+#: templates/contacts.php:13
 msgid "Group name"
 msgstr "Grup adı"
 
-#: templates/contacts.php:10
-msgid "New Group"
-msgstr "Yeni Grup"
+#: templates/contacts.php:13
+msgid "New group"
+msgstr "Yeni grup"
 
-#: templates/contacts.php:19
+#: templates/contacts.php:22
 msgid "Address books"
 msgstr "Adres defterleri"
 
-#: templates/contacts.php:22 templates/contacts.php:47
-#: templates/contacts.php:67
+#: templates/contacts.php:25 templates/contacts.php:74
 msgid "Display name"
 msgstr "Görünen ad"
 
-#: templates/contacts.php:22
+#: templates/contacts.php:25
 msgid "Add Address Book"
-msgstr "Adres defteri ekle"
+msgstr "Adres Defteri Ekle"
 
-#: templates/contacts.php:31 templates/contacts.php:32
+#: templates/contacts.php:30
+msgid "Add LDAP Address Book"
+msgstr "LDAP Adres Defteri Ekle"
+
+#: templates/contacts.php:44
+msgid "Automatic format"
+msgstr "Otomatik biçim"
+
+#: templates/contacts.php:53 templates/contacts.php:54
 msgid "Select file..."
 msgstr "Dosya seç..."
 
-#: templates/contacts.php:45 templates/contacts.php:65
+#: templates/contacts.php:71
 msgid "(De-)select all"
-msgstr "Hepsini seç(me)"
+msgstr "Tümünü seç(me)"
 
-#: templates/contacts.php:46 templates/contacts.php:66
+#: templates/contacts.php:73
 msgid "Sort order"
 msgstr "Sıralama şekli"
 
-#: templates/contacts.php:48 templates/contacts.php:68
+#: templates/contacts.php:75
 msgid "First- Lastname"
-msgstr "İsim Soyisim"
+msgstr "Ad Soyad"
 
-#: templates/contacts.php:49 templates/contacts.php:69
+#: templates/contacts.php:76
 msgid "Last-, Firstname"
-msgstr "Soyisim, İsim"
+msgstr "Soyad, Ad"
 
-#: templates/contacts.php:53 templates/contacts.php:80
+#: templates/contacts.php:82 templates/contacts.php:83
+#: templates/contacts.php:230 templates/contacts.php:231
+#: templates/contacts.php:515
+msgid "Delete"
+msgstr "Sil"
+
+#: templates/contacts.php:86 templates/contacts.php:271
 msgid "Groups"
 msgstr "Gruplar"
 
-#: templates/contacts.php:55 templates/contacts.php:82
-msgid "Favorite"
-msgstr "Sık Kullanılanlar"
+#: templates/contacts.php:88 templates/contacts.php:380
+#: templates/contacts.php:381
+msgid "Download"
+msgstr "İndir"
 
-#: templates/contacts.php:56 templates/contacts.php:83
-msgid "Merge selected"
-msgstr "Seçileni birleştir"
+#: templates/contacts.php:89
+msgid "Merge"
+msgstr "Birleştir"
 
-#: templates/contacts.php:92
-msgid "Keyboard shortcuts"
-msgstr "Klavye kısayolları"
+#: templates/contacts.php:92 templates/contacts.php:326
+#: templates/contacts.php:365
+msgid "Email"
+msgstr "E-posta"
 
-#: templates/contacts.php:94
-msgid "Navigation"
-msgstr "Dolaşım"
-
-#: templates/contacts.php:97
-msgid "Next contact in list"
-msgstr "Listedeki sonraki kişi"
-
-#: templates/contacts.php:99
-msgid "Previous contact in list"
-msgstr "Listedeki önceki kişi"
-
-#: templates/contacts.php:101
-msgid "Expand/collapse current addressbook"
-msgstr "Şuanki adres defterini genişlet/daralt"
-
-#: templates/contacts.php:103
-msgid "Next addressbook"
-msgstr "Sonraki adresdefteri"
-
-#: templates/contacts.php:105
-msgid "Previous addressbook"
-msgstr "Önceki adresdefteri"
-
-#: templates/contacts.php:109
-msgid "Actions"
-msgstr "Eylemler"
-
-#: templates/contacts.php:112
-msgid "Refresh contacts list"
-msgstr "Kişi listesini tazele"
-
-#: templates/contacts.php:114
-msgid "Add new contact"
-msgstr "Yeni kişi ekle"
-
-#: templates/contacts.php:116
-msgid "Add new addressbook"
-msgstr "Yeni adres defteri ekle"
-
-#: templates/contacts.php:118
-msgid "Delete current contact"
-msgstr "Şuanki kişiyi sil"
-
-#: templates/contacts.php:124
-msgid ""
-"<h3>You have no contacts in your address book or your address book is "
-"disabled.</h3><p>Add a new contact or import existing contacts from a VCF "
-"file.</p>"
-msgstr "<h3>Adres defterinizde hiç bağlantınız yok veya adres defteriniz devre dışı.</h3><p>Yeni bir bağlantı ekleyin veya mevcut kişileri bir VCF dosyasından içe aktarın.</p>"
-
-#: templates/contacts.php:127
-msgid "Add contact"
-msgstr "Bağlatı ekle"
-
-#: templates/contacts.php:174
-msgid "Delete group"
-msgstr "Grubu sil"
-
-#: templates/contacts.php:175
-msgid "Rename group"
-msgstr "Grup adını değştir"
-
-#: templates/contacts.php:183
-msgid "Which contact should the data be merged into?"
-msgstr "Veri hangi kişi ile birleştirilmeli?"
-
-#: templates/contacts.php:191
-msgid "Delete the other(s) after successful merge?"
-msgstr "Başarılı bir şekilde birleştirme yaptıktan sonra diğer(ler)i silinsin mi?"
-
-#: templates/contacts.php:203
-msgid "Compose mail"
-msgstr "Posta oluştur"
-
-#: templates/contacts.php:225
-msgid "Delete current photo"
-msgstr "Mevcut fotoğrafı sil"
-
-#: templates/contacts.php:226
-msgid "Edit current photo"
-msgstr "Mevcut fotoğrafı düzenle"
-
-#: templates/contacts.php:227
-msgid "Upload new photo"
-msgstr "Yeni fotoğraf yükle"
-
-#: templates/contacts.php:228
-msgid "Select photo from ownCloud"
-msgstr "ownCloud'dan bir fotoğraf seç"
-
-#: templates/contacts.php:233 templates/settings.php:59
-msgid "Name"
-msgstr "İsim"
-
-#: templates/contacts.php:239 templates/contacts.php:240
-msgid "First name"
-msgstr "İsim"
-
-#: templates/contacts.php:244 templates/contacts.php:245
-msgid "Additional names"
-msgstr "İlave isimler"
-
-#: templates/contacts.php:249 templates/contacts.php:250
-msgid "Last name"
-msgstr "Soyisim"
-
-#: templates/contacts.php:257
-msgid "Select groups"
-msgstr "Grupları seç"
-
-#: templates/contacts.php:260
-msgid "Select address book"
-msgstr "Adres defteri seç"
-
-#: templates/contacts.php:264 templates/contacts.php:328
-msgid "Nickname"
-msgstr "Takma ad"
-
-#: templates/contacts.php:267
-msgid "Enter nickname"
-msgstr "Takma adı girin"
-
-#: templates/contacts.php:271 templates/contacts.php:327
-msgid "Title"
-msgstr "Başlık"
-
-#: templates/contacts.php:274
-msgid "Enter title"
-msgstr "Başlık girin"
-
-#: templates/contacts.php:278 templates/contacts.php:326
-msgid "Organization"
-msgstr "Organizasyon"
-
-#: templates/contacts.php:281
-msgid "Enter organization"
-msgstr "Organizasyonu girin"
-
-#: templates/contacts.php:285 templates/contacts.php:329
-msgid "Birthday"
-msgstr "Doğum günü"
-
-#: templates/contacts.php:316
-msgid "Notes go here..."
-msgstr "Notları buraya ekleyin."
-
-#: templates/contacts.php:323
-msgid "Export as VCF"
-msgstr "VCF olarak dışa aktar"
-
-#: templates/contacts.php:325
-msgid "Add field..."
-msgstr "Alan ekle..."
-
-#: templates/contacts.php:330
+#: templates/contacts.php:93 templates/contacts.php:331
+#: templates/contacts.php:364
 msgid "Phone"
 msgstr "Telefon"
 
-#: templates/contacts.php:331
-msgid "Email"
-msgstr "Eposta"
-
-#: templates/contacts.php:332
-msgid "Instant Messaging"
-msgstr "Anında Mesajlaşma"
-
-#: templates/contacts.php:333
+#: templates/contacts.php:94 templates/contacts.php:336
+#: templates/contacts.php:367
 msgid "Address"
 msgstr "Adres"
 
-#: templates/contacts.php:334
+#: templates/contacts.php:95
+msgid "Group"
+msgstr "Grup"
+
+#: templates/contacts.php:103
+msgid "Keyboard shortcuts"
+msgstr "Klavye kısayolları"
+
+#: templates/contacts.php:105
+msgid "Navigation"
+msgstr "Gezinme"
+
+#: templates/contacts.php:108
+msgid "Next contact in list"
+msgstr "Listedeki sonraki kişi"
+
+#: templates/contacts.php:110
+msgid "Previous contact in list"
+msgstr "Listedeki önceki kişi"
+
+#: templates/contacts.php:112
+msgid "Expand/collapse current addressbook"
+msgstr "Şu anki adres defterini genişlet/daralt"
+
+#: templates/contacts.php:114
+msgid "Next addressbook"
+msgstr "Sonraki adres defteri"
+
+#: templates/contacts.php:116
+msgid "Previous addressbook"
+msgstr "Önceki adres defteri"
+
+#: templates/contacts.php:120
+msgid "Actions"
+msgstr "Eylemler"
+
+#: templates/contacts.php:123
+msgid "Refresh contacts list"
+msgstr "Kişi listesini yenile"
+
+#: templates/contacts.php:125
+msgid "Add new contact"
+msgstr "Yeni kişi ekle"
+
+#: templates/contacts.php:127
+msgid "Add new addressbook"
+msgstr "Yeni adres defteri ekle"
+
+#: templates/contacts.php:129
+msgid "Delete current contact"
+msgstr "Geçerli kişiyi sil"
+
+#: templates/contacts.php:135
+msgid ""
+"You have no contacts in your address book or your address book is disabled."
+msgstr "Adres defterinizde hiç bağlantınız yok veya adres defteriniz devre dışı."
+
+#: templates/contacts.php:136
+msgid "Add a new contact or import existing contacts from a VCF file."
+msgstr "Yeni bir bağlantı ekleyin veya bir VCF dosyasından içe aktarın."
+
+#: templates/contacts.php:187
+msgid "Which contact should the data be merged into?"
+msgstr "Veri hangi kişi ile birleştirilmeli?"
+
+#: templates/contacts.php:195
+msgid "Delete the other(s) after successful merge?"
+msgstr "Başarılı bir şekilde birleştirme yaptıktan sonra diğer(ler)i silinsin mi?"
+
+#: templates/contacts.php:210
+msgid "Compose mail"
+msgstr "Posta oluştur"
+
+#: templates/contacts.php:238
+msgid "Delete current photo"
+msgstr "Mevcut fotoğrafı sil"
+
+#: templates/contacts.php:239
+msgid "Edit current photo"
+msgstr "Mevcut fotoğrafı düzenle"
+
+#: templates/contacts.php:240
+msgid "Upload new photo"
+msgstr "Yeni fotoğraf yükle"
+
+#: templates/contacts.php:241
+msgid "Select photo from Files"
+msgstr "Dosyalardan bir fotoğraf seçin"
+
+#: templates/contacts.php:243
+msgid "Favorite"
+msgstr "Sık Kullanılan"
+
+#: templates/contacts.php:246 templates/contacts.php:248
+#: templates/contacts.php:526 templates/contacts.php:529
+msgid "Name"
+msgstr "Ad"
+
+#: templates/contacts.php:254
+msgid "First name"
+msgstr "Ad"
+
+#: templates/contacts.php:258
+msgid "Additional names"
+msgstr "İlave isimler"
+
+#: templates/contacts.php:262
+msgid "Last name"
+msgstr "Soyad"
+
+#: templates/contacts.php:278
+msgid "Address book"
+msgstr "Adres defteri"
+
+#: templates/contacts.php:285 templates/contacts.php:362
+msgid "Nickname"
+msgstr "Takma ad"
+
+#: templates/contacts.php:295 templates/contacts.php:361
+msgid "Title"
+msgstr "Başlık"
+
+#: templates/contacts.php:305 templates/contacts.php:360
+msgid "Organization"
+msgstr "Kurum"
+
+#: templates/contacts.php:315 templates/contacts.php:363
+msgid "Birthday"
+msgstr "Doğum günü"
+
+#: templates/contacts.php:341
+msgid "Website"
+msgstr "Web sitesi"
+
+#: templates/contacts.php:346
+msgid "Instant messaging"
+msgstr "Anında mesajlaşma"
+
+#: templates/contacts.php:352
+msgid "Notes go here..."
+msgstr "Notları buraya ekleyin..."
+
+#: templates/contacts.php:359
+msgid "Add field..."
+msgstr "Alan ekle..."
+
+#: templates/contacts.php:366
+msgid "Instant Messaging"
+msgstr "Anında Mesajlaşma"
+
+#: templates/contacts.php:368
 msgid "Note"
 msgstr "Not"
 
-#: templates/contacts.php:335
+#: templates/contacts.php:369
 msgid "Web site"
 msgstr "Web sitesi"
 
-#: templates/contacts.php:337
-msgid "Delete contact"
-msgstr "Kişiyi sil"
-
-#: templates/contacts.php:351 templates/contacts.php:366
-#: templates/contacts.php:380 templates/contacts.php:405
-#: templates/contacts.php:443
+#: templates/contacts.php:393 templates/contacts.php:408
+#: templates/contacts.php:422 templates/contacts.php:437
+#: templates/contacts.php:479 templates/contacts.php:489
 msgid "Preferred"
 msgstr "Tercih edilen"
 
-#: templates/contacts.php:353
+#: templates/contacts.php:398
 msgid "Please specify a valid email address."
-msgstr "Lütfen geçerli bir eposta adresi belirtin."
+msgstr "Lütfen geçerli bir e-posta adresi belirtin."
 
-#: templates/contacts.php:353
+#: templates/contacts.php:398
 msgid "someone@example.com"
 msgstr "biri@örnek.com"
 
-#: templates/contacts.php:355
+#: templates/contacts.php:400
 msgid "Mail to address"
-msgstr "Eposta adresi"
+msgstr "E-posta adresi"
 
-#: templates/contacts.php:356
+#: templates/contacts.php:401
 msgid "Delete email address"
-msgstr "Eposta adresini sil"
+msgstr "E-posta adresini sil"
 
-#: templates/contacts.php:368
+#: templates/contacts.php:413
 msgid "Enter phone number"
-msgstr "Telefon numarasını gir"
+msgstr "Telefon numarasını girin"
 
-#: templates/contacts.php:370
-msgid "Delete phone number"
-msgstr "Telefon numarasını sil"
-
-#: templates/contacts.php:384
+#: templates/contacts.php:429
 msgid "Go to web site"
 msgstr "Web sitesine git"
 
-#: templates/contacts.php:385
-msgid "Delete URL"
-msgstr "URL'yi sil"
-
-#: templates/contacts.php:396
+#: templates/contacts.php:446
 msgid "View on map"
 msgstr "Haritada gör"
 
-#: templates/contacts.php:397
-msgid "Delete address"
-msgstr "Adresi sil"
-
-#: templates/contacts.php:410
-msgid "1600 Pennsylvania Avenue, NW"
-msgstr "1600 4. Levent"
-
-#: templates/contacts.php:411
+#: templates/contacts.php:454
 msgid "Street address"
 msgstr "Sokak adresi"
 
-#: templates/contacts.php:415
-msgid "20500"
-msgstr "20500"
-
-#: templates/contacts.php:416
+#: templates/contacts.php:458
 msgid "Postal code"
 msgstr "Posta kodu"
 
-#: templates/contacts.php:418
-msgid "Washington, DC"
-msgstr "İstanbul"
-
-#: templates/contacts.php:419
+#: templates/contacts.php:460
 msgid "City"
 msgstr "Şehir"
 
-#: templates/contacts.php:423
-msgid "District of Columbia"
-msgstr "Marmara Bölgesi"
-
-#: templates/contacts.php:424
+#: templates/contacts.php:464
 msgid "State or province"
 msgstr "Eyalet"
 
-#: templates/contacts.php:428
-msgid "USA"
-msgstr "Türkiye"
-
-#: templates/contacts.php:429
+#: templates/contacts.php:468
 msgid "Country"
 msgstr "Ülke"
 
-#: templates/contacts.php:451
+#: templates/contacts.php:495
 msgid "Instant Messenger"
-msgstr "Instant Messenger"
+msgstr "Anlık Mesajlaşma"
 
-#: templates/contacts.php:453
-msgid "Delete IM"
-msgstr "IM Sil"
-
-#: templates/contacts.php:461
+#: templates/contacts.php:508
 msgid "Active"
-msgstr "Aktif"
+msgstr "Etkin"
 
-#: templates/contacts.php:464 templates/settings.php:36
+#: templates/contacts.php:511
 msgid "Share"
 msgstr "Paylaş"
 
-#: templates/contacts.php:465
+#: templates/contacts.php:512
 msgid "Export"
 msgstr "Dışa aktar"
 
-#: templates/contacts.php:466
+#: templates/contacts.php:513
 msgid "CardDAV link"
 msgstr "CardDAV bağlantısı"
 
-#: templates/settings.php:3
-msgid "CardDAV syncing addresses"
-msgstr "CardDAV adresleri eşzamanlıyor"
+#: templates/contacts.php:514
+msgid "Edit"
+msgstr "Düzenle"
 
-#: templates/settings.php:3
-msgid "more info"
-msgstr "daha fazla bilgi"
+#: templates/contacts.php:533
+msgid "Addressbook URI"
+msgstr "Adres Defteri URI'si"
 
-#: templates/settings.php:5
-msgid "Primary address (Kontact et al)"
-msgstr "Öncelikli adres"
+#: templates/contacts.php:536
+msgid "URI"
+msgstr "URI"
 
-#: templates/settings.php:7
-msgid "iOS/OS X"
-msgstr "iOS/OS X"
-
-#: templates/settings.php:11
-msgid "Addressbooks"
-msgstr "Adres defterleri"
-
-#: templates/settings.php:58
-msgid "New Address Book"
-msgstr "Yeni Adres Defteri"
-
-#: templates/settings.php:60
+#: templates/contacts.php:540 templates/contacts.php:543
 msgid "Description"
-msgstr "Tanımlama"
+msgstr "Açıklama"
+
+#: templates/contacts.php:547 templates/contacts.php:550
+msgid "LDAP URL"
+msgstr "LDAP Adresi"
+
+#: templates/contacts.php:554 templates/contacts.php:556
+msgid "Anonymous"
+msgstr "Anonim"
+
+#: templates/contacts.php:560
+msgid "Read-only"
+msgstr "Salt okunur"
+
+#: templates/contacts.php:562
+msgid "Read-Only"
+msgstr "Salt Okunur"
+
+#: templates/contacts.php:566 templates/contacts.php:569
+msgid "User"
+msgstr "Kullanıcı"
+
+#: templates/contacts.php:574 templates/contacts.php:577
+msgid "Password"
+msgstr "Parola"
+
+#: templates/contacts.php:581 templates/contacts.php:584
+msgid "Page size"
+msgstr "Sayfa boyutu"
+
+#: templates/contacts.php:588
+msgid "Base DN for search"
+msgstr "Arama için temel DN"
+
+#: templates/contacts.php:591
+msgid "Base DN"
+msgstr "Ana DN"
+
+#: templates/contacts.php:595
+msgid "Search filter"
+msgstr "Arama filtresi"
+
+#: templates/contacts.php:598
+msgid "Filter"
+msgstr "Filtre"
+
+#: templates/contacts.php:602
+msgid "Base DN for modification"
+msgstr "Değiştirme için temel DN"
+
+#: templates/contacts.php:605
+msgid "Base DN modification"
+msgstr "Değiştirme temel DN"
+
+#: templates/contacts.php:609
+msgid "Connector"
+msgstr "Bağlayıcı"
+
+#: templates/contacts.php:616
+msgid "Connector value (Better use external editor and copy/paste)"
+msgstr "Bağlayıcı değeri (Harici düzenleyici kullanıp, kopyala/yapıştır daha iyi bir kullanımdır)"
+
+#: templates/contacts.php:622
+msgid "Copy from (Warning, replaces current custom value)"
+msgstr "Şuradan kopyala (Uyarı, geçerli özel değerin üzerine yazar)"

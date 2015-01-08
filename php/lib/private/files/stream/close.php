@@ -29,7 +29,7 @@ class Close {
 	}
 
 	public function stream_seek($offset, $whence = SEEK_SET) {
-		fseek($this->source, $offset, $whence);
+		return fseek($this->source, $offset, $whence) === 0;
 	}
 
 	public function stream_tell() {
@@ -94,6 +94,9 @@ class Close {
 		return unlink($path);
 	}
 
+	/**
+	 * @param string $path
+	 */
 	public static function registerCallback($path, $callback) {
 		self::$callBacks[$path] = $callback;
 	}

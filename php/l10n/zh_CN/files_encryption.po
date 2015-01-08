@@ -4,15 +4,16 @@
 # 
 # Translators:
 # Mengz You <mengz.you@gmail.com>, 2013
-# m13253 <m13253@hotmail.com>, 2013
-# modokwang <modokwang@gmail.com>, 2013
+# Star Brilliant <m13253@hotmail.com>, 2013
+# phy <transifex@phy25.com>, 2014
+# wang <modokwang@gmail.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: translations@owncloud.org\n"
-"POT-Creation-Date: 2013-11-29 14:08-0500\n"
-"PO-Revision-Date: 2013-11-29 19:09+0000\n"
-"Last-Translator: I Robot <owncloud-bot@tmit.eu>\n"
+"POT-Creation-Date: 2014-06-14 01:54-0400\n"
+"PO-Revision-Date: 2014-06-14 05:54+0000\n"
+"Last-Translator: I Robot\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/owncloud/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -61,7 +62,7 @@ msgid ""
 "Encryption app not initialized! Maybe the encryption app was re-enabled "
 "during your session. Please try to log out and log back in to initialize the"
 " encryption app."
-msgstr ""
+msgstr "加密应用还没有初始化！可能加密应用在你会话期间已被重新启用。请注销并重新登录，以初始化加密应用。"
 
 #: files/error.php:16
 #, php-format
@@ -79,126 +80,123 @@ msgstr ""
 
 #: files/error.php:22 files/error.php:27
 msgid ""
-"Unknown error please check your system settings or contact your "
+"Unknown error. Please check your system settings or contact your "
 "administrator"
 msgstr ""
 
-#: hooks/hooks.php:59
+#: hooks/hooks.php:66
 msgid "Missing requirements."
-msgstr ""
+msgstr "必填项未填写。"
 
-#: hooks/hooks.php:60
+#: hooks/hooks.php:67
 msgid ""
 "Please make sure that PHP 5.3.3 or newer is installed and that OpenSSL "
 "together with the PHP extension is enabled and configured properly. For now,"
 " the encryption app has been disabled."
-msgstr ""
+msgstr "请确认安装了 PHP 5.3.3 或更新版本，且 OpenSSL 及其 PHP 扩展已经启用并正确配置。加密应用现在已被禁用。"
 
-#: hooks/hooks.php:273
+#: hooks/hooks.php:300
 msgid "Following users are not set up for encryption:"
-msgstr ""
+msgstr "以下用户还没有设置加密："
 
 #: js/detect-migration.js:21
 msgid "Initial encryption started... This can take some time. Please wait."
 msgstr ""
 
-#: js/settings-admin.js:13
-msgid "Saving..."
-msgstr "保存中"
-
-#: templates/invalid_private_key.php:8
-msgid "Go directly to your "
+#: js/detect-migration.js:25
+msgid "Initial encryption running... Please try again later."
 msgstr ""
 
 #: templates/invalid_private_key.php:8
-msgid "personal settings"
-msgstr "个人设置"
+#, php-format
+msgid "Go directly to your %spersonal settings%s."
+msgstr ""
 
-#: templates/settings-admin.php:4 templates/settings-personal.php:3
+#: templates/settings-admin.php:2 templates/settings-personal.php:2
 msgid "Encryption"
 msgstr "加密"
 
-#: templates/settings-admin.php:7
+#: templates/settings-admin.php:5
 msgid ""
 "Enable recovery key (allow to recover users files in case of password loss):"
 msgstr "启用恢复密钥（允许你在密码丢失后恢复文件）："
 
-#: templates/settings-admin.php:11
+#: templates/settings-admin.php:9
 msgid "Recovery key password"
 msgstr "恢复密钥密码"
 
-#: templates/settings-admin.php:14
+#: templates/settings-admin.php:12
 msgid "Repeat Recovery key password"
-msgstr ""
+msgstr "重复恢复密钥密码"
 
-#: templates/settings-admin.php:21 templates/settings-personal.php:51
+#: templates/settings-admin.php:19 templates/settings-personal.php:50
 msgid "Enabled"
 msgstr "开启"
 
-#: templates/settings-admin.php:29 templates/settings-personal.php:59
+#: templates/settings-admin.php:27 templates/settings-personal.php:58
 msgid "Disabled"
 msgstr "禁用"
 
-#: templates/settings-admin.php:34
+#: templates/settings-admin.php:32
 msgid "Change recovery key password:"
 msgstr "更改恢复密钥密码"
 
-#: templates/settings-admin.php:40
+#: templates/settings-admin.php:38
 msgid "Old Recovery key password"
 msgstr "旧的恢复密钥密码"
 
-#: templates/settings-admin.php:47
+#: templates/settings-admin.php:45
 msgid "New Recovery key password"
 msgstr "新的恢复密钥密码"
 
-#: templates/settings-admin.php:53
+#: templates/settings-admin.php:51
 msgid "Repeat New Recovery key password"
-msgstr ""
+msgstr "重复新的密钥恢复密码"
 
-#: templates/settings-admin.php:58
+#: templates/settings-admin.php:56
 msgid "Change Password"
 msgstr "修改密码"
 
-#: templates/settings-personal.php:9
+#: templates/settings-personal.php:8
 msgid "Your private key password no longer match your log-in password:"
 msgstr "您的私钥密码不再匹配您的登录密码："
 
-#: templates/settings-personal.php:12
+#: templates/settings-personal.php:11
 msgid "Set your old private key password to your current log-in password."
 msgstr "讲您旧的私钥密码改为当前登录密码。"
 
-#: templates/settings-personal.php:14
+#: templates/settings-personal.php:13
 msgid ""
 " If you don't remember your old password you can ask your administrator to "
 "recover your files."
 msgstr "如果您记不住旧的密码，您可以请求管理员恢复您的文件。"
 
-#: templates/settings-personal.php:22
+#: templates/settings-personal.php:21
 msgid "Old log-in password"
 msgstr "旧登录密码"
 
-#: templates/settings-personal.php:28
+#: templates/settings-personal.php:27
 msgid "Current log-in password"
 msgstr "当前登录密码"
 
-#: templates/settings-personal.php:33
+#: templates/settings-personal.php:32
 msgid "Update Private Key Password"
 msgstr "更新私钥密码"
 
-#: templates/settings-personal.php:42
+#: templates/settings-personal.php:41
 msgid "Enable password recovery:"
 msgstr "启用密码恢复："
 
-#: templates/settings-personal.php:44
+#: templates/settings-personal.php:43
 msgid ""
 "Enabling this option will allow you to reobtain access to your encrypted "
 "files in case of password loss"
 msgstr "启用该项将允许你在密码丢失后取回您的加密文件"
 
-#: templates/settings-personal.php:60
+#: templates/settings-personal.php:59
 msgid "File recovery settings updated"
 msgstr "文件恢复设置已更新"
 
-#: templates/settings-personal.php:61
+#: templates/settings-personal.php:60
 msgid "Could not update file recovery"
 msgstr "不能更新文件恢复"

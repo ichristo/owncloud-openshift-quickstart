@@ -15,12 +15,19 @@ namespace OCA\Documents;
 class SessionController extends Controller{
 	
 	public static function joinAsGuest($args){
-		$uid = self::preDispatchGuest();
-		$uid = substr(@$_POST['name'], 0, 16) .' '. $uid;
-		$token = @$args['token'];
+		self::preDispatchGuest();
+		
+		$uid = Helper::getArrayValueByKey($_POST, 'name');
+		$uid = substr($uid, 0, 16);
+		
 		try {
+			$token = Helper::getArrayValueByKey($args, 'token');
 			$file = File::getByShareToken($token);
-			self::join($uid, $file);
+			if ($file->isPasswordProtected() && !$file->checkPassword('')){
+				throw new \Exception('Not authorized');
+			}
+			$session = Db\Session::start($uid, $file);
+			\OCP\JSON::success($session);
 		} catch (\Exception $e){
 			Helper::warnLog('Starting a session failed. Reason: ' . $e->getMessage());
 			\OCP\JSON::error();
@@ -30,16 +37,20 @@ class SessionController extends Controller{
 
 	public static function joinAsUser($args){
 		$uid = self::preDispatch();
-		$fileId = intval(@$args['file_id']);
+		$fileId = Helper::getArrayValueByKey($args, 'file_id');
 		
 		try {
-			$file = new File($fileId);
-		
-			if ($file->getPermissions() & \OCP\PERMISSION_UPDATE) {
-				self::join($uid, $file);	
+			$view = \OC\Files\Filesystem::getView();
+			$path = $view->getPath($fileId);
+			
+			if ($view->isUpdatable($path)) {
+				$file = new File($fileId);
+				$session = Db\Session::start($uid, $file);
+				\OCP\JSON::success($session);
 			} else {
+				$info = $view->getFileInfo($path);
 				\OCP\JSON::success(array(
-					'permissions' => $file->getPermissions(),
+					'permissions' => $info['permissions'],
 					'id' => $fileId
 				));
 			}
@@ -51,11 +62,6 @@ class SessionController extends Controller{
 		}
 	}
 	
-	protected static function join($uid, $file){
-			$session = Db_Session::start($uid, $file);
-			\OCP\JSON::success($session);
-			exit();
-	}
 
 	/**
 	 * Store the document content to its origin
@@ -68,7 +74,21 @@ class SessionController extends Controller{
 			}
 			
 			$memberId = @$_SERVER['HTTP_WEBODF_MEMBER_ID'];
-			$sessionRevision = @$_SERVER['HTTP_WEBODF_SESSION_REVISION'];
+			$currentMember = new Db\Member();
+			$currentMember->load($memberId);
+			if (is_null($currentMember->getIsGuest()) || $currentMember->getIsGuest()){
+				self::preDispatchGuest();
+			} else {
+				$uid = self::preDispatch();
+			}
+			
+			//check if member belongs to the session
+			if ($esId != $currentMember->getEsId()){
+				throw new \Exception($memberId . ' does not belong to session ' . $esId);
+			}
+			
+			// Extra info for future usage
+			// $sessionRevision = Helper::getArrayValueByKey($_SERVER, 'HTTP_WEBODF_SESSION_REVISION');
 			
 			$stream = fopen('php://input','r');
 			if (!$stream){
@@ -76,28 +96,33 @@ class SessionController extends Controller{
 			}
 			$content = stream_get_contents($stream);
 
-			$session = new Db_Session();
+			$session = new Db\Session();
 			$session->load($esId);
 			
-			if (!$session->hasData()){
+			if (!$session->getEsId()){
 				throw new \Exception('Session does not exist');
 			}
-			$sessionData = $session->getData();
-			$file = new File($sessionData['file_id']);
-			if (!$file->isPublicShare()){
-				self::preDispatch();
-			} else {
-				self::preDispatchGuest();
-			}
-			
-			list($view, $path) = $file->getOwnerViewAndPath();
 
-			$isWritable = ($view->file_exists($path) && $view->isUpdatable($path)) || $view->isCreatable($path);
-			if (!$isWritable){
-				throw new \Exception($path . ' does not exist or is not writable for user ' . $uid);
+			try {
+				if ($currentMember->getIsGuest()){
+					$file = File::getByShareToken($currentMember->getToken());
+				} else {
+					$file = new File($session->getFileId());
+				}
+				
+				list($view, $path) = $file->getOwnerViewAndPath(true);
+			} catch (\Exception $e){
+				//File was deleted or unshared. We need to save content as new file anyway
+				//Sorry, but for guests it would be lost :(
+				if (isset($uid)){
+					$view = new \OC\Files\View('/' . $uid . '/files');
+		
+					$dir = \OCP\Config::getUserValue(\OCP\User::getUser(), 'documents', 'save_path', '');
+					$path = Helper::getNewFileName($view, $dir . 'New Document.odt');
+				}
 			}
 			
-			$member = new Db_Member();
+			$member = new Db\Member();
 			$members = $member->getActiveCollection($esId);
 			$memberIds = array_map(
 				function($x){
@@ -105,23 +130,17 @@ class SessionController extends Controller{
 				},
 				$members
 			);
-				
-			//check if member belongs to the session
-			if (!in_array($memberId, $memberIds)){
-				throw new \Exception($memberId . ' does not belong to session ' . $esId);
-			}
 			
 			// Active users except current user
 			$memberCount = count($memberIds) - 1;
 			
-			if ($view->file_exists($path)){		
-				
+			if ($view->file_exists($path)){
 				$proxyStatus = \OC_FileProxy::$enabled;
 				\OC_FileProxy::$enabled = false;	
 				$currentHash = sha1($view->file_get_contents($path));
 				\OC_FileProxy::$enabled = $proxyStatus;
 				
-				if (!Helper::isVersionsEnabled() && $currentHash !== $sessionData['genesis_hash']){
+				if (!Helper::isVersionsEnabled() && $currentHash !== $session->getGenesisHash()){
 					// Original file was modified externally. Save to a new one
 					$path = Helper::getNewFileName($view, $path, '-conflict');
 				}
@@ -138,73 +157,20 @@ class SessionController extends Controller{
 				if ($memberCount>0){
 					// Update genesis hash to prevent conflicts
 					Helper::debugLog('Update hash');
-					
 					$session->updateGenesisHash($esId, sha1($data['content']));
 				} else {
 					// Last user. Kill session data
-					Db_Session::cleanUp($esId);
+					Db\Session::cleanUp($esId);
 				}
 				
 				$view->touch($path);
 			}
 			\OCP\JSON::success();
-			exit();
 		} catch (\Exception $e){
 			Helper::warnLog('Saving failed. Reason:' . $e->getMessage());
-			\OCP\JSON::error(array('message'=>$e->getMessage()));
-			exit();
+			//\OCP\JSON::error(array('message'=>$e->getMessage()));
+			\OC_Response::setStatus(500);
 		}
-	}
-	
-	public static function info(){
-		self::preDispatch();
-		$items = @$_POST['items'];
-		$info = array();
-
-		if (is_array($items)){
-			$session = new Db_Session();
-			$info = $session->getInfoByFileId($items);
-		}
-
-		\OCP\JSON::success(array(
-			"info" => $info
-		));
-	}
-	
-	public static function listAll(){
-		self::preDispatch();
-		$session = new Db_Session();
-		$sessions = $session->getCollection();
-
-		$preparedSessions = array_map(
-				function($x){
-					return ($x['es_id']);
-				}, $sessions
-		);
-		\OCP\JSON::success(array(
-			"session_list" => $preparedSessions
-		));
-	}
-
-	public static function listAllHtml(){
-		self::preDispatch();
-		$session = new Db_Session();
-		$sessions = $session->getCollection();
-
-		$preparedSessions = array_map(
-				function($x){
-					return ($x['es_id']);
-				}, $sessions
-		);
-
-		$invites = Invite::getAllInvites();
-		if (!is_array($invites)){
-			$invites = array();
-		}
-
-		$tmpl = new \OCP\Template('documents', 'part.sessions', '');
-		$tmpl->assign('invites', $invites);
-		$tmpl->assign('sessions', $sessions);
-		echo $tmpl->fetchPage();
+		exit();
 	}
 }

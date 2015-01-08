@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Documents &mdash; ownCloud User Manual 6.0 documentation</title>
+    <title>Collaborative Document Editing &mdash; ownCloud User Manual 7.0 documentation</title>
     
     <link rel="stylesheet" href="_static/style.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '6.0',
+        VERSION:     '7.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -27,9 +27,9 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/bootstrap.js"></script>
-    <link rel="top" title="ownCloud User Manual 6.0 documentation" href="index.html" />
-    <link rel="next" title="User Account Migration" href="migration.html" />
-    <link rel="prev" title="Using the Bookmarks App" href="bookmarks.html" />
+    <link rel="top" title="ownCloud User Manual 7.0 documentation" href="index.html" />
+    <link rel="next" title="Using the Bookmarks App" href="bookmarks.html" />
+    <link rel="prev" title="Troubleshooting" href="pim/troubleshooting.html" />
 <script type="text/javascript">
 (function () {
   /**
@@ -112,16 +112,16 @@
 										<li><a href="contents.html">Overview</a></li>
 									</ul>
                   <ul>
-<li class="toctree-l1"><a class="reference internal" href="index.html">User Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">ownCloud 7.0 User Documentation</a></li>
 </ul>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What&#8217;s New for Users in ownCloud 7</a></li>
 <li class="toctree-l1"><a class="reference internal" href="webinterface.html">The ownCloud Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="files/index.html">Files &amp; Synchronization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pim/index.html">Contacts &amp; Calendar</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bookmarks.html">Using the Bookmarks App</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Documents</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Collaborative Document Editing</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#the-main-interface">The main interface</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#create-upload-a-document">Create/Upload a Document</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-or-upload-a-document">Create or Upload a Document</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#edit-a-document">Edit a Document</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#delete-a-document">Delete a Document</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#share-a-document">Share a Document</a></li>
@@ -129,9 +129,9 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="migration.html">User Account Migration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="userpreferences.html">Changing Preferences</a></li>
-<li class="toctree-l1"><a class="reference internal" href="external_storage/google_drive.html">External storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bookmarks.html">Using the Bookmarks App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userpreferences.html">Setting Your Preferences</a></li>
+<li class="toctree-l1"><a class="reference internal" href="external_storage/google_drive.html">Configuring External Storage</a></li>
 </ul>
 
 								</ul>
@@ -144,63 +144,78 @@
 				<div class="span9">
 					<div class="page-content">
 						
-  <div class="section" id="documents">
-<h1>Documents<a class="headerlink" href="#documents" title="Permalink to this headline">¶</a></h1>
-<p>Document editing is one of the new features in ownCloud 6. With this app, multiple users
-can edit rich-text simultaneously. The documents can be created from within the
-web-interface or existing documents can be uploaded. Sharing and editing can be done
-securely in the browser and be shared inside ownCloud or via a public link. User that
-have an account on the same server can be invited or public invitations can also be
-sent be email. The editing works on top of normal ODF files that are stored in ownCloud.</p>
+  <div class="section" id="collaborative-document-editing">
+<h1>Collaborative Document Editing<a class="headerlink" href="#collaborative-document-editing" title="Permalink to this headline">¶</a></h1>
+<p>The Documents application supports editing documents within ownCloud, without
+the need to launch an external application. The Documents app supports these
+features:</p>
+<ul class="simple">
+<li>Cooperative edit, with multiple users editing files simultaneously.</li>
+<li>Document creation within ownCloud.</li>
+<li>Document upload.</li>
+<li>Share and edit files in the browser, and then share them inside ownCloud or
+through a public link.</li>
+</ul>
+<p>Supported file formats are <cite>.odt</cite>, <cite>.doc</cite>, and <cite>.docx</cite>.</p>
 <div class="section" id="the-main-interface">
 <h2>The main interface<a class="headerlink" href="#the-main-interface" title="Permalink to this headline">¶</a></h2>
-<div class="figure">
 <img alt="_images/oc_documents.png" src="_images/oc_documents.png" />
-</div>
-<div class="section" id="create-upload-a-document">
-<h3>Create/Upload a Document<a class="headerlink" href="#create-upload-a-document" title="Permalink to this headline">¶</a></h3>
-<p>In the documents application, click on the respective buttons to create or upload a document into your ownCloud. The <em>New document</em> button will create a document named &#8220;New document.odt&#8221;. The extension ODT is an OpenDocument format, which many major office applications let you create/edit/view.</p>
-<p>The <em>Upload</em> button allows you to upload any kind of document, but currently you can only edit ODT files within ownCloud.</p>
+<div class="section" id="create-or-upload-a-document">
+<h3>Create or Upload a Document<a class="headerlink" href="#create-or-upload-a-document" title="Permalink to this headline">¶</a></h3>
+<p>In the Documents application, you can upload an existing document or create a
+new one. The <em>New document</em> button creates a document named &#8220;New
+document.odt&#8221;. The extension ODT is an OpenDocument format, which is supported
+by most word processors including Microsoft Word, LibreOffice Writer, and
+OpenOffice Writer.</p>
 </div>
 <div class="section" id="edit-a-document">
 <h3>Edit a Document<a class="headerlink" href="#edit-a-document" title="Permalink to this headline">¶</a></h3>
-<p>If ownCloud contains at least one ODT file, you can immediately start editing by clicking on
-the file within the documents app. Clicking on documents in files app will only display it. Below, you
-can see editing a newly created document file:</p>
-<div class="figure">
+<p>To edit a document, access the Documents app from your Apps menu at the top
+left of your ownCloud window.</p>
 <img alt="_images/oc_documents_edit.png" src="_images/oc_documents_edit.png" />
-</div>
-<p>Here is the explanation of each field in the image shown above:</p>
 <ol class="arabic simple">
-<li>Clicking on the file name allows you to change filename.</li>
-<li>Allows you to share the document to public, specific users or groups. Will be explained in detail in <a class="reference internal" href="#share-a-document"><em>Share a document</em></a> section.</li>
-<li>Formatting toolbar lets you change text styles.</li>
+<li>Click on the file name to change it.</li>
+<li>Share your document (See the <a class="reference internal" href="#share-a-document"><em>Share a document</em></a> section.)</li>
+<li>Formatting toolbar.</li>
 <li>Zoom in/out</li>
-<li>Close document by saving changes</li>
-<li>Users currently editing this document</li>
+<li>Close and save.</li>
+<li>Users currently editing this document.</li>
 </ol>
 <div class="section" id="collaboratively-editing-a-document">
 <h4>Collaboratively Editing a Document<a class="headerlink" href="#collaboratively-editing-a-document" title="Permalink to this headline">¶</a></h4>
-<p>To edit a file collaboratively, it needs to be shared with at least one user by using the <em>Share</em> button. When multiple uses have permission to edit a document, they will be able to edit it at the same time. The cursor of all editing users will be the same color as the border color of their user picture.</p>
+<p>To edit a file collaboratively, it must be shared with everyone who needs
+editing permissions. Multiple users can edit it at the same time, and changes
+appear as they are made. The cursor of each user is the same color as the
+border color of their user picture.</p>
 <div class="figure">
 <img alt="_images/oc_documents_col_edit.png" src="_images/oc_documents_col_edit.png" />
 </div>
-<p>If a user is not a local user (e.g accessing the file using public link), he/she will be shown as guest in user list and they will type a nickname before editing.</p>
+<p>If a user is not a local user (e.g accessing the file using public link), they
+will be shown as guest in the user list, automatically named Guest 1, Guest 2,
+and so on. Guests can change their nicknames at any time by clicking on their
+names or thumbnails in the user list.</p>
 </div>
 </div>
 <div class="section" id="delete-a-document">
 <h3>Delete a Document<a class="headerlink" href="#delete-a-document" title="Permalink to this headline">¶</a></h3>
-<p>A document can be deleted using the files app and following the same procedure as for other file types. Clicking on the cross icon deletes the selected document.</p>
+<p>You can&#8217;t delete a document from inside the Document app, but must go to your
+Files page and delete it from there. You&#8217;ll find it in your default documents
+directory, which is configured on your ownCloud Personal page (see
+<a class="reference internal" href="userpreferences.html"><em>Setting Your Preferences</em></a>.)</p>
 </div>
 <div class="section" id="share-a-document">
 <span id="id1"></span><h3>Share a Document<a class="headerlink" href="#share-a-document" title="Permalink to this headline">¶</a></h3>
-<p>Document sharing has the same options as when sharing other files. While editing a document, you can use the <em>Share</em> button to enable other users to edit the document. This button will display all available options to share:</p>
+<p>Document sharing has the same options as when sharing other files. While editing
+a document, you can use the <em>Share</em> button to enable other users to edit the
+document. This button will display all available options to share:</p>
 <div class="figure">
 <img alt="_images/oc_documents_share.png" src="_images/oc_documents_share.png" />
 </div>
-<p>By default, you can enter local users or groups to share with. Checking <em>Share link</em> will enable sharing via a public link, for which you can set a password to prevent editing by unwanted users. Shares can also have an expiration date that will expire the link after a given date. ownCloud will send the public link to users by email by typing each email address into the email field.  Separate multiple email addresses with a space.</p>
-<p>To see all of the features of the ownCloud document app, watch the
-<a class="reference external" href="https://www.youtube.com/watch?v=70pCBnNPdew">video on YouTube</a>.</p>
+<p>By default, you can enter local users or groups to share with. Checking <em>Share
+link</em> will enable sharing via a public link. Shares can optionally have an
+expiration date and password. ownCloud will send the public link to users by
+email by typing each email address into the email field.  Separate multiple
+email addresses with a space.</p>
 </div>
 </div>
 </div>

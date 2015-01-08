@@ -9,7 +9,6 @@
 namespace OC\Files\Node;
 
 use OC\Files\Cache\Cache;
-use OC\Files\Cache\Scanner;
 use OC\Files\Mount\Manager;
 use OC\Files\Mount\Mount;
 use OCP\Files\NotFoundException;
@@ -95,7 +94,7 @@ class Root extends Folder implements Emitter {
 	/**
 	 * @param string $scope
 	 * @param string $method
-	 * @param array $arguments
+	 * @param Node[] $arguments
 	 */
 	public function emit($scope, $method, $arguments = array()) {
 		$this->emitter->emit($scope, $method, $arguments);
@@ -154,7 +153,7 @@ class Root extends Folder implements Emitter {
 	 * @param string $path
 	 * @throws \OCP\Files\NotFoundException
 	 * @throws \OCP\Files\NotPermittedException
-	 * @return Node
+	 * @return string
 	 */
 	public function get($path) {
 		$path = $this->normalizePath($path);
@@ -163,37 +162,11 @@ class Root extends Folder implements Emitter {
 			if ($this->view->file_exists($fullPath)) {
 				return $this->createNode($fullPath);
 			} else {
-				throw new NotFoundException();
+				throw new NotFoundException($path);
 			}
 		} else {
 			throw new NotPermittedException();
 		}
-	}
-
-	/**
-	 * search file by id
-	 *
-	 * An array is returned because in the case where a single storage is mounted in different places the same file
-	 * can exist in different places
-	 *
-	 * @param int $id
-	 * @throws \OCP\Files\NotFoundException
-	 * @return Node[]
-	 */
-	public function getById($id) {
-		$result = Cache::getById($id);
-		if (is_null($result)) {
-			throw new NotFoundException();
-		} else {
-			list($storageId, $internalPath) = $result;
-			$nodes = array();
-			$mounts = $this->mountManager->findByStorageId($storageId);
-			foreach ($mounts as $mount) {
-				$nodes[] = $this->get($mount->getMountPoint() . $internalPath);
-			}
-			return $nodes;
-		}
-
 	}
 
 	//most operations cant be done on the root

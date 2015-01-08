@@ -4,7 +4,7 @@
  * ownCloud - Documents App
  *
  * @author Frank Karlitschek
- * @copyright 2011 Frank Karlitschek karlitschek@kde.org
+ * @copyright 2013-2014 Frank Karlitschek karlitschek@kde.org
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -16,7 +16,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
  *  
- * You should have received a copy of the GNU Lesser General Public 
+ * You should have received a copy of the GNU Affero General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
@@ -31,6 +31,7 @@ namespace OCA\Documents;
 \OCP\Util::addStyle( 'documents', 'style' );
 \OCP\Util::addStyle( 'documents', '3rdparty/webodf/dojo-app');
 \OCP\Util::addStyle( 'documents', '3rdparty/webodf/editor');
+
 \OCP\Util::addScript('documents', 'documents');
 
 \OCP\Util::addScript('files', 'file-upload');

@@ -16,13 +16,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
+ * You should have received a copy of the GNU Affero General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 OC::$CLASSPATH['OCA\Gallery\Thumbnail'] = 'gallery/lib/thumbnail.php';
-OC::$CLASSPATH['OCA\Gallery\AlbumThumbnail'] = 'gallery/lib/thumbnail.php';
+OC::$CLASSPATH['OCA\Gallery\AlbumThumbnail'] = 'gallery/lib/albumthumbnail.php';
 OC::$CLASSPATH['OCA\Gallery\Share\Picture'] = 'gallery/lib/share.php';
 OC::$CLASSPATH['OCA\Gallery\Share\Gallery'] = 'gallery/lib/share.php';
 
@@ -38,9 +38,9 @@ OCP\App::addNavigationEntry(array(
 
 // make slideshow available in files and public shares
 OCP\Util::addScript('gallery', 'jquery.mousewheel-3.1.1');
-OCP\Util::addScript( 'gallery', 'slideshow' );
-OCP\Util::addScript( 'gallery', 'public' );
-OCP\Util::addStyle( 'gallery', 'slideshow' );
+OCP\Util::addScript('gallery', 'slideshow');
+OCP\Util::addScript('gallery', 'public');
+OCP\Util::addStyle('gallery', 'slideshow');
 
 // register filesystem hooks to update thumbnails
 OCP\Util::connectHook('OC_Filesystem', 'post_write', 'OCA\Gallery\Thumbnail', 'writeHook');

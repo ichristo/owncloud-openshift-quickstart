@@ -18,8 +18,16 @@ class Memcached extends Cache {
 		parent::__construct($prefix);
 		if (is_null(self::$cache)) {
 			self::$cache = new \Memcached();
-			list($host, $port) = \OC_Config::getValue('memcached_server', array('localhost', 11211));
-			self::$cache->addServer($host, $port);
+			$servers = \OC_Config::getValue('memcached_servers');
+			if (!$servers) {
+				$server = \OC_Config::getValue('memcached_server');
+				if ($server) {
+					$servers = array($server);
+				} else {
+					$servers = array(array('localhost', 11211));
+				}
+			}
+			self::$cache->addServers($servers);
 		}
 	}
 
@@ -49,7 +57,7 @@ class Memcached extends Cache {
 
 	public function hasKey($key) {
 		self::$cache->get($this->getNamespace() . $key);
-		return self::$cache->getResultCode() !== \Memcached::RES_NOTFOUND;
+		return self::$cache->getResultCode() === \Memcached::RES_SUCCESS;
 	}
 
 	public function remove($key) {

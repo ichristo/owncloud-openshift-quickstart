@@ -23,11 +23,11 @@
 
 // Check if we are a user
 OC_JSON::checkLoggedIn();
-OC_App::loadApps();
+\OC::$server->getSession()->close();
 
 $query=(isset($_GET['query']))?$_GET['query']:'';
 if($query) {
-	$result=OC_Search::search($query);
+	$result = \OC::$server->getSearch()->search($query);
 	OC_JSON::encodedPrint($result);
 }
 else {

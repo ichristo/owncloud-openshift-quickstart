@@ -46,13 +46,25 @@ class OC_Calendar_Calendar{
 		$result = $stmt->execute($values);
 
 		$calendars = array();
+		$owned_calendar_ids = array();
 		while( $row = $result->fetchRow()) {
 			$row['permissions'] = OCP\PERMISSION_CREATE
 				| OCP\PERMISSION_READ | OCP\PERMISSION_UPDATE
 				| OCP\PERMISSION_DELETE | OCP\PERMISSION_SHARE;
+			$row['description'] = '';
 			$calendars[] = $row;
+			$owned_calendar_ids[] = $row['id'];
 		}
-		$calendars = array_merge($calendars, OCP\Share::getItemsSharedWith('calendar', OC_Share_Backend_Calendar::FORMAT_CALENDAR));
+
+		$shared_calendars = OCP\Share::getItemsSharedWith('calendar', OC_Share_Backend_Calendar::FORMAT_CALENDAR);
+		// Remove shared calendars that are already owned by the user.
+		foreach ($shared_calendars as $key => $calendar) {
+			if (in_array($calendar['id'], $owned_calendar_ids)) {
+				unset($shared_calendars[$key]);
+			}
+		}
+
+		$calendars = array_merge($calendars, $shared_calendars);
 
 		return $calendars;
 	}
@@ -127,7 +139,7 @@ class OC_Calendar_Calendar{
 			$userid = OCP\USER::getUser();
 		}
 		
-		$id = self::addCalendar($userid,'Default calendar');
+		$id = self::addCalendar($userid,OC_Calendar_App::$l10n->t('Personal'));
 
 		return true;
 	}
@@ -170,9 +182,7 @@ class OC_Calendar_Calendar{
 	public static function editCalendar($id,$name=null,$components=null,$timezone=null,$order=null,$color=null) {
 		// Need these ones for checking uri
 		$calendar = self::find($id);
-		if ($calendar['userid'] != OCP\User::getUser() && !OC_Group::inGroup(OCP\User::getUser(), 'admin')) {
-			$sharedCalendar = OCP\Share::getItemSharedWithBySource('calendar', $id);
-			if (!$sharedCalendar || !($sharedCalendar['permissions'] & OCP\PERMISSION_UPDATE)) {
+		if ($calendar['userid'] != OCP\User::getUser()) {{
 				throw new Exception(
 					OC_Calendar_App::$l10n->t(
 						'You do not have the permissions to update this calendar.'
@@ -238,7 +248,7 @@ class OC_Calendar_Calendar{
 	 */
 	public static function deleteCalendar($id) {
 		$calendar = self::find($id);
-		if ($calendar['userid'] != OCP\User::getUser() && !OC_Group::inGroup(OCP\User::getUser(), 'admin')) {
+		if (!self::isAllowedToDeleteCalendar($calendar)) {
 			$sharedCalendar = OCP\Share::getItemSharedWithBySource('calendar', $id);
 			if (!$sharedCalendar || !($sharedCalendar['permissions'] & OCP\PERMISSION_DELETE)) {
 				throw new Exception(
@@ -313,7 +323,7 @@ class OC_Calendar_Calendar{
 	 * @return string
 	 */
 	public static function extractUserID($principaluri) {
-		list($prefix,$userid) = Sabre_DAV_URLUtil::splitPath($principaluri);
+		list($prefix,$userid) = \Sabre\DAV\URLUtil::splitPath($principaluri);
 		return $userid;
 	}
 
@@ -391,5 +401,27 @@ class OC_Calendar_Calendar{
 	 */
 	public static function getUsersEmails($names) {
 		return \OCP\Config::getUserValue(\OCP\User::getUser(), 'settings', 'email');
+	}
+
+
+	/**
+	 * @param array $calendar
+	 * @param string $userId
+	 * @return boolean
+	 */
+	private static function isAllowedToDeleteCalendar($calendar) {
+		$userId = OCP\User::getUser();
+
+		if ($calendar['userid'] === $userId) {
+			return true;
+		}
+		if (OC_User::isAdminUser($userId)) {
+			return true;
+		}
+		if (OC_SubAdmin::isUserAccessible($userId, $calendar['userid'])) {
+			return true;
+		}
+
+		return false;
 	}
 }

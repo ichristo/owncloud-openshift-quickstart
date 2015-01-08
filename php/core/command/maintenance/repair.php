@@ -20,22 +20,40 @@ class Repair extends Command {
 
 	/**
 	 * @param \OC\Repair $repair
+	 * @param \OC\Config $config
 	 */
-	public function __construct($repair) {
+	public function __construct(\OC\Repair $repair, \OC\Config $config) {
 		$this->repair = $repair;
+		$this->config = $config;
 		parent::__construct();
 	}
 
 	protected function configure() {
 		$this
 			->setName('maintenance:repair')
-			->setDescription('set single user mode');
+			->setDescription('repair this installation');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output) {
+		// TODO: inject DB connection/factory when possible
+		$connection = \OC_DB::getConnection();
+		$connection->disableQueryStatementCaching();
+
+		$maintenanceMode = $this->config->getValue('maintenance', false);
+		$this->config->setValue('maintenance', true);
+
 		$this->repair->listen('\OC\Repair', 'step', function ($description) use ($output) {
 			$output->writeln(' - ' . $description);
 		});
+		$this->repair->listen('\OC\Repair', 'info', function ($description) use ($output) {
+			$output->writeln('     - ' . $description);
+		});
+		$this->repair->listen('\OC\Repair', 'error', function ($description) use ($output) {
+			$output->writeln('     - ERROR: ' . $description);
+		});
+
 		$this->repair->run();
+
+		$this->config->setValue('maintenance', $maintenanceMode);
 	}
 }

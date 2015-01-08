@@ -26,17 +26,23 @@ class OC_OCS_Result{
 
 	/**
 	 * create the OCS_Result object
-	 * @param $data mixed the data to return
+	 * @param mixed $data the data to return
 	 */
 	public function __construct($data=null, $code=100, $message=null) {
-		$this->data = $data;
+		if ($data === null) {
+			$this->data = array();
+		} elseif (!is_array($data)) {
+			$this->data = array($this->data);
+		} else {
+			$this->data = $data;
+		}
 		$this->statusCode = $code;
 		$this->message = $message;
 	}
 
 	/**
 	 * optionally set the total number of items available
-	 * @param $items int
+	 * @param int $items
 	 */
 	public function setTotalItems(int $items) {
 		$this->items = $items;
@@ -44,12 +50,12 @@ class OC_OCS_Result{
 
 	/**
 	 * optionally set the the number of items per page
-	 * @param $items int
+	 * @param int $items
 	 */
 	public function setItemsPerPage(int $items) {
 		$this->perPage = $items;
 	}
-	
+
 	/**
 	 * get the status code
 	 * @return int
@@ -57,7 +63,7 @@ class OC_OCS_Result{
 	public function getStatusCode() {
 		return $this->statusCode;
 	}
-	
+
 	/**
 	 * get the meta data for the result
 	 * @return array
@@ -76,21 +82,21 @@ class OC_OCS_Result{
 		return $meta;
 
 	}
-	
+
 	/**
 	 * get the result data
-	 * @return array|string|int 
+	 * @return array
 	 */
 	public function getData() {
 		return $this->data;
 	}
-	
+
 	/**
 	 * return bool if the method succedded
 	 * @return bool
 	 */
 	public function succeeded() {
-		return (substr($this->statusCode, 0, 1) === '1');
+		return ($this->statusCode == 100);
 	}
 
 

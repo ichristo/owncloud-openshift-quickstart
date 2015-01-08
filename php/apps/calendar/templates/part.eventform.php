@@ -20,7 +20,17 @@
 	<?php p($l->t("Calendar"));?>
 	<select style="width:140px;" name="calendar">
 		<?php if (!isset($_['calendar'])) {$_['calendar'] = false;}
-		print_unescaped(OCP\html_select_options($_['calendar_options'], $_['calendar'], array('value'=>'id', 'label'=>'displayname'))); ?>
+		$enabledCalendars = array();
+		$disabledCalendars = array();
+		foreach($_['calendar_options'] as $calendar) {
+			if($calendar['active'] === '1') {
+				$enabledCalendars[] = $calendar;
+			}else{
+				$disabledCalendars[] = $calendar;
+			}
+		}
+		$sortedCalendars = array_merge($enabledCalendars, $disabledCalendars);
+		print_unescaped(OCP\html_select_options($sortedCalendars, $_['calendar'], array('value'=>'id', 'label'=>'displayname'))); ?>
 	</select>
 	<?php } else { ?>
 	<input style="display:none;" type="hidden" name="calendar" value="<?php p($_['calendar_options'][0]['id']); ?>">
@@ -60,7 +70,9 @@
 
 		<textarea id="event-description" placeholder="<?php p($l->t('Description'));?>" name="description"><?php p(isset($_['description']) ? $_['description'] : '') ?></textarea>
 
+		<?php if($_['eventid'] != 'new'){ ?>
 		<input type="button" class="submit" id="editEvent-export"  name="export" value="<?php p($l->t('Export event'));?>" data-link="<?php print_unescaped(OCP\Util::linkTo('calendar', 'export.php')) ?>?eventid=<?php p($_['eventid']) ?>">
+		<?php }?>
 	</div>
 </div>
 

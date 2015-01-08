@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "Checking your installation..." => "Comprobando a instalación...",
 "Upgrade is not possible. Make sure that your webserver has write access to the following files and directories:" => "Non é posíbel facer a anovación. Asegúrese de que o seu servidor web ten permisos de escritura para os seguintes ficheiros e directorios:",
 "Version not found" => "Non se atopa a versión",
@@ -12,7 +13,9 @@
 "Moving files..." => "Movendo ficheiros...",
 "All done. Click to the link below to start database upgrade." => "Feito todo. Prema na ligazón de embaixo para comezar a actualización da base de datos.",
 "Update failed" => "Non foi posíbel facer a actualización",
-"The update was unsuccessful. Please report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "A actualización non foi satisfactoria. informe deste problema á  <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">comunidade de ownCloud</a>.",
+"The update was unsuccessful. Please check logs at admin page and report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "A actualización non foi satisfactoria. Comprobe os rexistros na páxina de administración e informe deste problema á  <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">comunidade de ownCloud</a>.",
+"Proceed" => "Proceder",
+"Updater" => "Actualizador",
 "Update Center" => "Centro de actualizacións",
 "Backup Management" => "Xestión das copias de seguranza",
 "Update" => "Actualizar",
@@ -23,3 +26,4 @@
 "Delete" => "Eliminar",
 "No backups found" => "Non se atoparon copias de seguranza"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

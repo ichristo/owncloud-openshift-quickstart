@@ -3,17 +3,17 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# Ádám Radovits <adamradovits12@hotmail.com>, 2013
-# sherlock79 <david@interpont.hu>, 2013
+# Adam Radovits <adamradovits12@hotmail.com>, 2013
+# David Szilagyi <inactive+sherlock79@transifex.com>, 2013
 # ebela <bela@dandre.hu>, 2013
-# Laszlo Tornoci <torlasz@gmail.com>, 2013
+# Laszlo Tornoci <torlasz@gmail.com>, 2013-2014
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: translations@owncloud.org\n"
-"POT-Creation-Date: 2013-11-29 11:21-0500\n"
-"PO-Revision-Date: 2013-11-27 15:10+0000\n"
-"Last-Translator: Ádám Radovits <adamradovits12@hotmail.com>\n"
+"POT-Creation-Date: 2014-06-19 00:43-0400\n"
+"PO-Revision-Date: 2014-06-18 06:12+0000\n"
+"Last-Translator: I Robot\n"
 "Language-Team: Hungarian (Hungary) (http://www.transifex.com/projects/p/owncloud/language/hu_HU/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -21,50 +21,85 @@ msgstr ""
 "Language: hu_HU\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: appinfo/app.php:35 templates/personal.php:2 templates/settings.php:2
+#: ajax/admin.php:22
+msgid "Format filter server is down or misconfigured"
+msgstr "A formátumszűrő szerver nem üzemel, vagy rosszul van konfigurálva"
+
+#: ajax/documentController.php:43
+msgid "Can't create document"
+msgstr "A dokumentum nem hozható létre"
+
+#: ajax/documentController.php:82
+msgid "You don't have permission to rename this document"
+msgstr "Nincs joga ahhoz, hogy átnevezze ezt a dokumentumot"
+
+#: ajax/personal.php:26
+msgid "An error occurred while changing directory."
+msgstr "Hiba történt a másik mappára történő áttérés közben."
+
+#: ajax/personal.php:34
+msgid "Directory saved successfully."
+msgstr "A mappát sikeresen elmentettük."
+
+#: appinfo/app.php:34 templates/admin.php:3 templates/personal.php:2
+#: templates/settings.php:2
 msgid "Documents"
 msgstr "Dokumentumok"
 
-#: js/3rdparty/webodf/webodf.js:831
-msgid "document-styles"
-msgstr "dokumentum-stílusok"
+#: js/documents.js:86
+msgid "Failed to load documents."
+msgstr "A dokumentum betőltése sikertelen"
 
-#: js/3rdparty/webodf/webodf.js:832
-msgid "document-content"
-msgstr "dokumentum-tartalom"
+#: js/documents.js:121
+msgid "No documents are found. Please upload or create a document!"
+msgstr "Nem található egy dokumentum sem. Töltsön fel vagy hozzon létre egy dokumentumot!"
 
-#: js/documents.js:23 js/locale.js:12 js/viewer/viewer.js:50
-msgid "Close"
-msgstr "Bezárás"
-
-#: js/documents.js:26
+#: js/documents.js:156
 msgid "Share"
 msgstr "Megosztás"
 
-#: js/documents.js:102
+#: js/documents.js:159 js/locale.js:12 js/viewer/viewer.js:80
+msgid "Close"
+msgstr "Bezárás"
+
+#: js/documents.js:275
 msgid "No connection to server. Trying to reconnect."
 msgstr "Nincs kapcsolat a szerverrel. Újracsatlakozás."
 
-#: js/documents.js:153
+#: js/documents.js:339
 msgid ""
 "Leaving this page in Editor mode might cause unsaved data. It is recommended"
 " to use 'Close' button instead."
-msgstr "Ha elnavigálsz az oldalról miközben Szerkesztés módban vagy akkor lehet lesznek elvesztett adatok amiket még nem mentettél el. Ajánlott inkább a 'Bezár' gombbal befejezni az oldal szerkesztését."
+msgstr "Ha elhagyja ezt az oldalt, miközben Szerkesztés módban van, akkor előfordulhat, hogy nem minden adat mentődik el. Érdemes inkább a 'Bezár' gombbal befejezni az oldal szerkesztését."
 
-#: js/documents.js:166
+#: js/documents.js:360
 msgid ""
 "Failed to load this document. Please check if it can be opened with an "
 "external odt editor. This might also mean it has been unshared or deleted "
 "recently."
-msgstr "A dokumentum betöltése sikertelen. Próbáld külső odt szerkeszővel megnyitni. Ez hiba jelentheti azt, hogy már nincs megosztva vagy már törölve lett a dokumentum."
+msgstr "A dokumentum betöltése sikertelen. Próbálja külső odt szerkeszővel megnyitni. Ez hiba jelentheti azt is, hogy már nincs megosztva, vagy már törölve lett a dokumentum."
 
-#: js/documents.js:332
-msgid "Failed to load documents."
-msgstr "A dokumentum betőltése sikertelen"
+#: js/documents.js:382 js/locale.js:39
+msgid "Save"
+msgstr "Mentés"
 
-#: js/documents.js:375
-msgid "No documents are found. Please upload or create a document!"
-msgstr "Nem található egy dokumentum sem. Tölts fel vagy hozz létre egy dokumentumot."
+#: js/documents.js:724 templates/documents.php:31
+msgid "Loading documents..."
+msgstr "Dokumentumok betöltése..."
+
+#: js/documents.js:757
+msgid "'.' is an invalid file name."
+msgstr "'.' érvénytelen, mint fájlnév."
+
+#: js/documents.js:759
+msgid "File name cannot be empty."
+msgstr "A fájlnév nem lehet semmi."
+
+#: js/documents.js:766
+msgid ""
+"Invalid name, '\\', '/', '<', '>', ':', '\"', '|', '?' and '*' are not "
+"allowed."
+msgstr "Érvénytelen elnevezés. Ezek a karakterek nem használhatók: '\\', '/', '<', '>', ':', '\"', '|', '?' és '*'"
 
 #: js/locale.js:1
 msgid "Align Left"
@@ -80,7 +115,7 @@ msgstr "Jobbra igazítás"
 
 #: js/locale.js:4
 msgid "Annotate"
-msgstr ""
+msgstr "Jegyzetel - annotate"
 
 #: js/locale.js:5
 msgid "Background"
@@ -120,7 +155,7 @@ msgstr "Létrehozás"
 
 #: js/locale.js:15
 msgid "Decrease Indent"
-msgstr ""
+msgstr "Bekezdés csökkentése"
 
 #: js/locale.js:16
 msgid "Default Style"
@@ -148,7 +183,7 @@ msgstr "Formátum"
 
 #: js/locale.js:22
 msgid "Increase Indent"
-msgstr ""
+msgstr "Bekezdés növelése"
 
 #: js/locale.js:23
 msgid "Insert Image"
@@ -168,7 +203,7 @@ msgstr "Sorkizárt"
 
 #: js/locale.js:27
 msgid "Justify"
-msgstr ""
+msgstr "Sorkizár"
 
 #: js/locale.js:28
 msgid "Left"
@@ -200,23 +235,19 @@ msgstr "Opciók"
 
 #: js/locale.js:35
 msgid "Paragraph..."
-msgstr "Paragrafus..."
+msgstr "Bekezdés..."
 
 #: js/locale.js:36
 msgid "Paragraph Styles"
-msgstr "Paragrafus stílusok"
+msgstr "Bekezdés stílusok"
 
 #: js/locale.js:37
 msgid "Redo"
-msgstr "Helyrehoz"
+msgstr "Mégse vonjuk vissza"
 
 #: js/locale.js:38
 msgid "Right"
 msgstr "Jobb"
-
-#: js/locale.js:39
-msgid "Save"
-msgstr "Mentés"
 
 #: js/locale.js:40
 msgid "Size"
@@ -254,33 +285,66 @@ msgstr "Visszavonás"
 msgid "Unknown Author"
 msgstr "Ismeretlen szerző"
 
-#: lib/invite.php:64
-msgid "Sent"
-msgstr "Elküldött"
+#: js/viewer/viewer.js:31
+msgid "Edit"
+msgstr "Szerkesztés"
 
-#: lib/invite.php:65 lib/invite.php:75
-msgid "Declined"
-msgstr "Elutasított"
+#: lib/db/member.php:39
+msgid "guest"
+msgstr "vendég"
 
-#: lib/invite.php:66 lib/invite.php:76
-msgid "Accepted"
-msgstr "Elfogadott"
+#: templates/admin.php:4
+msgid "MS Word support (requires openOffice/libreOffice)"
+msgstr ""
 
-#: lib/invite.php:74
-msgid "Incoming"
-msgstr "Beérkező"
+#: templates/admin.php:9
+msgid "Local"
+msgstr "Helyi"
+
+#: templates/admin.php:10
+msgid ""
+"openOffice/libreOffice is installed on this server. Path to binary is "
+"provided via preview_libreoffice_path in config.php"
+msgstr ""
+
+#: templates/admin.php:16
+msgid "External"
+msgstr "Külső"
+
+#: templates/admin.php:17
+msgid ""
+"openOffice/libreOffice is installed on external server running a format "
+"filter server"
+msgstr ""
+
+#: templates/admin.php:22
+msgid "scheme://domain.tld[:port]"
+msgstr "protokoll://teljes.gép.név[:port]"
+
+#: templates/admin.php:25
+msgid "Server URL"
+msgstr "Szerver URL"
+
+#: templates/admin.php:27
+msgid "Apply"
+msgstr "Alkalmaz"
 
 #: templates/documents.php:5
 msgid "New document"
 msgstr "Új dokumentum"
 
-#: templates/documents.php:7 templates/documents.php:27
+#: templates/documents.php:7
+#, php-format
+msgid "Upload (max. %s)"
+msgstr "Feltöltés (max. %s)"
+
+#: templates/documents.php:27
 msgid "Upload"
 msgstr "Feltöltés"
 
 #: templates/personal.php:4
 msgid "Save new documents to"
-msgstr "Az új dokumentumokat ide mentese:"
+msgstr "Az új dokumentumokat ide mentse:"
 
 #: templates/public.php:8
 msgid "Wrong password. Please retry."
@@ -291,18 +355,15 @@ msgid "Password"
 msgstr "Jelszó"
 
 #: templates/public.php:17
-msgid "Please enter your nickname"
-msgstr "Kérem adja meg a becenevét (nick)"
+#, php-format
+msgid "Guest %s"
+msgstr "Vendég: %s"
 
-#: templates/public.php:18
-msgid "Join"
-msgstr "Belépés"
-
-#: templates/public.php:24
+#: templates/public.php:21
 msgid ""
 "This link has been expired or is never existed. Please contact the person "
 "who shared it with you for details."
-msgstr "Ez a link vagy lejárt vagy sohasem létezett. Kérdezd meg azt aki megosztotta veled ezt a linket."
+msgstr "Ez a link vagy lejárt vagy sohasem létezett. Kérdezze meg azt, aki megosztotta Önnel ezt a linket."
 
 #: templates/settings.php:9
 msgid "Advanced feature-set"

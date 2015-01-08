@@ -1,7 +1,15 @@
 <?php
 $TRANSLATIONS = array(
-"Folder name" => "قىسقۇچ ئاتى",
 "External storage" => "سىرتقى ساقلىغۇچ",
+"Location" => "ئورنى",
+"Host" => "باش ئاپپارات",
+"Username" => "ئىشلەتكۈچى ئاتى",
+"Password" => "ئىم",
+"Share" => "ھەمبەھىر",
+"URL" => "URL",
+"Personal" => "شەخسىي",
+"Name" => "ئاتى",
+"Folder name" => "قىسقۇچ ئاتى",
 "Configuration" => "سەپلىمە",
 "Options" => "تاللانما",
 "Groups" => "گۇرۇپپا",

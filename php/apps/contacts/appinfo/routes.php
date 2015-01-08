@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Thomas Tanghus
- * Copyright (c) 2013 Thomas Tanghus (thomas@tanghus.net)
+ * @copyright 2013-2014 Thomas Tanghus (thomas@tanghus.net)
  * This file is licensed under the Affero General Public License version 3 or
  * later.
  * See the COPYING-README file.
@@ -15,7 +15,7 @@ $this->create('contacts_index', '/')
 	->get()
 	->action(
 		function($params){
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('PageController', 'index');
 		}
@@ -28,17 +28,50 @@ $this->create('contacts_address_books_for_user', 'addressbooks/')
 	->get()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('AddressBookController', 'userAddressBooks');
 		}
 	);
 
+$this->create('contacts_address_book_connectors', 'connectors/{backend}')
+	->get()
+	->action(
+		function($params) {
+			\OC::$session->close();
+			$dispatcher = new Dispatcher($params);
+			$dispatcher->dispatch('BackendController', 'getConnectors');
+		}
+	)
+	->requirements(array('backend'));
+
+$this->create('contacts_backend_enable', 'backend/{backend}/{enable}')
+	->get()
+	->action(
+		function($params) {
+			\OC::$session->close();
+			$dispatcher = new Dispatcher($params);
+			$dispatcher->dispatch('BackendController', 'enableBackend');
+		}
+	)
+	->requirements(array('backend', 'enable'));
+
+$this->create('contacts_backend_status', 'backend/{backend}')
+	->get()
+	->action(
+		function($params) {
+			\OC::$session->close();
+			$dispatcher = new Dispatcher($params);
+			$dispatcher->dispatch('BackendController', 'backendStatus');
+		}
+	)
+	->requirements(array('backend'));
+
 $this->create('contacts_address_book_add', 'addressbook/{backend}/add')
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('AddressBookController', 'addAddressBook');
 		}
@@ -49,7 +82,40 @@ $this->create('contacts_address_book', 'addressbook/{backend}/{addressBookId}')
 	->get()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
+			$dispatcher = new Dispatcher($params);
+			$dispatcher->dispatch('AddressBookController', 'getAddressBook');
+		}
+	)
+	->requirements(array('backend', 'addressBookId'));
+
+$this->create('contacts_address_book_contacts', 'addressbook/{backend}/{addressBookId}/contacts')
+	->get()
+	->action(
+		function($params) {
+			\OC::$session->close();
+			$dispatcher = new Dispatcher($params);
+			$dispatcher->dispatch('AddressBookController', 'getContacts');
+		}
+	)
+	->requirements(array('backend', 'addressBookId'));
+
+$this->create('contacts_address_book_headers', 'addressbook/{backend}/{addressBookId}')
+	->method('HEAD')
+	->action(
+		function($params) {
+			\OC::$session->close();
+			$dispatcher = new Dispatcher($params);
+			$dispatcher->dispatch('AddressBookController', 'getAddressBook');
+		}
+	)
+	->requirements(array('backend', 'addressBookId'));
+
+$this->create('contacts_address_book_options', 'addressbook/{backend}/{addressBookId}')
+	->method('OPTIONS')
+	->action(
+		function($params) {
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('AddressBookController', 'getAddressBook');
 		}
@@ -60,7 +126,7 @@ $this->create('contacts_address_book_update', 'addressbook/{backend}/{addressBoo
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('AddressBookController', 'updateAddressBook');
 		}
@@ -72,7 +138,7 @@ $this->create('contacts_address_book_delete', 'addressbook/{backend}/{addressBoo
 	->action(
 		function($params) {
 			$dispatcher = new Dispatcher($params);
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher->dispatch('AddressBookController', 'deleteAddressBook');
 		}
 	)
@@ -82,7 +148,7 @@ $this->create('contacts_address_book_activate', 'addressbook/{backend}/{addressB
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('AddressBookController', 'activateAddressBook');
 		}
@@ -93,7 +159,7 @@ $this->create('contacts_address_book_add_contact', 'addressbook/{backend}/{addre
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('AddressBookController', 'addChild');
 		}
@@ -104,7 +170,7 @@ $this->create('contacts_address_book_delete_contact', 'addressbook/{backend}/{ad
 	->delete()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('AddressBookController', 'deleteChild');
 		}
@@ -115,7 +181,7 @@ $this->create('contacts_address_book_delete_contacts', 'addressbook/{backend}/{a
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('AddressBookController', 'deleteChildren');
 		}
@@ -126,62 +192,62 @@ $this->create('contacts_address_book_move_contact', 'addressbook/{backend}/{addr
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('AddressBookController', 'moveChild');
 		}
 	)
 	->requirements(array('backend', 'addressBookId', 'contactId'));
 
-$this->create('contacts_import_upload', 'addressbook/{backend}/{addressBookId}/import/upload')
+$this->create('contacts_import_upload', 'addressbook/{backend}/{addressBookId}/{importType}/import/upload')
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ImportController', 'upload');
 		}
 	)
-	->requirements(array('backend', 'addressBookId'));
+	->requirements(array('backend', 'addressBookId', 'importType'));
 
-$this->create('contacts_import_prepare', 'addressbook/{backend}/{addressBookId}/import/prepare')
+$this->create('contacts_import_prepare', 'addressbook/{backend}/{addressBookId}/{importType}/import/prepare')
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ImportController', 'prepare');
 		}
 	)
-	->requirements(array('backend', 'addressBookId'));
+	->requirements(array('backend', 'addressBookId', 'importType'));
 
-$this->create('contacts_import_start', 'addressbook/{backend}/{addressBookId}/import/start')
+$this->create('contacts_import_start', 'addressbook/{backend}/{addressBookId}/{importType}/import/start')
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ImportController', 'start');
 		}
 	)
-	->requirements(array('backend', 'addressBookId'));
+	->requirements(array('backend', 'addressBookId', 'importType'));
 
-$this->create('contacts_import_status', 'addressbook/{backend}/{addressBookId}/import/status')
+$this->create('contacts_import_status', 'addressbook/{backend}/{addressBookId}/{importType}/import/status')
 	->get()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ImportController', 'status');
 		}
 	)
-	->requirements(array('backend', 'addressBookId'));
+	->requirements(array('backend', 'addressBookId', 'importType'));
 
 $this->create('contacts_address_book_export', 'addressbook/{backend}/{addressBookId}/export')
 	->get()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ExportController', 'exportAddressBook');
 		}
@@ -192,7 +258,7 @@ $this->create('contacts_contact_export', 'addressbook/{backend}/{addressBookId}/
 	->get()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ExportController', 'exportContact');
 		}
@@ -203,7 +269,7 @@ $this->create('contacts_export_selected', 'exportSelected')
 	->get()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ExportController', 'exportSelected');
 		}
@@ -213,7 +279,7 @@ $this->create('contacts_contact_photo', 'addressbook/{backend}/{addressBookId}/c
 	->get()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ContactPhotoController', 'getPhoto');
 		}
@@ -221,10 +287,10 @@ $this->create('contacts_contact_photo', 'addressbook/{backend}/{addressBookId}/c
 	->requirements(array('backend', 'addressbook', 'contactId'));
 
 $this->create('contacts_upload_contact_photo', 'addressbook/{backend}/{addressBookId}/contact/{contactId}/photo')
-	->post()
+	->put()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ContactPhotoController', 'uploadPhoto');
 		}
@@ -235,7 +301,7 @@ $this->create('contacts_cache_contact_photo', 'addressbook/{backend}/{addressBoo
 	->get()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ContactPhotoController', 'cacheCurrentPhoto');
 		}
@@ -246,7 +312,7 @@ $this->create('contacts_cache_fs_photo', 'addressbook/{backend}/{addressBookId}/
 	->get()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ContactPhotoController', 'cacheFileSystemPhoto');
 		}
@@ -257,7 +323,7 @@ $this->create('contacts_tmp_contact_photo', 'addressbook/{backend}/{addressBookI
 	->get()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ContactPhotoController', 'getTempPhoto');
 		}
@@ -268,7 +334,7 @@ $this->create('contacts_crop_contact_photo', 'addressbook/{backend}/{addressBook
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ContactPhotoController', 'cropPhoto');
 		}
@@ -280,7 +346,7 @@ $this->create('contacts_contact_patch', 'addressbook/{backend}/{addressBookId}/c
 	->patch()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ContactController', 'patch');
 		}
@@ -291,7 +357,7 @@ $this->create('contacts_contact_get', 'addressbook/{backend}/{addressBookId}/con
 	->get()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ContactController', 'getContact');
 		}
@@ -303,7 +369,7 @@ $this->create('contacts_contact_save_all', 'addressbook/{backend}/{addressBookId
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('ContactController', 'saveContact');
 		}
@@ -314,7 +380,7 @@ $this->create('contacts_categories_list', 'groups/')
 	->get()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('GroupController', 'getGroups');
 		}
@@ -324,7 +390,7 @@ $this->create('contacts_categories_add', 'groups/add')
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('GroupController', 'addGroup');
 		}
@@ -334,7 +400,7 @@ $this->create('contacts_categories_delete', 'groups/delete')
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('GroupController', 'deleteGroup');
 		}
@@ -344,7 +410,7 @@ $this->create('contacts_categories_rename', 'groups/rename')
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('GroupController', 'renameGroup');
 		}
@@ -354,7 +420,7 @@ $this->create('contacts_categories_addto', 'groups/addto/{categoryId}')
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('GroupController', 'addToGroup');
 		}
@@ -364,7 +430,7 @@ $this->create('contacts_categories_removefrom', 'groups/removefrom/{categoryId}'
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('GroupController', 'removeFromGroup');
 		}
@@ -375,7 +441,7 @@ $this->create('contacts_setpreference', 'preference/set')
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			$dispatcher = new Dispatcher($params);
 			$dispatcher->dispatch('SettingsController', 'set');
 		}
@@ -385,7 +451,7 @@ $this->create('contacts_index_properties', 'indexproperties/{user}/')
 	->post()
 	->action(
 		function($params) {
-			session_write_close();
+			\OC::$session->close();
 			// TODO: Add BackgroundJob for this.
 			\OCP\Util::emitHook('OCA\Contacts', 'indexProperties', array());
 
@@ -395,4 +461,3 @@ $this->create('contacts_index_properties', 'indexproperties/{user}/')
 	)
 	->requirements(array('user'))
 	->defaults(array('user' => \OCP\User::getUser()));
-

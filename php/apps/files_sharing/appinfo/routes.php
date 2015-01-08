@@ -1,8 +1,13 @@
 <?php
-$this->create('core_ajax_public_preview', '/publicpreview.png')->action(
-function() {
-	require_once __DIR__ . '/../ajax/publicpreview.php';
-});
+/** @var $this \OCP\Route\IRouter */
+$this->create('core_ajax_public_preview', '/publicpreview')->action(
+	function() {
+		require_once __DIR__ . '/../ajax/publicpreview.php';
+	});
+
+$this->create('sharing_external_shareinfo', '/shareinfo')->actionInclude('files_sharing/ajax/shareinfo.php');
+$this->create('sharing_external_add', '/external')->actionInclude('files_sharing/ajax/external.php');
+$this->create('sharing_external_test_remote', '/testremote')->actionInclude('files_sharing/ajax/testremote.php');
 
 // OCS API
 

@@ -1,18 +1,19 @@
 <?php
 $TRANSLATIONS = array(
-"The password is wrong. Try again." => "La contraseña no es correcta. Probá de nuevo.",
 "Password" => "Contraseña",
+"Shared by {owner}" => "Compartido por {owner}",
+"Shared by" => "Compartido por",
+"This share is password-protected" => "Esto está protegido por contraseña",
+"The password is wrong. Try again." => "La contraseña no es correcta. Probá de nuevo.",
+"Name" => "Nombre",
 "Sorry, this link doesn’t seem to work anymore." => "Perdón, este enlace parece no funcionar más.",
 "Reasons might be:" => "Las causas podrían ser:",
 "the item was removed" => "el elemento fue borrado",
 "the link expired" => "el enlace expiró",
 "sharing is disabled" => "compartir está desactivado",
 "For more info, please ask the person who sent this link." => "Para mayor información, contactá a la persona que te mandó el enlace.",
-"%s shared the folder %s with you" => "%s compartió la carpeta %s con vos",
-"%s shared the file %s with you" => "%s compartió el archivo %s con vos",
+"Save" => "Guardar",
 "Download" => "Descargar",
-"Upload" => "Subir",
-"Cancel upload" => "Cancelar subida",
-"No preview available for" => "La vista preliminar no está disponible para"
+"Direct link" => "Vínculo directo"
 );
 $PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

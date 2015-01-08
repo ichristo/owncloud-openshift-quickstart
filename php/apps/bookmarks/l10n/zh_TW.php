@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "No file provided for import" => "沒有提供匯入用的檔案",
 "Unsupported file type for import" => "不支援這種檔案類型的匯入",
 "Bookmarks" => "書籤",
@@ -21,6 +22,7 @@
 "Edit" => "編輯",
 "Cancel" => "取消",
 "Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "把這個拖曳至瀏覽器的書籤列，下次您想要將某個頁面加至書籤時，點一下書籤列上面的這個項目即可。",
+"Add to ownCloud" => "新增至ownCloud",
 "Address" => "網址",
 "Add" => "新增",
 "Related Tags" => "相關標籤",
@@ -32,3 +34,4 @@
 "Export" => "匯出",
 "Import" => "匯入"
 );
+$PLURAL_FORMS = "nplurals=1; plural=0;";

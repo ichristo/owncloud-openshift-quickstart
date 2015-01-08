@@ -4,7 +4,7 @@
  * ownCloud - App Framework
  *
  * @author Bernhard Posselt
- * @copyright 2012 Bernhard Posselt nukeawhale@gmail.com
+ * @copyright 2012 Bernhard Posselt <dev@bernhard-posselt.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -56,7 +56,7 @@ class MiddlewareDispatcher {
 
 	/**
 	 * Adds a new middleware
-	 * @param Middleware $middleware the middleware which will be added
+	 * @param Middleware $middleWare the middleware which will be added
 	 */
 	public function registerMiddleware(Middleware $middleWare){
 		array_push($this->middlewares, $middleWare);

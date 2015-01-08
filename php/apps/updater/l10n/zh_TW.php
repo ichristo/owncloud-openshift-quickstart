@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "Checking your installation..." => "正在檢查您的安裝...",
 "Upgrade is not possible. Make sure that your webserver has write access to the following files and directories:" => "無法升級，請確認您的網頁伺服器有權限寫入這些檔案和目錄：",
 "Version not found" => "找不到版本號",
@@ -12,7 +13,9 @@
 "Moving files..." => "移動檔案...",
 "All done. Click to the link below to start database upgrade." => "完成了，點下面的連結來開始資料庫更新。",
 "Update failed" => "升級失敗",
-"The update was unsuccessful. Please report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "升級失敗，請將問題回報給 <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud 社群</a>。",
+"The update was unsuccessful. Please check logs at admin page and report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "更新沒有成功。請檢查管理頁面的紀錄檔和回報問題到 <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>.",
+"Proceed" => "已執行",
+"Updater" => "更新者",
 "Update Center" => "升級中心",
 "Backup Management" => "備份管理",
 "Update" => "更新",
@@ -23,3 +26,4 @@
 "Delete" => "刪除",
 "No backups found" => "找不到備份"
 );
+$PLURAL_FORMS = "nplurals=1; plural=0;";

@@ -34,31 +34,24 @@
  *   post_removeFromGroup(uid, gid)
  */
 class OC_Group {
-	/**
-	 * @var \OC\Group\Manager $manager
-	 */
-	private static $manager;
-
-	/**
-	 * @var \OC\User\Manager
-	 */
-	private static $userManager;
 
 	/**
 	 * @return \OC\Group\Manager
 	 */
 	public static function getManager() {
-		if (self::$manager) {
-			return self::$manager;
-		}
-		self::$userManager = \OC_User::getManager();
-		self::$manager = new \OC\Group\Manager(self::$userManager);
-		return self::$manager;
+		return \OC::$server->getGroupManager();
 	}
 
 	/**
-	 * @brief set the group backend
-	 * @param  \OC_Group_Backend $backend  The backend to use for user managment
+	 * @return \OC\User\Manager
+	 */
+	private static function getUserManager() {
+		return \OC::$server->getUserManager();
+	}
+
+	/**
+	 * set the group backend
+	 * @param \OC_Group_Backend $backend  The backend to use for user managment
 	 * @return bool
 	 */
 	public static function useBackend($backend) {
@@ -74,7 +67,7 @@ class OC_Group {
 	}
 
 	/**
-	 * @brief Try to create a new group
+	 * Try to create a new group
 	 * @param string $gid The name of the group to create
 	 * @return bool
 	 *
@@ -93,7 +86,7 @@ class OC_Group {
 	}
 
 	/**
-	 * @brief delete a group
+	 * delete a group
 	 * @param string $gid gid of the group to delete
 	 * @return bool
 	 *
@@ -118,7 +111,7 @@ class OC_Group {
 	}
 
 	/**
-	 * @brief is user in group?
+	 * is user in group?
 	 * @param string $uid uid of the user
 	 * @param string $gid gid of the group
 	 * @return bool
@@ -127,7 +120,7 @@ class OC_Group {
 	 */
 	public static function inGroup($uid, $gid) {
 		$group = self::getManager()->get($gid);
-		$user = self::$userManager->get($uid);
+		$user = self::getUserManager()->get($uid);
 		if ($group and $user) {
 			return $group->inGroup($user);
 		}
@@ -135,7 +128,7 @@ class OC_Group {
 	}
 
 	/**
-	 * @brief Add a user to a group
+	 * Add a user to a group
 	 * @param string $uid Name of the user to add to group
 	 * @param string $gid Name of the group in which add the user
 	 * @return bool
@@ -144,7 +137,7 @@ class OC_Group {
 	 */
 	public static function addToGroup($uid, $gid) {
 		$group = self::getManager()->get($gid);
-		$user = self::$userManager->get($uid);
+		$user = self::getUserManager()->get($uid);
 		if ($group and $user) {
 			OC_Hook::emit("OC_Group", "pre_addToGroup", array("run" => true, "uid" => $uid, "gid" => $gid));
 			$group->addUser($user);
@@ -156,7 +149,7 @@ class OC_Group {
 	}
 
 	/**
-	 * @brief Removes a user from a group
+	 * Removes a user from a group
 	 * @param string $uid Name of the user to remove from group
 	 * @param string $gid Name of the group from which remove the user
 	 * @return bool
@@ -165,7 +158,7 @@ class OC_Group {
 	 */
 	public static function removeFromGroup($uid, $gid) {
 		$group = self::getManager()->get($gid);
-		$user = self::$userManager->get($uid);
+		$user = self::getUserManager()->get($uid);
 		if ($group and $user) {
 			OC_Hook::emit("OC_Group", "pre_removeFromGroup", array("run" => true, "uid" => $uid, "gid" => $gid));
 			$group->removeUser($user);
@@ -177,30 +170,28 @@ class OC_Group {
 	}
 
 	/**
-	 * @brief Get all groups a user belongs to
+	 * Get all groups a user belongs to
 	 * @param string $uid Name of the user
-	 * @return array with group names
+	 * @return array an array of group names
 	 *
 	 * This function fetches all groups a user belongs to. It does not check
 	 * if the user exists at all.
 	 */
 	public static function getUserGroups($uid) {
-		$user = self::$userManager->get($uid);
+		$user = self::getUserManager()->get($uid);
 		if ($user) {
-			$groups = self::getManager()->getUserGroups($user);
-			$groupIds = array();
-			foreach ($groups as $group) {
-				$groupIds[] = $group->getGID();
-			}
-			return $groupIds;
+			return self::getManager()->getUserGroupIds($user);
 		} else {
 			return array();
 		}
 	}
 
 	/**
-	 * @brief get a list of all groups
-	 * @returns array with group names
+	 * get a list of all groups
+	 * @param string $search
+	 * @param int|null $limit
+	 * @param int|null $offset
+	 * @return array an array of group names
 	 *
 	 * Returns a list with all groups
 	 */
@@ -224,8 +215,12 @@ class OC_Group {
 	}
 
 	/**
-	 * @brief get a list of all users in a group
-	 * @returns array with user ids
+	 * get a list of all users in a group
+	 * @param string $gid
+	 * @param string $search
+	 * @param int $limit
+	 * @param int $offset
+	 * @return array an array of user ids
 	 */
 	public static function usersInGroup($gid, $search = '', $limit = -1, $offset = 0) {
 		$group = self::getManager()->get($gid);
@@ -242,12 +237,12 @@ class OC_Group {
 	}
 
 	/**
-	 * @brief get a list of all users in several groups
-	 * @param array $gids
+	 * get a list of all users in several groups
+	 * @param string[] $gids
 	 * @param string $search
 	 * @param int $limit
 	 * @param int $offset
-	 * @return array with user ids
+	 * @return array an array of user ids
 	 */
 	public static function usersInGroups($gids, $search = '', $limit = -1, $offset = 0) {
 		$users = array();
@@ -259,30 +254,24 @@ class OC_Group {
 	}
 
 	/**
-	 * @brief get a list of all display names in a group
-	 * @returns array with display names (value) and user ids(key)
+	 * get a list of all display names in a group
+	 * @param string $gid
+	 * @param string $search
+	 * @param int $limit
+	 * @param int $offset
+	 * @return array an array of display names (value) and user ids(key)
 	 */
 	public static function displayNamesInGroup($gid, $search = '', $limit = -1, $offset = 0) {
-		$group = self::getManager()->get($gid);
-		if ($group) {
-			$users = $group->searchDisplayName($search, $limit, $offset);
-			$displayNames = array();
-			foreach ($users as $user) {
-				$displayNames[$user->getUID()] = $user->getDisplayName();
-			}
-			return $displayNames;
-		} else {
-			return array();
-		}
+		return self::getManager()->displayNamesInGroup($gid, $search, $limit, $offset);
 	}
 
 	/**
-	 * @brief get a list of all display names in several groups
+	 * get a list of all display names in several groups
 	 * @param array $gids
 	 * @param string $search
 	 * @param int $limit
 	 * @param int $offset
-	 * @return array with display names (Key) user ids (value)
+	 * @return array an array of display names (Key) user ids (value)
 	 */
 	public static function displayNamesInGroups($gids, $search = '', $limit = -1, $offset = 0) {
 		$displayNames = array();

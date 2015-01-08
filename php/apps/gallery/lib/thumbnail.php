@@ -12,8 +12,6 @@ use OC\Files\Filesystem;
 use OC\Files\View;
 
 class Thumbnail {
-	static private $writeHookCount;
-
 	protected $image;
 	protected $path;
 	protected $user;
@@ -60,20 +58,31 @@ class Thumbnail {
 	private function create($imagePath, $square) {
 		$galleryDir = \OC_User::getHome($this->user) . '/gallery/' . $this->user . '/';
 		$dir = dirname($imagePath);
+		$fileInfo = $this->view->getFileInfo($imagePath);
+		if (!$fileInfo) {
+			return false;
+		}
 		if (!is_dir($galleryDir . $dir)) {
 			mkdir($galleryDir . $dir, 0755, true);
 		}
-		if (!$this->view->file_exists($imagePath)) {
-			return;
+
+		$this->image = new \OCP\Image();
+		// check if file is encrypted
+		if ($fileInfo['encrypted'] === true) {
+			$fileName = $this->view->toTmpFile($imagePath);
+		} else {
+			$fileName = $this->view->getLocalFile($imagePath);
 		}
-		$absolutePath = $this->view->getAbsolutePath($imagePath);
-		$this->image = new \OCP\Image('oc://' . $absolutePath);
+		$this->image->loadFromFile($fileName);
 		if ($this->image->valid()) {
 			$this->image->fixOrientation();
 			if ($square) {
 				$this->image->centerCrop(200);
 			} else {
-				$this->image->fitIn(400, 200);
+				$this->image->fitIn($this->image->width(), 200);
+				if ($this->image->width() > 600) { // max aspect ratio of 3
+					$this->image->crop(($this->image->width() - 600) / 2, 0, 600, 200);
+				}
 			}
 			$this->image->save($this->path);
 		}
@@ -103,6 +112,7 @@ class Thumbnail {
 			\OCP\Response::setLastModifiedHeader($mtime);
 			header('Content-Length: ' . $size);
 			header('Content-Type: ' . $mime);
+			\OCP\Response::setContentDispositionHeader(basename($this->path), 'attachment');
 
 			fpassthru($fp);
 		} else {
@@ -112,8 +122,8 @@ class Thumbnail {
 
 	static public function removeHook($params) {
 		$path = $params['path'];
-		$user = \OCP\USER::getUser();
-		$galleryDir = \OC_User::getHome($user) . '/gallery/';
+		$user = \OCP\User::getUser();
+		$galleryDir = \OC_User::getHome($user) . '/gallery/' . $user . '/';
 		$thumbPath = $galleryDir . $path;
 		if (is_dir($thumbPath)) {
 			if (file_exists($thumbPath . '.png')) {
@@ -145,54 +155,7 @@ class Thumbnail {
 
 	static public function writeHook($params) {
 		self::removeHook($params);
-		//only create 5 thumbnails max in one request to prevent locking up the request
-		if (self::$writeHookCount < 5) {
-			$path = $params['path'];
-			$mime = \OC\Files\Filesystem::getMimetype($path);
-			if (substr($mime, 0, 6) === 'image/') {
-				self::$writeHookCount++;
-				new Thumbnail($path);
-			}
-		}
 	}
 }
 
-class AlbumThumbnail extends Thumbnail {
 
-	public function __construct($imagePath, $user = null, $square = false) {
-		if (!\OC\Files\Filesystem::isValidPath($imagePath)) {
-			return;
-		}
-		if (is_null($user)) {
-			$this->view = \OC\Files\Filesystem::getView();
-			$this->user = \OCP\USER::getUser();
-		} else {
-			$this->view = new \OC\Files\View('/' . $user . '/files');
-			$this->user = $user;
-		}
-		$galleryDir = \OC_User::getHome($this->user) . '/gallery/' . $this->user . '/';
-		$this->path = $galleryDir . $imagePath . '.png';
-		if (!file_exists($this->path)) {
-			self::create($imagePath, $square);
-		}
-	}
-
-	public function create($albumPath, $square = false) {
-		$albumView = new \OC\Files\View($this->view->getRoot() . $albumPath);
-		$images = $albumView->searchByMime('image', 10);
-
-		$count = min(count($images), 10);
-		$thumbnail = imagecreatetruecolor($count * 200, 200);
-		for ($i = 0; $i < $count; $i++) {
-			$thumb = new Thumbnail($albumPath . $images[$i]['path'], $this->user, true);
-			$image = $thumb->get();
-			if ($image && $image->valid()) {
-				imagecopy($thumbnail, $image->resource(), $i * 200, 0, 0, 0, 200, 200);
-				$image->destroy();
-			}
-		}
-
-		imagepng($thumbnail, $this->path);
-		imagedestroy($thumbnail);
-	}
-}

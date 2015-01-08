@@ -1,23 +1,33 @@
 <?php
 
-// Init owncloud
-
-
 OCP\JSON::checkLoggedIn();
 OCP\JSON::callCheck();
+\OC::$session->close();
+
 
 // Get data
 $dir = stripslashes($_POST["dir"]);
-$files = isset($_POST["file"]) ? $_POST["file"] : $_POST["files"];
+$allFiles = isset($_POST["allfiles"]) ? $_POST["allfiles"] : false;
 
-$files = json_decode($files);
+// delete all files in dir ?
+if ($allFiles === 'true') {
+	$files = array();
+	$fileList = \OC\Files\Filesystem::getDirectoryContent($dir);
+	foreach ($fileList as $fileInfo) {
+		$files[] = $fileInfo['name'];
+	}
+} else {
+	$files = isset($_POST["file"]) ? $_POST["file"] : $_POST["files"];
+	$files = json_decode($files);
+}
 $filesWithError = '';
 
 $success = true;
 
 //Now delete
 foreach ($files as $file) {
-	if (($dir === '' && $file === 'Shared') || !\OC\Files\Filesystem::unlink($dir . '/' . $file)) {
+	if (\OC\Files\Filesystem::file_exists($dir . '/' . $file) &&
+			!\OC\Files\Filesystem::unlink($dir . '/' . $file)) {
 		$filesWithError .= $file . "\n";
 		$success = false;
 	}

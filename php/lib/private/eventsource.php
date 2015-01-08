@@ -63,14 +63,15 @@ class OC_EventSource{
 			$type=null;
 		}
 		if($this->fallback) {
+			$fallBackId = OC_Util::sanitizeHTML($this->fallBackId);
 			$response='<script type="text/javascript">window.parent.OC.EventSource.fallBackCallBack('
-				.$this->fallBackId.',"'.$type.'",'.json_encode($data).')</script>'.PHP_EOL;
+				.$fallBackId.',"' . $type . '",' . OCP\JSON::encode($data) . ')</script>' . PHP_EOL;
 			echo $response;
 		}else{
 			if($type) {
-				echo 'event: '.$type.PHP_EOL;
+				echo 'event: ' . $type.PHP_EOL;
 			}
-			echo 'data: '.json_encode($data).PHP_EOL;
+			echo 'data: ' . OCP\JSON::encode($data) . PHP_EOL;
 		}
 		echo PHP_EOL;
 		flush();

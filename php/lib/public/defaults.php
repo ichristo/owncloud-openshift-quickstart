@@ -66,6 +66,22 @@ class Defaults {
 	}
 
 	/**
+	 * link to the iOS client
+	 * @return string
+	 */
+	public function getiOSClientUrl() {
+		return $this->defaults->getiOSClientUrl();
+	}
+
+	/**
+	 * link to the Android client
+	 * @return string
+	 */
+	public function getAndroidClientUrl() {
+		return $this->defaults->getAndroidClientUrl();
+	}
+
+	/**
 	 * base URL to the documentation of your ownCloud instance
 	 * @return string
 	 */
@@ -79,6 +95,14 @@ class Defaults {
 	 */
 	public function getName() {
 		return $this->defaults->getName();
+	}
+
+	/**
+	 * name of your ownCloud instance containing HTML styles
+	 * @return string
+	 */
+	public function getHTMLName() {
+		return $this->defaults->getHTMLName();
 	}
 
 	/**

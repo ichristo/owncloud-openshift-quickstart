@@ -22,23 +22,6 @@ class Location_Apps extends Location {
 		return $pathArray;
 	}
 	
-	public function check() {
-		$errors = array();
-		if ($this->oldBase && !is_writable($this->oldBase)) {
-			$errors[] = $this->oldBase;
-		}
-		
-		$this->collect(true);
-		foreach ($this->appsToUpdate as $item) {
-			$path = \OC_App::getAppPath($item);
-			if (!is_writable($path)) {
-				$errors[] = $path;
-			}
-		}
-
-		return $errors;
-	}
-
 	public function update($tmpDir = '') {
 		Helper::mkdir($tmpDir, true);
 		$this->collect(true);
@@ -72,6 +55,7 @@ class Location_Apps extends Location {
 		foreach ($this->appsToDisable as $appId) {
 			\OC_App::disable($appId);
 		}
+		parent::finalize();
 	}
 
 	protected function filterNew($pathArray) {
@@ -79,15 +63,12 @@ class Location_Apps extends Location {
 	}
 
 	public function collect($dryRun = false) {
-		foreach (\OC_App::getAllApps() as $appId) {
-			if (\OC_App::isShipped($appId)) {
-				if ($dryRun || @file_exists($this->newBase . '/' . $appId)) {
-					$this->appsToUpdate[$appId] = $appId;
-				} else {
-					$this->appsToDisable[$appId] = $appId;
+		$dh = opendir($this->newBase);
+		if (is_resource($dh)) {
+			while (($file = readdir($dh)) !== false) {
+				if ($file[0] != '.' && is_file($this->newBase . '/' . $file . '/appinfo/app.php')) {
+					$this->appsToUpdate[$file] =  $file;
 				}
-			} else {
-				$this->appsToDisable[$appId] = $appId;
 			}
 		}
 	}

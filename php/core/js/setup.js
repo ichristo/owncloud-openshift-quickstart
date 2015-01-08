@@ -7,12 +7,14 @@ $(document).ready(function() {
 		oracle:!!$('#hasOracle').val(),
 		mssql:!!$('#hasMSSQL').val()
 	};
-	
+
 	$('#selectDbType').buttonset();
-	
+
 	if($('#hasSQLite').val()){
 		$('#use_other_db').hide();
 		$('#use_oracle_db').hide();
+	} else {
+		$('#sqliteInformation').hide();
 	}
 	$('#adminlogin').change(function(){
 		$('#adminlogin').val($.trim($('#adminlogin').val()));
@@ -20,22 +22,29 @@ $(document).ready(function() {
 	$('#sqlite').click(function() {
 		$('#use_other_db').slideUp(250);
 		$('#use_oracle_db').slideUp(250);
+		$('#sqliteInformation').show();
+		$('#dbname').attr('pattern','[0-9a-zA-Z$_-]+');
 	});
 
 	$('#mysql,#pgsql,#mssql').click(function() {
 		$('#use_other_db').slideDown(250);
 		$('#use_oracle_db').slideUp(250);
+		$('#sqliteInformation').hide();
+		$('#dbname').attr('pattern','[0-9a-zA-Z$_-]+');
 	});
 
 	$('#oci').click(function() {
 		$('#use_other_db').slideDown(250);
 		$('#use_oracle_db').show(250);
+		$('#sqliteInformation').hide();
+		$('#dbname').attr('pattern','[0-9a-zA-Z$_-.]+');
 	});
 
 	$('input[checked]').trigger('click');
 
 	$('#showAdvanced').click(function() {
 		$('#datadirContent').slideToggle(250);
+		$('#databaseBackend').slideToggle(250);
 		$('#databaseField').slideToggle(250);
 	});
 	$("form").submit(function(){
@@ -46,6 +55,10 @@ $(document).ready(function() {
 		$(':submit', this).attr('disabled','disabled').val($(':submit', this).data('finishing'));
 		$('input', this).addClass('ui-state-disabled').attr('disabled','disabled');
 		$('#selectDbType').buttonset('disable');
+		$('.strengthify-wrapper, .tipsy')
+			.css('-ms-filter', '"progid:DXImageTransform.Microsoft.Alpha(Opacity=30)"')
+			.css('filter', 'alpha(opacity=30)')
+			.css('opacity', .3);
 
 		// Create the form
 		var form = $('<form>');
@@ -63,17 +76,31 @@ $(document).ready(function() {
 		form.submit();
 		return false;
 	});
-	
+
 	// Expand latest db settings if page was reloaded on error
 	var currentDbType = $('input[type="radio"]:checked').val();
-	
+
 	if (currentDbType === undefined){
 		$('input[type="radio"]').first().click();
 	}
-	
-	if (currentDbType === 'sqlite' || (dbtypes.sqlite && currentDbType === undefined)){
+
+	if (
+		currentDbType === 'sqlite' ||
+		(dbtypes.sqlite && currentDbType === undefined)
+	){
 		$('#datadirContent').hide(250);
+		$('#databaseBackend').hide(250);
 		$('#databaseField').hide(250);
 	}
-	
+
+	$('#adminpass').strengthify({
+		zxcvbn: OC.linkTo('3rdparty','zxcvbn/js/zxcvbn.js'),
+		titles: [
+			t('core', 'Very weak password'),
+			t('core', 'Weak password'),
+			t('core', 'So-so password'),
+			t('core', 'Good password'),
+			t('core', 'Strong password')
+		]
+	});
 });

@@ -119,6 +119,22 @@ class Filesystem {
 	const signal_post_write = 'post_write';
 
 	/**
+	 * signal emitted before file/dir update
+	 *
+	 * @param string $path
+	 * @param bool $run changing this flag to false in hook handler will cancel event
+	 */
+	const signal_update = 'update';
+
+	/**
+	 * signal emitted after file/dir update
+	 *
+	 * @param string $path
+	 * @param bool $run changing this flag to false in hook handler will cancel event
+	 */
+	const signal_post_update = 'post_update';
+
+	/**
 	 * signal emits when reading file/dir
 	 *
 	 * @param string $path
@@ -144,6 +160,11 @@ class Filesystem {
 	 */
 	const signal_param_run = 'run';
 
+	const signal_create_mount = 'create_mount';
+	const signal_delete_mount = 'delete_mount';
+	const signal_param_mount_type = 'mounttype';
+	const signal_param_users = 'users';
+
 	/**
 	 * @var \OC\Files\Storage\Loader $loader
 	 */
@@ -152,8 +173,8 @@ class Filesystem {
 	/**
 	 * @param callable $wrapper
 	 */
-	public static function addStorageWrapper($wrapper) {
-		self::getLoader()->addStorageWrapper($wrapper);
+	public static function addStorageWrapper($wrapperName, $wrapper) {
+		self::getLoader()->addStorageWrapper($wrapperName, $wrapper);
 
 		$mounts = self::getMountManager()->getAll();
 		foreach ($mounts as $mount) {
@@ -229,7 +250,7 @@ class Filesystem {
 	}
 
 	/**
-	 * @param $id
+	 * @param string $id
 	 * @return Mount\Mount[]
 	 */
 	public static function getMountByStorageId($id) {
@@ -240,7 +261,7 @@ class Filesystem {
 	}
 
 	/**
-	 * @param $id
+	 * @param int $id
 	 * @return Mount\Mount[]
 	 */
 	public static function getMountByNumericId($id) {
@@ -254,7 +275,7 @@ class Filesystem {
 	 * resolve a path to a storage and internal path
 	 *
 	 * @param string $path
-	 * @return array consisting of the storage and the internal path
+	 * @return array an array consisting of the storage and the internal path
 	 */
 	static public function resolvePath($path) {
 		if (!self::$mounts) {
@@ -309,89 +330,68 @@ class Filesystem {
 		$userObject = \OC_User::getManager()->get($user);
 
 		if (!is_null($userObject)) {
+			$homeStorage = \OC_Config::getValue( 'objectstore' );
+			if (!empty($homeStorage)) {
+				// sanity checks
+				if (empty($homeStorage['class'])) {
+					\OCP\Util::writeLog('files', 'No class given for objectstore', \OCP\Util::ERROR);
+				}
+				if (!isset($homeStorage['arguments'])) {
+					$homeStorage['arguments'] = array();
+				}
+				// instantiate object store implementation
+				$homeStorage['arguments']['objectstore'] = new $homeStorage['class']($homeStorage['arguments']);
+				// mount with home object store implementation
+				$homeStorage['class'] = '\OC\Files\ObjectStore\HomeObjectStoreStorage';
+			} else {
+				$homeStorage = array(
+					//default home storage configuration:
+					'class' => '\OC\Files\Storage\Home',
+					'arguments' => array()
+				);
+			}
+			$homeStorage['arguments']['user'] = $userObject;
+
 			// check for legacy home id (<= 5.0.12)
 			if (\OC\Files\Cache\Storage::exists('local::' . $root . '/')) {
-				self::mount('\OC\Files\Storage\Home', array('user' => $userObject, 'legacy' => true), $user);
+				$homeStorage['arguments']['legacy'] = true;
 			}
-			else {
-				self::mount('\OC\Files\Storage\Home', array('user' => $userObject), $user);
-			}
+
+			self::mount($homeStorage['class'], $homeStorage['arguments'], $user);
+
+			$home = \OC\Files\Filesystem::getStorage($user);
 		}
 		else {
 			self::mount('\OC\Files\Storage\Local', array('datadir' => $root), $user);
 		}
-		$datadir = \OC_Config::getValue("datadirectory", \OC::$SERVERROOT . "/data");
 
-		//move config file to it's new position
-		if (is_file(\OC::$SERVERROOT . '/config/mount.json')) {
-			rename(\OC::$SERVERROOT . '/config/mount.json', $datadir . '/mount.json');
-		}
-		// Load system mount points
-		if (is_file(\OC::$SERVERROOT . '/config/mount.php') or is_file($datadir . '/mount.json')) {
-			if (is_file($datadir . '/mount.json')) {
-				$mountConfig = json_decode(file_get_contents($datadir . '/mount.json'), true);
-			} elseif (is_file(\OC::$SERVERROOT . '/config/mount.php')) {
-				$mountConfig = $parser->parsePHP(file_get_contents(\OC::$SERVERROOT . '/config/mount.php'));
-			}
-			if (isset($mountConfig['global'])) {
-				foreach ($mountConfig['global'] as $mountPoint => $options) {
-					self::mount($options['class'], $options['options'], $mountPoint);
-				}
-			}
-			if (isset($mountConfig['group'])) {
-				foreach ($mountConfig['group'] as $group => $mounts) {
-					if (\OC_Group::inGroup($user, $group)) {
-						foreach ($mounts as $mountPoint => $options) {
-							$mountPoint = self::setUserVars($user, $mountPoint);
-							foreach ($options as &$option) {
-								$option = self::setUserVars($user, $option);
-							}
-							self::mount($options['class'], $options['options'], $mountPoint);
-						}
-					}
-				}
-			}
-			if (isset($mountConfig['user'])) {
-				foreach ($mountConfig['user'] as $mountUser => $mounts) {
-					if ($mountUser === 'all' or strtolower($mountUser) === strtolower($user)) {
-						foreach ($mounts as $mountPoint => $options) {
-							$mountPoint = self::setUserVars($user, $mountPoint);
-							foreach ($options as &$option) {
-								$option = self::setUserVars($user, $option);
-							}
-							self::mount($options['class'], $options['options'], $mountPoint);
-						}
-					}
-				}
-			}
-		}
-		// Load personal mount points
-		if (is_file($root . '/mount.php') or is_file($root . '/mount.json')) {
-			if (is_file($root . '/mount.json')) {
-				$mountConfig = json_decode(file_get_contents($root . '/mount.json'), true);
-			} elseif (is_file($root . '/mount.php')) {
-				$mountConfig = $parser->parsePHP(file_get_contents($root . '/mount.php'));
-			}
-			if (isset($mountConfig['user'][$user])) {
-				foreach ($mountConfig['user'][$user] as $mountPoint => $options) {
-					self::mount($options['class'], $options['options'], $mountPoint);
-				}
-			}
-		}
+		self::mountCacheDir($user);
 
 		// Chance to mount for other storages
 		\OC_Hook::emit('OC_Filesystem', 'post_initMountPoints', array('user' => $user, 'user_dir' => $root));
 	}
 
 	/**
-	 * fill in the correct values for $user
-	 *
-	 * @param string $user
-	 * @param string $input
-	 * @return string
+	 * Mounts the cache directory
+	 * @param string $user user name
 	 */
-	private static function setUserVars($user, $input) {
-		return str_replace('$user', $user, $input);
+	private static function mountCacheDir($user) {
+		$cacheBaseDir = \OC_Config::getValue('cache_path', '');
+		if ($cacheBaseDir === '') {
+			// use local cache dir relative to the user's home
+			$subdir = 'cache';
+			$view = new \OC\Files\View('/' . $user);
+			if(!$view->file_exists($subdir)) {
+				$view->mkdir($subdir);
+			}
+		} else {
+			$cacheDir = rtrim($cacheBaseDir, '/') . '/' . $user;
+			if (!file_exists($cacheDir)) {
+				mkdir($cacheDir, 0770, true);
+			}
+			// mount external cache dir to "/$user/cache" mount point
+			self::mount('\OC\Files\Storage\Local', array('datadir' => $cacheDir), '/' . $user . '/cache');
+		}
 	}
 
 	/**
@@ -412,12 +412,15 @@ class Filesystem {
 	}
 
 	/**
-	 * @brief get the relative path of the root data directory for the current user
+	 * get the relative path of the root data directory for the current user
 	 * @return string
 	 *
 	 * Returns path like /admin/files
 	 */
 	static public function getRoot() {
+		if (!self::$defaultInstance) {
+			return null;
+		}
 		return self::$defaultInstance->getRoot();
 	}
 
@@ -527,7 +530,7 @@ class Filesystem {
 	}
 
 	/**
-	 * @brief check if the directory should be ignored when scanning
+	 * check if the directory should be ignored when scanning
 	 * NOTE: the special directories . and .. would cause never ending recursion
 	 * @param String $dir
 	 * @return boolean
@@ -614,6 +617,9 @@ class Filesystem {
 		return self::$defaultInstance->touch($path, $mtime);
 	}
 
+	/**
+	 * @return string
+	 */
 	static public function file_get_contents($path) {
 		return self::$defaultInstance->file_get_contents($path);
 	}
@@ -638,6 +644,9 @@ class Filesystem {
 		return self::$defaultInstance->fopen($path, $mode);
 	}
 
+	/**
+	 * @return string
+	 */
 	static public function toTmpFile($path) {
 		return self::$defaultInstance->toTmpFile($path);
 	}
@@ -662,6 +671,9 @@ class Filesystem {
 		return self::$defaultInstance->search($query);
 	}
 
+	/**
+	 * @param string $query
+	 */
 	static public function searchByMime($query) {
 		return self::$defaultInstance->searchByMime($query);
 	}
@@ -678,17 +690,26 @@ class Filesystem {
 	}
 
 	/**
-	 * @brief Fix common problems with a file path
+	 * Fix common problems with a file path
 	 * @param string $path
 	 * @param bool $stripTrailingSlash
 	 * @return string
 	 */
-	public static function normalizePath($path, $stripTrailingSlash = true) {
+	public static function normalizePath($path, $stripTrailingSlash = true, $isAbsolutePath = false) {
 		if ($path == '') {
 			return '/';
 		}
+
 		//no windows style slashes
 		$path = str_replace('\\', '/', $path);
+
+		// When normalizing an absolute path, we need to ensure that the drive-letter
+		// is still at the beginning on windows
+		$windows_drive_letter = '';
+		if ($isAbsolutePath && \OC_Util::runningOnWindows() && preg_match('#^([a-zA-Z])$#', $path[0]) && $path[1] == ':' && $path[2] == '/') {
+			$windows_drive_letter = substr($path, 0, 2);
+			$path = substr($path, 2);
+		}
 
 		//add leading slash
 		if ($path[0] !== '/') {
@@ -718,7 +739,7 @@ class Filesystem {
 		//normalize unicode if possible
 		$path = \OC_Util::normalizeUnicode($path);
 
-		return $path;
+		return $windows_drive_letter . $path;
 	}
 
 	/**
@@ -727,14 +748,7 @@ class Filesystem {
 	 * @param string $path
 	 * @param boolean $includeMountPoints whether to add mountpoint sizes,
 	 * defaults to true
-	 * @return array
-	 *
-	 * returns an associative array with the following keys:
-	 * - size
-	 * - mtime
-	 * - mimetype
-	 * - encrypted
-	 * - versioned
+	 * @return \OC\Files\FileInfo
 	 */
 	public static function getFileInfo($path, $includeMountPoints = true) {
 		return self::$defaultInstance->getFileInfo($path, $includeMountPoints);
@@ -758,7 +772,7 @@ class Filesystem {
 	 *
 	 * @param string $directory path under datadirectory
 	 * @param string $mimetype_filter limit returned content to this mimetype or mimepart
-	 * @return array
+	 * @return \OC\Files\FileInfo[]
 	 */
 	public static function getDirectoryContent($directory, $mimetype_filter = '') {
 		return self::$defaultInstance->getDirectoryContent($directory, $mimetype_filter);
@@ -796,5 +810,3 @@ class Filesystem {
 		return self::$defaultInstance->getETag($path);
 	}
 }
-
-\OC_Util::setupFS();

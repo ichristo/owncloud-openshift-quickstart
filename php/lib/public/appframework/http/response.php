@@ -3,7 +3,7 @@
  * ownCloud - App Framework
  *
  * @author Bernhard Posselt, Thomas Tanghus, Bart Visscher
- * @copyright 2012 Bernhard Posselt nukeawhale@gmail.com
+ * @copyright 2012 Bernhard Posselt <dev@bernhard-posselt.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -80,6 +80,7 @@ class Response {
 			$this->addHeader('Cache-Control', 'no-cache, must-revalidate');
 		}
 
+		return $this;
 	}
 
 
@@ -88,13 +89,20 @@ class Response {
 	 * function
 	 * @param string $name The name of the HTTP header
 	 * @param string $value The value, null will delete it
+	 * @return Response Reference to this object
 	 */
 	public function addHeader($name, $value) {
+		$name = trim($name);  // always remove leading and trailing whitespace
+		                      // to be able to reliably check for security 
+		                      // headers
+
 		if(is_null($value)) {
 			unset($this->headers[$name]);
 		} else {
 			$this->headers[$name] = $value;
 		}
+
+		return $this;
 	}
 
 
@@ -130,9 +138,12 @@ class Response {
 	/**
 	* Set response status
 	* @param int $status a HTTP status code, see also the STATUS constants
+	* @return Response Reference to this object
 	*/
 	public function setStatus($status) {
 		$this->status = $status;
+
+		return $this;
 	}
 
 
@@ -155,7 +166,7 @@ class Response {
 
 	/**
 	 * Get "last modified" date
-	 * @return string RFC2822 formatted last modified date
+	 * @return \DateTime RFC2822 formatted last modified date
 	 */
 	public function getLastModified() {
 		return $this->lastModified;
@@ -165,18 +176,24 @@ class Response {
 	/**
 	 * Set the ETag
 	 * @param string $ETag
+	 * @return Response Reference to this object
 	 */
 	public function setETag($ETag) {
 		$this->ETag = $ETag;
+
+		return $this;
 	}
 
 
 	/**
 	 * Set "last modified" date
 	 * @param \DateTime $lastModified
+	 * @return Response Reference to this object
 	 */
 	public function setLastModified($lastModified) {
 		$this->lastModified = $lastModified;
+
+		return $this;
 	}
 
 

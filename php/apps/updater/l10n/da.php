@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "Checking your installation..." => "Undersøger din installation...",
 "Upgrade is not possible. Make sure that your webserver has write access to the following files and directories:" => "Opgradering er ikke mulig. Undersøg om din webserver har skriveadgang til følgende filer og mapper:",
 "Version not found" => "Version ikke fundet",
@@ -12,7 +13,9 @@
 "Moving files..." => "Flytter filer..",
 "All done. Click to the link below to start database upgrade." => "Færdig. Klik på linket herunder for at starte database opgradering",
 "Update failed" => "Opdatering fejlede",
-"The update was unsuccessful. Please report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "Opdateringen fejlede. Rapporter venligst dette problem til  <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud fælleskabet</a>. ",
+"The update was unsuccessful. Please check logs at admin page and report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "Opdateringen lykkedes ikke. Kontroller venligst loggen på administratorsiden og rapporter dette problem til <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud fællesskabet</a>.",
+"Proceed" => "Fortsæt",
+"Updater" => "Updater",
 "Update Center" => "Update Center",
 "Backup Management" => "Backup Administration",
 "Update" => "Opdater",
@@ -23,3 +26,4 @@
 "Delete" => "Slet",
 "No backups found" => "Ingen sikkerhedskopier fundet"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

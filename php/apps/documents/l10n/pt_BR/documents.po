@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# Flávio Veras <flaviove@gmail.com>, 2013
+# Enrico Nicoletto <enrico.BR@gmx.co.uk>, 2014
+# Flávio Veras <flaviove@gmail.com>, 2013-2014
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: translations@owncloud.org\n"
-"POT-Creation-Date: 2013-11-29 11:21-0500\n"
-"PO-Revision-Date: 2013-11-28 13:30+0000\n"
+"POT-Creation-Date: 2014-07-02 00:43-0400\n"
+"PO-Revision-Date: 2014-07-01 10:50+0000\n"
 "Last-Translator: Flávio Veras <flaviove@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/owncloud/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -18,50 +19,85 @@ msgstr ""
 "Language: pt_BR\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: appinfo/app.php:35 templates/personal.php:2 templates/settings.php:2
+#: ajax/admin.php:22
+msgid "Format filter server is down or misconfigured"
+msgstr "O servidor de formato de filtro está desligado ou com configuração errada"
+
+#: ajax/documentController.php:43
+msgid "Can't create document"
+msgstr "Impedido de criar documentos"
+
+#: ajax/documentController.php:82
+msgid "You don't have permission to rename this document"
+msgstr "Você não tem permissão para renomear este documento"
+
+#: ajax/personal.php:26
+msgid "An error occurred while changing directory."
+msgstr "Ocorreu um erro ao mudar de diretório."
+
+#: ajax/personal.php:34
+msgid "Directory saved successfully."
+msgstr "Diretório salvo com sucesso."
+
+#: appinfo/app.php:34 templates/admin.php:3 templates/personal.php:2
+#: templates/settings.php:2
 msgid "Documents"
 msgstr "Documentos"
 
-#: js/3rdparty/webodf/webodf.js:831
-msgid "document-styles"
-msgstr "documento-estilos"
+#: js/documents.js:86
+msgid "Failed to load documents."
+msgstr "Falha ao carregar documentos."
 
-#: js/3rdparty/webodf/webodf.js:832
-msgid "document-content"
-msgstr "documento-conteúdo"
+#: js/documents.js:121
+msgid "No documents are found. Please upload or create a document!"
+msgstr "Nenhum documento foi encontrado. Por favor envie ou crie um documento!"
 
-#: js/documents.js:23 js/locale.js:12 js/viewer/viewer.js:50
-msgid "Close"
-msgstr "Fechar"
-
-#: js/documents.js:26
+#: js/documents.js:156
 msgid "Share"
 msgstr "Compartilhar"
 
-#: js/documents.js:102
+#: js/documents.js:159 js/locale.js:12 js/viewer/viewer.js:77
+msgid "Close"
+msgstr "Fechar"
+
+#: js/documents.js:275
 msgid "No connection to server. Trying to reconnect."
 msgstr "Sem conexão com o servidor. Tentando reconectar."
 
-#: js/documents.js:153
+#: js/documents.js:339
 msgid ""
 "Leaving this page in Editor mode might cause unsaved data. It is recommended"
 " to use 'Close' button instead."
-msgstr "Deixando esta página aberta para o modo de Edição pode causar o não salvamento de dados. É recomendado usar o botão \"Fechar\"."
+msgstr "Deixando esta página no modo de Edição pode causar o não salvamento de dados. É recomendado usar o botão \"Fechar\"."
 
-#: js/documents.js:166
+#: js/documents.js:360
 msgid ""
 "Failed to load this document. Please check if it can be opened with an "
 "external odt editor. This might also mean it has been unshared or deleted "
 "recently."
-msgstr "Falha ao carregar o documento. Por favor verifique se o arquivo derá ser aberto com um editor externo odt. Isso também pode significar que o arquivo foi descompartilhado ou eliminado recentemente."
+msgstr "Falha ao carregar o documento. Por favor verifique se o arquivo poderá ser aberto com um editor externo odt. Isso também pode significar que o arquivo foi descompartilhado ou eliminado recentemente."
 
-#: js/documents.js:332
-msgid "Failed to load documents."
-msgstr "Falha ao carregar documentos."
+#: js/documents.js:382 js/locale.js:39
+msgid "Save"
+msgstr "Salvar"
 
-#: js/documents.js:375
-msgid "No documents are found. Please upload or create a document!"
-msgstr "Nenhum documento foi encontrado. Por favor envie ou crie um documento!"
+#: js/documents.js:720 templates/documents.php:31
+msgid "Loading documents..."
+msgstr "Carregando documentos..."
+
+#: js/documents.js:753
+msgid "'.' is an invalid file name."
+msgstr "'.' é um nome de arquivo inválido."
+
+#: js/documents.js:755
+msgid "File name cannot be empty."
+msgstr "O nome do arquivo não pode estar vazio."
+
+#: js/documents.js:762
+msgid ""
+"Invalid name, '\\', '/', '<', '>', ':', '\"', '|', '?' and '*' are not "
+"allowed."
+msgstr "Nome inválido, '\\', '/', '<', '>', ':', '\"', '|', '?' e '*' não são permitidos."
 
 #: js/locale.js:1
 msgid "Align Left"
@@ -121,7 +157,7 @@ msgstr "Diminuir recuo"
 
 #: js/locale.js:16
 msgid "Default Style"
-msgstr "Estilo padrão"
+msgstr "Estilo Padrão"
 
 #: js/locale.js:17
 msgid "Delete"
@@ -211,10 +247,6 @@ msgstr "Refazer"
 msgid "Right"
 msgstr "Direita"
 
-#: js/locale.js:39
-msgid "Save"
-msgstr "Guardar"
-
 #: js/locale.js:40
 msgid "Size"
 msgstr "Tamanho"
@@ -225,7 +257,7 @@ msgstr "Espaçamento"
 
 #: js/locale.js:42
 msgid "Strikethrough"
-msgstr "Tachado"
+msgstr "Rasurado"
 
 #: js/locale.js:43
 msgid "Style"
@@ -251,29 +283,62 @@ msgstr "Desfazer"
 msgid "Unknown Author"
 msgstr "Autor Desconhecido"
 
-#: lib/invite.php:64
-msgid "Sent"
-msgstr "Enviar"
+#: js/viewer/viewer.js:31
+msgid "Edit"
+msgstr "Editar"
 
-#: lib/invite.php:65 lib/invite.php:75
-msgid "Declined"
-msgstr "Declinado"
+#: lib/db/member.php:39
+msgid "guest"
+msgstr "convidado"
 
-#: lib/invite.php:66 lib/invite.php:76
-msgid "Accepted"
-msgstr "Aceito"
+#: templates/admin.php:4
+msgid "MS Word support (requires openOffice/libreOffice)"
+msgstr "Suporte  a MS Word (requer openOdffice/libreOffice)"
 
-#: lib/invite.php:74
-msgid "Incoming"
-msgstr "entrando"
+#: templates/admin.php:9
+msgid "Local"
+msgstr "Local"
+
+#: templates/admin.php:10
+msgid ""
+"openOffice/libreOffice is installed on this server. Path to binary is "
+"provided via preview_libreoffice_path in config.php"
+msgstr "openOffice/libreOffice está instalado no servidor. O caminho para o binário é disponibilizado via preview_libreoffice_path no config.php"
+
+#: templates/admin.php:16
+msgid "External"
+msgstr "Externo"
+
+#: templates/admin.php:17
+msgid ""
+"openOffice/libreOffice is installed on external server running a format "
+"filter server"
+msgstr "openOffice/libreOffice está instalado em um servidor externo executando um servidor de filtro de formato"
+
+#: templates/admin.php:22
+msgid "scheme://domain.tld[:port]"
+msgstr "scheme://domain.tld[:port]"
+
+#: templates/admin.php:25
+msgid "Server URL"
+msgstr "URL do servidor"
+
+#: templates/admin.php:27
+msgid "Apply"
+msgstr "Aplicar"
 
 #: templates/documents.php:5
 msgid "New document"
 msgstr "Novo documento"
 
-#: templates/documents.php:7 templates/documents.php:27
+#: templates/documents.php:7
+#, php-format
+msgid "Upload (max. %s)"
+msgstr "Envio (max. %s)"
+
+#: templates/documents.php:27
 msgid "Upload"
-msgstr "Upload"
+msgstr "Enviar"
 
 #: templates/personal.php:4
 msgid "Save new documents to"
@@ -288,18 +353,15 @@ msgid "Password"
 msgstr "Senha"
 
 #: templates/public.php:17
-msgid "Please enter your nickname"
-msgstr "Por favor entre seu apelido"
+#, php-format
+msgid "Guest %s"
+msgstr "Convidado %s"
 
-#: templates/public.php:18
-msgid "Join"
-msgstr "Juntar"
-
-#: templates/public.php:24
+#: templates/public.php:21
 msgid ""
 "This link has been expired or is never existed. Please contact the person "
 "who shared it with you for details."
-msgstr "Este link espirou ou numca existiu. Por favor faça contato com a pessoa que compartilhou este link com você para maiores detalhes."
+msgstr "Este link expirou ou nunca existiu. Por favor faça contato com a pessoa que compartilhou este link com você para maiores detalhes."
 
 #: templates/settings.php:9
 msgid "Advanced feature-set"

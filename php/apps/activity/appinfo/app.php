@@ -16,23 +16,27 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
+ * You should have received a copy of the GNU Affero General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
+$l = OC_L10N::get('activity');
+
 // add an navigation entry
-$l=OC_L10N::get('activity');
 OCP\App::addNavigationEntry(array(
 	'id' => 'activity',
 	'order' => 1,
-	'href' => OCP\Util::linkTo('activity', 'index.php'),
+	'href' => OCP\Util::linkToRoute('activity.index'),
 	'icon' => OCP\Util::imagePath('activity', 'activity.svg'),
-	'name' => $l->t('Activity')));
+	'name' => $l->t('Activity'),
+));
 
 // register the hooks for filesystem operations. All other events from other apps has to be send via the public api
 OCA\Activity\Hooks::register();
 
-OC_Search::registerProvider('\OCA\Activity\Search');
+// Personal settings for notifications and emails
+OCP\App::registerPersonal('activity', 'personal');
 
-
+// Cron job for sending Emails
+OCP\Backgroundjob::registerJob('OCA\Activity\BackgroundJob\EmailNotification');

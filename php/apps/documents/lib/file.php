@@ -15,7 +15,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
  *  
- * You should have received a copy of the GNU Lesser General Public 
+ * You should have received a copy of the GNU Affero General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
@@ -28,6 +28,7 @@ class File {
 	protected $owner;
 	protected $path;
 	protected $sharing;
+	protected $token ='';
 	protected $passwordProtected = false;
 
 
@@ -47,28 +48,18 @@ class File {
 		}
 	}
 	
+	
 	public static function getByShareToken($token){
-		$linkItem = \OCP\Share::getShareByToken($token);
+		$linkItem = \OCP\Share::getShareByToken($token, false);
 		if (is_array($linkItem) && isset($linkItem['uid_owner'])) {
 			// seems to be a valid share
 			$rootLinkItem = \OCP\Share::resolveReShare($linkItem);
-			$fileOwner = $rootLinkItem['uid_owner'];
 		} else {
 			throw new \Exception('This file was probably unshared');
 		}
 		
-		if (!isset($rootLinkItem['path']) && isset($rootLinkItem['file_target'])){
-			$rootLinkItem['path'] = $rootLinkItem['file_target'];
-		}
 		$file = new File($rootLinkItem['file_source'], array($rootLinkItem));
-		
-
-		if (isset($rootLinkItem['uid_owner'])){
-			\OC_Util::tearDownFS();
-			\OC_Util::setupFS($rootLinkItem['uid_owner']);
-			$file->setOwner($rootLinkItem['uid_owner']);
-			$file->setPath(\OC\Files\Filesystem::getPath($linkItem['file_source']));
-		}
+		$file->setToken($token);
 		
 		if (isset($linkItem['share_with']) && !empty($linkItem['share_with'])){
 			$file->setPasswordProtected(true);
@@ -77,6 +68,10 @@ class File {
 		return $file;
 	}
 
+	public function getToken(){
+		return $this->token;
+	}
+	
 	public function getFileId(){
 		return $this->fileId;
 	}
@@ -89,28 +84,25 @@ class File {
 		$this->path = $path;
 	}
 	
+	public function setToken($token){
+		$this->token = $token;
+	}
+	
 	public function isPublicShare(){
-		foreach ($this->sharing as $share){
-			if (
-					$share['share_type'] == \OCP\Share::SHARE_TYPE_LINK 
-					|| $share['share_type'] == \OCP\Share::SHARE_TYPE_EMAIL
-				){
-				return true;
-			}
-		}
-		return false;
+		return  !empty($this->token);
 	}
 	
 	public function isPasswordProtected(){
 		return $this->passwordProtected;
 	}
-	
+
 	public function checkPassword($password){
 		$shareId  = $this->getShareId();
 		if (!$this->isPasswordProtected()
-			|| (\OC::$session->exists('public_link_authenticated')
-				&& \OC::$session->get('public_link_authenticated') === $shareId)	
-			){
+			|| (\OC::$server->getSession()->exists('public_link_authenticated')
+				&& \OC::$server->getSession()->get('public_link_authenticated') === $shareId
+			)
+		){
 				return true;
 		}
 		
@@ -120,7 +112,7 @@ class File {
 		if ($hasher->CheckPassword($password.\OC_Config::getValue('passwordsalt', ''),
 									 $this->getPassword())) {
 			// Save item id in session for future request
-			\OC::$session->set('public_link_authenticated', $shareId);
+			\OC::$server->getSession()->set('public_link_authenticated', $shareId);
 			return true;
 		}
 		return false;
@@ -151,45 +143,47 @@ class File {
 		return $permissions;
 	}
 
-	/**
-	 * Rename this file to the given name
-	 * @param string $newName name to give (without path)
-	 * @return boolean true if rename succeeded, false otherwise
-	 */
-	public function renameTo($newName) {
-		list($owner, $path) = $this->getOwnerViewAndPath();
-		$newPath = dirname($path) . '/' . $newName;
-		return \OC\Files\Filesystem::rename($path, $newPath);
-	}
 
 	/**
 	 * 
 	 * @return string owner of the current file item
 	 * @throws \Exception
 	 */
-	public function getOwnerViewAndPath(){
-		if (!$this->owner || !$this->path){
-			if ($this->isPublicShare()){
-				list($owner, $path) = $this->getSharedFileOwnerAndPath();
+	public function getOwnerViewAndPath($useDefaultRoot = false){
+		if ($this->isPublicShare()){
+			$rootLinkItem = \OCP\Share::resolveReShare($this->sharing[0]);
+			if (isset($rootLinkItem['uid_owner'])){
+				$owner = $rootLinkItem['uid_owner'];
+				\OCP\JSON::checkUserExists($rootLinkItem['uid_owner']);
+				\OC_Util::tearDownFS();
+				\OC_Util::setupFS($rootLinkItem['uid_owner']);
 			} else {
-				$owner = \OCP\User::getUser();
-				$path = Storage::resolvePath($this->fileId);
-				if (!$path){
-					throw new \Exception($this->fileId . ' can not be resolved');
-				}
+				throw new \Exception($this->fileId . ' is a broken share');
 			}
-			
-			$this->path = $path;
-			$this->owner = $owner;
+			$view = new View('/' . $owner . '/files');
+		} else {
+			$owner = \OCP\User::getUser();
+			$root = '/' . $owner;
+			if ($useDefaultRoot){
+				$root .= '/' . 'files';
+			}
+			$view = new View($root);
 		}
+			
+		$path = $view->getPath($this->fileId);
+		if (!$path){
+			throw new \Exception($this->fileId . ' can not be resolved');
+		}
+		$this->path = $path;
+		$this->owner = $owner;
 		
-		$view = new View('/' . $this->owner . '/files');
 		if (!$view->file_exists($this->path)){
 			throw new \Exception($this->path . ' doesn\'t exist');
 		}
 
 		return array($view, $this->path);
 	}
+	
 
 	public function getOwner(){
 		if (!$this->owner){
@@ -198,38 +192,6 @@ class File {
 		return $this->owner;
 	}
 	
-	/**
-	 * public links only
-	 * @return array
-	 */
-	protected function getSharedFileOwnerAndPath(){
-		foreach ($this->sharing as $share){
-			$rootLinkItem = \OCP\Share::resolveReShare($share);
-			if (isset($rootLinkItem['uid_owner'])){
-				$owner = $rootLinkItem['uid_owner'];
-			} else {
-				$owner = false;
-			}
-			\OC_Util::tearDownFS();
-			\OC_Util::setupFS($owner);
-			return array(
-					$owner,
-					\OC\Files\Filesystem::getPath($rootLinkItem['file_source'])
-                );
-		}
-
-		return $result;
-	}
-
-	protected function getLocalFileOwnerAndPath(){
-		$fileInfo = \OC\Files\Cache\Cache::getById($this->fileId);
-		$owner = \OCP\User::getUser();
-		if (!$owner){
-			throw new Exception('Guest users can\'t access local files. This one was probably unshared recently.');
-		}
-
-		return array ($owner, @$fileInfo[1]);
-	}
 	
 	protected function getPassword(){
 		return $this->sharing[0]['share_with'];
@@ -253,7 +215,7 @@ class File {
 		
 		$query = \OC_DB::prepare('SELECT `*PREFIX*share`.`id`, `item_type`, `*PREFIX*share`.`parent`, `uid_owner`, '
 							.'`share_type`, `share_with`, `file_source`, `path`, `file_target`, '
-							.'`permissions`, `expiration`, `storage`, `*PREFIX*filecache`.`parent` as `file_parent`, '
+							.'`*PREFIX*share`.`permissions`, `expiration`, `storage`, `*PREFIX*filecache`.`parent` as `file_parent`, '
 							.'`name`, `mtime`, `mimetype`, `mimepart`, `size`, `encrypted`, `etag`' 
 							.'FROM `*PREFIX*share` INNER JOIN `*PREFIX*filecache` ON `file_source` = `*PREFIX*filecache`.`fileid` WHERE `item_type` = \'file\' ' . $where);
 		$result = $query->execute($values);

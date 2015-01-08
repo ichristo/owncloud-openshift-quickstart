@@ -10,6 +10,7 @@
 namespace OC\User;
 
 use OC\Hooks\Emitter;
+use OCP\IUserSession;
 
 /**
  * Class Session
@@ -22,12 +23,14 @@ use OC\Hooks\Emitter;
  * - preCreateUser(string $uid, string $password)
  * - postCreateUser(\OC\User\User $user)
  * - preLogin(string $user, string $password)
- * - postLogin(\OC\User\User $user)
+ * - postLogin(\OC\User\User $user, string $password)
+ * - preRememberedLogin(string $uid)
+ * - postRememberedLogin(\OC\User\User $user)
  * - logout()
  *
  * @package OC\User
  */
-class Session implements Emitter, \OCP\IUserSession {
+class Session implements IUserSession, Emitter {
 	/**
 	 * @var \OC\User\Manager $manager
 	 */
@@ -82,13 +85,13 @@ class Session implements Emitter, \OCP\IUserSession {
 	/**
 	 * set the currently active user
 	 *
-	 * @param \OC\User\User $user
+	 * @param \OC\User\User|null $user
 	 */
 	public function setUser($user) {
 		if (is_null($user)) {
-			$this->session->remove('user_id');
+			$this->getSession()->remove('user_id');
 		} else {
-			$this->session->set('user_id', $user->getUID());
+			$this->getSession()->set('user_id', $user->getUID());
 		}
 		$this->activeUser = $user;
 	}
@@ -102,8 +105,8 @@ class Session implements Emitter, \OCP\IUserSession {
 		if ($this->activeUser) {
 			return $this->activeUser;
 		} else {
-			$uid = $this->session->get('user_id');
-			if ($uid) {
+			$uid = $this->getSession()->get('user_id');
+			if ($uid !== null) {
 				$this->activeUser = $this->manager->get($uid);
 				return $this->activeUser;
 			} else {
@@ -115,13 +118,13 @@ class Session implements Emitter, \OCP\IUserSession {
 	/**
 	 * set the login name
 	 *
-	 * @param string $loginName for the logged in user
+	 * @param string|null $loginName for the logged in user
 	 */
 	public function setLoginName($loginName) {
 		if (is_null($loginName)) {
-			$this->session->remove('loginname');
+			$this->getSession()->remove('loginname');
 		} else {
-			$this->session->set('loginname', $loginName);
+			$this->getSession()->set('loginname', $loginName);
 		}
 	}
 
@@ -132,12 +135,12 @@ class Session implements Emitter, \OCP\IUserSession {
 	 */
 	public function getLoginName() {
 		if ($this->activeUser) {
-			return $this->session->get('loginname');
+			return $this->getSession()->get('loginname');
 		} else {
-			$uid = $this->session->get('user_id');
+			$uid = $this->getSession()->get('user_id');
 			if ($uid) {
 				$this->activeUser = $this->manager->get($uid);
-				return $this->session->get('loginname');
+				return $this->getSession()->get('loginname');
 			} else {
 				return null;
 			}
@@ -149,7 +152,7 @@ class Session implements Emitter, \OCP\IUserSession {
 	 *
 	 * @param string $uid
 	 * @param string $password
-	 * @return bool
+	 * @return boolean|null
 	 */
 	public function login($uid, $password) {
 		$this->manager->emit('\OC\User', 'preLogin', array($uid, $password));
@@ -168,6 +171,39 @@ class Session implements Emitter, \OCP\IUserSession {
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * perform login using the magic cookie (remember login)
+	 *
+	 * @param string $uid the username
+	 * @param string $currentToken
+	 * @return bool
+	 */
+	public function loginWithCookie($uid, $currentToken) {
+		$this->manager->emit('\OC\User', 'preRememberedLogin', array($uid));
+		$user = $this->manager->get($uid);
+		if(is_null($user)) {
+			// user does not exist
+			return false;
+		}
+
+		// get stored tokens
+		$tokens = \OC_Preferences::getKeys($uid, 'login_token');
+		// test cookies token against stored tokens
+		if(!in_array($currentToken, $tokens, true)) {
+			return false;
+		}
+		// replace successfully used token with a new one
+		\OC_Preferences::deleteKey($uid, 'login_token', $currentToken);
+		$newToken = \OC_Util::generateRandomBytes(32);
+		\OC_Preferences::setValue($uid, 'login_token', $newToken, time());
+		$this->setMagicInCookie($user->getUID(), $newToken);
+
+		//login
+		$this->setUser($user);
+		$this->manager->emit('\OC\User', 'postRememberedLogin', array($user));
+		return true;
 	}
 
 	/**
@@ -191,7 +227,7 @@ class Session implements Emitter, \OCP\IUserSession {
 		$expires = time() + \OC_Config::getValue('remember_login_cookie_lifetime', 60 * 60 * 24 * 15);
 		setcookie("oc_username", $username, $expires, \OC::$WEBROOT, '', $secure_cookie);
 		setcookie("oc_token", $token, $expires, \OC::$WEBROOT, '', $secure_cookie, true);
-		setcookie("oc_remember_login", true, $expires, \OC::$WEBROOT, '', $secure_cookie);
+		setcookie("oc_remember_login", "1", $expires, \OC::$WEBROOT, '', $secure_cookie);
 	}
 
 	/**
@@ -209,5 +245,22 @@ class Session implements Emitter, \OCP\IUserSession {
 		setcookie('oc_username', '', time()-3600, \OC::$WEBROOT . '/');
 		setcookie('oc_token', '', time()-3600, \OC::$WEBROOT . '/');
 		setcookie('oc_remember_login', '', time()-3600, \OC::$WEBROOT . '/');
+	}
+
+	/**
+	 * will keep the session instance in sync with \OC::$session
+	 * @return \OC\Session\Session
+	 */
+	private function getSession() {
+		//keep $this->session in sync with \OC::$session
+		if ($this->session !== \OC::$session) {
+			\OC::$server->getLogger()->debug(
+				'\OC::$session has been replaced with a new instance. '.
+				'Closing and replacing session in UserSession instance.'
+			);
+			$this->session->close();
+			$this->session = \OC::$session;
+		}
+		return $this->session;
 	}
 }

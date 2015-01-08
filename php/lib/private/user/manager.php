@@ -10,6 +10,7 @@
 namespace OC\User;
 
 use OC\Hooks\PublicEmitter;
+use OCP\IUserManager;
 
 /**
  * Class Manager
@@ -24,9 +25,9 @@ use OC\Hooks\PublicEmitter;
  *
  * @package OC\User
  */
-class Manager extends PublicEmitter {
+class Manager extends PublicEmitter implements IUserManager {
 	/**
-	 * @var \OC_User_Backend[] $backends
+	 * @var \OC_User_Interface[] $backends
 	 */
 	private $backends = array();
 
@@ -52,12 +53,18 @@ class Manager extends PublicEmitter {
 				unset($cachedUsers[$i]);
 			}
 		});
+		$this->listen('\OC\User', 'postLogin', function ($user) {
+			$user->updateLastLoginTimestamp();
+		});
+		$this->listen('\OC\User', 'postRememberedLogin', function ($user) {
+			$user->updateLastLoginTimestamp();
+		});
 	}
 
 	/**
 	 * register a user backend
 	 *
-	 * @param \OC_User_Backend $backend
+	 * @param \OC_User_Interface $backend
 	 */
 	public function registerBackend($backend) {
 		$this->backends[] = $backend;
@@ -66,7 +73,7 @@ class Manager extends PublicEmitter {
 	/**
 	 * remove a user backend
 	 *
-	 * @param \OC_User_Backend $backend
+	 * @param \OC_User_Interface $backend
 	 */
 	public function removeBackend($backend) {
 		$this->cachedUsers = array();
@@ -105,7 +112,7 @@ class Manager extends PublicEmitter {
 	 * get or construct the user object
 	 *
 	 * @param string $uid
-	 * @param \OC_User_Backend $backend
+	 * @param \OC_User_Interface $backend
 	 * @return \OC\User\User
 	 */
 	protected function getUserObject($uid, $backend) {
@@ -144,8 +151,8 @@ class Manager extends PublicEmitter {
 	/**
 	 * Check if the password is valid for the user
 	 *
-	 * @param $loginname
-	 * @param $password
+	 * @param string $loginname
+	 * @param string $password
 	 * @return mixed the User object on success, false otherwise
 	 */
 	public function checkPassword($loginname, $password) {
@@ -157,6 +164,11 @@ class Manager extends PublicEmitter {
 				}
 			}
 		}
+
+		$remoteAddr = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+		$forwardedFor = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : '';
+
+		\OC::$server->getLogger()->warning('Login failed: \''. $loginname .'\' (Remote IP: \''. $remoteAddr .'\', X-Forwarded-For: \''. $forwardedFor .'\')', array('app' => 'core'));
 		return false;
 	}
 
@@ -174,19 +186,12 @@ class Manager extends PublicEmitter {
 			$backendUsers = $backend->getUsers($pattern, $limit, $offset);
 			if (is_array($backendUsers)) {
 				foreach ($backendUsers as $uid) {
-					$users[] = $this->getUserObject($uid, $backend);
-					if (!is_null($limit)) {
-						$limit--;
-					}
-					if (!is_null($offset) and $offset > 0) {
-						$offset--;
-					}
-
+					$users[$uid] = $this->getUserObject($uid, $backend);
 				}
 			}
 		}
 
-		usort($users, function ($a, $b) {
+		uasort($users, function ($a, $b) {
 			/**
 			 * @var \OC\User\User $a
 			 * @var \OC\User\User $b
@@ -211,13 +216,6 @@ class Manager extends PublicEmitter {
 			if (is_array($backendUsers)) {
 				foreach ($backendUsers as $uid => $displayName) {
 					$users[] = $this->getUserObject($uid, $backend);
-					if (!is_null($limit)) {
-						$limit--;
-					}
-					if (!is_null($offset) and $offset > 0) {
-						$offset--;
-					}
-
 				}
 			}
 		}
@@ -236,27 +234,28 @@ class Manager extends PublicEmitter {
 	 * @param string $uid
 	 * @param string $password
 	 * @throws \Exception
-	 * @return bool | \OC\User\User the created user of false
+	 * @return bool|\OC\User\User the created user of false
 	 */
 	public function createUser($uid, $password) {
+		$l = \OC_L10N::get('lib');
 		// Check the name for bad characters
 		// Allowed are: "a-z", "A-Z", "0-9" and "_.@-"
 		if (preg_match('/[^a-zA-Z0-9 _\.@\-]/', $uid)) {
-			throw new \Exception('Only the following characters are allowed in a username:'
-				. ' "a-z", "A-Z", "0-9", and "_.@-"');
+			throw new \Exception($l->t('Only the following characters are allowed in a username:'
+				. ' "a-z", "A-Z", "0-9", and "_.@-"'));
 		}
 		// No empty username
 		if (trim($uid) == '') {
-			throw new \Exception('A valid username must be provided');
+			throw new \Exception($l->t('A valid username must be provided'));
 		}
 		// No empty password
 		if (trim($password) == '') {
-			throw new \Exception('A valid password must be provided');
+			throw new \Exception($l->t('A valid password must be provided'));
 		}
 
 		// Check if user already exists
 		if ($this->userExists($uid)) {
-			throw new \Exception('The username is already being used');
+			throw new \Exception($l->t('The username is already being used'));
 		}
 
 		$this->emit('\OC\User', 'preCreateUser', array($uid, $password));
@@ -264,6 +263,13 @@ class Manager extends PublicEmitter {
 			if ($backend->implementsActions(\OC_USER_BACKEND_CREATE_USER)) {
 				$backend->createUser($uid, $password);
 				$user = $this->getUserObject($uid, $backend);
+
+				// make sure that the users file system is initialized before we
+				// emit the post hook
+				if (!\OC_User::isLoggedIn()) {
+					\OC_Util::setupFS($uid);
+				}
+
 				$this->emit('\OC\User', 'postCreateUser', array($user, $password));
 				return $user;
 			}
@@ -274,7 +280,7 @@ class Manager extends PublicEmitter {
 	/**
 	 * returns how many users per backend exist (if supported by backend)
 	 *
-	 * @return array with backend class as key and count number as value
+	 * @return array an array of backend class as key and count number as value
 	 */
 	public function countUsers() {
 		$userCountStatistics = array();

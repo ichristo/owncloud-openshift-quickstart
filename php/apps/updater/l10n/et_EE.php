@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "Checking your installation..." => "Paigalduse kontrollimine…",
 "Upgrade is not possible. Make sure that your webserver has write access to the following files and directories:" => "Uuendamine pole võimalik. Palun luba oma veebiserveril kirjutamine järgmistesse failidesse ja kataloogidesse:",
 "Version not found" => "Versiooni ei leitud",
@@ -12,7 +13,9 @@
 "Moving files..." => "Failide liigutamine…",
 "All done. Click to the link below to start database upgrade." => "Kõik valmis. Klõpsa andmebaasi uuenduse alustamiseks allolevat linki.",
 "Update failed" => "Uuendamine nurjus",
-"The update was unsuccessful. Please report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "Uuendamine nurjus. Palun teata sellest <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloudi kogukonnale</a>.",
+"The update was unsuccessful. Please check logs at admin page and report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "Uuendus ebaõnnestus. Palun vaata admin lehelt logisid ning teavita probleemidest  <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud kogukonda</a>.",
+"Proceed" => "Jätka",
+"Updater" => "Uuendaja",
 "Update Center" => "Uuendamiskeskus",
 "Backup Management" => "Varukoopiate haldamine",
 "Update" => "Uuenda",
@@ -23,3 +26,4 @@
 "Delete" => "Kustuta",
 "No backups found" => "Varukoopiaid ei leitud"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

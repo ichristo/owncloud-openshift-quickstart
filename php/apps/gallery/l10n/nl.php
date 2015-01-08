@@ -1,7 +1,9 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Afbeeldingen",
-"Shared by" => "Gedeeld door",
+"Picture view" => "Afbeeldingenoverzicht",
 "Error loading slideshow template" => "Fout bij laden diashow sjabloon",
 "Share" => "Delen",
-"The \"Image Viewer\" application also need to be enabled to use this application." => "De \"Image Viewer\" applicatie moet ook worden geactiveerd om deze applicatie te gebruiken."
+"No pictures found! If you upload pictures in the files app, they will be displayed here." => "Geen afbeeldingen gevonden! Als u afbeeldingen upload in de bestandsapp, worden ze hier getoond.",
+"shared by %s" => "gedeeld door %s",
+"File list" => "Bestandenlijst"
 );

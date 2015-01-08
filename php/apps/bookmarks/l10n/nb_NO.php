@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "No file provided for import" => "Ingen fil valgt for importering",
 "Unsupported file type for import" => "Ikke støttet filtype for importering",
 "Bookmarks" => "Bokmerker",
@@ -20,15 +21,17 @@
 "Delete" => "Slett",
 "Edit" => "Endre",
 "Cancel" => "Avbryt",
-"Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Dra denne til din nettlesers bokmerker, og klikk den når du ønsker å hurtig legge til en nettside som bokmerke:",
+"Drag this to your browser bookmarks and click it, when you want to bookmark a webpage quickly:" => "Dra denne til bokmerkene i nettleseren din og klikk på den når du ønsker å raskt legge til en nettside som bokmerke:",
+"Add to ownCloud" => "Legg til i ownCloud",
 "Address" => "Adresse",
 "Add" => "Legg til",
 "Related Tags" => "Relaterte tagger",
 "Settings" => "Innstillinger",
 "You have no bookmarks" => "Du har ingen bokmerker",
 "You can also try to import a bookmark file" => "Du kan også prøve å importere en bokmerke-fil",
-"Bookmarklet" => "Bokmerket",
+"Bookmarklet" => "Bokmerke-applet",
 "Export & Import" => "Eksport og import",
 "Export" => "Eksporter",
 "Import" => "Importer"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

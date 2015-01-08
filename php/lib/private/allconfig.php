@@ -17,24 +17,41 @@ class AllConfig implements \OCP\IConfig {
 	 * Sets a new system wide value
 	 *
 	 * @param string $key the key of the value, under which will be saved
-	 * @param string $value the value that should be stored
-	 * @todo need a use case for this
+	 * @param mixed $value the value that should be stored
 	 */
-// 	public function setSystemValue($key, $value) {
-// 		\OCP\Config::setSystemValue($key, $value);
-// 	}
+ 	public function setSystemValue($key, $value) {
+ 		\OCP\Config::setSystemValue($key, $value);
+	}
 
 	/**
 	 * Looks up a system wide defined value
 	 *
 	 * @param string $key the key of the value, under which it was saved
-	 * @param string $default the default value to be returned if the value isn't set
+	 * @param mixed $default the default value to be returned if the value isn't set
 	 * @return string the saved value
 	 */
 	public function getSystemValue($key, $default = '') {
 		return \OCP\Config::getSystemValue($key, $default);
 	}
 
+	/**
+	 * Delete a system wide defined value
+	 *
+	 * @param string $key the key of the value, under which it was saved
+	 */
+	public function deleteSystemValue($key) {
+		\OCP\Config::deleteSystemValue($key);
+	}
+
+	/**
+	 * Get all keys stored for an app
+	 *
+	 * @param string $appName the appName that we stored the value under
+	 * @return string[] the keys stored for the app
+	 */
+	public function getAppKeys($appName) {
+		return \OC::$server->getAppConfig()->getKeys($appName);
+	}
 
 	/**
 	 * Writes a new app wide value

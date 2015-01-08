@@ -8,6 +8,9 @@
 
 namespace OC\Files\Storage;
 
+use OC\Files\Filesystem;
+use OC\Files\Cache\Watcher;
+
 /**
  * Storage backend class for providing common filesystem operation methods
  * which are not storage-backend specific.
@@ -19,7 +22,6 @@ namespace OC\Files\Storage;
  * Some \OC\Files\Storage\Common methods call functions which are first defined
  * in classes which extend it, e.g. $this->stat() .
  */
-
 abstract class Common implements \OC\Files\Storage\Storage {
 	protected $cache;
 	protected $scanner;
@@ -27,15 +29,36 @@ abstract class Common implements \OC\Files\Storage\Storage {
 	protected $watcher;
 	protected $storageCache;
 
+	/**
+	 * @var string[]
+	 */
+	protected $cachedFiles = array();
+
 	public function __construct($parameters) {
 	}
 
+	/**
+	 * Remove a file or folder
+	 *
+	 * @param string $path
+	 * @return bool
+	 */
+	protected function remove($path) {
+		if ($this->is_dir($path)) {
+			return $this->rmdir($path);
+		} else if ($this->is_file($path)) {
+			return $this->unlink($path);
+		} else {
+			return false;
+		}
+	}
+
 	public function is_dir($path) {
-		return $this->filetype($path) == 'dir';
+		return $this->filetype($path) === 'dir';
 	}
 
 	public function is_file($path) {
-		return $this->filetype($path) == 'file';
+		return $this->filetype($path) === 'file';
 	}
 
 	public function filesize($path) {
@@ -76,6 +99,10 @@ abstract class Common implements \OC\Files\Storage\Storage {
 	}
 
 	public function isSharable($path) {
+		if (\OC_Util::isSharingDisabledForUser()) {
+			return false;
+		}
+
 		return $this->isReadable($path);
 	}
 
@@ -113,68 +140,47 @@ abstract class Common implements \OC\Files\Storage\Storage {
 		if (!$handle) {
 			return false;
 		}
-		$size = $this->filesize($path);
-		if ($size == 0) {
-			return '';
-		}
-		return fread($handle, $size);
+		$data = stream_get_contents($handle);
+		fclose($handle);
+		return $data;
 	}
 
 	public function file_put_contents($path, $data) {
 		$handle = $this->fopen($path, "w");
-		return fwrite($handle, $data);
+		$this->removeCachedFile($path);
+		$count = fwrite($handle, $data);
+		fclose($handle);
+		return $count;
 	}
 
 	public function rename($path1, $path2) {
-		if ($this->copy($path1, $path2)) {
-			return $this->unlink($path1);
-		} else {
-			return false;
-		}
+		$this->remove($path2);
+
+		$this->removeCachedFile($path1);
+		return $this->copy($path1, $path2) and $this->remove($path1);
 	}
 
 	public function copy($path1, $path2) {
-		$source = $this->fopen($path1, 'r');
-		$target = $this->fopen($path2, 'w');
-		list($count, $result) = \OC_Helper::streamCopy($source, $target);
-		return $result;
-	}
-
-	/**
-	 * @brief Deletes all files and folders recursively within a directory
-	 * @param string $directory The directory whose contents will be deleted
-	 * @param bool $empty Flag indicating whether directory will be emptied
-	 * @returns bool
-	 *
-	 * @note By default the directory specified by $directory will be
-	 * deleted together with its contents. To avoid this set $empty to true
-	 */
-	public function deleteAll($directory, $empty = false) {
-		$directory = trim($directory, '/');
-		if (!$this->is_dir($directory) || !$this->isReadable($directory)) {
-			return false;
-		} else {
-			$directoryHandle = $this->opendir($directory);
-			if (is_resource($directoryHandle)) {
-				while (($contents = readdir($directoryHandle)) !== false) {
-					if (!\OC\Files\Filesystem::isIgnoredDir($contents)) {
-						$path = $directory . '/' . $contents;
-						if ($this->is_dir($path)) {
-							$this->deleteAll($path);
-						} else {
-							$this->unlink($path);
-						}
+		if ($this->is_dir($path1)) {
+			$this->remove($path2);
+			$dir = $this->opendir($path1);
+			$this->mkdir($path2);
+			while ($file = readdir($dir)) {
+				if (!Filesystem::isIgnoredDir($file)) {
+					if (!$this->copy($path1 . '/' . $file, $path2 . '/' . $file)) {
+						return false;
 					}
 				}
 			}
-			if ($empty === false) {
-				if (!$this->rmdir($directory)) {
-					return false;
-				}
-			}
+			closedir($dir);
 			return true;
+		} else {
+			$source = $this->fopen($path1, 'r');
+			$target = $this->fopen($path2, 'w');
+			list(, $result) = \OC_Helper::streamCopy($source, $target);
+			$this->removeCachedFile($path2);
+			return $result;
 		}
-
 	}
 
 	public function getMimeType($path) {
@@ -188,10 +194,11 @@ abstract class Common implements \OC\Files\Storage\Storage {
 	}
 
 	public function hash($type, $path, $raw = false) {
-		$tmpFile = $this->getLocalFile($path);
-		$hash = hash($type, $tmpFile, $raw);
-		unlink($tmpFile);
-		return $hash;
+		$fh = $this->fopen($path, 'rb');
+		$ctx = hash_init($type);
+		hash_update_stream($ctx, $fh);
+		fclose($fh);
+		return hash_final($ctx, $raw);
 	}
 
 	public function search($query) {
@@ -199,10 +206,14 @@ abstract class Common implements \OC\Files\Storage\Storage {
 	}
 
 	public function getLocalFile($path) {
-		return $this->toTmpFile($path);
+		return $this->getCachedFile($path);
 	}
 
-	private function toTmpFile($path) { //no longer in the storage api, still useful here
+	/**
+	 * @param string $path
+	 * @return string
+	 */
+	protected function toTmpFile($path) { //no longer in the storage api, still useful here
 		$source = $this->fopen($path, 'r');
 		if (!$source) {
 			return false;
@@ -224,6 +235,10 @@ abstract class Common implements \OC\Files\Storage\Storage {
 		return $baseDir;
 	}
 
+	/**
+	 * @param string $path
+	 * @param string $target
+	 */
 	private function addLocalFolder($path, $target) {
 		$dh = $this->opendir($path);
 		if (is_resource($dh)) {
@@ -241,6 +256,9 @@ abstract class Common implements \OC\Files\Storage\Storage {
 		}
 	}
 
+	/**
+	 * @param string $query
+	 */
 	protected function searchInDir($query, $dir = '') {
 		$files = array();
 		$dh = $this->opendir($dir);
@@ -261,6 +279,11 @@ abstract class Common implements \OC\Files\Storage\Storage {
 	/**
 	 * check if a file or folder has been updated since $time
 	 *
+	 * The method is only used to check if the cache needs to be updated. Storage backends that don't support checking
+	 * the mtime should always return false here. As a result storage implementations that always return false expect
+	 * exclusive access to the backend and will not pick up files that have been added in a way that circumvents
+	 * ownClouds filesystem.
+	 *
 	 * @param string $path
 	 * @param int $time
 	 * @return bool
@@ -269,37 +292,43 @@ abstract class Common implements \OC\Files\Storage\Storage {
 		return $this->filemtime($path) > $time;
 	}
 
-	public function getCache($path = '') {
+	public function getCache($path = '', $storage = null) {
+		if (!$storage) {
+			$storage = $this;
+		}
 		if (!isset($this->cache)) {
-			$this->cache = new \OC\Files\Cache\Cache($this);
+			$this->cache = new \OC\Files\Cache\Cache($storage);
 		}
 		return $this->cache;
 	}
 
-	public function getScanner($path = '') {
+	public function getScanner($path = '', $storage = null) {
+		if (!$storage) {
+			$storage = $this;
+		}
 		if (!isset($this->scanner)) {
-			$this->scanner = new \OC\Files\Cache\Scanner($this);
+			$this->scanner = new \OC\Files\Cache\Scanner($storage);
 		}
 		return $this->scanner;
 	}
 
-	public function getPermissionsCache($path = '') {
-		if (!isset($this->permissioncache)) {
-			$this->permissioncache = new \OC\Files\Cache\Permissions($this);
+	public function getWatcher($path = '', $storage = null) {
+		if (!$storage) {
+			$storage = $this;
 		}
-		return $this->permissioncache;
-	}
-
-	public function getWatcher($path = '') {
 		if (!isset($this->watcher)) {
-			$this->watcher = new \OC\Files\Cache\Watcher($this);
+			$this->watcher = new \OC\Files\Cache\Watcher($storage);
+			$this->watcher->setPolicy(\OC::$server->getConfig()->getSystemValue('filesystem_check_changes', Watcher::CHECK_ONCE));
 		}
 		return $this->watcher;
 	}
 
-	public function getStorageCache() {
+	public function getStorageCache($storage = null) {
+		if (!$storage) {
+			$storage = $this;
+		}
 		if (!isset($this->storageCache)) {
-			$this->storageCache = new \OC\Files\Cache\Storage($this);
+			$this->storageCache = new \OC\Files\Cache\Storage($storage);
 		}
 		return $this->storageCache;
 	}
@@ -334,7 +363,7 @@ abstract class Common implements \OC\Files\Storage\Storage {
 	 * clean a path, i.e. remove all redundant '.' and '..'
 	 * making sure that it can't point to higher than '/'
 	 *
-	 * @param $path The path to clean
+	 * @param string $path The path to clean
 	 * @return string cleaned path
 	 */
 	public function cleanPath($path) {
@@ -364,10 +393,43 @@ abstract class Common implements \OC\Files\Storage\Storage {
 	/**
 	 * get the free space in the storage
 	 *
-	 * @param $path
+	 * @param string $path
 	 * @return int
 	 */
 	public function free_space($path) {
 		return \OC\Files\SPACE_UNKNOWN;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isLocal() {
+		// the common implementation returns a temporary file by
+		// default, which is not local
+		return false;
+	}
+
+	/**
+	 * @param string $path
+	 */
+	protected function getCachedFile($path) {
+		if (!isset($this->cachedFiles[$path])) {
+			$this->cachedFiles[$path] = $this->toTmpFile($path);
+		}
+		return $this->cachedFiles[$path];
+	}
+
+	protected function removeCachedFile($path) {
+		unset($this->cachedFiles[$path]);
+	}
+
+	/**
+	 * Check if the storage is an instance of $class or is a wrapper for a storage that is an instance of $class
+	 *
+	 * @param string $class
+	 * @return bool
+	 */
+	public function instanceOfStorage($class) {
+		return is_a($this, $class);
 	}
 }

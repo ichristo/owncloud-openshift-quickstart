@@ -27,7 +27,7 @@
 class OC_User_HTTP extends OC_User_Backend {
 	/**
 	 * split http://user@host/path into a user and url part
-	 * @param string path
+	 * @param string $url
 	 * @return array
 	 */
 	private function parseUrl($url) {
@@ -46,7 +46,7 @@ class OC_User_HTTP extends OC_User_Backend {
 
 	/**
 	 * check if an url is a valid login
-	 * @param string url
+	 * @param string $url
 	 * @return boolean
 	 */
 	private function matchUrl($url) {
@@ -54,10 +54,10 @@ class OC_User_HTTP extends OC_User_Backend {
 	}
 
 	/**
-	 * @brief Check if the password is correct
-	 * @param $uid The username
-	 * @param $password The password
-	 * @returns string
+	 * Check if the password is correct
+	 * @param string $uid The username
+	 * @param string $password The password
+	 * @return string
 	 *
 	 * Check if the password is correct without logging in the user
 	 * returns the user id or false
@@ -72,6 +72,8 @@ class OC_User_HTTP extends OC_User_Backend {
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_USERPWD, $user.':'.$password);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_PROTOCOLS,  CURLPROTO_HTTP | CURLPROTO_HTTPS);
+		curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS,  CURLPROTO_HTTP | CURLPROTO_HTTPS);
 
 		curl_exec($ch);
 
@@ -87,7 +89,7 @@ class OC_User_HTTP extends OC_User_Backend {
 	}
 
 	/**
-	 * @brief check if a user exists
+	 * check if a user exists
 	 * @param string $uid the username
 	 * @return boolean
 	 */
@@ -96,9 +98,9 @@ class OC_User_HTTP extends OC_User_Backend {
 	}
 
 	/**
-	* @brief get the user's home directory
+	* get the user's home directory
 	* @param string $uid the username
-	* @return boolean
+	* @return string|false
 	*/
 	public function getHome($uid) {
 		if($this->userExists($uid)) {

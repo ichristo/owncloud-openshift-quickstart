@@ -7,18 +7,21 @@
 # Dimitris M. <monopatis@gmail.com>, 2012
 # Efstathios Iosifidis <iefstathios@gmail.com>, 2012
 # Efstathios Iosifidis <iosifidis@opensuse.org>, 2012
+# marianna_kotzia <mariannakotzia@gmail.com>, 2014
 # Marios Bekatoros <>, 2012-2013
 # Nisok Kosin <nikos.efthimiou@gmail.com>, 2012
 # Petros Kyladitis <petros.kyladitis@gmail.com>, 2011-2012
+# Spyros Melissovas <peppe@cs.uoi.gr>, 2014
 # xneo1 <vagelis@cyberdest.com>, 2013
-# vkehayas <vkehayas@gmail.com>, 2013
+# Vassilis Kehayas <vkehayas@gmail.com>, 2013-2014
+# Γιάννης Ανθυμίδης <yannanth@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: ownCloud\n"
 "Report-Msgid-Bugs-To: translations@owncloud.org\n"
-"POT-Creation-Date: 2013-11-24 00:09-0500\n"
-"PO-Revision-Date: 2013-11-23 01:30+0000\n"
-"Last-Translator: vkehayas <vkehayas@gmail.com>\n"
+"POT-Creation-Date: 2014-07-03 01:46-0400\n"
+"PO-Revision-Date: 2014-07-02 12:51+0000\n"
+"Last-Translator: marianna_kotzia <mariannakotzia@gmail.com>\n"
 "Language-Team: Greek (http://www.transifex.com/projects/p/owncloud/language/el/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -28,11 +31,11 @@ msgstr ""
 
 #: ajax/cache/status.php:19
 msgid "Not all calendars are completely cached"
-msgstr "Δεν έχει δημιουργηθεί λανθάνουσα μνήμη για όλα τα ημερολόγια"
+msgstr "Δεν έχουν αποθηκευτεί όλα τα ημερολόγια στην προσωρινή μνήμη"
 
 #: ajax/cache/status.php:21
 msgid "Everything seems to be completely cached"
-msgstr "Όλα έχουν αποθηκευτεί στη cache"
+msgstr "Όλα έχουν αποθηκευτεί στην προσωρινή μνήμη"
 
 #: ajax/categories/rescan.php:29
 msgid "No calendars found."
@@ -46,7 +49,7 @@ msgstr "Δε βρέθηκαν συμβάντα."
 msgid "Wrong calendar"
 msgstr "Λάθος ημερολόγιο"
 
-#: ajax/event/edit.form.php:224 lib/object.php:197 lib/object.php:233
+#: ajax/event/edit.form.php:226 lib/object.php:209 lib/object.php:245
 msgid "You do not have the permissions to edit this event."
 msgstr "Δεν έχετε δικαιώματα να επεξεργαστείτε αυτό το συμβάν."
 
@@ -54,23 +57,23 @@ msgstr "Δεν έχετε δικαιώματα να επεξεργαστείτε
 msgid ""
 "The file contained either no events or all events are already saved in your "
 "calendar."
-msgstr "Το αρχείο που περιέχει είτε κανένα συμβάν είτε όλα τα συμβάντα έχουν ήδη αποθηκευτεί στο ημερολόγιό σας."
+msgstr "Το αρχείο είτε δεν περιείχε κανένα συμβάν είτε όλα τα συμβάντα έχουν ήδη αποθηκευτεί στο ημερολόγιό σας."
 
 #: ajax/import/dropimport.php:31 ajax/import/import.php:69
-msgid "events has been saved in the new calendar"
-msgstr "τα συμβάντα αποθηκεύτηκαν σε ένα νέο ημερολόγιο"
+msgid "events have been saved in the new calendar"
+msgstr "τα συμβάντα αποθηκεύτηκαν στο νέο ημερολόγιο"
 
 #: ajax/import/import.php:58
 msgid "Import failed"
 msgstr "Η εισαγωγή απέτυχε"
 
 #: ajax/import/import.php:71
-msgid "events has been saved in your calendar"
-msgstr "το συμβάν αποθηκεύτηκε στο ημερολογιό σου"
+msgid "events have been saved in your calendar"
+msgstr "τα συμβάντα αποθηκεύτηκαν στο ημερολόγιό σας."
 
 #: ajax/settings/guesstimezone.php:26
 msgid "New Timezone:"
-msgstr "Νέα ζώνη ώρας:"
+msgstr "Νέα Ζώνη Ώρας:"
 
 #: ajax/settings/settimezone.php:23
 msgid "Timezone changed"
@@ -78,86 +81,86 @@ msgstr "Η ζώνη ώρας άλλαξε"
 
 #: ajax/settings/settimezone.php:25
 msgid "Invalid request"
-msgstr "Μη έγκυρο αίτημα"
+msgstr "Άκυρο αίτημα"
 
 #: appinfo/app.php:38 js/l10n.php:87 templates/part.eventform.php:20
 #: templates/part.showevent.php:37
 msgid "Calendar"
 msgstr "Ημερολόγιο"
 
-#: js/calendar.js:176
+#: js/calendar.js:223
 msgid "Deletion failed"
 msgstr "Η διαγραφή απέτυχε"
 
-#: js/calendar.js:263
+#: js/calendar.js:317
 msgid "ddd d MMMM[ yyyy]{ - [ddd d] MMMM yyyy}"
-msgstr "ddd d MMMM[ yyyy]{ - [ddd d] MMMM yyyy}"
+msgstr "ddd d MMMM[ yyyy]{ -[ddd d] MMMM yyyy}"
 
-#: js/calendar.js:265
+#: js/calendar.js:319
 msgid "ddd d MMMM[ yyyy] HH:mm{ - [ ddd d MMMM yyyy] HH:mm}"
 msgstr "ddd d MMMM[ yyyy] HH:mm{ - [ ddd d MMMM yyyy] HH:mm}"
 
-#: js/calendar.js:581
+#: js/calendar.js:732
 msgid "group"
 msgstr "ομάδα"
 
-#: js/calendar.js:583 templates/part.share.php:46 templates/part.share.php:81
+#: js/calendar.js:734 templates/part.share.php:46 templates/part.share.php:81
 msgid "can edit"
-msgstr "δυνατότητα αλλαγής"
+msgstr "δυνατότητα επεξεργασίας"
 
-#: js/calendar.js:584 templates/part.share.php:50 templates/part.share.php:87
+#: js/calendar.js:735 templates/part.share.php:50 templates/part.share.php:87
 msgid "can share"
-msgstr ""
+msgstr "δυνατότητα διαμοιρασμού"
 
-#: js/calendar.js:855
+#: js/calendar.js:1003
 msgid "ddd"
 msgstr "ddd"
 
-#: js/calendar.js:856
+#: js/calendar.js:1004
 msgid "ddd M/d"
 msgstr "ddd M/d"
 
-#: js/calendar.js:857
+#: js/calendar.js:1005
 msgid "dddd M/d"
 msgstr "dddd M/d"
 
-#: js/calendar.js:860
+#: js/calendar.js:1008
 msgid "MMMM yyyy"
 msgstr "MMMM yyyy"
 
-#: js/calendar.js:862
+#: js/calendar.js:1010
 msgid "MMM d[ yyyy]{ '–'[ MMM] d yyyy}"
 msgstr "MMM d[ yyyy]{ '–'[ MMM] d yyyy}"
 
-#: js/calendar.js:864
+#: js/calendar.js:1012
 msgid "dddd, MMM d, yyyy"
 msgstr "dddd, MMM d, yyyy"
 
-#: js/l10n.php:77 lib/object.php:588 templates/settings.php:93
+#: js/l10n.php:77 lib/object.php:610 templates/calendar.php:93
 msgid "Sunday"
 msgstr "Κυριακή"
 
-#: js/l10n.php:77 lib/object.php:582 templates/settings.php:92
+#: js/l10n.php:77 lib/object.php:604 templates/calendar.php:92
 msgid "Monday"
 msgstr "Δευτέρα"
 
-#: js/l10n.php:77 lib/object.php:583
+#: js/l10n.php:77 lib/object.php:605
 msgid "Tuesday"
 msgstr "Τρίτη"
 
-#: js/l10n.php:77 lib/object.php:584
+#: js/l10n.php:77 lib/object.php:606
 msgid "Wednesday"
 msgstr "Τετάρτη"
 
-#: js/l10n.php:77 lib/object.php:585
+#: js/l10n.php:77 lib/object.php:607
 msgid "Thursday"
 msgstr "Πέμπτη"
 
-#: js/l10n.php:77 lib/object.php:586
+#: js/l10n.php:77 lib/object.php:608
 msgid "Friday"
 msgstr "Παρασκευή"
 
-#: js/l10n.php:77 lib/object.php:587 templates/settings.php:94
+#: js/l10n.php:77 lib/object.php:609 templates/calendar.php:94
 msgid "Saturday"
 msgstr "Σάββατο"
 
@@ -189,51 +192,51 @@ msgstr "Παρ."
 msgid "Sat."
 msgstr "Σάβ."
 
-#: js/l10n.php:79 lib/object.php:638
+#: js/l10n.php:79 lib/object.php:660
 msgid "January"
 msgstr "Ιανουάριος"
 
-#: js/l10n.php:79 lib/object.php:639
+#: js/l10n.php:79 lib/object.php:661
 msgid "February"
 msgstr "Φεβρουάριος"
 
-#: js/l10n.php:79 lib/object.php:640
+#: js/l10n.php:79 lib/object.php:662
 msgid "March"
 msgstr "Μάρτιος"
 
-#: js/l10n.php:79 lib/object.php:641
+#: js/l10n.php:79 lib/object.php:663
 msgid "April"
 msgstr "Απρίλιος"
 
-#: js/l10n.php:79 lib/object.php:642
+#: js/l10n.php:79 lib/object.php:664
 msgid "May"
-msgstr "Μάϊος"
+msgstr "Μάιος"
 
-#: js/l10n.php:79 lib/object.php:643
+#: js/l10n.php:79 lib/object.php:665
 msgid "June"
 msgstr "Ιούνιος"
 
-#: js/l10n.php:79 lib/object.php:644
+#: js/l10n.php:79 lib/object.php:666
 msgid "July"
 msgstr "Ιούλιος"
 
-#: js/l10n.php:79 lib/object.php:645
+#: js/l10n.php:79 lib/object.php:667
 msgid "August"
 msgstr "Αύγουστος"
 
-#: js/l10n.php:79 lib/object.php:646
+#: js/l10n.php:79 lib/object.php:668
 msgid "September"
 msgstr "Σεπτέμβριος"
 
-#: js/l10n.php:79 lib/object.php:647
+#: js/l10n.php:79 lib/object.php:669
 msgid "October"
 msgstr "Οκτώβριος"
 
-#: js/l10n.php:79 lib/object.php:648
+#: js/l10n.php:79 lib/object.php:670
 msgid "November"
 msgstr "Νοέμβριος"
 
-#: js/l10n.php:79 lib/object.php:649
+#: js/l10n.php:79 lib/object.php:671
 msgid "December"
 msgstr "Δεκέμβριος"
 
@@ -255,7 +258,7 @@ msgstr "Απρ."
 
 #: js/l10n.php:80
 msgid "May."
-msgstr "Μαΐ."
+msgstr "Μάι."
 
 #: js/l10n.php:80
 msgid "Jun."
@@ -287,15 +290,15 @@ msgstr "Δεκ."
 
 #: js/l10n.php:83
 msgid "All day"
-msgstr "Ολοήμερο"
+msgstr "Ολοήμερα"
 
-#: js/l10n.php:84 lib/import.php:214 templates/settings.php:23
+#: js/l10n.php:84 lib/import.php:216 templates/calendar.php:21
 msgid "New Calendar"
-msgstr "Νέα Ημερολόγιο"
+msgstr "Νέο Ημερολόγιο"
 
 #: js/l10n.php:85
 msgid "Missing or invalid fields"
-msgstr "Κενά ή μη έγκυρα πεδία"
+msgstr "Κενά ή άκυρα πεδία"
 
 #: js/l10n.php:86 templates/part.showevent.php:11
 msgid "Title"
@@ -325,13 +328,17 @@ msgstr "Το συμβάν ολοκληρώνεται πριν από την έν
 msgid "There was a database fail"
 msgstr "Υπήρξε σφάλμα στη βάση δεδομένων"
 
+#: js/l10n.php:94
+msgid "Interval is not valid. It must be a positive integer!"
+msgstr "Το διάστημα δεν είναι έγκυρο. Πρέπει να είναι ένας θετικός ακέραιος αριθμός!"
+
 #: lib/app.php:121
 msgid "Birthday"
 msgstr "Γενέθλια"
 
 #: lib/app.php:122
 msgid "Business"
-msgstr "Επιχείρηση"
+msgstr "Επαγγελματικό"
 
 #: lib/app.php:123
 msgid "Call"
@@ -359,7 +366,7 @@ msgstr "Ταξίδι"
 
 #: lib/app.php:129
 msgid "Jubilee"
-msgstr "Γιορτή"
+msgstr "Εορτή"
 
 #: lib/app.php:130
 msgid "Meeting"
@@ -369,13 +376,13 @@ msgstr "Συνάντηση"
 msgid "Other"
 msgstr "Άλλο"
 
-#: lib/app.php:132
+#: lib/app.php:132 lib/calendar.php:142
 msgid "Personal"
 msgstr "Προσωπικό"
 
 #: lib/app.php:133
 msgid "Projects"
-msgstr "Έργα"
+msgstr "Σχέδια"
 
 #: lib/app.php:134
 msgid "Questions"
@@ -385,143 +392,147 @@ msgstr "Ερωτήσεις"
 msgid "Work"
 msgstr "Εργασία"
 
-#: lib/app.php:411
+#: lib/app.php:423
 msgid "by"
 msgstr "από"
 
-#: lib/app.php:474
+#: lib/app.php:486
 msgid "unnamed"
 msgstr "ανώνυμο"
 
-#: lib/calendar.php:178 lib/calendar.php:211
+#: lib/calendar.php:190 lib/calendar.php:223
 msgid "You do not have the permissions to update this calendar."
 msgstr "Δεν έχετε δικαιώματα για να ενημερώσετε αυτό το ημερολόγιο."
 
-#: lib/calendar.php:246
+#: lib/calendar.php:258
 msgid "You do not have the permissions to delete this calendar."
 msgstr "Δεν έχετε δικαιώματα να διαγράψετε αυτό το ημερολόγιο."
 
-#: lib/calendar.php:280
+#: lib/calendar.php:292
 msgid "You do not have the permissions to add to this calendar."
 msgstr "Δεν έχετε δικαιώματα να προσθέσετε σε αυτό το ημερολόγιο."
 
-#: lib/object.php:122 lib/object.php:162 lib/object.php:317
+#: lib/object.php:122 lib/object.php:163 lib/object.php:329
 msgid "You do not have the permissions to add events to this calendar."
 msgstr "Δεν έχετε δικαιώματα να προσθέστε συμβάντα σε αυτό το ημερολόγιο."
 
-#: lib/object.php:267 lib/object.php:297
+#: lib/object.php:175
+msgid "You cannot add non-public events to a shared calendar."
+msgstr "Δεν μπορείτε να προσθέσετε μη-κοινόχρηστα συμβάντα σε ένα διαμοιρασμένο ημερολόγιο."
+
+#: lib/object.php:279 lib/object.php:309
 msgid "You do not have the permissions to delete this event."
 msgstr "Δεν έχετε δικαιώματα να διαγράψετε αυτό το συμβάν."
 
-#: lib/object.php:491
+#: lib/object.php:503
 msgid "Busy"
-msgstr "Απασχολημένος"
+msgstr "Απασχολημένο"
 
-#: lib/object.php:531
+#: lib/object.php:553
 msgid "Show full event"
 msgstr "Προβολή πλήρους συμβάντος"
 
-#: lib/object.php:532
+#: lib/object.php:554
 msgid "Show only busy"
 msgstr "Προβολή μόνο απασχολημένων"
 
-#: lib/object.php:533
+#: lib/object.php:555
 msgid "Hide event"
 msgstr "Απόκρυψη συμβάντος"
 
-#: lib/object.php:543
+#: lib/object.php:565
 msgid "Does not repeat"
 msgstr "Μη επαναλαμβανόμενο"
 
-#: lib/object.php:544
+#: lib/object.php:566
 msgid "Daily"
 msgstr "Καθημερινά"
 
-#: lib/object.php:545
+#: lib/object.php:567
 msgid "Weekly"
 msgstr "Εβδομαδιαία"
 
-#: lib/object.php:546
+#: lib/object.php:568
 msgid "Every Weekday"
-msgstr "Κάθε μέρα"
+msgstr "Κάθε καθημερινή"
 
-#: lib/object.php:547
+#: lib/object.php:569
 msgid "Bi-Weekly"
-msgstr "Δύο φορές την εβδομάδα"
+msgstr "Κάθε δυο εβδομάδες"
 
-#: lib/object.php:548
+#: lib/object.php:570
 msgid "Monthly"
 msgstr "Μηνιαία"
 
-#: lib/object.php:549
+#: lib/object.php:571
 msgid "Yearly"
 msgstr "Ετήσια"
 
-#: lib/object.php:559
+#: lib/object.php:581
 msgid "never"
 msgstr "ποτέ"
 
-#: lib/object.php:560
+#: lib/object.php:582
 msgid "by occurrences"
-msgstr "κατά συχνότητα πρόσβασης"
+msgstr "κατά συχνότητα συμβάντος"
 
-#: lib/object.php:561
+#: lib/object.php:583
 msgid "by date"
 msgstr "κατά ημερομηνία"
 
-#: lib/object.php:571
+#: lib/object.php:593
 msgid "by monthday"
-msgstr "κατά ημέρα"
+msgstr "κατά ημερομηνία"
 
-#: lib/object.php:572
+#: lib/object.php:594
 msgid "by weekday"
-msgstr "κατά εβδομάδα"
+msgstr "κατά ημέρα της εβδομάδος"
 
-#: lib/object.php:598
+#: lib/object.php:620
 msgid "events week of month"
 msgstr "συμβάντα της εβδομάδας του μήνα"
 
-#: lib/object.php:599
+#: lib/object.php:621
 msgid "first"
 msgstr "πρώτο"
 
-#: lib/object.php:600
+#: lib/object.php:622
 msgid "second"
 msgstr "δεύτερο"
 
-#: lib/object.php:601
+#: lib/object.php:623
 msgid "third"
 msgstr "τρίτο"
 
-#: lib/object.php:602
+#: lib/object.php:624
 msgid "fourth"
 msgstr "τέταρτο"
 
-#: lib/object.php:603
+#: lib/object.php:625
 msgid "fifth"
 msgstr "πέμπτο"
 
-#: lib/object.php:604
+#: lib/object.php:626
 msgid "last"
 msgstr "τελευταίο"
 
-#: lib/object.php:659
+#: lib/object.php:681
 msgid "by events date"
 msgstr "κατά ημερομηνία συμβάντων"
 
-#: lib/object.php:660
+#: lib/object.php:682
 msgid "by yearday(s)"
 msgstr "κατά ημέρα(ες) του έτους"
 
-#: lib/object.php:661
+#: lib/object.php:683
 msgid "by weeknumber(s)"
 msgstr "κατά εβδομάδα(ες)"
 
-#: lib/object.php:662
+#: lib/object.php:684
 msgid "by day and month"
 msgstr "κατά ημέρα και μήνα"
 
-#: lib/sabre/backend.php:66
+#: lib/sabre/backend.php:75
 msgid "Contact birthdays"
 msgstr "Γενέθλια Επαφής"
 
@@ -533,43 +544,79 @@ msgstr "Ημερομηνία"
 msgid "Cal."
 msgstr "Ημερ."
 
-#: templates/calendar.php:6
+#: templates/calendar.php:16
 msgid "Day"
 msgstr "Ημέρα"
 
-#: templates/calendar.php:7
+#: templates/calendar.php:16
 msgid "Week"
 msgstr "Εβδομάδα"
 
-#: templates/calendar.php:8
+#: templates/calendar.php:16
 msgid "Month"
 msgstr "Μήνας"
 
-#: templates/calendar.php:12 templates/calendar.php:18
+#: templates/calendar.php:17
 msgid "Today"
 msgstr "Σήμερα"
 
-#: templates/calendar.php:13
-msgid "Settings"
-msgstr "Ρυθμίσεις"
-
-#: templates/part.choosecalendar.rowfields.php:13
-msgid "Share Calendar"
-msgstr "Διαμοίρασε ένα ημερολόγιο"
-
-#: templates/part.choosecalendar.rowfields.php:24 templates/settings.php:28
+#: templates/calendar.php:42 templates/part.choosecalendar.rowfields.php:28
 msgid "CalDav Link"
 msgstr "Σύνδεση CalDAV"
 
-#: templates/part.choosecalendar.rowfields.php:27
+#: templates/calendar.php:55
+msgid "Timezone"
+msgstr "Ζώνη ώρας"
+
+#: templates/calendar.php:80
+msgid "Update timezone automatically"
+msgstr "Αυτόματη ενημέρωση ζώνης ώρας"
+
+#: templates/calendar.php:83
+msgid "Time format"
+msgstr "Μορφή ώρας"
+
+#: templates/calendar.php:85
+msgid "24h"
+msgstr "24ω"
+
+#: templates/calendar.php:86
+msgid "12h"
+msgstr "12ω"
+
+#: templates/calendar.php:90
+msgid "Start week on"
+msgstr "Πρώτη ημέρα της εβδομάδας"
+
+#: templates/calendar.php:98
+msgid "Cache"
+msgstr "Προσωρινή μνήμη"
+
+#: templates/calendar.php:99
+msgid "Clear cache for repeating events"
+msgstr "Εκκαθάριση προσωρινής μνήμης για επανάληψη συμβάντων"
+
+#: templates/calendar.php:102
+msgid "Primary CalDAV address"
+msgstr "Κύρια διεύθυνση CalDAV"
+
+#: templates/calendar.php:106
+msgid "iOS/OS X CalDAV address"
+msgstr "Διεύθυνση CalDAV για iOS/OS X"
+
+#: templates/part.choosecalendar.rowfields.php:15
+msgid "Share Calendar"
+msgstr "Διαμοιράστε ένα ημερολόγιο"
+
+#: templates/part.choosecalendar.rowfields.php:32
 msgid "Download"
 msgstr "Λήψη"
 
-#: templates/part.choosecalendar.rowfields.php:31
+#: templates/part.choosecalendar.rowfields.php:38
 msgid "Edit"
 msgstr "Επεξεργασία"
 
-#: templates/part.choosecalendar.rowfields.php:36
+#: templates/part.choosecalendar.rowfields.php:45
 msgid "Delete"
 msgstr "Διαγραφή"
 
@@ -580,26 +627,6 @@ msgstr "Νέο ημερολόγιο"
 #: templates/part.editcalendar.php:9
 msgid "Edit calendar"
 msgstr "Επεξεργασία ημερολογίου"
-
-#: templates/part.editcalendar.php:12
-msgid "Displayname"
-msgstr "Προβολή ονόματος"
-
-#: templates/part.editcalendar.php:20
-msgid "Calendar color"
-msgstr "Χρώμα ημερολογίου"
-
-#: templates/part.editcalendar.php:33
-msgid "Save"
-msgstr "Αποθήκευση"
-
-#: templates/part.editcalendar.php:33
-msgid "Submit"
-msgstr "Υποβολή"
-
-#: templates/part.editcalendar.php:34
-msgid "Cancel"
-msgstr "Ακύρωση"
 
 #: templates/part.editevent.php:1
 msgid "Edit event"
@@ -631,100 +658,100 @@ msgstr "Συμμετέχοντες"
 
 #: templates/part.eventform.php:10
 msgid "Share"
-msgstr "Διαμοίρασε"
+msgstr "Διαμοιράστε"
 
 #: templates/part.eventform.php:15
 msgid "Title of the Event"
 msgstr "Τίτλος συμβάντος"
 
-#: templates/part.eventform.php:31
+#: templates/part.eventform.php:41
 msgid "from"
 msgstr "από"
 
-#: templates/part.eventform.php:36
+#: templates/part.eventform.php:46
 msgid "to"
 msgstr "προς"
 
-#: templates/part.eventform.php:44 templates/part.showevent.php:66
+#: templates/part.eventform.php:54 templates/part.showevent.php:66
 msgid "All Day Event"
-msgstr "Ολοήμερο συμβάν"
+msgstr "Ολοήμερο Συμβάν"
 
-#: templates/part.eventform.php:47 templates/part.showevent.php:86
+#: templates/part.eventform.php:57 templates/part.showevent.php:86
 msgid "Advanced options"
-msgstr "Επιλογές για προχωρημένους"
+msgstr "Προχωρημένες επιλογές"
 
-#: templates/part.eventform.php:51 templates/part.showevent.php:91
+#: templates/part.eventform.php:61 templates/part.showevent.php:91
 msgid "Location"
 msgstr "Τοποθεσία"
 
-#: templates/part.eventform.php:56
+#: templates/part.eventform.php:66
 msgid "Categories (separate by comma)"
 msgstr "Κατηγορίες (διαχωρισμένες με κόμμα)"
 
-#: templates/part.eventform.php:58 templates/part.eventform.php:59
+#: templates/part.eventform.php:68 templates/part.eventform.php:69
 msgid "Edit categories"
 msgstr "Επεξεργασία κατηγοριών"
 
-#: templates/part.eventform.php:61 templates/part.showevent.php:99
+#: templates/part.eventform.php:71 templates/part.showevent.php:99
 msgid "Description"
 msgstr "Περιγραφή"
 
-#: templates/part.eventform.php:63
+#: templates/part.eventform.php:74
 msgid "Export event"
 msgstr "Εξαγωγή συμβάντος"
 
-#: templates/part.eventform.php:70 templates/part.showevent.php:109
+#: templates/part.eventform.php:82 templates/part.showevent.php:109
 msgid "Repeat"
 msgstr "Επαναλαμβανόμενο"
 
-#: templates/part.eventform.php:77 templates/part.showevent.php:116
+#: templates/part.eventform.php:89 templates/part.showevent.php:116
 msgid "Advanced"
 msgstr "Για προχωρημένους"
 
-#: templates/part.eventform.php:121 templates/part.showevent.php:160
+#: templates/part.eventform.php:133 templates/part.showevent.php:160
 msgid "Select weekdays"
 msgstr "Επιλογή ημερών εβδομάδας"
 
-#: templates/part.eventform.php:134 templates/part.eventform.php:147
+#: templates/part.eventform.php:146 templates/part.eventform.php:159
 #: templates/part.showevent.php:173 templates/part.showevent.php:186
 msgid "Select days"
 msgstr "Επιλογή ημερών"
 
-#: templates/part.eventform.php:139 templates/part.showevent.php:178
+#: templates/part.eventform.php:151 templates/part.showevent.php:178
 msgid "and the events day of year."
 msgstr "και των ημερών του χρόνου που υπάρχουν συμβάντα."
 
-#: templates/part.eventform.php:152 templates/part.showevent.php:191
+#: templates/part.eventform.php:164 templates/part.showevent.php:191
 msgid "and the events day of month."
 msgstr "και των ημερών του μήνα που υπάρχουν συμβάντα."
 
-#: templates/part.eventform.php:160 templates/part.showevent.php:199
+#: templates/part.eventform.php:172 templates/part.showevent.php:199
 msgid "Select months"
 msgstr "Επιλογή μηνών"
 
-#: templates/part.eventform.php:173 templates/part.showevent.php:212
+#: templates/part.eventform.php:185 templates/part.showevent.php:212
 msgid "Select weeks"
 msgstr "Επιλογή εβδομάδων"
 
-#: templates/part.eventform.php:178 templates/part.showevent.php:217
+#: templates/part.eventform.php:190 templates/part.showevent.php:217
 msgid "and the events week of year."
 msgstr "και των εβδομάδων του χρόνου που υπάρουν συμβάντα."
 
-#: templates/part.eventform.php:184 templates/part.showevent.php:223
+#: templates/part.eventform.php:196 templates/part.showevent.php:223
 msgid "Interval"
 msgstr "Διάστημα"
 
-#: templates/part.eventform.php:190 templates/part.showevent.php:229
+#: templates/part.eventform.php:202 templates/part.showevent.php:229
 msgid "End"
 msgstr "Τέλος"
 
-#: templates/part.eventform.php:203 templates/part.showevent.php:242
+#: templates/part.eventform.php:215 templates/part.showevent.php:242
 msgid "occurrences"
 msgstr "περιστατικά"
 
-#: templates/part.eventform.php:222
+#: templates/part.eventform.php:234
 msgid "Visibility to people shared with"
-msgstr ""
+msgstr "Ορατότητα σε ανθρώπους με τους οποίους διαμοιράστηκε"
 
 #: templates/part.import.php:14
 msgid "create a new calendar"
@@ -736,7 +763,7 @@ msgstr "Εισαγωγή αρχείου ημερολογίου"
 
 #: templates/part.import.php:24
 msgid "Please choose a calendar"
-msgstr "Παρακαλώ επέλεξε ένα ημερολόγιο"
+msgstr "Παρακαλώ επιλέξτε ένα ημερολόγιο"
 
 #: templates/part.import.php:36
 msgid "Name of new calendar"
@@ -744,17 +771,17 @@ msgstr "Όνομα νέου ημερολογίου"
 
 #: templates/part.import.php:44
 msgid "Take an available name!"
-msgstr "Επέλεξε ένα διαθέσιμο όνομα!"
+msgstr "Επιλέξτε ένα διαθέσιμο όνομα!"
 
 #: templates/part.import.php:45
 msgid ""
 "A Calendar with this name already exists. If you continue anyhow, these "
 "calendars will be merged."
-msgstr "Ένα ημερολόγιο με αυτό το όνομα υπάρχει ήδη. Εάν θέλετε να συνεχίσετε, αυτά τα 2 ημερολόγια θα συγχωνευθούν."
+msgstr "Ένα ημερολόγιο με αυτό το όνομα υπάρχει ήδη. Εάν συνεχίσετε παρ' όλα αυτά, αυτά τα 2 ημερολόγια θα συγχωνευθούν."
 
 #: templates/part.import.php:48
 msgid "Remove all events from the selected calendar"
-msgstr "Αφαίρεση όλων των γεγονότων από το επιλεγμένο ημερολόγιο"
+msgstr "Αφαίρεση όλων των συμβάντων από το επιλεγμένο ημερολόγιο"
 
 #: templates/part.import.php:50
 msgid "Import"
@@ -766,7 +793,7 @@ msgstr "Κλείσιμο Διαλόγου"
 
 #: templates/part.newevent.php:1
 msgid "Create a new event"
-msgstr "Δημιουργήστε ένα νέο συμβάν"
+msgstr "Δημιουργία νέου συμβάντος"
 
 #: templates/part.newevent.php:8
 msgid "Create event"
@@ -778,7 +805,7 @@ msgstr "Διαμοιρασμός με χρήστη ή ομάδα"
 
 #: templates/part.share.php:53
 msgid "Unshare"
-msgstr "Διακοπή Διαμοιρασμού"
+msgstr "Διακοπή διαμοιρασμού"
 
 #: templates/part.share.php:59
 msgid "Not shared with anyone"
@@ -786,7 +813,7 @@ msgstr "Δεν διαμοιράζεται με κανέναν"
 
 #: templates/part.share.php:63
 msgid "Send Email"
-msgstr "Αποστολή Email"
+msgstr "Αποστολή Μηνύματος Ηλ. Ταχυδρομείου"
 
 #: templates/part.share.php:67
 msgid "Shared via calendar"
@@ -798,7 +825,7 @@ msgstr "Δεν διαμοιράζεται με κανέναν μέσω ημερ�
 
 #: templates/part.showevent.php:1
 msgid "View an event"
-msgstr "Εμφάνισε ένα συμβάν"
+msgstr "Προβολή συμβάντος"
 
 #: templates/part.showevent.php:19
 msgid "Category"
@@ -806,11 +833,12 @@ msgstr "Κατηγορία"
 
 #: templates/part.showevent.php:23
 msgid "No categories selected"
-msgstr "Δεν επελέγησαν  κατηγορίες"
+msgstr "Δεν επελέγησαν κατηγορίες"
 
 #: templates/part.showevent.php:41
-msgid "of"
-msgstr "του"
+#, php-format
+msgid "%s of %s"
+msgstr "%s από %s"
 
 #: templates/part.showevent.php:50
 msgid "Access Class"
@@ -826,68 +854,4 @@ msgstr "στο"
 
 #: templates/part.showevent.php:78
 msgid "To"
-msgstr "Έως"
-
-#: templates/settings.php:2
-msgid "Your calendars"
-msgstr "Τα ημερολόγια σου"
-
-#: templates/settings.php:34
-msgid "General"
-msgstr "Γενικά"
-
-#: templates/settings.php:39
-msgid "Timezone"
-msgstr "Ζώνη ώρας"
-
-#: templates/settings.php:70
-msgid "Update timezone automatically"
-msgstr "Αυτόματη ενημέρωση ζώνης ώρας"
-
-#: templates/settings.php:75
-msgid "Time format"
-msgstr "Μορφή ώρας"
-
-#: templates/settings.php:80
-msgid "24h"
-msgstr "24ω"
-
-#: templates/settings.php:81
-msgid "12h"
-msgstr "12ω"
-
-#: templates/settings.php:87
-msgid "Start week on"
-msgstr "Πρώτη μέρα της εβδομάδας"
-
-#: templates/settings.php:100
-msgid "Cache"
-msgstr "Cache"
-
-#: templates/settings.php:104
-msgid "Clear cache for repeating events"
-msgstr "Εκκαθάριση λανθάνουσας μνήμης για επανάληψη συμβάντων"
-
-#: templates/settings.php:109
-msgid "URLs"
-msgstr "URLs"
-
-#: templates/settings.php:111
-msgid "Calendar CalDAV syncing addresses"
-msgstr "Διευθύνσεις συγχρονισμού ημερολογίου CalDAV"
-
-#: templates/settings.php:111
-msgid "more info"
-msgstr "περισσότερες πλροφορίες"
-
-#: templates/settings.php:113
-msgid "Primary address (Kontact et al)"
-msgstr "Κύρια Διεύθυνση(Επαφή και άλλα)"
-
-#: templates/settings.php:115
-msgid "iOS/OS X"
-msgstr "iOS/OS X"
-
-#: templates/settings.php:117
-msgid "Read only iCalendar link(s)"
-msgstr " iCalendar link(s) μόνο για ανάγνωση"
+msgstr "Προς"

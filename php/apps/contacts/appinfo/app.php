@@ -1,11 +1,19 @@
 <?php
+/**
+ * @author Thomas Tanghus
+ * @copyright 2011-2014 Thomas Tanghus (thomas@tanghus.net)
+ * This file is licensed under the Affero General Public License version 3 or
+ * later.
+ * See the COPYING-README file.
+ */
 
 namespace OCA\Contacts;
+
 use \OC\AppFramework\Core\API;
 
 //require_once __DIR__ . '/../lib/controller/pagecontroller.php';
 \Sabre\VObject\Component::$classMap['VCARD']	= '\OCA\Contacts\VObject\VCard';
-\Sabre\VObject\Property::$classMap['CATEGORIES'] = 'OCA\Contacts\VObject\GroupProperty';
+\Sabre\VObject\Property::$classMap['CATEGORIES'] = '\OCA\Contacts\VObject\GroupProperty';
 \Sabre\VObject\Property::$classMap['FN']		= '\OC\VObject\StringProperty';
 \Sabre\VObject\Property::$classMap['TITLE']		= '\OC\VObject\StringProperty';
 \Sabre\VObject\Property::$classMap['ROLE']		= '\OC\VObject\StringProperty';
@@ -15,6 +23,8 @@ use \OC\AppFramework\Core\API;
 \Sabre\VObject\Property::$classMap['TEL']		= '\OC\VObject\StringProperty';
 \Sabre\VObject\Property::$classMap['IMPP']		= '\OC\VObject\StringProperty';
 \Sabre\VObject\Property::$classMap['URL']		= '\OC\VObject\StringProperty';
+\Sabre\VObject\Property::$classMap['LABEL']		= '\OC\VObject\StringProperty';
+\Sabre\VObject\Property::$classMap['X-EVOLUTION-FILE-AS'] = '\OC\VObject\StringProperty';
 \Sabre\VObject\Property::$classMap['N']			= '\OC\VObject\CompoundProperty';
 \Sabre\VObject\Property::$classMap['ADR']		= '\OC\VObject\CompoundProperty';
 \Sabre\VObject\Property::$classMap['GEO']		= '\OC\VObject\CompoundProperty';
@@ -43,18 +53,21 @@ $api->connectHook('OC_Calendar', 'getEvents', 'OCA\Contacts\Hooks', 'getBirthday
 $api->connectHook('OC_Calendar', 'getSources', 'OCA\Contacts\Hooks', 'getCalenderSources');
 
 \OCP\Util::addscript('contacts', 'loader');
+\OCP\Util::addscript('contacts', 'admin');
 
-\OC_Search::registerProvider('OCA\Contacts\SearchProvider');
+\OC_Search::registerProvider('OCA\Contacts\Search\Provider');
 //\OCP\Share::registerBackend('contact', 'OCA\Contacts\Share_Backend_Contact');
 \OCP\Share::registerBackend('addressbook', 'OCA\Contacts\Share\Addressbook', 'contact');
 //\OCP\App::registerPersonal('contacts','personalsettings');
+\OCP\App::registerAdmin('contacts', 'admin');
 
-if(\OCP\User::isLoggedIn()) {
+if (\OCP\User::isLoggedIn()) {
 	$app = new App($api->getUserId());
 	$addressBooks = $app->getAddressBooksForUser();
-	foreach($addressBooks as $addressBook)  {
-		if($addressBook->getBackend()->name === 'local') {
-			\OCP\Contacts::registerAddressBook(new AddressbookProvider($addressBook));
-		}
+	foreach ($addressBooks as $addressBook)  {
+		if ($addressBook->isActive()) {
+            \OCP\Contacts::registerAddressBook($addressBook->getSearchProvider());
+        }
 	}
 }
+

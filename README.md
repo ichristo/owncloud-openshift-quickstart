@@ -14,13 +14,13 @@ Create an account at http://openshift.redhat.com/
 
 Create a PHP application with a MySQL cartridge:
 
-	rhc app create owncloud php-5.3 mysql-5.1 cron-1.4
+	rhc app create owncloud7 php-5.4 mysql-5.1 cron-1.4
 
 Add this upstream ownCloud quickstart repo
 
-	cd owncloud
+	cd owncloud7
 	rm php/index.php
-	git remote add upstream -m master git://github.com/ichristo/owncloud-openshift-quickstart.git
+	git remote add upstream -m master git://github.com/tvvocold/owncloud-openshift-quickstart.git
 	git pull -s recursive -X theirs upstream master
 
 Push the repo upstream to OpenShift
@@ -42,6 +42,6 @@ To download clients that will sync your ownCloud instance with desktop clients, 
 
 To give your new ownCloud site a web address of its own, add your desired alias:
 
-	rhc app add-alias -a owncloud --alias "$whatever.$mydomain.com"
+	rhc alias-add owncloud $whatever.$mydomain.com
 
 Then add a cname entry in your domain's dns configuration pointing your alias to $whatever-$yourdomain.rhcloud.com.

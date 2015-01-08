@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "Checking your installation..." => "Vérification de votre installation...",
 "Upgrade is not possible. Make sure that your webserver has write access to the following files and directories:" => "La mise à niveau n'est pas possible. Veuillez vérifier que votre serveur dispose bien des droits d'accès en écriture sur les fichiers et dossiers suivants :",
 "Version not found" => "Version introuvable.",
@@ -12,7 +13,9 @@
 "Moving files..." => "Déplacement des fichiers...",
 "All done. Click to the link below to start database upgrade." => "Terminé. Cliquez sur le lien ci-dessous pour démarrer la mise à niveau de la base de données.",
 "Update failed" => "La mise à jour a échoué.",
-"The update was unsuccessful. Please report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "La mise à jour a échoué. Veuillez signaler ce problème à la <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">communauté ownCloud</a>.",
+"The update was unsuccessful. Please check logs at admin page and report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "La mise à jour a échoué. Veuillez consulter les logs depuis la page d'administration et les soumettre à la <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">communauté ownCloud</a>.",
+"Proceed" => "Exécuter",
+"Updater" => "Mises à jour",
 "Update Center" => "Centre de mise à jour",
 "Backup Management" => "Gestion des copies de sauvegarde.",
 "Update" => "Mettre à jour",
@@ -23,3 +26,4 @@
 "Delete" => "Supprimer",
 "No backups found" => "Aucune copie de sauvegarde n'a été trouvée."
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n > 1);";

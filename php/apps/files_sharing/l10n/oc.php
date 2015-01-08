@@ -1,8 +1,8 @@
 <?php
 $TRANSLATIONS = array(
 "Password" => "Senhal",
-"Download" => "Avalcarga",
-"Upload" => "Amontcarga",
-"Cancel upload" => " Anulla l'amontcargar"
+"Name" => "Nom",
+"Save" => "Enregistra",
+"Download" => "Avalcarga"
 );
 $PLURAL_FORMS = "nplurals=2; plural=(n > 1);";

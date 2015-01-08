@@ -1,209 +1,396 @@
-var FileActions = {
-	actions: {},
-	defaults: {},
-	icons: {},
-	currentFile: null,
-	register: function (mime, name, permissions, icon, action) {
-		if (!FileActions.actions[mime]) {
-			FileActions.actions[mime] = {};
-		}
-		if (!FileActions.actions[mime][name]) {
-			FileActions.actions[mime][name] = {};
-		}
-		FileActions.actions[mime][name]['action'] = action;
-		FileActions.actions[mime][name]['permissions'] = permissions;
-		FileActions.icons[name] = icon;
-	},
-	setDefault: function (mime, name) {
-		FileActions.defaults[mime] = name;
-	},
-	get: function (mime, type, permissions) {
-		var actions = {};
-		if (FileActions.actions.all) {
-			actions = $.extend(actions, FileActions.actions.all);
-		}
-		if (type) {//type is 'dir' or 'file'
-			if (FileActions.actions[type]) {
-				actions = $.extend(actions, FileActions.actions[type]);
-			}
-		}
-		if (mime) {
-			var mimePart = mime.substr(0, mime.indexOf('/'));
-			if (FileActions.actions[mimePart]) {
-				actions = $.extend(actions, FileActions.actions[mimePart]);
-			}
-			if (FileActions.actions[mime]) {
-				actions = $.extend(actions, FileActions.actions[mime]);
-			}
-		}
-		var filteredActions = {};
-		$.each(actions, function (name, action) {
-			if (action.permissions & permissions) {
-				filteredActions[name] = action.action;
-			}
-		});
-		return filteredActions;
-	},
-	getDefault: function (mime, type, permissions) {
-		if (mime) {
-			var mimePart = mime.substr(0, mime.indexOf('/'));
-		}
-		var name = false;
-		if (mime && FileActions.defaults[mime]) {
-			name = FileActions.defaults[mime];
-		} else if (mime && FileActions.defaults[mimePart]) {
-			name = FileActions.defaults[mimePart];
-		} else if (type && FileActions.defaults[type]) {
-			name = FileActions.defaults[type];
-		} else {
-			name = FileActions.defaults.all;
-		}
-		var actions = this.get(mime, type, permissions);
-		return actions[name];
-	},
+/*
+ * Copyright (c) 2014
+ *
+ * This file is licensed under the Affero General Public License version 3
+ * or later.
+ *
+ * See the COPYING-README file.
+ *
+ */
+
+/* global trashBinApp */
+(function() {
+
 	/**
-	 * Display file actions for the given element
-	 * @param parent "td" element of the file for which to display actions
-	 * @param triggerEvent if true, triggers the fileActionsReady on the file
-	 * list afterwards (false by default)
+	 * Construct a new FileActions instance
 	 */
-	display: function (parent, triggerEvent) {
-		FileActions.currentFile = parent;
-		var actions = FileActions.get(FileActions.getCurrentMimeType(), FileActions.getCurrentType(), FileActions.getCurrentPermissions());
-		var file = FileActions.getCurrentFile();
-		if (FileList.findFileEl(file).data('renaming')) {
-			return;
-		}
+	var FileActions = function() {
+		this.initialize();
+	}
+	FileActions.prototype = {
+		actions: {},
+		defaults: {},
+		icons: {},
+		currentFile: null,
 
-		// recreate fileactions
-		parent.children('a.name').find('.fileactions').remove();
-		parent.children('a.name').append('<span class="fileactions" />');
-		var defaultAction = FileActions.getDefault(FileActions.getCurrentMimeType(), FileActions.getCurrentType(), FileActions.getCurrentPermissions());
+		/**
+		 * Dummy jquery element, for events
+		 */
+		$el: null,
 
-		var actionHandler = function (event) {
-			event.stopPropagation();
-			event.preventDefault();
+		/**
+		 * List of handlers to be notified whenever a register() or
+		 * setDefault() was called.
+		 */
+		_updateListeners: {},
 
-			FileActions.currentFile = event.data.elem;
-			var file = FileActions.getCurrentFile();
+		initialize: function() {
+			this.clear();
+			// abusing jquery for events until we get a real event lib
+			this.$el = $('<div class="dummy-fileactions hidden"></div>');
+			$('body').append(this.$el);
+		},
 
-			event.data.actionFunc(file);
-		};
+		/**
+		 * Adds an event handler
+		 *
+		 * @param {String} eventName event name
+		 * @param Function callback
+		 */
+		on: function(eventName, callback) {
+			this.$el.on(eventName, callback);
+		},
 
-		var addAction = function (name, action) {
-			// NOTE: Temporary fix to prevent rename action in root of Shared directory
-			if (name === 'Rename' && $('#dir').val() === '/Shared') {
-				return true;
+		/**
+		 * Removes an event handler
+		 *
+		 * @param {String} eventName event name
+		 * @param Function callback
+		 */
+		off: function(eventName, callback) {
+			this.$el.off(eventName, callback);
+		},
+
+		/**
+		 * Notifies the event handlers
+		 *
+		 * @param {String} eventName event name
+		 * @param {Object} data data
+		 */
+		_notifyUpdateListeners: function(eventName, data) {
+			this.$el.trigger(new $.Event(eventName, data));
+		},
+
+		/**
+		 * Merges the actions from the given fileActions into
+		 * this instance.
+		 *
+		 * @param fileActions instance of OCA.Files.FileActions
+		 */
+		merge: function(fileActions) {
+			var self = this;
+			// merge first level to avoid unintended overwriting
+			_.each(fileActions.actions, function(sourceMimeData, mime) {
+				var targetMimeData = self.actions[mime];
+				if (!targetMimeData) {
+					targetMimeData = {};
+				}
+				self.actions[mime] = _.extend(targetMimeData, sourceMimeData);
+			});
+
+			this.defaults = _.extend(this.defaults, fileActions.defaults);
+			this.icons = _.extend(this.icons, fileActions.icons);
+		},
+		/**
+		 * @deprecated use #registerAction() instead
+		 */
+		register: function(mime, name, permissions, icon, action, displayName) {
+			return this.registerAction({
+				name: name,
+				mime: mime,
+				permissions: permissions,
+				icon: icon,
+				actionHandler: action,
+				displayName: displayName
+			});
+		},
+		/**
+		 * Register action
+		 *
+		 * @param {Object} action action object
+		 * @param {String} action.name identifier of the action
+		 * @param {String} action.displayName display name of the action, defaults
+		 * to the name given in action.name
+		 * @param {String} action.mime mime type
+		 * @param {int} action.permissions permissions
+		 * @param {(Function|String)} action.icon icon
+		 * @param {Function} action.actionHandler function that performs the action
+		 */
+		registerAction: function (action) {
+			var mime = action.mime;
+			var name = action.name;
+			if (!this.actions[mime]) {
+				this.actions[mime] = {};
+			}
+			this.actions[mime][name] = {
+				action: action.actionHandler,
+				permissions: action.permissions,
+				displayName: action.displayName || t('files', name)
+			};
+			this.icons[name] = action.icon;
+			this._notifyUpdateListeners('registerAction', {action: action});
+		},
+		clear: function() {
+			this.actions = {};
+			this.defaults = {};
+			this.icons = {};
+			this.currentFile = null;
+			this._updateListeners = [];
+		},
+		setDefault: function (mime, name) {
+			this.defaults[mime] = name;
+			this._notifyUpdateListeners('setDefault', {defaultAction: {mime: mime, name: name}});
+		},
+		get: function (mime, type, permissions) {
+			var actions = this.getActions(mime, type, permissions);
+			var filteredActions = {};
+			$.each(actions, function (name, action) {
+				filteredActions[name] = action.action;
+			});
+			return filteredActions;
+		},
+		getActions: function (mime, type, permissions) {
+			var actions = {};
+			if (this.actions.all) {
+				actions = $.extend(actions, this.actions.all);
+			}
+			if (type) {//type is 'dir' or 'file'
+				if (this.actions[type]) {
+					actions = $.extend(actions, this.actions[type]);
+				}
+			}
+			if (mime) {
+				var mimePart = mime.substr(0, mime.indexOf('/'));
+				if (this.actions[mimePart]) {
+					actions = $.extend(actions, this.actions[mimePart]);
+				}
+				if (this.actions[mime]) {
+					actions = $.extend(actions, this.actions[mime]);
+				}
+			}
+			var filteredActions = {};
+			$.each(actions, function (name, action) {
+				if (action.permissions & permissions) {
+					filteredActions[name] = action;
+				}
+			});
+			return filteredActions;
+		},
+		getDefault: function (mime, type, permissions) {
+			var mimePart;
+			if (mime) {
+				mimePart = mime.substr(0, mime.indexOf('/'));
+			}
+			var name = false;
+			if (mime && this.defaults[mime]) {
+				name = this.defaults[mime];
+			} else if (mime && this.defaults[mimePart]) {
+				name = this.defaults[mimePart];
+			} else if (type && this.defaults[type]) {
+				name = this.defaults[type];
+			} else {
+				name = this.defaults.all;
+			}
+			var actions = this.get(mime, type, permissions);
+			return actions[name];
+		},
+		/**
+		 * Display file actions for the given element
+		 * @param parent "td" element of the file for which to display actions
+		 * @param triggerEvent if true, triggers the fileActionsReady on the file
+		 * list afterwards (false by default)
+		 * @param fileList OCA.Files.FileList instance on which the action is
+		 * done, defaults to OCA.Files.App.fileList
+		 */
+		display: function (parent, triggerEvent, fileList) {
+			if (!fileList) {
+				console.warn('FileActions.display() MUST be called with a OCA.Files.FileList instance');
+				return;
+			}
+			this.currentFile = parent;
+			var $tr = parent.closest('tr');
+			var self = this;
+			var actions = this.getActions(this.getCurrentMimeType(), this.getCurrentType(), this.getCurrentPermissions());
+			var file = this.getCurrentFile();
+			var nameLinks;
+			if ($tr.data('renaming')) {
+				return;
 			}
 
-			if ((name === 'Download' || action !== defaultAction) && name !== 'Delete') {
-				var img = FileActions.icons[name];
+			// recreate fileactions
+			nameLinks = parent.children('a.name');
+			nameLinks.find('.fileactions, .nametext .action').remove();
+			nameLinks.append('<span class="fileactions" />');
+			var defaultAction = this.getDefault(this.getCurrentMimeType(), this.getCurrentType(), this.getCurrentPermissions());
+
+			var actionHandler = function (event) {
+				event.stopPropagation();
+				event.preventDefault();
+
+				self.currentFile = event.data.elem;
+				// also set on global object for legacy apps
+				window.FileActions.currentFile = self.currentFile;
+
+				var file = self.getCurrentFile();
+				var $tr = $(this).closest('tr');
+
+				event.data.actionFunc(file, {
+					$file: $tr,
+					fileList: fileList,
+					fileActions: self,
+					dir: $tr.attr('data-path') || fileList.getCurrentDirectory()
+				});
+			};
+
+			var addAction = function (name, action, displayName) {
+
+				if ((name === 'Download' || action !== defaultAction) && name !== 'Delete') {
+
+					var img = self.icons[name],
+						actionText = displayName,
+						actionContainer = 'a.name>span.fileactions';
+
+					if (name === 'Rename') {
+						// rename has only an icon which appears behind
+						// the file name
+						actionText = '';
+						actionContainer = 'a.name span.nametext';
+					}
+					if (img.call) {
+						img = img(file);
+					}
+					var html = '<a href="#" class="action action-' + name.toLowerCase() + '" data-action="' + name + '">';
+					if (img) {
+						html += '<img class ="svg" src="' + img + '" />';
+					}
+					html += '<span> ' + actionText + '</span></a>';
+
+					var element = $(html);
+					element.data('action', name);
+					element.on('click', {a: null, elem: parent, actionFunc: actions[name].action}, actionHandler);
+					parent.find(actionContainer).append(element);
+				}
+
+			};
+
+			$.each(actions, function (name, action) {
+				if (name !== 'Share') {
+					displayName = action.displayName;
+					ah = action.action;
+
+					addAction(name, ah, displayName);
+				}
+			});
+			if(actions.Share){
+				displayName = t('files', 'Share');
+				addAction('Share', actions.Share, displayName);
+			}
+
+			// remove the existing delete action
+			parent.parent().children().last().find('.action.delete').remove();
+			if (actions['Delete']) {
+				var img = self.icons['Delete'];
+				var html;
+				var mountType = $tr.attr('data-mounttype');
+				var deleteTitle = t('files', 'Delete');
+				if (mountType === 'external-root') {
+					deleteTitle = t('files', 'Disconnect storage');
+				} else if (mountType === 'shared-root') {
+					deleteTitle = t('files', 'Unshare');
+				} else if (fileList.id === 'trashbin') {
+					deleteTitle = t('files', 'Delete permanently');
+				}
+
 				if (img.call) {
 					img = img(file);
 				}
-				var html = '<a href="#" class="action" data-action="' + name + '">';
-				if (img) {
-					html += '<img class ="svg" src="' + img + '" /> ';
-				}
-				html += t('files', name) + '</a>';
-
+				html = '<a href="#" original-title="' + escapeHTML(deleteTitle) + '" class="action delete delete-icon" />';
 				var element = $(html);
-				element.data('action', name);
-				//alert(element);
-				element.on('click', {a: null, elem: parent, actionFunc: actions[name]}, actionHandler);
-				parent.find('a.name>span.fileactions').append(element);
+				element.data('action', actions['Delete']);
+				element.on('click', {a: null, elem: parent, actionFunc: actions['Delete'].action}, actionHandler);
+				parent.parent().children().last().append(element);
 			}
 
-		};
-
-		$.each(actions, function (name, action) {
-			if (name !== 'Share') {
-				addAction(name, action);
+			if (triggerEvent){
+				fileList.$fileList.trigger(jQuery.Event("fileActionsReady", {fileList: fileList, $files: $tr}));
 			}
-		});
-		if(actions.Share && !($('#dir').val() === '/' && file === 'Shared')){
-			// t('files', 'Share')
-			addAction('Share', actions.Share);
+		},
+		getCurrentFile: function () {
+			return this.currentFile.parent().attr('data-file');
+		},
+		getCurrentMimeType: function () {
+			return this.currentFile.parent().attr('data-mime');
+		},
+		getCurrentType: function () {
+			return this.currentFile.parent().attr('data-type');
+		},
+		getCurrentPermissions: function () {
+			return this.currentFile.parent().data('permissions');
+		},
+
+		/**
+		 * Register the actions that are used by default for the files app.
+		 */
+		registerDefaultActions: function() {
+			this.register('all', 'Delete', OC.PERMISSION_DELETE, function () {
+				return OC.imagePath('core', 'actions/delete');
+			}, function (filename, context) {
+				context.fileList.do_delete(filename, context.dir);
+				$('.tipsy').remove();
+			});
+
+			// t('files', 'Rename')
+			this.register('all', 'Rename', OC.PERMISSION_UPDATE, function () {
+				return OC.imagePath('core', 'actions/rename');
+			}, function (filename, context) {
+				context.fileList.rename(filename);
+			});
+
+			this.register('dir', 'Open', OC.PERMISSION_READ, '', function (filename, context) {
+				var dir = context.$file.attr('data-path') || context.fileList.getCurrentDirectory();
+				if (dir !== '/') {
+					dir = dir + '/';
+				}
+				context.fileList.changeDirectory(dir + filename);
+			});
+
+			this.setDefault('dir', 'Open');
+
+			this.register('all', 'Download', OC.PERMISSION_READ, function () {
+				return OC.imagePath('core', 'actions/download');
+			}, function (filename, context) {
+				var dir = context.dir || context.fileList.getCurrentDirectory();
+				var url = context.fileList.getDownloadUrl(filename, dir);
+				if (url) {
+					OC.redirect(url);
+				}
+			});
 		}
+	};
 
-		// remove the existing delete action
-		parent.parent().children().last().find('.action.delete').remove();
-		if (actions['Delete']) {
-			var img = FileActions.icons['Delete'];
-			if (img.call) {
-				img = img(file);
-			}
-			if (typeof trashBinApp !== 'undefined' && trashBinApp) {
-				var html = '<a href="#" original-title="' + t('files', 'Delete permanently') + '" class="action delete delete-icon" />';
-			} else {
-				var html = '<a href="#" class="action delete delete-icon" />';
-			}
-			var element = $(html);
-			element.data('action', actions['Delete']);
-			element.on('click', {a: null, elem: parent, actionFunc: actions['Delete']}, actionHandler);
-			parent.parent().children().last().append(element);
-		}
+	OCA.Files.FileActions = FileActions;
 
-		if (triggerEvent){
-			$('#fileList').trigger(jQuery.Event("fileActionsReady"));
-		}
-	},
-	getCurrentFile: function () {
-		return FileActions.currentFile.parent().attr('data-file');
-	},
-	getCurrentMimeType: function () {
-		return FileActions.currentFile.parent().attr('data-mime');
-	},
-	getCurrentType: function () {
-		return FileActions.currentFile.parent().attr('data-type');
-	},
-	getCurrentPermissions: function () {
-		return FileActions.currentFile.parent().data('permissions');
-	}
-};
+	// global file actions to be used by all lists
+	OCA.Files.fileActions = new OCA.Files.FileActions();
+	OCA.Files.legacyFileActions = new OCA.Files.FileActions();
 
-$(document).ready(function () {
-	if ($('#allowZipDownload').val() == 1) {
-		var downloadScope = 'all';
-	} else {
-		var downloadScope = 'file';
-	}
+	// for backward compatibility
+	// 
+	// legacy apps are expecting a stateful global FileActions object to register
+	// their actions on. Since legacy apps are very likely to break with other
+	// FileList views than the main one ("All files"), actions registered
+	// through window.FileActions will be limited to the main file list.
+	window.FileActions = OCA.Files.legacyFileActions;
+	window.FileActions.register = function (mime, name, permissions, icon, action, displayName) {
+		console.warn('FileActions.register() is deprecated, please use OCA.Files.fileActions.register() instead', arguments);
+		OCA.Files.FileActions.prototype.register.call(
+				window.FileActions, mime, name, permissions, icon, action, displayName
+		);
+	};
+	window.FileActions.display = function (parent, triggerEvent, fileList) {
+		fileList = fileList || OCA.Files.App.fileList;
+		console.warn('FileActions.display() is deprecated, please use OCA.Files.fileActions.register() which automatically redisplays actions', mime, name);
+		OCA.Files.FileActions.prototype.display.call(window.FileActions, parent, triggerEvent, fileList);
+	};
+})();
 
-	if (typeof disableDownloadActions == 'undefined' || !disableDownloadActions) {
-		FileActions.register(downloadScope, 'Download', OC.PERMISSION_READ, function () {
-			return OC.imagePath('core', 'actions/download');
-		}, function (filename) {
-			window.location = OC.filePath('files', 'ajax', 'download.php') + '?files=' + encodeURIComponent(filename) + '&dir=' + encodeURIComponent($('#dir').val());
-		});
-	}
-	$('#fileList tr').each(function () {
-		FileActions.display($(this).children('td.filename'));
-	});
-	
-	$('#fileList').trigger(jQuery.Event("fileActionsReady"));
-
-});
-
-FileActions.register('all', 'Delete', OC.PERMISSION_DELETE, function () {
-	return OC.imagePath('core', 'actions/delete');
-}, function (filename) {
-	FileList.do_delete(filename);
-	$('.tipsy').remove();
-});
-
-// t('files', 'Rename')
-FileActions.register('all', 'Rename', OC.PERMISSION_UPDATE, function () {
-	return OC.imagePath('core', 'actions/rename');
-}, function (filename) {
-	FileList.rename(filename);
-});
-
-FileActions.register('dir', 'Open', OC.PERMISSION_READ, '', function (filename) {
-	var dir = $('#dir').val() || '/';
-	if (dir !== '/') {
-		dir = dir + '/';
-	}
-	FileList.changeDirectory(dir + filename);
-});
-
-FileActions.setDefault('dir', 'Open');

@@ -43,10 +43,16 @@ class Storage {
 		}
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getNumericId() {
 		return $this->numericId;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public static function getStorageId($numericId) {
 
 		$sql = 'SELECT `id` FROM `*PREFIX*storages` WHERE `numeric_id` = ?';
@@ -58,16 +64,47 @@ class Storage {
 		}
 	}
 
-	public static function exists($storageId) {
+	/**
+	 * @return string|null
+	 */
+	public static function getNumericStorageId($storageId) {
 		if (strlen($storageId) > 64) {
 			$storageId = md5($storageId);
 		}
+
 		$sql = 'SELECT `numeric_id` FROM `*PREFIX*storages` WHERE `id` = ?';
 		$result = \OC_DB::executeAudited($sql, array($storageId));
 		if ($row = $result->fetchRow()) {
-			return true;
+			return $row['numeric_id'];
 		} else {
-			return false;
+			return null;
+		}
+	}
+
+	/**
+	 * @param string $storageId
+	 * @return bool
+	 */
+	public static function exists($storageId) {
+		return !is_null(self::getNumericStorageId($storageId));
+	}
+
+	/**
+	 * remove the entry for the storage
+	 *
+	 * @param string $storageId
+	 */
+	public static function remove($storageId) {
+		if (strlen($storageId) > 64) {
+			$storageId = md5($storageId);
+		}
+		$numericId = self::getNumericStorageId($storageId);
+		$sql = 'DELETE FROM `*PREFIX*storages` WHERE `id` = ?';
+		\OC_DB::executeAudited($sql, array($storageId));
+
+		if (!is_null($numericId)) {
+			$sql = 'DELETE FROM `*PREFIX*filecache` WHERE `storage` = ?';
+			\OC_DB::executeAudited($sql, array($numericId));
 		}
 	}
 }

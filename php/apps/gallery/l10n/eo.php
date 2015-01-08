@@ -1,5 +1,9 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Bildoj",
+"Picture view" => "Bilda vido",
+"Error loading slideshow template" => "Eraris ŝargo de ŝablono pri lumbilda prezento",
 "Share" => "Kunhavigi",
-"The \"Image Viewer\" application also need to be enabled to use this application." => "Ankaŭ la aplikaĵo “Bildorigardilo” devas esti kapabligita por uzi ĉi tiun aplikaĵon."
+"No pictures found! If you upload pictures in the files app, they will be displayed here." => "Neniu bildo troviĝis! Se vi alŝutos bildojn en la aplikaĵo Dosieroj, ili montriĝos ĉi tie.",
+"shared by %s" => "kunhavigita de %s",
+"File list" => "Listo de dosieroj"
 );

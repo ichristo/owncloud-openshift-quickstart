@@ -1,10 +1,9 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Bilder",
-"Shared by" => "Geteilt von",
 "Picture view" => "Bildansicht",
 "Error loading slideshow template" => "Fehler beim Laden der Slideshow-Vorlage",
 "Share" => "Teilen",
-"The \"Image Viewer\" application also need to be enabled to use this application." => "Die Anwendung \"Image Viewer\" muss aktiviert sein, damit Sie diese Anwendung benutzen können.",
-"%s shared <strong>%s</strong> with you" => "%s teilt <strong>%s</strong> mit Ihnen",
+"No pictures found! If you upload pictures in the files app, they will be displayed here." => "Keine Bilder gefunden! Wenn Sie Bilder in die Dateien-App hochladen, werden diese hier angezeigt.",
+"shared by %s" => "Geteilt von %s",
 "File list" => "Dateiliste"
 );

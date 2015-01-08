@@ -16,11 +16,11 @@ class Mount {
 	/**
 	 * @var \OC\Files\Storage\Storage $storage
 	 */
-	private $storage = null;
-	private $class;
-	private $storageId;
-	private $arguments = array();
-	private $mountPoint;
+	protected $storage = null;
+	protected $class;
+	protected $storageId;
+	protected $arguments = array();
+	protected $mountPoint;
 
 	/**
 	 * @var \OC\Files\Storage\Loader $loader
@@ -28,7 +28,7 @@ class Mount {
 	private $loader;
 
 	/**
-	 * @param string | \OC\Files\Storage\Storage $storage
+	 * @param string|\OC\Files\Storage\Storage $storage
 	 * @param string $mountpoint
 	 * @param array $arguments (optional)\
 	 * @param \OC\Files\Storage\Loader $loader
@@ -59,10 +59,28 @@ class Mount {
 	}
 
 	/**
+	 * get complete path to the mount point, relative to data/
+	 *
 	 * @return string
 	 */
 	public function getMountPoint() {
 		return $this->mountPoint;
+	}
+
+	/**
+	 * get name of the mount point
+	 *
+	 * @return string
+	 */
+	public function getMountPointName() {
+		return basename(rtrim($this->mountPoint, '/'));
+	}
+
+	/**
+	 * @param string $mountPoint new mount point
+	 */
+	public function setMountPoint($mountPoint) {
+		$this->mountPoint = $mountPoint;
 	}
 
 	/**
@@ -75,7 +93,12 @@ class Mount {
 			try {
 				return $this->loader->load($this->mountPoint, $this->class, $this->arguments);
 			} catch (\Exception $exception) {
-				\OC_Log::write('core', $exception->getMessage(), \OC_Log::ERROR);
+				if ($this->mountPoint === '/') {
+					// the root storage could not be initialized, show the user!
+					throw new \Exception('The root storage could not be initialized. Please contact your local administrator.', $exception->getCode(), $exception);
+				} else {
+					\OC_Log::write('core', $exception->getMessage(), \OC_Log::ERROR);
+				}
 				return null;
 			}
 		} else {
@@ -124,7 +147,8 @@ class Mount {
 		} else {
 			$internalPath = substr($path, strlen($this->mountPoint));
 		}
-		return $internalPath;
+		// substr returns false instead of an empty string, we always want a string
+		return (string)$internalPath;
 	}
 
 	/**
@@ -143,6 +167,6 @@ class Mount {
 	 * @param callable $wrapper
 	 */
 	public function wrapStorage($wrapper) {
-		$this->storage = $wrapper($this->mountPoint, $this->storage);
+		$this->storage = $wrapper($this->mountPoint, $this->getStorage());
 	}
 }

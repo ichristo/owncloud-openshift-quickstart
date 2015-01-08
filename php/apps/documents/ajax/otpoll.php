@@ -31,21 +31,26 @@ try{
 	$request = new Request();
 	$esId = $request->getParam('args/es_id');
 	
-	$session = new Db_Session();
-	$sessionData = $session->load($esId)->getData();
+	$session = new Db\Session();
+	$session->load($esId);
+	
+	$memberId = $request->getParam('args/member_id');
+	$member = new Db\Member();
+	$member->load($memberId);
+	
+	if ($member->getIsGuest() || is_null($member->getIsGuest())){
+		Controller::preDispatchGuest(false);
+	} else {
+		Controller::preDispatch(false);
+	}
 
 	try {
-		$file = new File(@$sessionData['file_id']);
+		$file = new File($session->getFileId());
 	} catch (\Exception $e){
 		Helper::warnLog('Error. Session no longer exists. ' . $e->getMessage());
 		$ex = new BadRequestException();
-		$ex->setBody("{err:'bad request: [" . $request->getRawRequest() . "]'}");
+		$ex->setBody($request->getRawRequest());
 		throw $ex;
-	}
-	if (!$file->isPublicShare()){
-		Controller::preDispatch(false);
-	} else {
-		Controller::preDispatchGuest(false);
 	}
 	
 	$command = $request->getParam('command');
@@ -53,17 +58,16 @@ try{
 		case 'sync_ops':
 			$seqHead = (string) $request->getParam('args/seq_head');
 			if (!is_null($seqHead)){
-				$memberId = $request->getParam('args/member_id');
 				$ops = $request->getParam('args/client_ops');
 				$hasOps = is_array($ops) && count($ops)>0;
 
-				$op = new Db_Op();
+				$op = new Db\Op();
 				$currentHead = $op->getHeadSeq($esId);
 				
-				$member = new Db_Member();
 				try {
 					$member->updateActivity($memberId);
 				} catch (\Exception $e){
+					//Db error. Not critical
 				}
 
 				// TODO handle the case ($currentHead == "") && ($seqHead != "")
@@ -72,7 +76,7 @@ try{
 					if ($hasOps) {
 						// incoming ops without conflict
 						// Add incoming ops, respond with a new head
-						$newHead = Db_Op::addOpsArray($esId, $memberId, $ops);
+						$newHead = Db\Op::addOpsArray($esId, $memberId, $ops);
 						$response["result"] = 'added';
 						$response["head_seq"] = $newHead ? $newHead : $currentHead;
 					} else {
@@ -101,7 +105,7 @@ try{
 			break;
 		default:
 			$ex = new BadRequestException();
-			$ex->setBody("{err:'bad request: [" . $request->getRawRequest() . "]'}");
+			$ex->setBody($request->getRawRequest());
 			throw $ex;
 			break;
 	}
@@ -109,8 +113,8 @@ try{
 	\OCP\JSON::success($response);
 } catch (BadRequestException $e){
 	header('HTTP/1.1 400: BAD REQUEST');
-	print("");
-	print($e->getBody());
-	print("");
+	\OCP\JSON::error( array(
+		'err' => 'bad request:[' . $e->getBody() . ']',
+	));
 }
 exit();

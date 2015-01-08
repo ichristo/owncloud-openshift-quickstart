@@ -5,10 +5,11 @@
 	<description>Use external user authentication methods</description>
 	<licence>AGPL</licence>
 	<author>Robin Appelman</author>
-	<require>4.93</require>
+	<requiremin>4.93</requiremin>
 	<shipped>true</shipped>
 	<types>
 		<authentication/>
 		<prelogin/>
 	</types>
+	<ocsid>166060</ocsid>
 </info>

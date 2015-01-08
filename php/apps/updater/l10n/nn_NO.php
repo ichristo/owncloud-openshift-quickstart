@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "Checking your installation..." => "Kontrollerer installasjonen din …",
 "Upgrade is not possible. Make sure that your webserver has write access to the following files and directories:" => "Kan ikkje oppgradera. Kontroller at vevtenaren din har skrivetilgang til dei følgjande filene og mappene:",
 "Version not found" => "Fann ikkje utgåva",
@@ -12,7 +13,6 @@
 "Moving files..." => "Flyttar filer …",
 "All done. Click to the link below to start database upgrade." => "Ferdig. Klikk lenkja nedanfor for å starta databaseoppgraderinga.",
 "Update failed" => "Feil ved oppdatering",
-"The update was unsuccessful. Please report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "Feil ved oppdatering. Ver venleg og rapporter denne hendinga til <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud-fellesskapet</a>.",
 "Update Center" => "Oppdateringssenter",
 "Backup Management" => "Handtering av tryggleikskopiar",
 "Update" => "Oppdater",
@@ -23,3 +23,4 @@
 "Delete" => "Slett",
 "No backups found" => "Fann ingen tryggleikskopiar"
 );
+$PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

@@ -1,4 +1,5 @@
-<?php $TRANSLATIONS = array(
+<?php
+$TRANSLATIONS = array(
 "Checking your installation..." => "Проверяется Ваша установка...",
 "Upgrade is not possible. Make sure that your webserver has write access to the following files and directories:" => "Обновление невозможно. Проверьте, что Ваш вебсервер имеет права на запись следующих файлов и директорий:",
 "Version not found" => "Версия не найдена",
@@ -12,7 +13,9 @@
 "Moving files..." => "Перемещение файлов...",
 "All done. Click to the link below to start database upgrade." => "Всё закончено. Нажмите ссылку ниже для начала обновления базы данных.",
 "Update failed" => "Обновление не удалось",
-"The update was unsuccessful. Please report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "При обновлении произошла ошибка. Пожалуйста сообщите об этой ошибке <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud сообществу</a>.",
+"The update was unsuccessful. Please check logs at admin page and report this issue to the <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">ownCloud community</a>." => "Обновление не удалось. Пожалуйста, проверьте журналы на странице администратора и сообщите об этой проблеме <a href=\"https://github.com/owncloud/apps/issues\" target=\"_blank\">сообществу ownCloud</a>.",
+"Proceed" => "продолжить",
+"Updater" => "Обновление",
 "Update Center" => "Центр обновлений",
 "Backup Management" => "Управление резервным копированием",
 "Update" => "Обновить",
@@ -23,3 +26,4 @@
 "Delete" => "Удалить",
 "No backups found" => "Резервных копий не найдено"
 );
+$PLURAL_FORMS = "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);";

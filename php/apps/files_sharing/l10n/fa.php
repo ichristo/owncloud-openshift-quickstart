@@ -1,12 +1,26 @@
 <?php
 $TRANSLATIONS = array(
-"The password is wrong. Try again." => "رمزعبور اشتباه می باشد. دوباره امتحان کنید.",
 "Password" => "گذرواژه",
-"%s shared the folder %s with you" => "%sپوشه %s را با شما به اشتراک گذاشت",
-"%s shared the file %s with you" => "%sفایل %s را با شما به اشتراک گذاشت",
+"Shared by {owner}" => "اشتراک گذارنده {owner}",
+"Shared by" => "اشتراک گذاشته شده به وسیله",
+"This share is password-protected" => "این اشتراک توسط رمز عبور محافظت می شود",
+"The password is wrong. Try again." => "رمزعبور اشتباه می باشد. دوباره امتحان کنید.",
+"Name" => "نام",
+"Sorry, this link doesn’t seem to work anymore." => "متاسفانه این پیوند دیگر کار نمی کند",
+"Reasons might be:" => "ممکن است به این دلایل باشد:",
+"the item was removed" => "این مورد حذف شده است",
+"the link expired" => "این پیوند منقضی شده است",
+"sharing is disabled" => "قابلیت اشتراک گذاری غیرفعال است",
+"For more info, please ask the person who sent this link." => "برای اطلاعات بیشتر، لطفا از شخصی که این پیوند را ارسال کرده سوال بفرمایید.",
+"Save" => "ذخیره",
 "Download" => "دانلود",
-"Upload" => "بارگزاری",
-"Cancel upload" => "متوقف کردن بار گذاری",
-"No preview available for" => "هیچگونه پیش نمایشی موجود نیست"
+"Download %s" => "دانلود %s",
+"Direct link" => "پیوند مستقیم",
+"Remote share" => "اشتراک از راه دور",
+"Remote share password" => "رمز عبور اشتراک از راه دور",
+"Do you want to add the remote share {name} from {owner}@{remote}?" => "آیا مایل به افزودن اشتراک از راه دور {name} از {owner}@{remote} هستید.",
+"Couldn't add remote share" => "امکان افزودن اشتراک گذاری از راه دور وجود ندارد",
+"Add remote share" => "افزودن اشتراک از راه دور",
+"Remote Shares" => "اشتراک های از راه دور",
 );
 $PLURAL_FORMS = "nplurals=1; plural=0;";

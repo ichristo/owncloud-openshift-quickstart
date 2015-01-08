@@ -3,7 +3,7 @@
  * ownCloud - Addressbook
  *
  * @author Thomas Tanghus
- * @copyright 2012 Thomas Tanghus (thomas@tanghus.net)
+ * @copyright 2012-2014 Thomas Tanghus (thomas@tanghus.net)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -25,31 +25,31 @@ namespace OCA\Contacts\CardDAV;
 use OCA\Contacts;
 
 /**
- * This class overrides Sabre_CardDAV_Card::getACL()
+ * This class overrides \Sabre\CardDAV\Card::getACL()
  * to return read/write permissions based on user and shared state.
 */
-class Card extends \Sabre_CardDAV_Card {
+class Card extends \Sabre\CardDAV\Card {
 
-    /**
-     * Array with information about the containing addressbook
-     *
-     * @var array
-     */
-    protected $addressBookInfo;
+	/**
+	* Array with information about the containing addressbook
+	*
+	* @var array
+	*/
+	protected $addressBookInfo;
 
-    /**
-     * Constructor
-     *
-     * @param Sabre_CardDAV_Backend_Abstract $carddavBackend
-     * @param array $addressBookInfo
-     * @param array $cardData
-     */
-    public function __construct(\Sabre_CardDAV_Backend_Abstract $carddavBackend, array $addressBookInfo, array $cardData) {
+	/**
+	* Constructor
+	*
+	* @param \Sabre\CardDAV\Backend\AbstractBackend $carddavBackend
+	* @param array $addressBookInfo
+	* @param array $cardData
+	*/
+	public function __construct(\Sabre\CardDAV\Backend\AbstractBackend $carddavBackend, array $addressBookInfo, array $cardData) {
 
-        $this->addressBookInfo = $addressBookInfo;
+		$this->addressBookInfo = $addressBookInfo;
 		parent::__construct($carddavBackend, $addressBookInfo, $cardData);
 
-    }
+	}
 
 	/**
 	* Returns a list of ACE's for this node.
@@ -70,7 +70,7 @@ class Card extends \Sabre_CardDAV_Card {
 		$uid = $this->carddavBackend->userIDByPrincipal($this->getOwner());
 
 		if($uid != \OCP\USER::getUser()) {
-			list($backendName, $id) = explode('::', $this->addressBookInfo['id']);
+			list(, $id) = explode('::', $this->addressBookInfo['id']);
 			$sharedAddressbook = \OCP\Share::getItemSharedWithBySource('addressbook', $id);
 			if ($sharedAddressbook && ($sharedAddressbook['permissions'] & \OCP\PERMISSION_READ)) {
 				$readprincipal = 'principals/' . \OCP\USER::getUser();

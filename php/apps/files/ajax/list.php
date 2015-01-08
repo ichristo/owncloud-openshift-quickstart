@@ -1,47 +1,58 @@
 <?php
 
-// only need filesystem apps
-$RUNTIME_APPTYPES=array('filesystem');
-
-// Init owncloud
-
-
 OCP\JSON::checkLoggedIn();
+\OC::$session->close();
+$l = OC_L10N::get('files');
 
 // Load the files
-$dir = isset( $_GET['dir'] ) ? $_GET['dir'] : '';
+$dir = isset($_GET['dir']) ? $_GET['dir'] : '';
 $dir = \OC\Files\Filesystem::normalizePath($dir);
-if (!\OC\Files\Filesystem::is_dir($dir . '/')) {
-	header("HTTP/1.0 404 Not Found");
-	exit();
+
+try {
+	$dirInfo = \OC\Files\Filesystem::getFileInfo($dir);
+	if (!$dirInfo || !$dirInfo->getType() === 'dir') {
+		header("HTTP/1.0 404 Not Found");
+		exit();
+	}
+
+	$data = array();
+	$baseUrl = OCP\Util::linkTo('files', 'index.php') . '?dir=';
+
+	$permissions = $dirInfo->getPermissions();
+
+	$sortAttribute = isset($_GET['sort']) ? $_GET['sort'] : 'name';
+	$sortDirection = isset($_GET['sortdirection']) ? ($_GET['sortdirection'] === 'desc') : false;
+
+	// make filelist
+
+	$files = \OCA\Files\Helper::getFiles($dir, $sortAttribute, $sortDirection);
+	$data['directory'] = $dir;
+	$data['files'] = \OCA\Files\Helper::formatFileInfos($files);
+	$data['permissions'] = $permissions;
+
+	OCP\JSON::success(array('data' => $data));
+} catch (\OCP\Files\StorageNotAvailableException $e) {
+	\OCP\Util::logException('files', $e);
+	OCP\JSON::error(array(
+		'data' => array(
+			'exception' => '\OCP\Files\StorageNotAvailableException',
+			'message' => $l->t('Storage not available')
+		)
+	));
+} catch (\OCP\Files\StorageInvalidException $e) {
+	\OCP\Util::logException('files', $e);
+	OCP\JSON::error(array(
+		'data' => array(
+			'exception' => '\OCP\Files\StorageInvalidException',
+			'message' => $l->t('Storage invalid')
+		)
+	));
+} catch (\Exception $e) {
+	\OCP\Util::logException('files', $e);
+	OCP\JSON::error(array(
+		'data' => array(
+			'exception' => '\Exception',
+			'message' => $l->t('Unknown error')
+		)
+	));
 }
-
-$doBreadcrumb = isset($_GET['breadcrumb']);
-$data = array();
-$baseUrl = OCP\Util::linkTo('files', 'index.php') . '?dir=';
-
-$permissions = \OCA\Files\Helper::getDirPermissions($dir);
-
-// Make breadcrumb
-if($doBreadcrumb) {
-	$breadcrumb = \OCA\Files\Helper::makeBreadcrumb($dir);
-
-	$breadcrumbNav = new OCP\Template('files', 'part.breadcrumb', '');
-	$breadcrumbNav->assign('breadcrumb', $breadcrumb, false);
-	$breadcrumbNav->assign('baseURL', $baseUrl);
-
-	$data['breadcrumb'] = $breadcrumbNav->fetchPage();
-}
-
-// make filelist
-$files = \OCA\Files\Helper::getFiles($dir);
-
-$list = new OCP\Template("files", "part.list", "");
-$list->assign('files', $files, false);
-$list->assign('baseURL', $baseUrl, false);
-$list->assign('downloadURL', OCP\Util::linkToRoute('download', array('file' => '/')));
-$list->assign('isPublic', false);
-$data['files'] = $list->fetchPage();
-$data['permissions'] = $permissions;
-
-OCP\JSON::success(array('data' => $data));

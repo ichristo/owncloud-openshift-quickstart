@@ -100,12 +100,12 @@ abstract class Db {
 		}
 		$count = count($value);
 		if ($count===0){
-			return 0;
+			return;
 		} elseif ($count===1){
-			$result = $this->execute('DELETE FROM ' . $this->tableName . ' WHERE `'. $field .'` =?', $value);
+			$this->execute('DELETE FROM ' . $this->tableName . ' WHERE `'. $field .'` =?', $value);
 		} else {
 			$stmt = $this->buildInQuery($field, $value);
-			$result = $this->execute('DELETE FROM ' . $this->tableName . ' WHERE ' . $stmt, $value);
+			$this->execute('DELETE FROM ' . $this->tableName . ' WHERE ' . $stmt, $value);
 		}
 	}
 	
@@ -205,5 +205,16 @@ abstract class Db {
 		}
 		
 		return $result;
+	}
+	
+	public function __call($name, $arguments){
+		if (substr($name, 0, 3) === 'get'){
+			$requestedProperty = substr($name, 3);
+			$property = strtolower(preg_replace('/(.)([A-Z])/', "$1_$2", $requestedProperty));
+			if (isset($this->data[$property])){
+				return $this->data[$property];
+			}
+		}
+		return null;
 	}
 }

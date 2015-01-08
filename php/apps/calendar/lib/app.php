@@ -407,7 +407,19 @@ class OC_Calendar_App{
 		$events = array();
 		if($calendarid == 'shared_events') {
 			$singleevents = OCP\Share::getItemsSharedWith('event', OC_Share_Backend_Event::FORMAT_EVENT);
+			$calendars = OC_Calendar_Calendar::allCalendars(OCP\USER::getUser());
 			foreach($singleevents as $singleevent) {
+				// Skip this single event if the whole calendar is already shared with the user.
+				$calendarShared = false;
+				foreach ($calendars as $calendar) {
+					if ($singleevent['calendarid'] === $calendar['id']) {
+						$calendarShared = true;
+						break;
+					}
+				}
+				if ($calendarShared === true) {
+					continue;
+				}
 				$singleevent['summary'] .= ' (' . self::$l10n->t('by') .  ' ' . OC_Calendar_Object::getowner($singleevent['id']) . ')';
 				$events[] =  $singleevent;
 			}
@@ -512,7 +524,7 @@ class OC_Calendar_App{
 			if(isset($event['uri'])){
 				$uid = $event['uri'];
 			}
-			\OCP\Util::writeLog('calendar', 'Event (' . $uid . ') contains invalid data!',\OCP\Util::WARN);
+			\OCP\Util::writeLog('calendar', 'Event (' . $uid . ') contains invalid data: ' . $e->getMessage(),\OCP\Util::WARN);
 		}
 	}
 	
@@ -545,17 +557,13 @@ class OC_Calendar_App{
 			$result = OC_Calendar_Calendar::getUsersEmails($name);
 			$emails[] = $result;
 		}
-		$useremail = OC_Calendar_Calendar::getUsersEmails($user);
+		$adminmail = \OCP\Util::getDefaultEmailAddress('no-reply');
 		foreach ($emails as $email) {
 			if($email === null) {
 				continue;
 			}
 
 			$subject = 'Calendar Event Shared';
-
-			$headers = 'MIME-Version: 1.0\r\n';
-			$headers .= 'Content-Type: text/html; charset=utf-8\r\n';
-			$headers .= 'From:' . $useremail;
 
 			$message  = '<html><body>';
 			$message .= '<table style="border:1px solid black;" cellpadding="10">';
@@ -566,7 +574,7 @@ class OC_Calendar_App{
 			$message .= '</table>';
 			$message .= '</body></html>';
 
-			OCP\Util::sendMail($email, "User", $subject, $message, $useremail, $user, $html = 1, $altbody = '', $ccaddress = '', $ccname = '', $bcc = '');
+			OCP\Util::sendMail($email, \OCP\User::getDisplayName(), $subject, $message, $adminmail, $user, $html=1);
 		}
 	}
 }

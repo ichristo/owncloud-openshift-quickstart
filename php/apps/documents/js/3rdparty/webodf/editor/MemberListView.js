@@ -116,12 +116,19 @@ define("webodf/editor/MemberListView",
                 //avatar.getCaret().hideHandle();
             };
             avatarDiv.onclick = function () {
+                if (memberId === editorSession.sessionController.getInputMemberId()){
+                    documentsMain.onNickChange(memberId, fullnameNode);
+                }
                 var caret = editorSession.sessionView.getCaret(memberId);
                 if (caret) {
                     //caret.toggleHandleVisibility();
                 }
             };
-            memberListDiv.appendChild(avatarDiv);
+            if (memberId === editorSession.sessionController.getInputMemberId()){
+                memberListDiv.insertBefore(avatarDiv, memberListDiv.firstChild);
+            } else {
+                memberListDiv.appendChild(avatarDiv);
+            }
         }
 
         /**

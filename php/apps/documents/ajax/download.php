@@ -14,5 +14,17 @@ namespace OCA\Documents;
 
 \OCP\JSON::checkLoggedIn();
 
-$download = new Download(\OCP\User::getUser(), '/files' . @$_GET['path']);
-$download->sendResponse();
+$path = Helper::getArrayValueByKey($_GET, 'path');
+if (!empty($path)){
+	if (\OC\Files\Filesystem::getMimeType($path) !== \OCA\Documents\Filter\Office::NATIVE_MIMETYPE){
+		$fileInfo = \OC\Files\Filesystem::getFileInfo($path);
+		$file = new File($fileInfo->getId());
+		$genesis = new Genesis($file);
+		$fullPath = $genesis->getPath();
+	} else {
+		$fullPath = '/files' . $path;
+	}
+	$download = new Download(\OCP\User::getUser(), $fullPath);
+	$download->sendResponse();
+}
+exit();

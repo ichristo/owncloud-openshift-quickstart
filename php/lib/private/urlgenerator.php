@@ -15,23 +15,35 @@ use RuntimeException;
  * Class to generate URLs
  */
 class URLGenerator implements IURLGenerator {
+
 	/**
-	 * @brief Creates an url using a defined route
-	 * @param $route
+	 * @var \OCP\IConfig
+	 */
+	private $config;
+
+	/**
+	 * @param \OCP\IConfig $config
+	 */
+	public function __construct($config) {
+		$this->config = $config;
+	}
+
+	/**
+	 * Creates an url using a defined route
+	 * @param string $route
 	 * @param array $parameters
-	 * @return
 	 * @internal param array $args with param=>value, will be appended to the returned url
-	 * @returns string the url
+	 * @return string the url
 	 *
 	 * Returns a url to the given app and file.
 	 */
 	public function linkToRoute($route, $parameters = array()) {
-		$urlLinkTo = \OC::getRouter()->generate($route, $parameters);
+		$urlLinkTo = \OC::$server->getRouter()->generate($route, $parameters);
 		return $urlLinkTo;
 	}
 
 	/**
-	 * @brief Creates an url
+	 * Creates an url
 	 * @param string $app app
 	 * @param string $file file
 	 * @param array $args array with param=>value, will be appended to the returned url
@@ -41,12 +53,18 @@ class URLGenerator implements IURLGenerator {
 	 * Returns a url to the given app and file.
 	 */
 	public function linkTo( $app, $file, $args = array() ) {
+		$frontControllerActive=($this->config->getSystemValue('front_controller_active', 'false') == 'true');
+
 		if( $app != '' ) {
 			$app_path = \OC_App::getAppPath($app);
 			// Check if the app is in the app folder
 			if ($app_path && file_exists($app_path . '/' . $file)) {
-				if (substr($file, -3) == 'php' || substr($file, -3) == 'css') {
+				if (substr($file, -3) == 'php') {
+
 					$urlLinkTo = \OC::$WEBROOT . '/index.php/apps/' . $app;
+					if ($frontControllerActive) {
+						$urlLinkTo = \OC::$WEBROOT . '/apps/' . $app;
+					}
 					$urlLinkTo .= ($file != 'index.php') ? '/' . $file : '';
 				} else {
 					$urlLinkTo = \OC_App::getAppWebPath($app) . '/' . $file;
@@ -58,7 +76,11 @@ class URLGenerator implements IURLGenerator {
 			if (file_exists(\OC::$SERVERROOT . '/core/' . $file)) {
 				$urlLinkTo = \OC::$WEBROOT . '/core/' . $file;
 			} else {
-				$urlLinkTo = \OC::$WEBROOT . '/' . $file;
+				if ($frontControllerActive && $file === 'index.php') {
+					$urlLinkTo = \OC::$WEBROOT;
+				} else {
+					$urlLinkTo = \OC::$WEBROOT . '/' . $file;
+				}
 			}
 		}
 
@@ -70,9 +92,10 @@ class URLGenerator implements IURLGenerator {
 	}
 
 	/**
-	 * @brief Creates path to an image
+	 * Creates path to an image
 	 * @param string $app app
 	 * @param string $image image name
+	 * @throws \RuntimeException If the image does not exist
 	 * @return string the url
 	 *
 	 * Returns the path to the image.
@@ -124,6 +147,17 @@ class URLGenerator implements IURLGenerator {
 	 * @return string the absolute version of the url
 	 */
 	public function getAbsoluteURL($url) {
-		return \OC_Request::serverProtocol() . '://' . \OC_Request::serverHost() . $url;
+		$separator = $url[0] === '/' ? '' : '/';
+
+		if (\OC::$CLI && !defined('PHPUNIT_RUN')) {
+			return rtrim($this->config->getSystemValue('overwrite.cli.url'), '/') . '/' . ltrim($url, '/');
+		}
+
+		// The ownCloud web root can already be prepended.
+		$webRoot = substr($url, 0, strlen(\OC::$WEBROOT)) === \OC::$WEBROOT
+			? ''
+			: \OC::$WEBROOT;
+
+		return \OC_Request::serverProtocol() . '://' . \OC_Request::serverHost(). $webRoot . $separator . $url;
 	}
 }

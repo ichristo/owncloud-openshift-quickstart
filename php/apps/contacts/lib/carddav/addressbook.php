@@ -3,7 +3,7 @@
  * ownCloud - Addressbook
  *
  * @author Thomas Tanghus
- * @copyright 2012 Thomas Tanghus (thomas@tanghus.net)
+ * @copyright 2012-2014 Thomas Tanghus (thomas@tanghus.net)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
@@ -26,29 +26,30 @@ use OCA\Contacts;
 
 /**
  * This class overrides __construct to get access to $addressBookInfo and
- * $carddavBackend, Sabre_CardDAV_AddressBook::getACL() to return read/write
+ * $carddavBackend, \Sabre\CardDAV\AddressBook::getACL() to return read/write
  * permissions based on user and shared state and it overrides
- * Sabre_CardDAV_AddressBook::getChild() and Sabre_CardDAV_AddressBook::getChildren()
+ * \Sabre\CardDAV\AddressBook::getChild() and \Sabre\CardDAV\AddressBook::getChildren()
  * to instantiate \OCA\Contacts\CardDAV\Cards.
 */
-class AddressBook extends \Sabre_CardDAV_AddressBook {
+class AddressBook extends \Sabre\CardDAV\AddressBook {
 
 	/**
 	* CardDAV backend
 	*
-	* @var Sabre_CardDAV_Backend_Abstract
+	* @var \Sabre\CardDAV\Backend\AbstractBackend
 	*/
 	protected $carddavBackend;
 
 	/**
 	* Constructor
 	*
-	* @param Sabre_CardDAV_Backend_Abstract $carddavBackend
+	* @param \Sabre\CardDAV\Backend\AbstractBackend $carddavBackend
 	* @param array $addressBookInfo
 	*/
 	public function __construct(
-		\Sabre_CardDAV_Backend_Abstract $carddavBackend,
-		array $addressBookInfo) {
+		\Sabre\CardDAV\Backend\AbstractBackend $carddavBackend,
+		array $addressBookInfo
+	) {
 
 		$this->carddavBackend = $carddavBackend;
 		$this->addressBookInfo = $addressBookInfo;
@@ -90,7 +91,7 @@ class AddressBook extends \Sabre_CardDAV_AddressBook {
 		);
 
 		if($uid !== \OCP\User::getUser()) {
-			list($backendName, $id) = explode('::', $this->addressBookInfo['id']);
+			list(, $id) = explode('::', $this->addressBookInfo['id']);
 			$sharedAddressbook = \OCP\Share::getItemSharedWithBySource('addressbook', $id);
 			if($sharedAddressbook) {
 				if(($sharedAddressbook['permissions'] & \OCP\PERMISSION_CREATE)
@@ -141,7 +142,7 @@ class AddressBook extends \Sabre_CardDAV_AddressBook {
 
 	}
 
-	function getSupportedPrivilegeSet() {
+	public function getSupportedPrivilegeSet() {
 
 		return array(
 			'privilege'  => '{DAV:}all',
@@ -198,13 +199,13 @@ class AddressBook extends \Sabre_CardDAV_AddressBook {
 	* Returns a card
 	*
 	* @param string $name
-	* @return OC_Connector_Sabre_DAV_Card
+	* @return Card
 	*/
 	public function getChild($name) {
 
 		$obj = $this->carddavBackend->getCard($this->addressBookInfo['id'],$name);
 		if (!$obj) {
-			throw new \Sabre_DAV_Exception_NotFound('Card not found');
+			throw new \Sabre\DAV\Exception\NotFound('Card not found');
 		}
 		return new Card($this->carddavBackend,$this->addressBookInfo,$obj);
 

@@ -48,7 +48,18 @@ try {
 
 	require_once 'lib/base.php';
 
-	session_write_close();
+	if (\OCP\Util::needUpgrade()) {
+		\OCP\Util::writeLog('cron', 'Update required, skipping cron', \OCP\Util::DEBUG);
+		exit();
+	}
+
+	// load all apps to get all api routes properly setup
+	OC_App::loadApps();
+
+	\OC::$session->close();
+
+	// initialize a dummy memory session
+	\OC::$session = new \OC\Session\Memory('');
 
 	$logger = \OC_Log::$object;
 
@@ -97,7 +108,7 @@ try {
 		touch(TemporaryCronClass::$lockfile);
 
 		// Work
-		$jobList = new \OC\BackgroundJob\JobList();
+		$jobList = \OC::$server->getJobList();
 		$jobs = $jobList->getAll();
 		foreach ($jobs as $job) {
 			$job->execute($jobList, $logger);
@@ -109,16 +120,22 @@ try {
 			OC_JSON::error(array('data' => array('message' => 'Backgroundjobs are using system cron!')));
 		} else {
 			// Work and success :-)
-			$jobList = new \OC\BackgroundJob\JobList();
+			$jobList = \OC::$server->getJobList();
 			$job = $jobList->getNext();
-			$job->execute($jobList, $logger);
-			$jobList->setLastJob($job);
+			if ($job != null) {
+				$job->execute($jobList, $logger);
+				$jobList->setLastJob($job);
+			}
 			OC_JSON::success();
 		}
 	}
 
 	// done!
 	TemporaryCronClass::$sent = true;
+	// Log the successfull cron exec
+	if (OC_Config::getValue('cron_log', true)) {
+		OC_Appconfig::setValue('core', 'lastcron', time());
+	}
 	exit();
 
 } catch (Exception $ex) {

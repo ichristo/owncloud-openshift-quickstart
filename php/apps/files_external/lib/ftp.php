@@ -39,7 +39,7 @@ class FTP extends \OC\Files\Storage\StreamWrapper{
 				$this->root .= '/';
 			}
 		} else {
-			throw new \Exception();
+			throw new \Exception('Creating \OC\Files\Storage\FTP storage failed');
 		}
 		
 	}
@@ -64,7 +64,7 @@ class FTP extends \OC\Files\Storage\StreamWrapper{
 
 	/**
 	 * Unlinks file or directory
-	 * @param string @path
+	 * @param string $path
 	 */
 	public function unlink($path) {
 		if ($this->is_dir($path)) {
@@ -119,4 +119,16 @@ class FTP extends \OC\Files\Storage\StreamWrapper{
 			unlink($tmpFile);
 		}
 	}
+
+	/**
+	 * check if php-ftp is installed
+	 */
+	public static function checkDependencies() {
+		if (function_exists('ftp_login')) {
+			return(true);
+		} else {
+			return array('ftp');
+		}
+	}
+
 }

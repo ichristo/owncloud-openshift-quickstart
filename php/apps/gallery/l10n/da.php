@@ -1,7 +1,9 @@
 <?php $TRANSLATIONS = array(
 "Pictures" => "Billeder",
-"Shared by" => "Delt af",
+"Picture view" => "Billedvisning",
 "Error loading slideshow template" => "Fejl ved indlæsning af diasshow skabelon",
 "Share" => "Del",
-"The \"Image Viewer\" application also need to be enabled to use this application." => "Applikationen \"Image Viewer\" skal også aktiveres for at bruge denne applikation."
+"No pictures found! If you upload pictures in the files app, they will be displayed here." => "Ingen billeder fundet! Hvis du uploader billeder i fil-app'en, bliver de vist her. ",
+"shared by %s" => "delt af %s",
+"File list" => "Filoversigt"
 );

@@ -94,7 +94,7 @@ class Connection extends \Doctrine\DBAL\Connection {
 	 * If an SQLLogger is configured, the execution is logged.
 	 *
 	 * @param string $query The SQL query to execute.
-	 * @param array $params The parameters to bind to the query, if any.
+	 * @param string[] $params The parameters to bind to the query, if any.
 	 * @param array $types The types the previous parameters are in.
 	 * @param QueryCacheProfile $qcp
 	 * @return \Doctrine\DBAL\Driver\Statement The executed statement.
@@ -152,7 +152,7 @@ class Connection extends \Doctrine\DBAL\Connection {
 	}
 
 	/**
-	 * @brief Insert a row if a matching row doesn't exists.
+	 * Insert a row if a matching row doesn't exists.
 	 * @param string $table. The table to insert into in the form '*PREFIX*tableName'
 	 * @param array $input. An array of fieldname/value pairs
 	 * @return bool The return value from execute()

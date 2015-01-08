@@ -7,7 +7,8 @@ if(!OC_User::isLoggedIn()) {
 	exit;
 }
 
-session_write_close();
+\OC::$session->close();
+
 // Get the params
 $dir = isset( $_REQUEST['dir'] ) ? '/'.trim($_REQUEST['dir'], '/\\') : '';
 $filename = isset( $_REQUEST['filename'] ) ? trim($_REQUEST['filename'], '/\\') : '';
@@ -50,16 +51,31 @@ $l10n = \OC_L10n::get('files');
 $result = array(
 	'success' 	=> false,
 	'data'		=> NULL
-	);
+);
+$trimmedFileName = trim($filename);
 
-if(trim($filename) === '') {
-	$result['data'] = array('message' => $l10n->t('File name cannot be empty.'));
+if($trimmedFileName === '') {
+	$result['data'] = array('message' => (string)$l10n->t('File name cannot be empty.'));
+	OCP\JSON::error($result);
+	exit();
+}
+if($trimmedFileName === '.' || $trimmedFileName === '..') {
+	$result['data'] = array('message' => (string)$l10n->t('"%s" is an invalid file name.', $trimmedFileName));
 	OCP\JSON::error($result);
 	exit();
 }
 
-if(strpos($filename, '/') !== false) {
-	$result['data'] = array('message' => $l10n->t('File name must not contain "/". Please choose a different name.'));
+if(!OCP\Util::isValidFileName($filename)) {
+	$result['data'] = array('message' => (string)$l10n->t("Invalid name, '\\', '/', '<', '>', ':', '\"', '|', '?' and '*' are not allowed."));
+	OCP\JSON::error($result);
+	exit();
+}
+
+if (!\OC\Files\Filesystem::file_exists($dir . '/')) {
+	$result['data'] = array('message' => (string)$l10n->t(
+			'The target folder has been moved or deleted.'),
+			'code' => 'targetnotfound'
+		);
 	OCP\JSON::error($result);
 	exit();
 }
@@ -68,7 +84,7 @@ if(strpos($filename, '/') !== false) {
 $target = $dir.'/'.$filename;
 
 if (\OC\Files\Filesystem::file_exists($target)) {
-	$result['data'] = array('message' => $l10n->t(
+	$result['data'] = array('message' => (string)$l10n->t(
 			'The name %s is already used in the folder %s. Please choose a different name.',
 			array($filename, $dir))
 		);
@@ -77,21 +93,59 @@ if (\OC\Files\Filesystem::file_exists($target)) {
 }
 
 if($source) {
-	if(substr($source, 0, 8)!='https://' and substr($source, 0, 7)!='http://') {
-		OCP\JSON::error(array('data' => array( 'message' => $l10n->t('Not a valid source') )));
+	$httpHelper = \OC::$server->getHTTPHelper();
+	if(!$httpHelper->isHTTPURL($source)) {
+		OCP\JSON::error(array('data' => array('message' => $l10n->t('Not a valid source'))));
 		exit();
 	}
 
-	$ctx = stream_context_create(null, array('notification' =>'progress'));
-	$sourceStream=fopen($source, 'rb', false, $ctx);
-	$result=\OC\Files\Filesystem::file_put_contents($target, $sourceStream);
+	if (!ini_get('allow_url_fopen')) {
+		$eventSource->send('error', array('message' => $l10n->t('Server is not allowed to open URLs, please check the server configuration')));
+		$eventSource->close();
+		exit();
+	}
+
+	$source = $httpHelper->getFinalLocationOfURL($source);
+
+	$ctx = stream_context_create(\OC::$server->getHTTPHelper()->getDefaultContextArray(), array('notification' =>'progress'));
+
+	$sourceStream=@fopen($source, 'rb', false, $ctx);
+	$result = 0;
+	if (is_resource($sourceStream)) {
+		$meta = stream_get_meta_data($sourceStream);
+		if (isset($meta['wrapper_data']) && is_array($meta['wrapper_data'])) {
+			//check stream size
+			$storageStats = \OCA\Files\Helper::buildFileStorageStatistics($dir);
+			$freeSpace = $storageStats['freeSpace'];
+
+			foreach($meta['wrapper_data'] as $header) {
+				list($name, $value) = explode(':', $header);
+				if ('content-length' === strtolower(trim($name))) {
+					$length = (int) trim($value);
+
+					if ($length > $freeSpace) {
+						$delta = $length - $freeSpace;
+						$humanDelta = OCP\Util::humanFileSize($delta);
+
+						$eventSource->send('error', array('message' => (string)$l10n->t('The file exceeds your quota by %s', array($humanDelta))));
+						$eventSource->close();
+						fclose($sourceStream);
+						exit();
+					}
+				}
+			}
+		}
+		$result=\OC\Files\Filesystem::file_put_contents($target, $sourceStream);
+	}
 	if($result) {
 		$meta = \OC\Files\Filesystem::getFileInfo($target);
-		$mime=$meta['mimetype'];
-		$id = $meta['fileid'];
-		$eventSource->send('success', array('mime'=>$mime, 'size'=>\OC\Files\Filesystem::filesize($target), 'id' => $id, 'etag' => $meta['etag']));
+		$data = \OCA\Files\Helper::formatFileInfo($meta);
+		$eventSource->send('success', $data);
 	} else {
-		$eventSource->send('error', $l10n->t('Error while downloading %s to %s', array($source, $target)));
+		$eventSource->send('error', array('message' => $l10n->t('Error while downloading %s to %s', array($source, $target))));
+	}
+	if (is_resource($sourceStream)) {
+		fclose($sourceStream);
 	}
 	$eventSource->close();
 	exit();
@@ -111,16 +165,7 @@ if($source) {
 
 	if($success) {
 		$meta = \OC\Files\Filesystem::getFileInfo($target);
-		$id = $meta['fileid'];
-		$mime = $meta['mimetype'];
-		$size = $meta['size'];
-		OCP\JSON::success(array('data' => array(
-			'id' => $id,
-			'mime' => $mime,
-			'size' => $size,
-			'content' => $content,
-			'etag' => $meta['etag'],
-		)));
+		OCP\JSON::success(array('data' => \OCA\Files\Helper::formatFileInfo($meta)));
 		exit();
 	}
 }
